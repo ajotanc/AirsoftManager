@@ -1,0 +1,13 @@
+{
+  "menu": {
+    "dashboard": "Dashboard",
+    "arsenal": "Arsenal",
+    "loadout": "Loadout",
+    "profile": "Perfil",
+    "team": "Esquadrão"
+  },
+  "login": { "title": "Acesso ao Sistema", "btn": "Entrar" },
+  "register": { "title": "Alistamento", "btn": "Criar Conta" },
+  "profile": { "setup_title": "Configuração de Operador", "role": "Especialidade" },
+  "dashboard": { "welcome": "Bem-vindo, {name}", "pending": "Aguardando Aprovação" }
+}
