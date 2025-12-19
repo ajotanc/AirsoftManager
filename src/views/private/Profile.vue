@@ -31,7 +31,7 @@
           <div class="grid formgrid">
             <div class="field col-6">
               <FloatLabel variant="in">
-                <InputText name="codename" class="w-full" />
+                <InputText name="codename" class="w-full" fluid />
                 <label>Codinome / Nome de Guerra</label>
               </FloatLabel>
               <Message v-if="$form.codename?.invalid" severity="error" size="small" variant="simple">{{
@@ -40,7 +40,7 @@
 
             <div class="field col-12 md:col-3">
               <FloatLabel variant="in">
-                <InputMask name="identity" mask="999.999.999-99" class="w-full" unmask />
+                <InputMask name="identity" mask="999.999.999-99" inputmode="numeric" class="w-full" fluid />
                 <label>CPF</label>
               </FloatLabel>
               <Message v-if="$form.identity?.invalid" severity="error" size="small" variant="simple">{{
@@ -49,7 +49,7 @@
 
             <div class="field col-12 md:col-3">
               <FloatLabel variant="in">
-                <InputText name="general_registration" class="w-full" />
+                <InputText name="general_registration" class="w-full" inputmode="numeric" fluid />
                 <label>RG</label>
               </FloatLabel>
               <Message v-if="$form.general_registration?.invalid" severity="error" size="small" variant="simple">{{
@@ -57,8 +57,8 @@
             </div>
             <div class="field col-12 md:col-4">
               <FloatLabel variant="in">
-                <DatePicker name="birth_date" class="w-full" dateFormat="dd/mm/yy" showIcon fluid showButtonBar
-                  iconDisplay="input" :showOnFocus="true" />
+                <DatePicker name="birth_date" class="w-full" dateFormat="dd/mm/yy" showIcon showButtonBar
+                  iconDisplay="input" :showOnFocus="true" :manualInput="false" fluid />
                 <label>Data de Nascimento</label>
               </FloatLabel>
               <Message v-if="$form.birth_date?.invalid" severity="error" size="small" variant="simple">{{
@@ -67,7 +67,7 @@
 
             <div class="field col-12 md:col-4">
               <FloatLabel variant="in">
-                <Select :options="bloodTypes" name="blood_type" class="w-full" fluid />
+                <Select :options="BLOOD_TYPES" name="blood_type" class="w-full" fluid />
                 <label>Tipo Sanguíneo</label>
               </FloatLabel>
               <Message v-if="$form.blood_type?.invalid" severity="error" size="small" variant="simple">{{
@@ -75,14 +75,14 @@
             </div>
             <div class="field col-12 md:col-4">
               <FloatLabel variant="in">
-                <InputText name="number_fdba" class="w-full" />
+                <InputText name="number_fdba" class="w-full" fluid />
                 <label>Nº de Registro FBDA</label>
               </FloatLabel>
             </div>
 
             <div class="field col-12 md:col-6">
               <FloatLabel variant="in">
-                <InputText name="mother_name" class="w-full" />
+                <InputText name="mother_name" class="w-full" fluid />
                 <label>Nome da Mãe</label>
               </FloatLabel>
               <Message v-if="$form.mother_name?.invalid" severity="error" size="small" variant="simple">{{
@@ -90,13 +90,13 @@
             </div>
             <div class="field col-12 md:col-6">
               <FloatLabel variant="in">
-                <InputText name="father_name" class="w-full" />
+                <InputText name="father_name" class="w-full" fluid />
                 <label>Nome do Pai</label>
               </FloatLabel>
             </div>
             <div class="field col-12 md:col-4">
               <FloatLabel variant="in">
-                <InputMask name="phone" mask="(99) 99999-9999" class="w-full" unmask />
+                <InputMask name="phone" mask="(99) 99999-9999" class="w-full" inputmode="numeric" fluid />
                 <label>Celular / WhatsApp</label>
               </FloatLabel>
               <Message v-if="$form.phone?.invalid" severity="error" size="small" variant="simple">{{
@@ -104,21 +104,21 @@
             </div>
             <div class="field col-12 md:col-4">
               <FloatLabel variant="in">
-                <Select :options="specialties" name="specialty" optionLabel="name" optionValue="code" class="w-full"
-                  fluid />
-                <label>Especialidade</label>
+                <Select :options="CATEGORIES_OPTIONS" name="category" optionLabel="name" optionValue="code"
+                  class="w-full" fluid />
+                <label>Categoria</label>
               </FloatLabel>
             </div>
             <div class="field col-12 md:col-4">
               <FloatLabel variant="in">
-                <Select :options="experiences" name="experience" optionLabel="name" optionValue="code" class="w-full"
+                <Select :options="EXPERIENCES" name="experience" optionLabel="name" optionValue="code" class="w-full"
                   fluid />
                 <label>Nível de Conhecimento</label>
               </FloatLabel>
             </div>
             <div class="field col-12 md:col-4">
               <FloatLabel variant="in">
-                <InputText name="instagram" class="w-full">
+                <InputText name="instagram" class="w-full" fluid>
                   <i class="pi pi-instagram"></i>
                 </InputText>
                 <label>Instagram (Opcional)</label>
@@ -126,7 +126,7 @@
             </div>
             <div class="field col-12 md:col-4">
               <FloatLabel variant="in">
-                <Select :options="shirtSizes" name="shirt_size" class="w-full" fluid />
+                <Select :options="SHIRT_SIZES" name="shirt_size" class="w-full" fluid />
                 <label>Tamanho da Camisa</label>
               </FloatLabel>
               <Message v-if="$form.shirt_size?.invalid" severity="error" size="small" variant="simple">{{
@@ -134,9 +134,15 @@
             </div>
             <div class="field col-12 md:col-4">
               <FloatLabel variant="in">
-                <Select :options="sources" name="referral_source" optionLabel="name" optionValue="code" class="w-full"
+                <Select :options="SOURCES" name="referral_source" optionLabel="name" optionValue="code" class="w-full"
                   fluid />
                 <label>Como conheceu?</label>
+              </FloatLabel>
+            </div>
+            <div class="field col-12">
+              <FloatLabel variant="in">
+                <InputText name="quote" class="w-full" fluid />
+                <label>Citação</label>
               </FloatLabel>
             </div>
           </div>
@@ -145,8 +151,8 @@
           <div class="grid formgrid">
             <div class="field col-12 md:col-3">
               <FloatLabel variant="in">
-                <InputMask name="cep" v-model="initialValues.cep" mask="99999-999" class="w-full" unmask
-                  @blur="handleCep" />
+                <InputMask name="cep" v-model="initialValues.cep" mask="99999-999" class="w-full" @blur="handleCep"
+                  fluid />
                 <label>CEP</label>
               </FloatLabel>
               <Message v-if="$form.cep?.invalid" severity="error" size="small" variant="simple">{{
@@ -156,7 +162,7 @@
 
             <div class="field col-12 md:col-7">
               <FloatLabel variant="in">
-                <InputText name="address" v-model="initialValues.address" class="w-full" />
+                <InputText name="address" v-model="initialValues.address" class="w-full" fluid />
                 <label>Logradouro (Rua/Av)</label>
               </FloatLabel>
               <Message v-if="$form.address?.invalid" severity="error" size="small" variant="simple">{{
@@ -165,7 +171,7 @@
 
             <div class="field col-12 md:col-2">
               <FloatLabel variant="in">
-                <InputText name="address_number" v-model="initialValues.address_number" class="w-full" />
+                <InputText name="address_number" v-model="initialValues.address_number" class="w-full" fluid />
                 <label>Nº</label>
               </FloatLabel>
               <Message v-if="$form.address_number?.invalid" severity="error" size="small" variant="simple">{{
@@ -174,7 +180,7 @@
 
             <div class="field col-12 md:col-5">
               <FloatLabel variant="in">
-                <InputText name="neighborhood" v-model="initialValues.neighborhood" class="w-full" />
+                <InputText name="neighborhood" v-model="initialValues.neighborhood" class="w-full" fluid />
                 <label>Bairro</label>
               </FloatLabel>
               <Message v-if="$form.neighborhood?.invalid" severity="error" size="small" variant="simple">{{
@@ -182,7 +188,7 @@
             </div>
             <div class="field col-12 md:col-5">
               <FloatLabel variant="in">
-                <InputText name="city" v-model="initialValues.city" class="w-full" /><label>Cidade</label>
+                <InputText name="city" v-model="initialValues.city" class="w-full" fluid /><label>Cidade</label>
               </FloatLabel>
               <Message v-if="$form.city?.invalid" severity="error" size="small" variant="simple">{{
                 $form.city.error.message }}
@@ -190,7 +196,7 @@
             </div>
             <div class="field col-12 md:col-2">
               <FloatLabel variant="in">
-                <InputText name="state" v-model="initialValues.state" class="w-full" /><label>UF</label>
+                <InputText name="state" v-model="initialValues.state" class="w-full" fluid /><label>UF</label>
               </FloatLabel>
               <Message v-if="$form.state?.invalid" severity="error" size="small" variant="simple">{{
                 $form.state.error.message
@@ -208,7 +214,7 @@
             </div>
             <div class="field col-12 md:col-6">
               <FloatLabel variant="in">
-                <InputText name="health_plan_name" class="w-full" :disabled="!$form.health_plan?.value" />
+                <InputText name="health_plan_name" class="w-full" :disabled="!$form.health_plan?.value" fluid />
                 <label>Nome do plano</label>
               </FloatLabel>
               <Message v-if="$form.health_plan_name?.invalid" severity="error" size="small" variant="simple">{{
@@ -216,7 +222,7 @@
             </div>
             <div class="field col-12 md:col-3">
               <FloatLabel variant="in">
-                <InputText name="health_plan_number" class="w-full" :disabled="!$form.health_plan?.value" />
+                <InputText name="health_plan_number" class="w-full" :disabled="!$form.health_plan?.value" fluid />
                 <label>Nº da Carteira</label>
               </FloatLabel>
               <Message v-if="$form.health_plan_number?.invalid" severity="error" size="small" variant="simple">{{
@@ -231,8 +237,8 @@
             </div>
             <div class="field col-12 md:col-9">
               <FloatLabel variant="in">
-                <AutoComplete name="medication_details" class="w-full" multiple fluid
-                  :disabled="!$form.continuous_medication?.value" :typeahead="false" />
+                <AutoComplete name="medication_details" class="w-full" multiple
+                  :disabled="!$form.continuous_medication?.value" :typeahead="false" fluid />
                 <label>Quais medicamentos? (Digite e tecle Enter)</label>
               </FloatLabel>
               <Message v-if="$form.medication_details?.invalid" severity="error" size="small" variant="simple">{{
@@ -241,7 +247,7 @@
 
             <div class="field col-12">
               <FloatLabel variant="in">
-                <AutoComplete name="allergies" class="w-full" multiple fluid :typeahead="false" />
+                <AutoComplete name="allergies" class="w-full" multiple :typeahead="false" fluid />
                 <label>Alergias (Digite e tecle Enter)</label>
               </FloatLabel>
             </div>
@@ -251,7 +257,7 @@
           <div class="grid formgrid">
             <div class="field col-12 md:col-6">
               <FloatLabel variant="in">
-                <InputText name="emergency_contact" class="w-full" />
+                <InputText name="emergency_contact" class="w-full" fluid />
                 <label>Nome do Contato</label>
               </FloatLabel>
               <Message v-if="$form.emergency_contact?.invalid" severity="error" size="small" variant="simple">{{
@@ -259,7 +265,7 @@
             </div>
             <div class="field col-12 md:col-6">
               <FloatLabel variant="in">
-                <InputMask name="emergency_contact_phone" mask="(99) 99999-9999" class="w-full" unmask />
+                <InputMask name="emergency_contact_phone" mask="(99) 99999-9999" class="w-full" fluid />
                 <label>Telefone do Contato</label>
               </FloatLabel>
               <Message v-if="$form.emergency_contact_phone?.invalid" severity="error" size="small" variant="simple">{{
@@ -331,6 +337,7 @@
   border-radius: 50%;
 }
 </style>
+
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 import { useAuthStore } from "@/stores/auth";
@@ -357,6 +364,7 @@ import AutoComplete from "primevue/autocomplete";
 import Select from "primevue/select";
 import Panel from "primevue/panel";
 
+import { CATEGORIES_OPTIONS, SOURCES, SHIRT_SIZES, BLOOD_TYPES, EXPERIENCES } from "@/constants/airsoft";
 const authStore = useAuthStore();
 const router = useRouter();
 const toast = useToast();
@@ -392,47 +400,48 @@ const initialValues = ref({
   shirt_size: "",
   instagram: "",
   referral_source: null,
-  specialty: null,
+  category: null,
   experience: null,
   number_fdba: "",
   media_consent: false,
   terms_accepted: false,
+  quote: "",
 });
 
 const resolver = zodResolver(
   z
     .object({
-      codename: z.string().min(1, "Codinome obrigatório"),
+      codename: z.string().min(1, { error: "Codinome obrigatório" }),
       identity: z
         .string()
         .refine(isValidIdentity, "CPF inválido")
         .transform((v) => v.replace(/\D/g, "")),
       general_registration: z
         .string()
-        .min(1, "RG obrigatório")
+        .min(1, { error: "RG obrigatório" })
         .transform((v) => v.replace(/\D/g, "")),
 
       birth_date: z.coerce
-        .date("Data de nascimento obrigatória")
+        .date({ error: "Data de nascimento obrigatória" })
         .transform((date) => formatDateToLocal(date)),
 
-      blood_type: z.string().min(1, "Tipo sanguíneo obrigatório"),
-      mother_name: z.string().min(1, "Nome da mãe obrigatório"),
+      blood_type: z.string().min(1, { error: "Tipo sanguíneo obrigatório" }),
+      mother_name: z.string().min(1, { error: "Nome da mãe obrigatório" }),
       father_name: z.string().optional(),
       phone: z
         .string()
-        .min(1, "Telefone obrigatório")
+        .min(1, { error: "Telefone obrigatório" })
         .transform((v) => v.replace(/\D/g, "")),
 
       cep: z
         .string()
-        .min(1, "CEP obrigatório")
+        .min(1, { error: "CEP obrigatório" })
         .transform((v) => v.replace(/\D/g, "")),
-      address: z.string().min(1, "Endereço obrigatório"),
-      address_number: z.string().min(1, "Número obrigatório"),
-      neighborhood: z.string().min(1, "Bairro obrigatório"),
-      city: z.string().min(1, "Cidade obrigatória"),
-      state: z.string().min(1, "Estado obrigatório"),
+      address: z.string().min(1, { error: "Endereço obrigatório" }),
+      address_number: z.string().min(1, { error: "Número obrigatório" }),
+      neighborhood: z.string().min(1, { error: "Bairro obrigatório" }),
+      city: z.string().min(1, { error: "Cidade obrigatória" }),
+      state: z.string().min(1, { error: "Estado obrigatório" }),
 
       health_plan: z.boolean(),
       health_plan_name: z.string().optional(),
@@ -442,21 +451,22 @@ const resolver = zodResolver(
       continuous_medication: z.boolean(),
       medication_details: z.array(z.string()).optional(),
 
-      emergency_contact: z.string().min(1, "Contato obrigatório"),
+      emergency_contact: z.string().min(1, { error: "Contato obrigatório" }),
       emergency_contact_phone: z
         .string()
-        .min(1, "Telefone obrigatório")
+        .min(1, { error: "Telefone obrigatório" })
         .transform((v) => v.replace(/\D/g, "")),
 
-      shirt_size: z.string().min(1, "Tamanho obrigatório"),
+      shirt_size: z.string().min(1, { error: "Tamanho obrigatório" }),
       instagram: z.string().optional(),
       media_consent: z.boolean(),
       terms_accepted: z.boolean().refine((v) => v === true, "Aceite os termos"),
 
       referral_source: z.coerce.number().nullable(),
-      specialty: z.coerce.number().nullable(),
+      category: z.coerce.number().nullable(),
       experience: z.coerce.number().nullable(),
       number_fdba: z.string().optional(),
+      quote: z.string().optional(),
     })
     .superRefine((data, ctx) => {
       if (data.health_plan) {
@@ -498,34 +508,6 @@ const resolver = zodResolver(
       };
     })
 );
-
-// Opções para Dropdowns (Exemplos)
-const shirtSizes = ref(["PP", "P", "M", "G", "GG", "XG"]);
-const bloodTypes = ref(["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"]);
-
-const experiences = ref([
-  { name: "Básico", code: 1 },
-  { name: "Intermediário", code: 2 },
-  { name: "Avançado", code: 3 },
-]);
-
-const sources = ref([
-  { name: "Membro (Indicação)", code: 1 },
-  { name: "Redes Sociais", code: 2 },
-  { name: "Grupo Online", code: 3 },
-  { name: "Evento/Campo", code: 4 },
-  { name: "Pesquisa Google", code: 5 },
-  { name: "Site Oficial", code: 6 },
-  { name: "Outro", code: 7 },
-]);
-
-const specialties = ref([
-  { name: "Assault", code: 1 },
-  { name: "Escudeiro", code: 3 },
-  { name: "DMR", code: 2 },
-  { name: "Sniper", code: 4 },
-  { name: "Suporte", code: 5 },
-]);
 
 onMounted(() => {
   if (!authStore.operator) return;

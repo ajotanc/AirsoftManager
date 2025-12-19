@@ -46,8 +46,9 @@ export interface Operator {
   media_consent?: boolean;
   terms_accepted?: boolean;
   terms_accepted_at?: Date;
-  arsenal?: Arsenal[];
-  loadout?: Loadout[];
+  quote?: string;
+  arsenal: Arsenal[];
+  loadout: Loadout[];
 }
 
 export const OperatorService = {
@@ -57,6 +58,9 @@ export const OperatorService = {
         databaseId: DATABASE_ID,
         tableId: TABLE_OPERATORS,
         rowId,
+        queries: [
+          Query.select(["*", "arsenal.*", "loadout.*"]),
+        ],
       });
     } catch (error) {
       console.error("Erro ao buscar usuário:", error);

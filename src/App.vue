@@ -1,11 +1,6 @@
-<script setup lang="ts">
-import { useAuthStore } from "@/stores/auth";
-import Toast from "primevue/toast";
-</script>
-
 <template>
   <Toast />
-
+  <ConfirmDialog :style="{ width: '360px' }"></ConfirmDialog>
   <router-view />
 </template>
 

@@ -18,7 +18,7 @@
           <span class="p-3 shadow-2 mb-3 inline-block surface-card" style="border-radius: 10px">
             <i class="pi pi-desktop text-4xl text-blue-500"></i>
           </span>
-          <div class="text-900 mb-3 font-medium">Gestão de Arsenal</div>
+          <div class="text-900 mb-3 font-medium">Gestão de Weapon</div>
           <span class="text-700 text-sm line-height-3">Cadastre suas AEGs, GBBs e mantenha o controle das manutenções e
             cronagens.</span>
         </div>

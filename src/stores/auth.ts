@@ -55,6 +55,8 @@ export const useAuthStore = defineStore("auth", {
               role: "recruit",
               status: false,
               rating: 0,
+              arsenal: [],
+              loadout: [],
             };
 
             await OperatorService.create(payload, this.user.$id);
@@ -87,12 +89,15 @@ export const useAuthStore = defineStore("auth", {
         await account.createEmailPasswordSession({ email, password });
 
         const codename = name.trim().split(" ")[0] || "Recruta";
+
         const payload: Operator = {
           $id: userAccount.$id,
           codename,
           role: "recruit",
           status: false,
           rating: 0,
+          arsenal: [],
+          loadout: [],
         };
 
         await OperatorService.create(payload, userAccount.$id);

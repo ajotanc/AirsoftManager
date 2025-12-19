@@ -1,22 +1,23 @@
 import { tables, TABLE_LOADOUTS, DATABASE_ID } from "@/services/appwrite";
-import { Query } from "appwrite";
+import { ID, Query } from "appwrite";
 
 export interface Loadout {
-  $id?: string;
-  type: number;
-  combat_shirt?: boolean;
-  tactical_pants?: boolean;
-  combat_boot?: boolean;
-  gloves?: boolean;
-  bonnie_hat?: boolean;
-  ski_mask?: boolean;
-  tactical_vest?: boolean;
-  tactical_belt?: boolean;
-  helmet?: boolean;
-  headset?: boolean;
-  knee_pads?: boolean;
-  holster?: boolean;
-  walkie_talkie?: boolean;
+  $id: string;
+  type_uniform: number;
+  combat_shirt: boolean | null;
+  tactical_pants: boolean | null;
+  combat_boot: boolean | null;
+  gloves: boolean | null;
+  bonnie_hat: boolean | null;
+  ski_mask: boolean | null;
+  tactical_vest: boolean | null;
+  tactical_belt: boolean | null;
+  helmet: boolean | null;
+  headset: boolean | null;
+  knee_pads: boolean | null;
+  holster: boolean | null;
+  walkie_talkie: boolean | null;
+  operator: string;
 }
 
 export const LoadoutService = {
@@ -52,6 +53,25 @@ export const LoadoutService = {
       tableId: TABLE_LOADOUTS,
       rowId,
       data,
+    });
+  },
+  async upsert(rowId: string, data: Loadout) {
+    if (!rowId) {
+      rowId = ID.unique();
+    }
+
+    return await tables.upsertRow({
+      databaseId: DATABASE_ID,
+      tableId: TABLE_LOADOUTS,
+      rowId,
+      data,
+    });
+  },
+  async delete(rowId: string) {
+    return await tables.deleteRow({
+      databaseId: DATABASE_ID,
+      tableId: TABLE_LOADOUTS,
+      rowId
     });
   },
   async create(data: Loadout, rowId: string) {

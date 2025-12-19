@@ -5,18 +5,19 @@ import {
   BUCKET_ID,
   storage,
 } from "@/services/appwrite";
-import { Query } from "appwrite";
+import { ID, Query } from "appwrite";
 
 export interface Arsenal {
-  $id?: string;
+  $id: string;
   name: string;
-  type: string;
-  joule?: number;
-  fps?: number;
-  serial_number?: string;
-  category: number;
-  avatar?: string;
-  maintained_at: Date;
+  type: number | null;
+  joule: string | null;
+  fps: number | null;
+  serial_number: string | null;
+  category: number | null;
+  avatar: string | null;
+  maintained_at: Date | null;
+  operator: string;
 }
 
 export const ArsenalService = {
@@ -26,6 +27,9 @@ export const ArsenalService = {
         databaseId: DATABASE_ID,
         tableId: TABLE_ARSENALS,
         rowId,
+        queries: [
+          Query.select(["*", "operator.*"]),
+        ],
       });
     } catch (error) {
       console.error("Erro ao buscar arsenal:", error);
@@ -46,6 +50,14 @@ export const ArsenalService = {
       return [];
     }
   },
+  async create(data: Arsenal, rowId: string) {
+    return await tables.createRow({
+      databaseId: DATABASE_ID,
+      tableId: TABLE_ARSENALS,
+      rowId,
+      data,
+    });
+  },
   async update(rowId: string, data: Arsenal) {
     return await tables.updateRow({
       databaseId: DATABASE_ID,
@@ -54,12 +66,23 @@ export const ArsenalService = {
       data,
     });
   },
-  async create(data: Arsenal, rowId: string) {
-    return await tables.createRow({
+  async upsert(rowId: string, data: Arsenal) {
+    if (!rowId) {
+      rowId = ID.unique();
+    }
+
+    return await tables.upsertRow({
       databaseId: DATABASE_ID,
       tableId: TABLE_ARSENALS,
       rowId,
       data,
+    });
+  },
+  async delete(rowId: string) {
+    return await tables.deleteRow({
+      databaseId: DATABASE_ID,
+      tableId: TABLE_ARSENALS,
+      rowId
     });
   },
   async changeAvatar(rowId: string, file: File) {

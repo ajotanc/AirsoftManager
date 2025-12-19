@@ -7,6 +7,7 @@ export const BUCKET_ID = import.meta.env.VITE_APPWRITE_BUCKET_ID;
 export const TABLE_OPERATORS = "operators";
 export const TABLE_ARSENALS = "arsenals";
 export const TABLE_LOADOUTS = "loadouts";
+export const TABLE_SKILL_RATINGS = "skill_ratings";
 
 const client = new Client();
 

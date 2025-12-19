@@ -1,6 +1,7 @@
 <template>
   <div class="card relative z-2">
-    <Menubar :model="navItems" class="border-none border-bottom-1 surface-border border-noround p-3 surface-section">
+    <Menubar :model="navItems"
+      class="border-none border-bottom-1 surface-border border-noround px-4 py-2 surface-section">
       <template #start>
         <div class="flex align-items-center gap-2 mr-4 cursor-pointer" @click="router.push('/')">
           <i class="pi pi-shield text-2xl text-primary"></i>
@@ -107,6 +108,7 @@ const navItems = computed(() => [
         label: "Financeiro",
         icon: "pi pi-dollar",
         route: "/admin/finance",
+        disabled: true,
       },
     ],
   },
