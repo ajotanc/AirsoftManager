@@ -109,10 +109,10 @@
                     toggleItem(item)">
 
                   <Image :src="getImageUrl(item)" :alt="item"
-                    imageClass="`w-full h-full p-2 transition-all transition-duration-500' ${(isEquipped(item) || item === 'patch' ? 'opacity-100' : 'opacity-30')}`"
+                    imageClass="`w-full h-full p-2 transition-all transition-duration-500 transition-ease-in-out' ${(isEquipped(item) ? 'opacity-100' : 'opacity-30')}`"
                     :imageStyle="{
-                      filter: isEquipped(item) || item === 'patch' ? 'none' : 'grayscale(100%)',
-                      scale: isEquipped(item) || item === 'patch' ? '1.1' : '1'
+                      filter: isEquipped(item) ? 'none' : 'grayscale(100%)',
+                      scale: isEquipped(item) ? '1.1' : '1'
                     }" />
                 </div>
               </div>
@@ -144,7 +144,7 @@
 </style>
 
 <script setup lang="ts">
-import { ref, computed, nextTick, onMounted, type PropType } from "vue";
+import { ref, computed, nextTick, type PropType } from "vue";
 import { useToast } from "primevue/usetoast";
 import { FilterMatchMode } from '@primevue/core/api';
 import IconField from "primevue/iconfield";

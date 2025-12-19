@@ -131,6 +131,7 @@ const downloadCard = async () => {
       quality: 1.0,
       cacheBust: true,
       skipFonts: true,
+      pixelRatio: 2,
     });
 
     const link = document.createElement('a');
@@ -150,7 +151,7 @@ const downloadCard = async () => {
 .story-layout {
   width: 100%;
   aspect-ratio: 9 / 16;
-  max-width: 512px;
+  max-width: 540px;
   background-color: #111827;
 }
 
