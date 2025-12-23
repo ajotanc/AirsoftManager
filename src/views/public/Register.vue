@@ -59,7 +59,7 @@ import InputText from "primevue/inputtext";
 import Password from "primevue/password";
 import Button from "primevue/button";
 import Message from "primevue/message";
-import FloatLabel from "primevue/FloatLabel";
+import FloatLabel from "primevue/floatlabel";
 
 const authStore = useAuthStore();
 const router = useRouter();

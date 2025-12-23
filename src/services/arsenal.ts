@@ -13,11 +13,12 @@ export interface Arsenal {
   type: number | null;
   joule: string | null;
   fps: number | null;
-  serial_number: string | null;
+  invoice: string | null;
   category: number | null;
   avatar: string | null;
   maintained_at: Date | null;
   operator: string;
+  is_favorite: boolean | null;
 }
 
 export const ArsenalService = {
@@ -27,9 +28,7 @@ export const ArsenalService = {
         databaseId: DATABASE_ID,
         tableId: TABLE_ARSENALS,
         rowId,
-        queries: [
-          Query.select(["*", "operator.*"]),
-        ],
+        queries: [Query.select(["*", "operator.*"])],
       });
     } catch (error) {
       console.error("Erro ao buscar arsenal:", error);
@@ -66,7 +65,7 @@ export const ArsenalService = {
       data,
     });
   },
-  async upsert(rowId: string, data: Arsenal) {
+  async upsert(rowId: string | undefined, data: Arsenal) {
     if (!rowId) {
       rowId = ID.unique();
     }
@@ -82,24 +81,23 @@ export const ArsenalService = {
     return await tables.deleteRow({
       databaseId: DATABASE_ID,
       tableId: TABLE_ARSENALS,
-      rowId
+      rowId,
     });
   },
-  async changeAvatar(rowId: string, file: File) {
-    const fileId = `arsenal-${rowId}`;
+  async uploadInvoice(rowId: string, file: File) {
+    const fileId = `nfe-${rowId}`;
 
-    await storage.deleteFile({ bucketId: BUCKET_ID, fileId });
     await storage.createFile({ bucketId: BUCKET_ID, fileId, file });
 
     const originalUrl = storage.getFileView({ bucketId: BUCKET_ID, fileId });
-    const avatar = `${originalUrl}&v=${Date.now()}`;
+    const invoice = `${originalUrl}&v=${Date.now()}`;
 
     return await tables.updateRow({
       databaseId: DATABASE_ID,
       tableId: TABLE_ARSENALS,
       rowId,
       data: {
-        avatar,
+        invoice,
       },
     });
   },

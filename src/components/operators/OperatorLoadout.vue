@@ -92,15 +92,21 @@
             <div class="gap-3" style="display: grid; grid-template-columns: repeat(3, 1fr);">
               <div v-for="(item, index) in GRID_LAYOUT" :key="index">
                 <div v-if="['rating', 'patch'].includes(item)"
-                  class="flex justify-content-center align-items-center border-solid text-gray-700 border-gray-600 border-1 border-round-lg bg-black-alpha-50 overflow-hidden"
+                  class="flex justify-content-center align-items-center border-solid text-gray-700 border-gray-600 border-1 border-round-lg bg-black-alpha-20 overflow-hidden"
                   style="aspect-ratio: 1; width: 80px;">
-                  <Image preview v-if="checkUniformComplete(selectedUniform)" :src="getImageUrl(item)" :alt="item"
+                  <Image preview v-if="isStandard" :src="getImageUrl(item)" :alt="item"
                     imageClass="w-full h-full p-2 transition-all transition-duration-500" style="scale: 1.1;" />
                   <i v-else class="pi pi-minus-circle"></i>
                 </div>
 
+                <div v-else-if="isException(item, selectedUniform.type_uniform)"
+                  class="flex justify-content-center align-items-center border-solid text-gray-700 border-gray-600 border-1 border-round-lg bg-black-alpha-20 overflow-hidden"
+                  style="aspect-ratio: 1; width: 80px;">
+                  <i class="pi pi-minus-circle"></i>
+                </div>
+
                 <div v-else
-                  class="flex border-solid border-1 border-round-lg bg-black-alpha-50 transition-all transition-duration-500 cursor-pointer"
+                  class="flex border-solid border-1 border-round-lg bg-black-alpha-20 transition-all transition-duration-500 cursor-pointer"
                   :class="[
                     isEquipped(item)
                       ? 'border-orange-200'
@@ -154,11 +160,11 @@ import Tag from "primevue/tag";
 import Button from "primevue/button";
 import Dialog from "primevue/dialog";
 import DataTable from "primevue/datatable";
-import FloatLabel from "primevue/FloatLabel";
+import FloatLabel from "primevue/floatlabel";
 import InputText from "primevue/inputtext";
 import Select from "primevue/select";
 
-import { TEAM_NAME, UNIFORMS, UNIFORMS_OPTIONS, LOADOUT_ITEMS } from "@/constants/airsoft";
+import { TEAM_NAME, UNIFORMS, UNIFORMS_OPTIONS, LOADOUT_ITEMS, UNIFORM_IDS, PMC_EXCEPTIONS } from "@/constants/airsoft";
 import { LoadoutService, type Loadout } from "@/services/loadout";
 import { useConfirm } from "primevue";
 import { getAssetUrl } from "@/functions/utils";
@@ -262,7 +268,10 @@ const filters = ref({
 
 const checkUniformComplete = (uniform: Loadout) => {
   return LOADOUT_ITEMS.every((field) => {
-    if (field.optional) return true;
+
+    if (!isItemMandatory(field.key, uniform.type_uniform)) {
+      return true;
+    }
 
     const value = (uniform as Record<string, any>)[field.key];
     return value === true || value === 1;
@@ -364,14 +373,35 @@ const checkedAmountUniforms = computed(() => {
 
 const activeCount = computed(() => {
   return allOptions.value.filter(opt => {
-    if (opt.optional) return false;
+    if (!isItemMandatory(opt.key, selectedUniform.value.type_uniform)) return false;
 
     return selectedUniform.value[opt.key as keyof Loadout];
   }).length;
 });
 
 const totalMandatoryItems = computed(() => {
-  return allOptions.value.filter(opt => !opt.optional).length;
+  return allOptions.value.filter(opt => isItemMandatory(opt.key, selectedUniform.value.type_uniform)).length;
 });
+
+const isItemMandatory = (itemKey: string, uniformType: number) => {
+  const baseRule = LOADOUT_ITEMS.find((i) => i.key === itemKey);
+
+  if (!baseRule || baseRule.optional) return false;
+
+  if (uniformType === UNIFORM_IDS.PMC) {
+    if (PMC_EXCEPTIONS.includes(itemKey)) {
+      return false;
+    }
+  }
+
+  return true;
+};
+
+const isException = (itemKey: string, uniformType: number) => {
+  if (UNIFORM_IDS.PMC === uniformType && PMC_EXCEPTIONS.includes(itemKey)) {
+    return true;
+  }
+  return false;
+};
 
 </script>

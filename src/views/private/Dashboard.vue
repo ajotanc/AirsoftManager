@@ -15,20 +15,15 @@
       <div class="grid">
         <div class="col-12 md:col-4">
           <Card>
-            <template #title>Weapon</template>
+            <template #title>Arma(s)</template>
             <template #content>{{ arsenal.length }} Arma(s) cadastrada(s)</template>
           </Card>
         </div>
         <div class="col-12 md:col-4">
           <Card>
-            <template #title>Loadout</template>
+            <template #title>Loadout(s)</template>
             <template #content>{{ loadout.length }} Loadout(s) cadastrado(s)</template>
           </Card>
-        </div>
-      </div>
-      <div class="grid">
-        <div class="col-12">
-          <PlayerCardView />
         </div>
       </div>
     </div>
@@ -40,8 +35,6 @@ import { useAuthStore } from "@/stores/auth";
 import { useI18n } from "vue-i18n";
 
 import Card from "primevue/card";
-
-import PlayerCardView from "@/views/gamification/PlayerCardView.vue";
 
 const { isActiveOperator, operator: { arsenal, loadout } } = useAuthStore();
 const { t } = useI18n();

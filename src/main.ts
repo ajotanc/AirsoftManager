@@ -9,7 +9,8 @@ import PrimeVue from "primevue/config";
 import Aura from "@primevue/themes/aura";
 import ToastService from "primevue/toastservice";
 import Tooltip from "primevue/tooltip";
-import ConfirmationService from 'primevue/confirmationservice';
+import ConfirmationService from "primevue/confirmationservice";
+import { registerSW } from "virtual:pwa-register";
 
 import "primeicons/primeicons.css";
 import "primeflex/primeflex.css";
@@ -17,6 +18,17 @@ import "./style.css";
 
 const app = createApp(App);
 const pinia = createPinia();
+
+const updateSW = registerSW({
+  onNeedRefresh() {
+    if (confirm("Nova versão disponível. Deseja atualizar?")) {
+      updateSW(true);
+    }
+  },
+  onOfflineReady() {
+    console.log("App pronto para uso offline!");
+  },
+});
 
 app.use(pinia);
 app.use(router);
@@ -27,6 +39,9 @@ app.use(ConfirmationService);
 app.use(PrimeVue, {
   theme: {
     preset: Aura,
+    options: {
+      darkModeSelector: ".app-dark",
+    },
   },
   locale: {
     dayNames: [

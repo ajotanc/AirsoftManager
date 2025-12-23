@@ -13,7 +13,7 @@
               style="color: green"></span></a></p>
         <p><strong>FPS:</strong> {{ weapon.fps }}</p>
         <p><strong>Joule:</strong> {{ weapon.joule }}</p>
-        <p><strong>Serial:</strong> {{ weapon.serial_number }}</p>
+        <p><strong>Serial:</strong> {{ weapon.invoice }}</p>
         <p class="mt-3 text-sm text-gray-500">
           Se você encontrou este equipamento perdido, por favor entre em contato com a equipe.
         </p>

@@ -356,7 +356,7 @@ import { Form } from "@primevue/forms";
 import InputText from "primevue/inputtext";
 import Button from "primevue/button";
 import Message from "primevue/message";
-import FloatLabel from "primevue/FloatLabel";
+import FloatLabel from "primevue/floatlabel";
 import InputMask from "primevue/inputmask";
 import Checkbox from "primevue/checkbox";
 import DatePicker from "primevue/datepicker";

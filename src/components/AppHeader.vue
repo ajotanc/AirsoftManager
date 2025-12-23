@@ -3,7 +3,7 @@
     <Menubar :model="navItems"
       class="border-none border-bottom-1 surface-border border-noround px-4 py-2 surface-section">
       <template #start>
-        <div class="flex align-items-center gap-2 mr-4 cursor-pointer" @click="router.push('/')">
+        <div class="flex align-items-center gap-2 mr-4 cursor-pointer" @click="router.push('/dashboard')">
           <i class="pi pi-shield text-2xl text-primary"></i>
           <span class="font-bold text-xl text-900">AIRSOFT</span>
         </div>
@@ -83,16 +83,35 @@ const navItems = computed(() => [
     route: "/dashboard",
   },
   {
-    label: t("menu.arsenal"),
-    icon: "pi pi-cog",
-    route: "/arsenal",
-    visible: authStore.isActiveOperator,
+    label: "Equipamentos",
+    icon: "pi pi-shopping-bag",
+    visible: authStore.isAdmin,
+    items: [
+      {
+        label: t("menu.arsenal"),
+        icon: "pi pi-cog",
+        route: "/arsenal",
+        visible: authStore.isActiveOperator,
+      },
+      {
+        label: t("menu.loadout"),
+        icon: "pi pi-shield",
+        route: "/loadout",
+        visible: authStore.isActiveOperator,
+      },
+    ],
   },
   {
-    label: t("menu.loadout"),
-    icon: "pi pi-shield",
-    route: "/loadout",
-    visible: authStore.isActiveOperator,
+    label: "Games",
+    icon: "pi pi-prime",
+    visible: authStore.isAdmin,
+    items: [
+      {
+        label: "Player Card",
+        icon: "pi pi-id-card",
+        route: "/game/player-card",
+      },
+    ],
   },
   {
     label: "Gestão",

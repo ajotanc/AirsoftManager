@@ -65,10 +65,13 @@ export const formatDateToLocal = (date: Date) => {
   return new Date(Number(year), Number(month) - 1, Number(day));
 };
 
-const assetsMap = import.meta.glob('@/assets/*.{png,jpg,jpeg,svg,webp}', { eager: true, import: 'default' }) as Record<string, string>;
+const assetsMap = import.meta.glob("@/assets/*.{png,jpg,jpeg,svg,webp}", {
+  eager: true,
+  import: "default",
+}) as Record<string, string>;
 
 export const getAssetUrl = (filename: string) => {
-  const path = `/src/assets/${filename}`
+  const path = `/src/assets/${filename}`;
 
-  return assetsMap[path]
-}
+  return assetsMap[path];
+};

@@ -1,15 +1,16 @@
 <template>
-  <div class="flex flex-column min-h-screen bg-gray-50 dark:bg-gray-900">
+  <div class="flex flex-column min-h-screen">
     <AppHeader />
-    <div class="flex-grow-1 md:p-6 p-4">
+    <div class="col-12 md:col p-3">
       <router-view />
     </div>
-    <div class="text-center p-3 text-500 text-sm border-top-1 surface-border">
-      &copy; 2025 Airsoft Ops System
+    <div class="text-center p-3 text-500 text-sm">
+      AJOTA {{ year }} &copy; Airsoft Managerment System
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import AppHeader from "@/components/AppHeader.vue";
+const year = new Date().getFullYear();
 </script>
