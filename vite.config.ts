@@ -15,10 +15,15 @@ export default defineConfig({
       registerType: "autoUpdate", // Atualiza o Service Worker automaticamente
       includeAssets: ["favicon.ico", "apple-touch-icon.png", "mask-icon.svg"],
       manifest: {
-        name: "Êxodo Airsoft",
-        short_name: "ExodoAirsoft",
+        name: "Êxodo - Airsoft Management System",
+        short_name: "Êxodo Airsoft",
+        start_url: "/login", // <--- Aqui você define a rota inicial
+        display: "standalone", // Faz o app abrir sem a barra do navegador
         description: "Sistema de gestão do Êxodo Airsoft",
         theme_color: "#081534", // Sugestão: use a cor principal do seu brasão
+        background_color: "#081534",
+        lang: "pt-BR",
+        orientation: "portrait",
         icons: [
           {
             src: "pwa-192x192.png",

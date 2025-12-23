@@ -2,6 +2,7 @@
   <Toast />
   <ConfirmDialog :style="{ width: '360px' }"></ConfirmDialog>
   <router-view />
+  <InstallPrompt />
   <ReloadPrompt />
 </template>
 
@@ -24,5 +25,6 @@ body {
 </style>
 
 <script setup lang="ts">
-import type ReloadPrompt from '@/components/ReloadPrompt.vue';
+import InstallPrompt from '@/components/InstallPrompt.vue';
+import ReloadPrompt from '@/components/ReloadPrompt.vue';
 </script>

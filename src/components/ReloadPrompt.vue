@@ -19,7 +19,7 @@ import { useToast } from 'primevue/usetoast'
 import { watch } from 'vue'
 
 const toast = useToast()
-const { offlineReady, needRefresh, updateServiceWorker } = useRegisterSW()
+const { needRefresh, updateServiceWorker } = useRegisterSW()
 
 watch(needRefresh, (newValue) => {
     if (newValue) {
@@ -33,14 +33,14 @@ watch(needRefresh, (newValue) => {
     }
 })
 
-watch(offlineReady, (newValue) => {
-    if (newValue) {
-        toast.add({
-            severity: 'success',
-            summary: 'App Pronto',
-            detail: 'O sistema agora pode ser usado offline!',
-            life: 3000
-        })
-    }
-})
+// watch(offlineReady, (newValue) => {
+//     if (newValue) {
+//         toast.add({
+//             severity: 'success',
+//             summary: 'App Pronto',
+//             detail: 'O sistema agora pode ser usado offline!',
+//             life: 3000
+//         })
+//     }
+// })
 </script>
