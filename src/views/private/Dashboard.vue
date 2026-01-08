@@ -11,8 +11,10 @@
     </div>
 
     <div v-else class="col-12">
-      <h1 class="text-gray-900">Visão Geral</h1>
       <div class="grid">
+        <div class="col-12 md:col-4">
+          <OperatorRankCard />
+        </div>
         <div class="col-12 md:col-4">
           <Card>
             <template #title>Arma(s)</template>
@@ -25,6 +27,9 @@
             <template #content>{{ loadout.length }} Loadout(s) cadastrado(s)</template>
           </Card>
         </div>
+        <div class="col-12">
+          <EventList />
+        </div>
       </div>
     </div>
   </div>
@@ -36,6 +41,11 @@ import { useI18n } from "vue-i18n";
 
 import Card from "primevue/card";
 
+import Qrcode from "@/components/operators/Qrcode.vue";
+import OperatorRankCard from "@/components/operators/OperatorRankCard.vue";
+import EventList from "@/components/EventList.vue";
+
 const { isActiveOperator, operator: { arsenal, loadout } } = useAuthStore();
 const { t } = useI18n();
+
 </script>

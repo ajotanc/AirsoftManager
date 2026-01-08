@@ -165,12 +165,12 @@ import InputText from "primevue/inputtext";
 import Select from "primevue/select";
 
 import { TEAM_NAME, UNIFORMS, UNIFORMS_OPTIONS, LOADOUT_ITEMS, UNIFORM_IDS, PMC_EXCEPTIONS } from "@/constants/airsoft";
-import { LoadoutService, type Loadout } from "@/services/loadout";
+import { LoadoutService, type ILoadout } from "@/services/loadout";
 import { useConfirm } from "primevue";
 import { getAssetUrl } from "@/functions/utils";
 
 const items = defineModel('items', {
-  type: Array as PropType<Loadout[]>,
+  type: Array as PropType<ILoadout[]>,
   default: () => []
 });
 
@@ -193,7 +193,7 @@ const props = defineProps({
 const toast = useToast();
 const confirm = useConfirm();
 
-const confirmDelete = (uniform: Loadout) => {
+const confirmDelete = (uniform: ILoadout) => {
   confirm.require({
     message: 'Você tem certeza que deseja excluir este uniforme?',
     header: UNIFORMS[uniform.type_uniform as keyof typeof UNIFORMS],
@@ -209,7 +209,7 @@ const confirmDelete = (uniform: Loadout) => {
     accept: async () => {
       try {
         await LoadoutService.delete(uniform.$id);
-        items.value = items.value.filter((item: Loadout) => item.$id !== uniform.$id);
+        items.value = items.value.filter((item: ILoadout) => item.$id !== uniform.$id);
 
         toast.add({
           severity: "success",
@@ -257,7 +257,7 @@ const UNIFORMS_OPTIONS_FILTER = computed(() => {
 });
 
 const uniformDialog = ref(false);
-const selectedUniform = ref({} as Loadout);
+const selectedUniform = ref({} as ILoadout);
 const allOptions = ref(LOADOUT_ITEMS);
 
 const isLoadingDialog = ref(false);
@@ -266,7 +266,7 @@ const filters = ref({
   'global': { value: null, matchMode: FilterMatchMode.CONTAINS },
 });
 
-const checkUniformComplete = (uniform: Loadout) => {
+const checkUniformComplete = (uniform: ILoadout) => {
   return LOADOUT_ITEMS.every((field) => {
 
     if (!isItemMandatory(field.key, uniform.type_uniform)) {
@@ -279,18 +279,18 @@ const checkUniformComplete = (uniform: Loadout) => {
 };
 
 const newUniform = async () => {
-  selectedUniform.value = {} as Loadout;
+  selectedUniform.value = {} as ILoadout;
 
   await nextTick();
 
   const firstAvailable = UNIFORMS_OPTIONS_FILTER.value[0];
   const defaultType = firstAvailable ? firstAvailable.code : 1;
 
-  selectedUniform.value = { type_uniform: defaultType } as Loadout;
+  selectedUniform.value = { type_uniform: defaultType } as ILoadout;
   uniformDialog.value = true;
 };
 
-const editUniform = async (uniform: Loadout) => {
+const editUniform = async (uniform: ILoadout) => {
   selectedUniform.value = { ...uniform };
   uniformDialog.value = true;
 };
@@ -306,9 +306,9 @@ const saveUniform = async () => {
       operator: props.owner
     };
 
-    const response = await LoadoutService.upsert(selectedUniform.value.$id, payload) as unknown as Loadout;
+    const response = await LoadoutService.upsert(selectedUniform.value.$id, payload) as unknown as ILoadout;
 
-    const index = items.value.findIndex((item: Loadout) => item.$id === response.$id);
+    const index = items.value.findIndex((item: ILoadout) => item.$id === response.$id);
 
     if (index !== -1) {
       items.value[index] = response;
@@ -336,11 +336,11 @@ const saveUniform = async () => {
 }
 
 const isEquipped = (key: string) => {
-  return !!selectedUniform.value[key as keyof Loadout];
+  return !!selectedUniform.value[key as keyof ILoadout];
 };
 
 const toggleItem = (key: string) => {
-  const currentKey = key as keyof Loadout;
+  const currentKey = key as keyof ILoadout;
   (selectedUniform.value as any)[currentKey] = !selectedUniform.value[currentKey];
 };
 
@@ -375,7 +375,7 @@ const activeCount = computed(() => {
   return allOptions.value.filter(opt => {
     if (!isItemMandatory(opt.key, selectedUniform.value.type_uniform)) return false;
 
-    return selectedUniform.value[opt.key as keyof Loadout];
+    return selectedUniform.value[opt.key as keyof ILoadout];
   }).length;
 });
 

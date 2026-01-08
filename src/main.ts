@@ -6,7 +6,6 @@ import router from "./router";
 import i18n from "./i18n";
 
 import PrimeVue from "primevue/config";
-import Aura from "@primevue/themes/aura";
 import ToastService from "primevue/toastservice";
 import Tooltip from "primevue/tooltip";
 import ConfirmationService from "primevue/confirmationservice";
@@ -15,6 +14,8 @@ import { registerSW } from "virtual:pwa-register";
 import "primeicons/primeicons.css";
 import "primeflex/primeflex.css";
 import "./style.css";
+
+import "remixicon/fonts/remixicon.css";
 
 const app = createApp(App);
 const pinia = createPinia();
@@ -38,9 +39,10 @@ app.use(ConfirmationService);
 
 app.use(PrimeVue, {
   theme: {
-    preset: Aura,
+    preset: ExodoPreset,
     options: {
-      darkModeSelector: ".app-dark",
+      darkModeSelector: false,
+      cssLayer: false,
     },
   },
   locale: {
@@ -94,6 +96,7 @@ app.directive("tooltip", Tooltip);
 app.mount("#app");
 
 import { useAuthStore } from "@/stores/auth";
+import { ExodoPreset } from "./theme/exodo-preset";
 const authStore = useAuthStore();
 
 authStore

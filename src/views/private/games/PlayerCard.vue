@@ -74,6 +74,7 @@ import RadarStats from '@/components/gamification/RadarStats.vue';
 import { RatingService } from '@/services/rating';
 import { useAuthStore } from '@/stores/auth';
 import { SKILL_ATTRIBUTES, CATEGORIES } from '@/constants/airsoft';
+import { fi } from 'zod/locales';
 
 const { operator } = useAuthStore();
 const cardRef = ref(null);
@@ -103,22 +104,24 @@ const calculateAverages = async (targetId) => {
     const { total, rows: ratings } = await RatingService.getRatingsForTarget(targetId);
 
     if (total === 0) {
-      SKILL_ATTRIBUTES.forEach(attr => calculatedStats[attr.key] = 0);
+      SKILL_ATTRIBUTES.forEach(attr => {
+        calculatedStats[attr.key || attr.field] = 0;
+      });
       return;
     }
 
     SKILL_ATTRIBUTES.forEach(attr => {
-      const key = attr.key;
+      const fieldName = attr.key || attr.field;
 
       const sum = ratings.reduce((acc, vote) => {
-        return acc + (Number(vote[key]) || 0);
+        const attrs = vote.attributes ? JSON.parse(vote.attributes) : {};
+        return acc + (Number(attrs[fieldName]) || 0);
       }, 0);
 
-      calculatedStats[key] = Number((sum / total).toFixed(1));
+      calculatedStats[fieldName] = Number((sum / total).toFixed(1));
     });
-
   } catch (error) {
-    console.error("Erro ao calcular médias:", error);
+    console.error("Erro ao processar médias dinâmicas:", error);
   }
 };
 

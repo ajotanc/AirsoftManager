@@ -1,7 +1,7 @@
 import { tables, TABLE_LOADOUTS, DATABASE_ID } from "@/services/appwrite";
 import { ID, Query } from "appwrite";
 
-export interface Loadout {
+export interface ILoadout {
   $id: string;
   type_uniform: number;
   combat_shirt: boolean | null;
@@ -47,7 +47,7 @@ export const LoadoutService = {
       return [];
     }
   },
-  async update(rowId: string, data: Loadout) {
+  async update(rowId: string, data: ILoadout) {
     return await tables.updateRow({
       databaseId: DATABASE_ID,
       tableId: TABLE_LOADOUTS,
@@ -55,7 +55,7 @@ export const LoadoutService = {
       data,
     });
   },
-  async upsert(rowId: string, data: Loadout) {
+  async upsert(rowId: string, data: ILoadout) {
     if (!rowId) {
       rowId = ID.unique();
     }
@@ -71,10 +71,10 @@ export const LoadoutService = {
     return await tables.deleteRow({
       databaseId: DATABASE_ID,
       tableId: TABLE_LOADOUTS,
-      rowId
+      rowId,
     });
   },
-  async create(data: Loadout, rowId: string) {
+  async create(data: ILoadout, rowId: string) {
     return await tables.createRow({
       databaseId: DATABASE_ID,
       tableId: TABLE_LOADOUTS,

@@ -134,9 +134,8 @@
                   <div class="flex gap-2">
                     <Button @click="chooseCallback" icon="pi pi-file-pdf" rounded variant="outlined"
                       severity="secondary" :disabled="files.length === 1" v-tooltip.top="'Anexar Nota Fiscal'"></Button>
-                    <Button @click="uploadInvoice" icon="pi pi-cloud-upload" rounded variant="outlined"
-                      severity="success" :disabled="files.length === 0" :loading="uploading"
-                      v-tooltip.top="'Upload'"></Button>
+                    <Button @click="uploadInvoice" icon="pi pi-save" rounded variant="outlined" severity="success"
+                      :disabled="files.length === 0" :loading="uploading" v-tooltip.top="'Upload'"></Button>
                     <Button @click="clearCallback" icon="pi pi-times" rounded variant="outlined" severity="danger"
                       :disabled="files.length === 0" v-tooltip.top="'Limpar'"></Button>
                   </div>
@@ -217,14 +216,14 @@ import InputNumber from "primevue/inputnumber";
 import FileUpload, { type FileUploadSelectEvent } from "primevue/fileupload";
 
 import { ARSENAL_COLUMNS, WEAPON_TYPES_OPTIONS, CATEGORIES_OPTIONS } from "@/constants/airsoft";
-import { ArsenalService, type Arsenal } from "@/services/arsenal";
+import { ArsenalService, type IArsenal } from "@/services/arsenal";
 import { formatDateToLocal } from "@/functions/utils";
 import { useConfirm } from "primevue";
 
 const invoice = ref();
 
 const items = defineModel('items', {
-  type: Array as PropType<Arsenal[]>,
+  type: Array as PropType<IArsenal[]>,
   default: () => []
 });
 
@@ -251,7 +250,7 @@ const props = defineProps({
 const toast = useToast();
 const confirm = useConfirm();
 
-const confirmDelete = (weapon: Arsenal) => {
+const confirmDelete = (weapon: IArsenal) => {
   confirm.require({
     message: 'Você tem certeza que deseja excluir esta arma?',
     header: weapon.name,
@@ -267,7 +266,7 @@ const confirmDelete = (weapon: Arsenal) => {
     accept: async () => {
       try {
         await ArsenalService.delete(weapon.$id);
-        items.value = items.value.filter((item: Arsenal) => item.$id !== weapon.$id);
+        items.value = items.value.filter((item: IArsenal) => item.$id !== weapon.$id);
 
         toast.add({
           severity: "success",
@@ -311,7 +310,7 @@ const resolver = zodResolver(
 const weaponDialog = ref(false);
 const qrDialog = ref(false);
 
-const selectedWeapon = ref({} as Arsenal);
+const selectedWeapon = ref({} as IArsenal);
 const label = ref(null);
 
 const downloading = ref(false);
@@ -325,7 +324,7 @@ const generateUrl = (weaponId: string) => {
   return `${window.location.origin}/verify/weapon/${weaponId}`;
 };
 
-const openQrDialog = (weapon: Arsenal) => {
+const openQrDialog = (weapon: IArsenal) => {
   selectedWeapon.value = weapon;
   qrDialog.value = true;
 };
@@ -356,7 +355,7 @@ const downloadQrCode = async () => {
 };
 
 const newWeapon = () => {
-  selectedWeapon.value = {} as Arsenal;
+  selectedWeapon.value = {} as IArsenal;
   weaponDialog.value = true;
 };
 
@@ -374,15 +373,15 @@ const saveWeapon = async ({ valid, values }: any) => {
         );
 
         if (currentFavorite) {
-          await ArsenalService.upsert(currentFavorite.$id, { ...{ is_favorite: false } as Arsenal });
+          await ArsenalService.upsert(currentFavorite.$id, { ...{ is_favorite: false } as IArsenal });
 
           currentFavorite.is_favorite = false;
         }
       }
 
-      const response = await ArsenalService.upsert(selectedWeapon.value.$id, { ...values, operator: props.owner }) as unknown as Arsenal;
+      const response = await ArsenalService.upsert(selectedWeapon.value.$id, { ...values, operator: props.owner }) as unknown as IArsenal;
 
-      const index = items.value.findIndex((item: Arsenal) => item.$id === response.$id);
+      const index = items.value.findIndex((item: IArsenal) => item.$id === response.$id);
 
       if (index !== -1) {
         items.value[index] = response;
@@ -412,7 +411,7 @@ const saveWeapon = async ({ valid, values }: any) => {
   };
 }
 
-const editWeapon = (weapon: Arsenal) => {
+const editWeapon = (weapon: IArsenal) => {
   console.log(weapon);
   const data = { ...weapon, maintained_at: weapon.maintained_at ? new Date(weapon.maintained_at) : null };
   selectedWeapon.value = data;
@@ -432,9 +431,9 @@ const uploadInvoice = async () => {
     const response = await ArsenalService.uploadInvoice(
       selectedWeapon.value.$id,
       file
-    ) as unknown as Arsenal;
+    ) as unknown as IArsenal;
 
-    const index = items.value.findIndex((item: Arsenal) => item.$id === response.$id);
+    const index = items.value.findIndex((item: IArsenal) => item.$id === response.$id);
     items.value[index] = response;
 
     toast.add({

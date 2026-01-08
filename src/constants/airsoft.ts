@@ -1,8 +1,97 @@
 import type { ChartOptions, ChartData, TooltipItem } from "chart.js";
 
-export const TEAM_NAME = "Éxodo";
+export const TEAM_NAME = "Êxodo";
 export const TEAM_TAG = "EXD";
 export const MIN_COMPLETE_UNIFORMS = 3;
+export const EXPERIENCE_PER_LEVEL = 200;
+
+export const EVENT_TYPES = {
+  1: "Jogo",
+  2: "Evento",
+  3: "Manutenção",
+  4: "Curso",
+};
+
+export const XP_VALUES = {
+  GAME: 50, // Jogo normal
+  MAINTENANCE: 20, // Manutenção de campo/equipamento
+  PRESENCE: 10, // Reunião ou presença rápida
+  COURSE: 100, // Cursos e treinamentos oficiais
+};
+
+export const LEVELS = [
+  {
+    min: 1,
+    max: 5,
+    label: "Iniciado em Campo",
+    description: "Aprendendo os fundamentos da operação.",
+  },
+  {
+    min: 6,
+    max: 10,
+    label: "Operador de Linha",
+    description: "Já conhece o terreno e executa ordens com precisão.",
+  },
+  {
+    min: 11,
+    max: 15,
+    label: "Especialista Urbano",
+    description: "Domina táticas de CQB e progressão em grupo.",
+  },
+  {
+    min: 16,
+    max: 20,
+    label: "Batedor de Vanguarda",
+    description: "O primeiro a entrar, o último a sair.",
+  },
+  {
+    min: 21,
+    max: 25,
+    label: "Atirador Designado",
+    description: "Precisão absoluta em distâncias críticas.",
+  },
+  {
+    min: 26,
+    max: 30,
+    label: "Estrategista de Setor",
+    description: "Capaz de coordenar pequenas esquadras em combate.",
+  },
+  {
+    min: 31,
+    max: 35,
+    label: "Lobo da Floresta",
+    description: "Especialista em camuflagem e operações de longa duração.",
+  },
+  {
+    min: 36,
+    max: 40,
+    label: "Mestre de Armas",
+    description: "Conhecimento total de mecânica e balística.",
+  },
+  {
+    min: 41,
+    max: 45,
+    label: "Veterano de Elite",
+    description: "Resiliência testada em inúmeras missões.",
+  },
+  {
+    min: 46,
+    max: 49,
+    label: "Sombra da Unidade",
+    description: "Invisível para o inimigo, letal para o objetivo.",
+  },
+  {
+    min: 50,
+    max: 50,
+    label: "O Fantasma",
+    description: "A lenda viva do time. Sua presença altera o rumo da missão.",
+  },
+];
+
+export const calculateLevel = (xp: number) => {
+  const level = Math.floor(xp / EXPERIENCE_PER_LEVEL) + 1;
+  return level > 50 ? 50 : level;
+};
 
 export const WEAPON_TYPES = {
   1: "AEG",
@@ -117,20 +206,21 @@ export const ARSENAL_COLUMNS = [
 ];
 
 export interface SkillAttribute {
-  key: string;
-  label: string;
+  field: string;
+  header: string;
   tag: string;
 }
 
 export type SkillStats = Record<string, number>;
 
 export const SKILL_ATTRIBUTES: SkillAttribute[] = [
-  { key: "honor", label: "Honra", tag: "HON" },
-  { key: "aim", label: "Precisão", tag: "PRE" },
-  { key: "tactics", label: "Tática", tag: "TAC" },
-  { key: "communication", label: "Comunicação", tag: "COM" },
-  { key: "mobility", label: "Mobilidade", tag: "MOB" },
-  { key: "stealth", label: "Furtividade", tag: "FUR" },
+  { field: "honor", header: "Honra", tag: "HON" },
+  { field: "aim", header: "Precisão", tag: "PRE" },
+  { field: "tactics", header: "Tática", tag: "TAC" },
+  { field: "communication", header: "Comunicação", tag: "COM" },
+  { field: "mobility", header: "Mobilidade", tag: "MOB" },
+  { field: "stealth", header: "Furtividade", tag: "FUR" },
+  // { field: "teste", header: "Teste", tag: "TES" },
 ];
 
 export const RADAR_OPTIONS: ChartOptions<"radar"> = {
@@ -175,7 +265,7 @@ export const RADAR_OPTIONS: ChartOptions<"radar"> = {
 
           const index = item.dataIndex;
 
-          return SKILL_ATTRIBUTES[index]?.label.toUpperCase() || "";
+          return SKILL_ATTRIBUTES[index]?.header.toUpperCase() || "";
         },
       },
     },
@@ -188,7 +278,7 @@ export const getRadarChartData = (stats: SkillStats): ChartData<"radar"> => {
     datasets: [
       {
         label: "Nível",
-        data: SKILL_ATTRIBUTES.map((attr) => stats[attr.key] || 0),
+        data: SKILL_ATTRIBUTES.map((attr) => stats[attr.field] || 0),
 
         backgroundColor: "rgba(34, 197, 94, 0.25)",
         borderColor: "#22c55e",
@@ -202,3 +292,17 @@ export const getRadarChartData = (stats: SkillStats): ChartData<"radar"> => {
     ],
   };
 };
+
+export const EVENTS_COLUMNS = [
+  { field: "title", header: "Titulo" },
+  {
+    field: "type",
+    header: "Tipo",
+    isTag: true,
+    map: EVENT_TYPES,
+    severity: "contrast",
+  },
+  { field: "date", header: "Data", isDate: true },
+  { field: "location_name", header: "Localização" },
+  { field: "description", header: "Descrição" },
+];

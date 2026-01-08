@@ -1,21 +1,31 @@
 :root {
-    --font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-family: "Inter", system-ui, -apple-system, sans-serif;
 }
 
 ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+  width: 8px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-    background: var(--surface-ground);
+  background: var(--surface-ground);
 }
 
 ::-webkit-scrollbar-thumb {
-    background: var(--surface-border);
-    border-radius: 4px;
+  background: var(--surface-border);
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: var(--primary-color);
+  background: var(--primary-color);
+}
+
+[class^="ri-"],
+[class*=" ri-"] {
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+  display: inline-block;
+  font-size: var(--p-icon-size);
 }

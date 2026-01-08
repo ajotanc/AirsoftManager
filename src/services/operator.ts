@@ -5,12 +5,12 @@ import {
   BUCKET_ID,
   storage,
 } from "@/services/appwrite";
-import { Query } from "appwrite";
-import type { Arsenal } from "./arsenal";
-import type { Loadout } from "./loadout";
+import { Query, type Models } from "appwrite";
+import type { IArsenal } from "./arsenal";
+import type { ILoadout } from "./loadout";
+import type { IParticipation } from "./event";
 
-export interface Operator {
-  $id: string;
+export interface IOperator extends Models.Row {
   codename: string;
   identity?: string;
   general_registration?: string;
@@ -40,36 +40,42 @@ export interface Operator {
   referral_source?: number;
   number_fdba?: string;
   role: string;
-  avatar?: string;
+  avatar: string;
   status: boolean;
   rating: number;
   media_consent?: boolean;
   terms_accepted?: boolean;
   terms_accepted_at?: Date;
   quote?: string;
-  arsenal: Arsenal[];
-  loadout: Loadout[];
+  xp: number;
+  level: number;
+  prestige: number;
+  arsenal: IArsenal[];
+  loadout: ILoadout[];
+  participations: IParticipation[];
 }
 
+export type IOperatorDraft = Omit<IOperator, keyof Models.Row> & {
+  $id: string;
+};
+
 export const OperatorService = {
-  async row(rowId: string) {
+  async row(rowId: string): Promise<IOperator> {
     try {
       return await tables.getRow({
         databaseId: DATABASE_ID,
         tableId: TABLE_OPERATORS,
         rowId,
-        queries: [
-          Query.select(["*", "arsenal.*", "loadout.*"]),
-        ],
+        queries: [Query.select(["*", "arsenal.*", "loadout.*"])],
       });
     } catch (error) {
       console.error("Erro ao buscar usuário:", error);
-      return [];
+      return {} as IOperator;
     }
   },
   async list() {
     try {
-      const response = await tables.listRows({
+      const response = await tables.listRows<IOperator>({
         databaseId: DATABASE_ID,
         tableId: TABLE_OPERATORS,
         queries: [
@@ -84,7 +90,7 @@ export const OperatorService = {
       return [];
     }
   },
-  async update(rowId: string, data: Operator) {
+  async update(rowId: string, data: IOperator) {
     return await tables.updateRow({
       databaseId: DATABASE_ID,
       tableId: TABLE_OPERATORS,
@@ -92,7 +98,7 @@ export const OperatorService = {
       data,
     });
   },
-  async create(data: Operator, rowId: string) {
+  async create(data: IOperator, rowId: string) {
     return await tables.createRow({
       databaseId: DATABASE_ID,
       tableId: TABLE_OPERATORS,
@@ -117,5 +123,25 @@ export const OperatorService = {
         avatar,
       },
     });
+  },
+  async listBirthdays() {
+    try {
+      const response = await tables.listRows<IOperator>({
+        databaseId: DATABASE_ID,
+        tableId: TABLE_OPERATORS,
+        queries: [Query.equal("status", true), Query.orderDesc("birth_date")],
+      });
+
+      const currentMonth = new Date().getMonth();
+
+      return response.rows.filter((operator) => {
+        if (!operator.birth_date) return false;
+        const birthMonth = new Date(operator.birth_date).getMonth();
+        return birthMonth === currentMonth;
+      });
+    } catch (error) {
+      console.error("Erro ao buscar usuários:", error);
+      return [];
+    }
   },
 };

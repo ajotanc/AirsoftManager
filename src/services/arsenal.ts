@@ -7,7 +7,7 @@ import {
 } from "@/services/appwrite";
 import { ID, Query } from "appwrite";
 
-export interface Arsenal {
+export interface IArsenal {
   $id: string;
   name: string;
   type: number | null;
@@ -49,7 +49,7 @@ export const ArsenalService = {
       return [];
     }
   },
-  async create(data: Arsenal, rowId: string) {
+  async create(data: IArsenal, rowId: string) {
     return await tables.createRow({
       databaseId: DATABASE_ID,
       tableId: TABLE_ARSENALS,
@@ -57,7 +57,7 @@ export const ArsenalService = {
       data,
     });
   },
-  async update(rowId: string, data: Arsenal) {
+  async update(rowId: string, data: IArsenal) {
     return await tables.updateRow({
       databaseId: DATABASE_ID,
       tableId: TABLE_ARSENALS,
@@ -65,7 +65,7 @@ export const ArsenalService = {
       data,
     });
   },
-  async upsert(rowId: string | undefined, data: Arsenal) {
+  async upsert(rowId: string | undefined, data: IArsenal) {
     if (!rowId) {
       rowId = ID.unique();
     }

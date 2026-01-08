@@ -13,12 +13,12 @@
         <router-link v-if="item.route" v-slot="{ href, navigate, isActive }" :to="item.route" custom>
           <a :href="href" v-bind="props.action" @click="navigate" :class="{ 'text-primary font-bold': isActive }">
             <span :class="item.icon" />
-            <span class="ml-2">{{ item.label }}</span>
+            <span>{{ item.label }}</span>
           </a>
         </router-link>
         <a v-else :href="item.url" v-bind="props.action" :target="item.target" aria-hidden="false">
           <span :class="item.icon" />
-          <span class="ml-2">{{ item.label }}</span>
+          <span>{{ item.label }}</span>
           <span v-if="hasSubmenu" class="pi pi-fw pi-angle-down ml-2" />
         </a>
       </template>
@@ -79,23 +79,23 @@ const handleLogout = async () => {
 const navItems = computed(() => [
   {
     label: t("menu.dashboard"),
-    icon: "pi pi-home",
+    icon: "ri-home-2-line",
     route: "/dashboard",
   },
   {
     label: "Equipamentos",
-    icon: "pi pi-shopping-bag",
+    icon: "ri-suitcase-2-line",
     visible: authStore.isAdmin,
     items: [
       {
         label: t("menu.arsenal"),
-        icon: "pi pi-cog",
+        icon: "ri-sword-line",
         route: "/arsenal",
         visible: authStore.isActiveOperator,
       },
       {
         label: t("menu.loadout"),
-        icon: "pi pi-shield",
+        icon: "ri-t-shirt-2-line",
         route: "/loadout",
         visible: authStore.isActiveOperator,
       },
@@ -103,29 +103,44 @@ const navItems = computed(() => [
   },
   {
     label: "Games",
-    icon: "pi pi-prime",
+    icon: "ri-gamepad-line",
     visible: authStore.isAdmin,
     items: [
       {
+        label: "Ratings",
+        icon: "ri-bookmark-3-line",
+        route: "/game/ratings",
+      },
+      {
         label: "Player Card",
-        icon: "pi pi-id-card",
+        icon: "ri-shield-user-line",
         route: "/game/player-card",
       },
     ],
   },
   {
     label: "Gestão",
-    icon: "pi pi-briefcase",
+    icon: "ri-briefcase-line",
     visible: authStore.isAdmin,
     items: [
       {
         label: "Usuários",
-        icon: "pi pi-users",
+        icon: "ri-group-line",
         route: "/admin/operators",
       },
       {
+        label: "Eventos",
+        icon: "ri-calendar-event-line",
+        route: "/admin/events",
+      },
+      {
+        label: "Aniversariantes",
+        icon: "ri-cake-2-line",
+        route: "/admin/birthdays",
+      },
+      {
         label: "Financeiro",
-        icon: "pi pi-dollar",
+        icon: "ri-bank-line",
         route: "/admin/finance",
         disabled: true,
       },
@@ -139,12 +154,12 @@ const userMenuItems = computed(() => [
     items: [
       {
         label: t("menu.profile"),
-        icon: "pi pi-user-edit",
+        icon: "ri-user-line",
         command: () => router.push("/profile"),
       },
       {
         label: "Sair",
-        icon: "pi pi-power-off",
+        icon: "ri-logout-box-r-line",
         command: handleLogout,
       },
     ],

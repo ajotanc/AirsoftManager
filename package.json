@@ -7,24 +7,28 @@
     "dev": "vite",
     "build": "vue-tsc -b && vite build",
     "preview": "vite preview",
-    "generate-pwa-assets": "pwa-assets-generator --preset minimal-2023 public/vite.svg"
+    "generate-pwa-assets": "pwa-assets-generator --preset minimal-2023 public/exd.svg"
   },
   "dependencies": {
     "@primevue/forms": "^4.5.3",
     "@primevue/themes": "^4.5.3",
+    "add-to-calendar-button": "^2.13.4",
     "appwrite": "^21.5.0",
     "chart.js": "^4.5.1",
     "html-to-image": "^1.11.13",
+    "material-icons": "^1.13.14",
     "pinia": "^3.0.4",
     "primeflex": "^4.0.0",
     "primeicons": "^7.0.0",
     "primevue": "^4.5.3",
     "qrcode.vue": "^3.6.0",
+    "remixicon": "^4.8.0",
     "vue": "^3.5.24",
     "vue-chartjs": "^5.3.3",
     "vue-i18n": "^11.2.2",
+    "vue-qrcode-reader": "^5.7.3",
     "vue-router": "^4.6.4",
-    "zod": "^4.2.0"
+    "zod": "^4.2.1"
   },
   "devDependencies": {
     "@primevue/auto-import-resolver": "^4.5.3",

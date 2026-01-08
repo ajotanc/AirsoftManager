@@ -1,3 +1,5 @@
+import beepSound from "@/assets/sounds/beep.mp3"; // O '@' aponta para a pasta src
+
 export const isValidIdentity = (cpf: string): boolean => {
   if (typeof cpf !== "string") return false;
 
@@ -55,14 +57,30 @@ export async function addressByCep(
   }
 }
 
-export const formatDateToLocal = (date: Date) => {
+export const formatDateToLocal = (date: Date | string | null): Date | null => {
   if (!date) return null;
+
+  if (typeof date === "string") {
+    const formattedDate = date.split("/").reverse().join("-");
+    date = new Date(formattedDate);
+  }
 
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
   const day = String(date.getDate()).padStart(2, "0");
 
   return new Date(Number(year), Number(month) - 1, Number(day));
+};
+
+export const formatDate = (
+  date: Date | string | null,
+  returnString = false
+): Date | string | null => {
+  if (!date) return null;
+
+  return returnString
+    ? new Date(date).toLocaleDateString("pt-BR")
+    : new Date(date);
 };
 
 const assetsMap = import.meta.glob("@/assets/*.{png,jpg,jpeg,svg,webp}", {
@@ -74,4 +92,31 @@ export const getAssetUrl = (filename: string) => {
   const path = `/src/assets/${filename}`;
 
   return assetsMap[path];
+};
+
+export const extractCoordsFromUrl = (url: string) => {
+  // Regex para capturar lat e long de links do Google Maps
+  const regex = /@(-?\d+\.\d+),(-?\d+\.\d+)/;
+  const match = url.match(regex);
+  if (match) {
+    return { lat: match[1], lng: match[2] };
+  }
+  return null;
+};
+
+export const playBeep = () => {
+  const audio = new Audio(beepSound);
+  audio.volume = 0.5;
+  audio.play().catch((e) => console.error("Erro ao reproduzir som:", e));
+};
+
+export const isBirthday = (date?: Date) => {
+  if (!date) return false;
+
+  const today = new Date();
+  const birthDate = new Date(date);
+  return (
+    today.getMonth() === birthDate.getMonth() &&
+    today.getDate() === birthDate.getDate()
+  );
 };

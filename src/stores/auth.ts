@@ -1,12 +1,19 @@
 import { defineStore } from "pinia";
 import { account } from "@/services/appwrite";
 import { ID, type Models } from "appwrite";
-import { OperatorService, type Operator } from "@/services/operator";
+import {
+  OperatorService,
+  type IOperator,
+  type IOperatorDraft,
+} from "@/services/operator";
+import type { IArsenal } from "@/services/arsenal";
+import type { ILoadout } from "@/services/loadout";
+import type { IParticipations } from "@/services/event";
 
 export const useAuthStore = defineStore("auth", {
   state: () => ({
     user: null as Models.User<Models.Preferences> | null,
-    operator: {} as Operator,
+    operator: {} as IOperator,
     loading: true,
   }),
 
@@ -28,7 +35,7 @@ export const useAuthStore = defineStore("auth", {
         }
       } catch (error) {
         this.user = null;
-        this.operator = {} as Operator;
+        this.operator = {} as IOperator;
       } finally {
         this.loading = false;
       }
@@ -38,7 +45,7 @@ export const useAuthStore = defineStore("auth", {
 
       try {
         const row = await OperatorService.row(this.user.$id);
-        this.operator = row as unknown as Operator;
+        this.operator = row;
       } catch (error: any) {
         if (error.code === 404) {
           console.warn(
@@ -49,29 +56,34 @@ export const useAuthStore = defineStore("auth", {
             const name = this.user.name;
             const codename = name.split(" ")[0] || "Recruta";
 
-            const payload: Operator = {
+            const payload: IOperatorDraft = {
               $id: this.user.$id,
               codename,
               role: "recruit",
               status: false,
+              avatar: "",
               rating: 0,
+              xp: 0,
+              level: 0,
+              prestige: 0,
               arsenal: [],
               loadout: [],
+              participations: [],
             };
 
-            await OperatorService.create(payload, this.user.$id);
+            await OperatorService.create(payload as IOperator, this.user.$id);
 
-            this.operator = payload;
+            this.operator = payload as IOperator;
             console.log("Perfil recuperado com sucesso!");
           } catch (createError) {
             console.error(
               "Falha crítica: Não foi possível criar o perfil.",
               createError
             );
-            this.operator = {} as Operator;
+            this.operator = {} as IOperator;
           }
         } else {
-          this.operator = {} as Operator;
+          this.operator = {} as IOperator;
           console.error("Erro desconhecido:", error);
         }
       }
@@ -90,17 +102,22 @@ export const useAuthStore = defineStore("auth", {
 
         const codename = name.trim().split(" ")[0] || "Recruta";
 
-        const payload: Operator = {
+        const payload: IOperatorDraft = {
           $id: userAccount.$id,
           codename,
           role: "recruit",
           status: false,
+          avatar: "",
           rating: 0,
+          xp: 0,
+          level: 0,
+          prestige: 0,
           arsenal: [],
           loadout: [],
+          participations: [],
         };
 
-        await OperatorService.create(payload, userAccount.$id);
+        await OperatorService.create(payload as IOperator, userAccount.$id);
 
         await this.init();
       } catch (error) {
@@ -117,7 +134,7 @@ export const useAuthStore = defineStore("auth", {
     async logout() {
       await account.deleteSession({ sessionId: "current" });
       this.user = null;
-      this.operator = {} as Operator;
+      this.operator = {} as IOperator;
     },
   },
 });

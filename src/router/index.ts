@@ -42,12 +42,29 @@ const router = createRouter({
           component: () => import("../views/private/games/PlayerCard.vue"),
         },
         {
+          path: "game/ratings",
+          component: () => import("../views/private/games/Ratings.vue"),
+        },
+        {
+          path: "events/:id",
+          name: "event-details",
+          component: () => import("../views/private/EventDetails.vue"),
+        },
+        {
           path: "admin/operators",
           component: () => import("../views/admin/Operators.vue"),
         },
         {
           path: "admin/finance",
           component: () => import("../views/admin/Finance.vue"),
+        },
+        {
+          path: "admin/events",
+          component: () => import("../views/admin/Events.vue"),
+        },
+        {
+          path: "admin/birthdays",
+          component: () => import("../views/admin/Birthdays.vue"),
         },
       ],
     },
@@ -60,7 +77,15 @@ const router = createRouter({
         layout: "blank",
       },
     },
-
+    {
+      path: "/happy-birthday/:id",
+      name: "happy-birthday",
+      component: () => import("../views/public/HappyBirthday.vue"),
+      meta: {
+        isPublic: true,
+        layout: "blank",
+      },
+    },
     { path: "/:pathMatch(.*)*", redirect: "/" },
   ],
 });

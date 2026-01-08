@@ -12,15 +12,15 @@ export default defineConfig({
       resolvers: [PrimeVueResolver()],
     }),
     VitePWA({
-      registerType: "autoUpdate", // Atualiza o Service Worker automaticamente
+      registerType: "autoUpdate",
       includeAssets: ["favicon.ico", "apple-touch-icon.png", "mask-icon.svg"],
       manifest: {
         name: "Êxodo - Airsoft Management System",
         short_name: "Êxodo Airsoft",
-        start_url: "/login", // <--- Aqui você define a rota inicial
-        display: "standalone", // Faz o app abrir sem a barra do navegador
+        start_url: "/login",
+        display: "standalone",
         description: "Sistema de gestão do Êxodo Airsoft",
-        theme_color: "#081534", // Sugestão: use a cor principal do seu brasão
+        theme_color: "#081534",
         background_color: "#081534",
         lang: "pt-BR",
         orientation: "portrait",
