@@ -1,11 +1,11 @@
 <template>
-    <div class="event-details p-4" v-if="event">
-        <div class="mission-header border-bottom-1 border-white-alpha-10 pb-4 mb-4">
+    <div class="p-4" v-if="event">
+        <div class="border-bottom-1 border-black-alpha-20 pb-4 mb-4">
             <div class="flex justify-content-between align-items-start mb-3">
                 <div>
                     <Tag :value="EVENT_TYPES[event.type as unknown as keyof typeof EVENT_TYPES]" severity="info"
                         class="mb-2" />
-                    <h1 class="text-4xl font-bold uppercase m-0 text-green-400 tracking-wider">
+                    <h1 class="text-4xl font-bold uppercase m-0">
                         {{ event.title }}
                     </h1>
                     <p class="flex justify-content-center align-items-center text-gray-400 mt-2">
@@ -20,7 +20,7 @@
 
                 </div>
                 <div class="text-right">
-                    <span class="text-3xl font-bold text-white">{{ checkinsCount }}</span>
+                    <span class="text-3xl font-bold text-primary-500">{{ checkinsCount }}</span>
                     <p class="text-xs text-gray-500 uppercase font-bold m-0">Check-ins</p>
                 </div>
             </div>
@@ -31,13 +31,13 @@
                 <Button v-else label="Confirmar Presença" icon="pi pi-plus-circle" severity="primary"
                     @click="toggleParticipation" class="w-full md:w-auto" />
                 <Button v-if="isConfirmed" label="Adicionar à Agenda" icon="pi pi-calendar-plus" severity="help"
-                    outlined @click="handleCalendarDynamic" class="w-full md:w-auto" />
+                    @click="handleCalendarDynamic" class="w-full md:w-auto" />
             </div>
         </div>
 
         <div class="grid">
             <div class="col-12 md:col-8">
-                <Card class="bg-gray-900 border-1 border-white-alpha-10 mb-4">
+                <Card class="border-1 border-black-alpha-10 mb-4">
                     <template #title><span class="text-green-400">Briefing da Missão</span></template>
                     <template #content>
                         <div class="w-full rounded"
@@ -290,7 +290,6 @@ const openMaps = () => window.open(event.value.location_url, '_blank');
 
 .scanner-overlay {
     height: 100%;
-    background: #081534;
     display: flex;
     flex-direction: column;
     align-items: center;

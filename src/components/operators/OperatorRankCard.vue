@@ -1,5 +1,5 @@
 <template>
-    <Card class="exodo-card border-1 border-primary bg-surface-900 overflow-hidden shadow-8">
+    <Card class="bg-surface-900 overflow-hidden">
         <template #content>
             <div class="flex flex-column align-items-center text-center p-3">
                 <div class="flex relative mb-2 cursor-pointer"
@@ -8,13 +8,13 @@
                     </div>
                     <Avatar :image="operator.avatar" shape="circle" class="operator-avatar z-1 border-surface-900" />
                     <div
-                        class="level-tag absolute bottom-0 right-0 bg-primary text-surface-900 font-bold border-circle flex align-items-center justify-content-center shadow-4 z-1">
+                        class="level-tag absolute bottom-0 right-0 bg-white text-surface-900 font-bold border-circle flex align-items-center justify-content-center shadow-4 z-1">
                         {{ operator.level }}
                     </div>
                 </div>
-                <h2 class="text-3xl font-bold m-0 uppercase tracking-widest text-white">{{ operator.codename }}</h2>
+                <h2 class="text-3xl font-bold m-0 uppercase">{{ operator.codename }}</h2>
                 <div class="flex align-items-center gap-2 mt-4">
-                    <span class="text-primary font-bold uppercase text-sm tracking-tighter">
+                    <span class="font-bold uppercase text-sm">
                         <i class="pi pi-star-fill mr-1"></i> {{ currentRank?.label }}
                     </span>
                 </div>
@@ -24,7 +24,7 @@
                 </p>
 
                 <div class="flex flex-column mt-4">
-                    <div class="text-center mb-2 text-xs text-gray-600 font-bold uppercase">
+                    <div class="text-center mb-2 text-xs font-bold uppercase">
                         Registro Tático
                     </div>
                     <Qrcode :id="operator.$id" />
@@ -49,17 +49,12 @@ const currentRank = computed(() => {
     return LEVELS.find(r => operator.level >= r.min && operator.level <= r.max) || LEVELS[0];
 });
 
-// Estilo do anel dourado de XP
 const ringStyle = computed(() => ({
-    background: `conic-gradient(var(--p-primary-500) ${xpPercent.value}%, rgba(255,255,255,0.05) 0)`
+    background: `conic-gradient(var(--p-primary-500) ${xpPercent.value}%, rgba(0, 0, 0, 0.5) 0)`
 }));
 </script>
 
 <style scoped>
-.exodo-card {
-    background: linear-gradient(135deg, #000D1A 0%, #001A33 100%);
-}
-
 .xp-ring {
     width: 110px;
     height: 110px;
@@ -81,13 +76,7 @@ const ringStyle = computed(() => ({
     width: 36px;
     height: 36px;
     font-size: 1.1rem;
-    border: 2px solid #000D1A;
-    box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
-}
-
-:deep(.exodo-progress .p-progressbar-value) {
-    background: var(--p-primary-500);
-    /* Dourado Êxodo */
-    box-shadow: 0 0 10px rgba(212, 175, 55, 0.2);
+    border: 3px solid;
+    border-color: var(--p-primary-500);
 }
 </style>

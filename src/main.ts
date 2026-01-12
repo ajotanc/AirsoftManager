@@ -17,6 +17,8 @@ import "./style.css";
 
 import "remixicon/fonts/remixicon.css";
 
+// import Aura from "@primevue/themes/aura";
+
 const app = createApp(App);
 const pinia = createPinia();
 
@@ -96,7 +98,7 @@ app.directive("tooltip", Tooltip);
 app.mount("#app");
 
 import { useAuthStore } from "@/stores/auth";
-import { ExodoPreset } from "./theme/exodo-preset";
+import ExodoPreset from "./theme/exodo-preset";
 const authStore = useAuthStore();
 
 authStore

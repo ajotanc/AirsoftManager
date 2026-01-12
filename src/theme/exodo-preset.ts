@@ -1,35 +1,70 @@
 import { definePreset } from "@primevue/themes";
 import Aura from "@primevue/themes/aura";
+import { palette } from "@primevue/themes";
 
-export const ExodoPreset = definePreset(Aura, {
+const surface = palette("#081534");
+
+const success = palette("#388E3C");
+const danger = palette("#dc143c");
+const warn = palette("#daa520");
+const help = palette("#7c4dff");
+
+const ExodoPreset = definePreset(Aura, {
   semantic: {
-    // COR PRIMÁRIA: Dourado do Logo ÊXODO
-    // primary: {
-    //   500: "#D4AF37",
-    //   600: "#B8860B", // Tom mais escuro para o hover
-    // },
-    // CORES DOS BOTÕES (Mantendo o padrão tático que você gostou)
-    success: { 500: "#22c55e" }, // Verde Check-in
-    error: { 500: "#ef4444" }, // Vermelho Alerta (Ex: Cancelar Presença)
-    warn: { 500: "#f59e0b" }, // Laranja Aviso
-    info: { 500: "#3b82f6" }, // Azul Info
-
     colorScheme: {
       light: {
-        // Definimos no 'light' para ser o tema único e fixo
-        surface: {
-          0: "#ffffff",
-          50: "#f9fafb",
-          // Tons de Azul Marinho extraídos do logo para o fundo
-          800: "#001A33", // Fundo dos cards
-          900: "#081534", // Fundo principal (Marinho Profundo)
-          950: "#00050D",
-        },
+        surface,
         content: {
-          background: "{surface.900}",
+          background: "{surface.500}",
           color: "{surface.0}",
+        },
+        success,
+        danger,
+        warn,
+        help,
+      },
+    },
+  },
+  components: {
+    button: {
+      colorScheme: {
+        light: {
+          root: {
+            danger: {
+              background: "{danger.500}",
+              hoverBackground: "{danger.600}",
+              activeBackground: "{danger.700}",
+              borderColor: "{danger.500}",
+              hoverBorderColor: "{danger.600}",
+              activeBorderColor: "{danger.700}",
+              color: "#ffffff",
+              hoverColor: "#ffffff",
+              activeColor: "#ffffff",
+              focusRing: {
+                color: "{danger.500}",
+                shadow: "none",
+              },
+            },
+            help: {
+              background: "{help.500}",
+              hoverBackground: "{help.600}",
+              activeBackground: "{help.700}",
+              borderColor: "{help.500}",
+              hoverBorderColor: "{help.600}",
+              activeBorderColor: "{help.700}",
+              color: "#ffffff",
+              hoverColor: "#ffffff",
+              activeColor: "#ffffff",
+              focusRing: {
+                color: "{help.500}",
+                shadow: "none",
+              },
+            },
+          },
         },
       },
     },
   },
 });
+
+export default ExodoPreset;

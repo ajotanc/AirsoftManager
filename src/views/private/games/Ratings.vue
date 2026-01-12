@@ -76,7 +76,7 @@
                                             shape="circle" size="small" />
                                         <span>{{availableOperators.find(op => op.$id ===
                                             slotProps.value)?.codename
-                                        }}</span>
+                                            }}</span>
                                     </div>
                                 </template>
                             </Select>
@@ -129,7 +129,6 @@ import { Rating, useConfirm } from "primevue";
 import { RatingService, type IRating } from "@/services/rating";
 import { OperatorService, type IOperator } from "@/services/operator";
 import { useAuthStore } from "@/stores/auth";
-import { sl } from "zod/locales";
 
 const { operator } = useAuthStore();
 

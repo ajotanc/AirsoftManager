@@ -2,7 +2,7 @@
     <Carousel :value="allEvents" :numVisible="3" :numScroll="1" :responsiveOptions="responsiveOptions" circular
         :autoplayInterval="3000" class="m-2">
         <template #item="{ data: event }">
-            <Card class="overflow-hidden mission-card">
+            <Card class="overflow-hidden mx-2">
                 <template #header>
                     <div class="relative overflow-hidden">
                         <Tag :value="EVENT_TYPES[event.type as keyof typeof EVENT_TYPES] || 'Padrão'"
@@ -107,18 +107,3 @@ onMounted(async () => {
 
 const goToEvent = (id: string) => router.push(`/events/${id}`);
 </script>
-
-<style scoped>
-.mission-card {
-    background: linear-gradient(180deg, #001A33 0%, #000D1A 100%);
-    margin-inline: 0.25rem;
-}
-
-.mission-card:hover {
-    box-shadow: 0 10px 30px rgba(212, 175, 55, 0.15);
-}
-
-:deep(.p-dataview-content) {
-    background: transparent !important;
-}
-</style>
