@@ -72,7 +72,7 @@ export const OperatorService = {
       return {} as IOperator;
     }
   },
-  async list() {
+  async list(): Promise<IOperator[]> {
     try {
       const response = await tables.listRows<IOperator>({
         databaseId: DATABASE_ID,
@@ -89,7 +89,7 @@ export const OperatorService = {
       return [];
     }
   },
-  async update(rowId: string, data: IOperator) {
+  async update(rowId: string, data: IOperator): Promise<IOperator> {
     return await tables.updateRow({
       databaseId: DATABASE_ID,
       tableId: TABLE_OPERATORS,
@@ -126,7 +126,7 @@ export const OperatorService = {
       },
     });
   },
-  async listBirthdays() {
+  async listBirthdays(): Promise<IOperator[]> {
     try {
       const response = await tables.listRows<IOperator>({
         databaseId: DATABASE_ID,

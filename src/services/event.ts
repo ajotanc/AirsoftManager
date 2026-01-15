@@ -84,7 +84,7 @@ export const EventService = {
       return response.rows;
     } catch (error) {
       console.error("Erro ao listar eventos:", error);
-      return [] as IEvent[];
+      return [];
     }
   },
   async update(rowId: string, data: IEvent): Promise<IEvent> {
@@ -162,9 +162,6 @@ export const EventService = {
       return [];
     }
   },
-  /**
-   * Confirma a presença (Check-in) e calcula XP automaticamente
-   */
   async confirmAttendance(
     rowId: string,
     operatorId: string

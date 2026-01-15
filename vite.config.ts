@@ -1,78 +1,85 @@
 import { fileURLToPath, URL } from "node:url";
-import { defineConfig } from "vite";
+import { defineConfig, loadEnv } from "vite";
 import vue from "@vitejs/plugin-vue";
 import Components from "unplugin-vue-components/vite";
 import { VitePWA } from "vite-plugin-pwa";
 import { PrimeVueResolver } from "@primevue/auto-import-resolver";
 
-export default defineConfig({
-  plugins: [
-    vue(),
-    Components({
-      resolvers: [PrimeVueResolver()],
-    }),
-    VitePWA({
-      registerType: "autoUpdate",
-      includeAssets: ["favicon.ico", "apple-touch-icon.png", "mask-icon.svg"],
-      manifest: {
-        name: "Êxodo - Airsoft Management System",
-        short_name: "Êxodo Airsoft",
-        start_url: "/login",
-        display: "standalone",
-        description: "Sistema de gestão do Êxodo Airsoft",
-        theme_color: "#081534",
-        background_color: "#081534",
-        lang: "pt-BR",
-        orientation: "portrait",
-        icons: [
-          {
-            src: "pwa-192x192.png",
-            sizes: "192x192",
-            type: "image/png",
-          },
-          {
-            src: "pwa-512x512.png",
-            sizes: "512x512",
-            type: "image/png",
-          },
-          {
-            src: "pwa-512x512.png",
-            sizes: "512x512",
-            type: "image/png",
-            purpose: "any maskable",
-          },
-        ],
-      },
-      workbox: {
-        maximumFileSizeToCacheInBytes: 4000000,
-        globPatterns: ["**/*.{js,css,html,ico,png,svg,webp}"],
-        globIgnores: ['**/remixicon-*.svg'],
-        runtimeCaching: [
-          {
-            urlPattern:
-              /^https:\/\/cloud\.appwrite\.io\/v1\/storage\/buckets\/.*\/files\/.*\/view/,
-            handler: "CacheFirst", // Tenta o cache primeiro, se não tiver, vai na rede
-            options: {
-              cacheName: "appwrite-images-cache",
-              expiration: {
-                maxEntries: 50, // Limite de 50 fotos de operadores/equipamentos
-                maxAgeSeconds: 60 * 60 * 24 * 30, // Cache por 30 dias
-              },
-              cacheableResponse: {
-                statuses: [0, 200], // Garante que apenas respostas válidas sejam salvas
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, process.cwd());
+
+  return {
+    plugins: [
+      vue(),
+      Components({
+        resolvers: [PrimeVueResolver()],
+      }),
+      VitePWA({
+        registerType: "autoUpdate",
+        includeAssets: ["favicon.ico", "apple-touch-icon.png", "mask-icon.svg"],
+        manifest: {
+          name: `${env.VITE_TEAM_NAME} - ${env.TITLE}`,
+          short_name: env.VITE_TEAM_NAME,
+          start_url: "/login",
+          display: "standalone",
+          description: `${env.VITE_TEAM_NAME} - ${env.DESCRIPTION}`,
+          theme_color: "#081534",
+          background_color: "#081534",
+          lang: "pt-BR",
+          orientation: "portrait",
+          icons: [
+            {
+              src: "pwa-192x192.png",
+              sizes: "192x192",
+              type: "image/png",
+            },
+            {
+              src: "pwa-512x512.png",
+              sizes: "512x512",
+              type: "image/png",
+            },
+            {
+              src: "maskable-icon-512x512.png",
+              sizes: "512x512",
+              type: "image/png",
+              purpose: "any maskable",
+            },
+          ],
+        },
+        workbox: {
+          maximumFileSizeToCacheInBytes: 4000000,
+          globPatterns: ["**/*.{js,css,html,ico,png,svg,webp}"],
+          globIgnores: ['**/remixicon-*.svg'],
+          runtimeCaching: [
+            {
+              urlPattern: /^https:\/\/cloud\.appwrite\.io\/v1\/storage\/buckets\/.*\/files\/.*\/view/,
+              handler: "CacheFirst",
+              options: {
+                cacheName: "appwrite-images-cache",
+                expiration: {
+                  maxEntries: 50,
+                  maxAgeSeconds: 60 * 60 * 24 * 30, // 30 dias
+                },
+                cacheableResponse: {
+                  statuses: [0, 200],
+                },
               },
             },
-          },
-        ],
+            {
+              urlPattern: /^https:\/\/cloud\.appwrite\.io\/v1\/databases\/.*/,
+              handler: "NetworkOnly",
+            },
+          ],
+        },
+      }),
+    ],
+    resolve: {
+      alias: {
+        "@": fileURLToPath(new URL("./src", import.meta.url)),
       },
-    }),
-  ],
-  resolve: {
-    alias: {
-      "@": fileURLToPath(new URL("./src", import.meta.url)),
     },
-  },
-  build: {
-    chunkSizeWarningLimit: 1000,
-  },
+    build: {
+      chunkSizeWarningLimit: 1000,
+    },
+  };
 });

@@ -1,7 +1,7 @@
 import type { ChartOptions, ChartData, TooltipItem } from "chart.js";
 
-export const TEAM_NAME = "Êxodo";
-export const TEAM_TAG = "EXD";
+export const TEAM_NAME = import.meta.env.VITE_TEAM_NAME;
+export const TEAM_TAG = import.meta.env.VITE_TEAM_TAG;
 export const MIN_COMPLETE_UNIFORMS = 3;
 export const EXPERIENCE_PER_LEVEL = 200;
 
