@@ -51,38 +51,38 @@
         </Column>
 
         <Column header="Graduação">
-          <template #body="{ data: { rating } }">
+          <template #body="{ data }">
             <Skeleton v-if="loading" width="100%" height="1rem" />
             <template v-else>
-              <Rating :modelValue="rating" :readonly="true" />
+              <Rating v-model="data.rating" :readonly="true" />
             </template>
           </template>
-          <template #editor="{ data: { rating } }">
-            <Rating :modelValue="rating" />
+          <template #editor="{ data }">
+            <Rating v-model="data.rating" />
           </template>
         </Column>
 
         <Column header="Cargo">
-          <template #body="{ data: { role } }">
+          <template #body="{ data }">
             <Skeleton v-if="loading" width="100%" height="1rem" />
             <template v-else>
-              <Tag :value="ROLES.find((item) => item.code === role)?.name" :severity="'contrast'" />
+              <Tag :value="ROLES.find((item) => item.code === data.role)?.name" :severity="'contrast'" />
             </template>
           </template>
-          <template #editor="{ data: { role } }">
-            <Select :options="ROLES" :modelValue="role" optionLabel="name" optionValue="code" class="w-full" fluid />
+          <template #editor="{ data }">
+            <Select :options="ROLES" v-model="data.role" optionLabel="name" optionValue="code" class="w-full" fluid />
           </template>
         </Column>
 
         <Column header="Situação">
-          <template #body="{ data: { status } }">
+          <template #body="{ data }">
             <Skeleton v-if="loading" width="100%" height="1rem" />
             <template v-else>
-              <Tag :value="status ? 'Ativo' : 'Inativo'" :severity="status ? 'success' : 'danger'" />
+              <Tag :value="data.status ? 'Ativo' : 'Inativo'" :severity="data.status ? 'success' : 'danger'" />
             </template>
           </template>
-          <template #editor="{ data: { status } }">
-            <ToggleSwitch :modelValue="status" />
+          <template #editor="{ data }">
+            <ToggleSwitch v-model="data.status" />
           </template>
         </Column>
 
@@ -167,23 +167,23 @@ const dt = ref();
 const editingRows = ref([]);
 
 const handleUpdate = async (event) => {
-  const { newData, index } = event;
+  const { newData: { $id, rating, role, status }, index } = event;
 
   try {
-    const rowId = newData.$id;
-
     const payload = {
-      rating: newData.rating,
+      rating,
+      role,
+      status
     };
 
-    const operatorUpdated = await OperatorService.updateOperator(
-      rowId,
+    const operatorUpdated = await OperatorService.update(
+      $id,
       payload
     );
 
-    operators.value[index] = newData;
+    operators.value[index] = operatorUpdated;
 
-    if (authStore.operator && authStore.operator.$id === rowId) {
+    if (authStore.operator && authStore.operator.$id === $id) {
       authStore.$patch((state) => {
         state.operator = { ...state.operator, ...payload };
       });

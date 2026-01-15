@@ -107,21 +107,24 @@ export const OperatorService = {
       data,
     });
   },
-  async changeAvatar(rowId: string, file: File) {
+  async changeAvatar(rowId: string, avatar: string, file: File): Promise<IOperator> {
     const fileId = `avatar-${rowId}`;
 
-    await storage.deleteFile({ bucketId: BUCKET_ID, fileId });
+    if (avatar) {
+      await storage.deleteFile({ bucketId: BUCKET_ID, fileId });
+    }
+
     await storage.createFile({ bucketId: BUCKET_ID, fileId, file });
 
     const originalUrl = storage.getFileView({ bucketId: BUCKET_ID, fileId });
-    const avatar = `${originalUrl}&v=${Date.now()}`;
+    const urlFormatted = `${originalUrl}&v=${Date.now()}`;
 
-    return await tables.updateRow({
+    return await tables.updateRow<IOperator>({
       databaseId: DATABASE_ID,
       tableId: TABLE_OPERATORS,
       rowId,
       data: {
-        avatar,
+        avatar: urlFormatted,
       },
     });
   },
