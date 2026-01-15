@@ -18,7 +18,7 @@ export default async (request: Request, context: Context) => {
     const client = new Client();
     client.setEndpoint(ENDPOINT!).setProject(PROJECT_ID!);
 
-    export const tables = new TablesDB(client);
+    const tables = new TablesDB(client);
 
     const event = await tables.getRow({
       databaseId: DATABASE_ID,
