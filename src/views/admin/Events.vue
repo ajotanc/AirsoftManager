@@ -37,6 +37,8 @@
                     <template #body="{ data: event }">
                         <Skeleton v-if="loading" width="100%" height="1rem" />
                         <div v-else class="flex gap-2 justify-content-center">
+                            <Button icon="pi pi-copy" rounded severity="warn" v-tooltip.top="'Copiar Mensagem'"
+                                @click="copyEventInvite(event)" />
                             <Button asChild v-slot="slotProps" rounded class="p-button p-button-primary">
                                 <RouterLink :to="`/events/${event.$id}`" rounded class="no-underline"
                                     :class="slotProps.class" v-tooltip.top="'Detalhes'">
@@ -135,8 +137,8 @@ import { z } from 'zod';
 import { zodResolver } from "@primevue/forms/resolvers/zod";
 import { useConfirm, type FileUploadSelectEvent } from "primevue";
 import { EventService, type IEvent } from "@/services/event";
-import { formatDateToLocal, type IFields } from "@/functions/utils";
-import { EVENT_TYPES } from "@/constants/airsoft";
+import { formatDate, formatDateToLocal, type IFields } from "@/functions/utils";
+import { EVENT_TYPES, TEAM_NAME } from "@/constants/airsoft";
 import Editor from "primevue/editor";
 
 onMounted(() => {
@@ -355,6 +357,44 @@ const editEvent = async (event: IEvent) => {
     };
 
     eventDialog.value = true;
+};
+
+const copyEventInvite = async (event: IEvent) => {
+    const baseUrl = window.location.origin;
+    const eventLink = `${baseUrl}/events/${event.$id}?t=${Date.now()}`;
+
+    const message = `
+*🪖 MISSÃO: ${event.title.toUpperCase()}*
+---------------------------------------
+*📅 DATA:* ${formatDate(event.date, true)}
+*⏰ HORÁRIO:* ${event.startTime} às ${event.endTime}
+*📍 LOCAL:* ${event.location}
+
+*🔗 DETALHES E CHECK-IN:*
+${eventLink}
+
+*Aperte no link acima para confirmar sua presença!*
+---------------------------------------
+_"No campo de batalha ou na vida: No ${TEAM_NAME}, ninguém fica para trás!"_
+  `.trim();
+
+    try {
+        await navigator.clipboard.writeText(message);
+        toast.add({
+            severity: 'success',
+            summary: 'Convite Copiado',
+            detail: 'O resumo da missão está no seu clipboard.',
+            life: 3000
+        });
+    } catch (err) {
+        console.error("Falha ao copiar:", err);
+        toast.add({
+            severity: 'error',
+            summary: 'Erro',
+            detail: 'Não foi possível copiar para o clipboard.',
+            life: 3000
+        });
+    }
 };
 
 const hideDialog = () => {

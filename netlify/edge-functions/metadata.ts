@@ -9,11 +9,6 @@ export default async (request: Request, context: Context) => {
 
   const rowId = eventMatch[1];
 
-  console.log("Config Check:", {
-    team: Netlify.env.get("VITE_TEAM_NAME"),
-    endpoint: !!Netlify.env.get("VITE_APPWRITE_ENDPOINT")
-  });
-
   const ENDPOINT = Netlify.env.get("VITE_APPWRITE_ENDPOINT");
   const PROJECT_ID = Netlify.env.get("VITE_APPWRITE_PROJECT_ID");
   const DATABASE_ID = Netlify.env.get("VITE_APPWRITE_DATABASE_ID");
@@ -38,7 +33,7 @@ export default async (request: Request, context: Context) => {
     const description = `${event.location} - ${new Date(event.date).toLocaleDateString('pt-BR')} às ${event.startTime}h`;
 
     const customHtml = html
-      .replace(/<title>.*?<\/title>/, `<title>${TEAM_NAME} - ${event.title.toUpperCase()}</title>`)
+      .replace(/<title>.*?<\/title>/, `<title>${TEAM_NAME.toUpperCase()} - ${event.title.toUpperCase()}</title>`)
       .replace(/<meta name="description" content=".*?" \/>/g, `<meta name="description" content="${event.description}" />`)
       .replace(/<meta property="og:title" content=".*?" \/>/g, `<meta property="og:title" content="${event.title}" />`)
       .replace(/<meta property="og:description" content=".*?" \/>/g, `<meta property="og:description" content="${description}" />`)
