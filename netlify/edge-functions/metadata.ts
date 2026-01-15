@@ -12,19 +12,19 @@ export default async (request: Request, context: Context) => {
   const ENDPOINT = Netlify.env.get("VITE_APPWRITE_ENDPOINT");
   const PROJECT_ID = Netlify.env.get("VITE_APPWRITE_PROJECT_ID");
   const DATABASE_ID = Netlify.env.get("VITE_APPWRITE_DATABASE_ID");
-  const COLLECTION_ID = "events"; // ID da sua coleção de eventos
+  const TABLE_ID = "events";
 
   try {
     const client = new Client();
     client.setEndpoint(ENDPOINT!).setProject(PROJECT_ID!);
 
-    const databases = new Databases(client);
+    export const tables = new TablesDB(client);
 
-    const event = await databases.getDocument(
-      DATABASE_ID!,
-      COLLECTION_ID,
+    const event = await tables.getRow({
+      databaseId: DATABASE_ID,
+      tableId: TABLE_ID,
       rowId
-    );
+    });
 
     const originalResponse = await context.next();
     const html = await originalResponse.text();
