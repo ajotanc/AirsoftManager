@@ -281,7 +281,7 @@ import { atcb_action } from 'add-to-calendar-button';
 import { useAuthStore } from '@/stores/auth';
 import { EventService, type IEvent, type IParticipation, type IVisitorParticipation } from '@/services/event';
 import { EVENT_TYPES, TEAM_NAME } from '@/constants/airsoft';
-import { extractCoordsFromUrl, formatDate, playBeep } from '@/functions/utils';
+import { formatDate, playBeep } from '@/functions/utils';
 import type { ATCBActionEventConfig } from 'add-to-calendar-button';
 import { severityEvent } from '@/functions/utils'
 
@@ -418,11 +418,9 @@ const handleCalendarDynamic = () => {
 const checkinsCount = computed(() => participants.value.filter(p => p.checked_in).length + visitorParticipants.value.filter(p => p.checked_in).length);
 
 const mapUrl = computed(() => {
-    if (!event.value?.location_url) return null;
-    const coords = extractCoordsFromUrl(event.value.location_url);
-    if (!coords) return null;
+    if (!event.value.location_coords) return null;
 
-    return `https://maps.google.com/maps?q=${coords.lat},${coords.lng}&z=15&output=embed`;
+    return `https://maps.google.com/maps?q=${event.value.location_coords}&z=15&output=embed`;
 });
 
 onMounted(() => {

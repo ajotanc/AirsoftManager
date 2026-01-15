@@ -62,13 +62,11 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
-import { useRouter } from 'vue-router';
 import { EventService, type IEvent } from '@/services/event';
 import { EVENT_TYPES } from '@/constants/airsoft';
-import { formatDate, severityEvent } from '@/functions/utils';
+import { formatDate, severityEvent, goToEvent } from '@/functions/utils';
 import { Skeleton, useToast } from 'primevue';
 
-const router = useRouter();
 const allEvents = ref<IEvent[]>([]);
 
 const loading = ref(true);
@@ -123,5 +121,4 @@ const dtValue = computed(() => {
     return loading.value ? new Array(5).fill({}) : allEvents.value;
 });
 
-const goToEvent = (id: string) => router.push(`/events/${id}?t=${Date.now()}`);
 </script>

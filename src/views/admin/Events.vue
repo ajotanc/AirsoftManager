@@ -37,13 +37,10 @@
                     <template #body="{ data: event }">
                         <Skeleton v-if="loading" width="100%" height="1rem" />
                         <div v-else class="flex gap-2 justify-content-center">
-                            <Button icon="pi pi-copy" rounded severity="warn" v-tooltip.top="'Copiar Mensagem'"
+                            <Button icon="pi pi-copy" text rounded severity="warn" v-tooltip.top="'Copiar Mensagem'"
                                 @click="copyEventInvite(event)" />
-                            <Button asChild v-slot="slotProps" rounded class="p-button p-button-primary">
-                                <RouterLink :to="`/events/${event.$id}`" rounded class="no-underline"
-                                    :class="slotProps.class" v-tooltip.top="'Detalhes'">
-                                    <i class="pi pi-link"></i>
-                                </RouterLink>
+                            <Button icon="pi pi-link" @click="goToEvent(event.$id)" text rounded
+                                v-tooltip.top="'Detalhes'">
                             </Button>
                             <Button icon="pi pi-pencil" text rounded severity="info" v-tooltip.top="'Editar'"
                                 @click="editEvent(event)" />
@@ -137,7 +134,7 @@ import { z } from 'zod';
 import { zodResolver } from "@primevue/forms/resolvers/zod";
 import { useConfirm, type FileUploadSelectEvent } from "primevue";
 import { EventService, type IEvent } from "@/services/event";
-import { formatDate, formatDateToLocal, type IFields } from "@/functions/utils";
+import { formatDate, formatDateToLocal, goToEvent, type IFields } from "@/functions/utils";
 import { EVENT_TYPES, TEAM_NAME } from "@/constants/airsoft";
 import Editor from "primevue/editor";
 
@@ -196,7 +193,7 @@ const missionSchema = z.object({
     startTime: z.string({ error: "Início obrigatório" }),
     endTime: z.string({ error: "Término obrigatório" }),
     location_url: z.url({ error: "Insira uma URL válida" }).refine((val) => {
-        return val.includes('maps/place') || val.includes('goo.gl/maps');
+        return val.includes('maps.app.goo.gl');
     }, {
         message: "A URL deve ser um link válido do Google Maps"
     }),
@@ -222,7 +219,12 @@ const saveEvent = async ({ valid, values }: any) => {
     if (!valid) return false;
 
     try {
-        const response = await EventService.upsert(selectedEvent.value.$id, values, values.thumbnail) as IEvent;
+        const payload = {
+            ...values,
+            location_coords: selectedEvent.value.location_coords
+        }
+
+        const response = await EventService.upsert(selectedEvent.value.$id, payload, values.thumbnail) as IEvent;
 
         const index = events.value.findIndex((item: IEvent) => item.$id === response.$id);
 
@@ -364,18 +366,18 @@ const copyEventInvite = async (event: IEvent) => {
     const eventLink = `${baseUrl}/events/${event.$id}?t=${Date.now()}`;
 
     const message = `
-*🪖 MISSÃO: ${event.title.toUpperCase()}*
+*${event.title.toUpperCase()}*
 ---------------------------------------
-*📅 DATA:* ${formatDate(event.date, true)}
-*⏰ HORÁRIO:* ${event.startTime} às ${event.endTime}
-*📍 LOCAL:* ${event.location}
+📅 *Data:* ${formatDate(event.date, true)}
+⏰ *Horário:* ${event.startTime} às ${event.endTime}
+📍 *Local:* ${event.location} (${event.location_url})
 
-*🔗 DETALHES E CHECK-IN:*
+🔗 *Briefing / Check-in:*
 ${eventLink}
 
-*Aperte no link acima para confirmar sua presença!*
----------------------------------------
-_"No campo de batalha ou na vida: No ${TEAM_NAME}, ninguém fica para trás!"_
+*Aperte no link acima e confirme a sua presença!*
+
+> _"No campo de batalha ou na vida: No *${TEAM_NAME}*, ninguém fica para trás!"_
   `.trim();
 
     try {

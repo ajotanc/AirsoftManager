@@ -1,4 +1,5 @@
 import beepSound from "@/assets/sounds/beep.mp3"; // O '@' aponta para a pasta src
+import router from "@/router";
 
 export interface IFields {
   name: string;
@@ -161,3 +162,4 @@ export const severityEvent = (type: number | string): string => {
 };
 
 export const getShortName = (name: string) => name && name.split(' ').slice(0, 2).join(' ') || 'Operador';
+export const goToEvent = (id: string) => router.push(`/events/${id}?t=${Date.now()}`);

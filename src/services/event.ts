@@ -87,7 +87,15 @@ export const EventService = {
       return [];
     }
   },
-  async update(rowId: string, data: IEvent): Promise<IEvent> {
+  async create(data: IEvent): Promise<IEvent> {
+    return await tables.updateRow({
+      databaseId: DATABASE_ID,
+      tableId: TABLE_EVENTS,
+      rowId: ID.unique(),
+      data,
+    });
+  },
+  async update(rowId: string, data: Partial<IEvent>): Promise<IEvent> {
     return await tables.updateRow({
       databaseId: DATABASE_ID,
       tableId: TABLE_EVENTS,
@@ -97,14 +105,13 @@ export const EventService = {
   },
   async upsert(
     rowId: string | undefined,
-    data: Partial<IEvent>,
+    data: IEvent | Partial<IEvent>,
     file?: File
   ): Promise<IEvent> {
     try {
       const isUpdate = !!rowId;
       const id = rowId || ID.unique();
 
-      console.log(isUpdate, file);
       if (file instanceof File) {
         if (isUpdate) {
           this.deleteThumbnail(id);
@@ -113,12 +120,11 @@ export const EventService = {
         data.thumbnail = await this.uploadThumbnail(id, file);
       }
 
-      return await tables.upsertRow({
-        databaseId: DATABASE_ID,
-        tableId: TABLE_EVENTS,
-        rowId: id,
-        data,
-      });
+      if (isUpdate) {
+        return await this.update(id, data as Partial<IEvent>);
+      }
+
+      return await this.create(data as IEvent);
     } catch (error) {
       console.error("Erro no upsert:", error);
       throw error;
@@ -133,14 +139,6 @@ export const EventService = {
       databaseId: DATABASE_ID,
       tableId: TABLE_EVENTS,
       rowId,
-    });
-  },
-  async create(data: IEvent, rowId: string): Promise<IEvent> {
-    return await tables.createRow({
-      databaseId: DATABASE_ID,
-      tableId: TABLE_EVENTS,
-      rowId,
-      data,
     });
   },
   async listFromDate(startDate: string): Promise<IEvent[]> {
