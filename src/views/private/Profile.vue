@@ -26,8 +26,8 @@
         <span class="text-600 font-medium">Preencha seus dados completos</span>
       </div>
 
-      <Form ref="form" v-slot="$form" :resolver="resolver" :initialValues="initialValues"
-        @submit="handleUpdateProfile" class="flex flex-column gap-3">
+      <Form ref="form" v-slot="$form" :resolver="resolver" :initialValues="initialValues" @submit="handleUpdateProfile"
+        class="flex flex-column gap-3">
 
         <Panel header="Identificação" toggleable>
           <div class="grid formgrid">
@@ -262,8 +262,11 @@
 
             <FormField name="medication_details" v-slot="$field" class="field col-12 md:col-9 flex flex-column gap-1">
               <FloatLabel variant="in">
-                <AutoComplete v-model="$field.value" class="w-full" multiple
-                  :disabled="!$form.continuous_medication?.value" :typeahead="false" fluid />
+                <AutoComplete v-model="$field.value" multiple :typeahead="false" fluid
+                  :disabled="!$form.continuous_medication?.value" add-on-blur :input-props="{
+                    enterkeyhint: 'done',
+                    inputmode: 'text'
+                  }" />
                 <label>Quais medicamentos? (Digite e tecle Enter)</label>
               </FloatLabel>
               <Message v-if="$field.invalid" severity="error" size="small" variant="simple">{{ $field.error.message }}
@@ -272,7 +275,10 @@
 
             <FormField name="allergies" v-slot="$field" class="field col-12 flex flex-column gap-1">
               <FloatLabel variant="in">
-                <AutoComplete v-model="$field.value" class="w-full" multiple :typeahead="false" fluid />
+                <AutoComplete v-model="$field.value" multiple :typeahead="false" fluid add-on-blur :input-props="{
+                  enterkeyhint: 'done',
+                  inputmode: 'text'
+                }" />
                 <label>Alergias (Digite e tecle Enter)</label>
               </FloatLabel>
             </FormField>

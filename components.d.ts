@@ -15,6 +15,7 @@ declare module 'vue' {
     BirthdayList: typeof import('./src/components/BirthdayList.vue')['default']
     BirthdaySkeleton: typeof import('./src/components/skeleton/BirthdaySkeleton.vue')['default']
     Button: typeof import('primevue/button')['default']
+    ButtonShare: typeof import('./src/components/ButtonShare.vue')['default']
     Card: typeof import('primevue/card')['default']
     Carousel: typeof import('primevue/carousel')['default']
     ColumnContent: typeof import('./src/components/ColumnContent.vue')['default']

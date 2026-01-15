@@ -37,8 +37,8 @@
                     <template #body="{ data: event }">
                         <Skeleton v-if="loading" width="100%" height="1rem" />
                         <div v-else class="flex gap-2 justify-content-center">
-                            <Button icon="pi pi-copy" text rounded severity="warn" v-tooltip.top="'Copiar Mensagem'"
-                                @click="copyEventInvite(event)" />
+                            <ButtonShare :event="event" icon="pi pi-copy" text rounded severity="warn"
+                                v-tooltip.top="'Copiar Conteúdo'" />
                             <Button icon="pi pi-link" @click="goToEvent(event.$id)" text rounded
                                 v-tooltip.top="'Detalhes'">
                             </Button>
@@ -132,11 +132,12 @@ import Message from "primevue/message";
 import { Form } from '@primevue/forms';
 import { z } from 'zod';
 import { zodResolver } from "@primevue/forms/resolvers/zod";
-import { useConfirm, type FileUploadSelectEvent } from "primevue";
+import { InputNumber, useConfirm, type FileUploadSelectEvent } from "primevue";
 import { EventService, type IEvent } from "@/services/event";
-import { formatDate, formatDateToLocal, goToEvent, type IFields } from "@/functions/utils";
-import { EVENT_TYPES, TEAM_NAME } from "@/constants/airsoft";
+import { formatDateToLocal, goToEvent, type IFields } from "@/functions/utils";
+import { EVENT_TYPES } from "@/constants/airsoft";
 import Editor from "primevue/editor";
+import ButtonShare from "@/components/ButtonShare.vue";
 
 onMounted(() => {
     loadServices();
@@ -192,6 +193,7 @@ const missionSchema = z.object({
     ) => formatDateToLocal(date as Date)),
     startTime: z.string({ error: "Início obrigatório" }),
     endTime: z.string({ error: "Término obrigatório" }),
+    minimum_effective: z.number({ error: "Efetivo mínimo obrigatório" }),
     location_url: z.url({ error: "Insira uma URL válida" }).refine((val) => {
         return val.includes('maps.app.goo.gl');
     }, {
@@ -280,9 +282,10 @@ const fields: IFields[] = [
     { name: 'startTime', label: 'Início', component: InputMask, col: '6', props: { mask: '99:99' } },
     { name: 'endTime', label: 'Término', component: InputMask, col: '6', props: { mask: '99:99' } },
     {
-        name: 'type', label: 'Tipo de Missão', component: Select, col: '12', isTag: true,
+        name: 'type', label: 'Tipo de Missão', component: Select, col: '6', isTag: true,
         props: { options: Object.entries(EVENT_TYPES).map(([value, label]) => ({ label, value })), optionLabel: 'label', optionValue: 'value' }
     },
+    { name: 'minimum_effective', label: 'Efetivo Mínimo', component: InputNumber, col: '6' },
     { name: 'location', label: 'Nome do Local', component: InputText, col: '12' },
     { name: 'location_url', label: 'URL Google Maps', component: InputText, col: '12', hidden: true },
 ];
@@ -359,45 +362,6 @@ const editEvent = async (event: IEvent) => {
     };
 
     eventDialog.value = true;
-};
-
-const copyEventInvite = async (event: IEvent) => {
-    const baseUrl = window.location.origin;
-    const eventLink = `${baseUrl}/events/${event.$id}?t=${Date.now()}`;
-
-    const message = `
-*${event.title.toUpperCase()}*
--------------------------------------------------
-
-🔗 *Briefing / Check-in:*
-${eventLink}
-
-*Aperte no link acima e confirme a sua presença!*
-
-📅 *Data:* ${formatDate(event.date, true)}
-⏰ *Horário:* ${event.startTime} às ${event.endTime}
-📍 *Local:* ${event.location} (${event.location_url})
-
-> _"No campo de batalha ou na vida: No *${TEAM_NAME}*, ninguém fica para trás!"_
-  `.trim();
-
-    try {
-        await navigator.clipboard.writeText(message);
-        toast.add({
-            severity: 'success',
-            summary: 'Convite Copiado',
-            detail: 'O resumo da missão está no seu clipboard.',
-            life: 3000
-        });
-    } catch (err) {
-        console.error("Falha ao copiar:", err);
-        toast.add({
-            severity: 'error',
-            summary: 'Erro',
-            detail: 'Não foi possível copiar para o clipboard.',
-            life: 3000
-        });
-    }
 };
 
 const hideDialog = () => {

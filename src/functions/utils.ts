@@ -1,4 +1,4 @@
-import beepSound from "@/assets/sounds/beep.mp3"; // O '@' aponta para a pasta src
+import beepSound from "@/assets/sounds/beep.mp3";
 import router from "@/router";
 
 export interface IFields {

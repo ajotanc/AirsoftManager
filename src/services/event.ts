@@ -28,6 +28,7 @@ export interface IEvent extends Models.Row {
   location_coords?: string;
   description: string;
   thumbnail?: string;
+  minimum_effective?: number;
   participations?: IParticipation[];
   visitor_participations?: IVisitorParticipation[];
   carpools?: ICarpool[];
@@ -79,7 +80,10 @@ export const EventService = {
       const response = await tables.listRows<IEvent>({
         databaseId: DATABASE_ID,
         tableId: TABLE_EVENTS,
-        queries: [Query.orderDesc("date")],
+        queries: [
+          Query.select(["*", "participations.*", "visitor_participations.*"]),
+          Query.orderDesc("date")
+        ],
       });
       return response.rows;
     } catch (error) {

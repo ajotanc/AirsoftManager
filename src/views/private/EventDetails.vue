@@ -36,6 +36,7 @@
                             @click="toggleParticipation" class="w-full md:w-auto" />
                         <Button v-if="isConfirmed" label="Adicionar à Agenda" icon="pi pi-calendar-plus" severity="help"
                             @click="handleCalendarDynamic" class="w-full md:w-auto" />
+                        <ButtonShare :event="event" icon="pi pi-share-alt" outlined v-tooltip.top="'Compartilhar'" />
                     </div>
                 </div>
             </div>
@@ -305,13 +306,14 @@ import { CarpoolService, type ICarpool } from '@/services/carpool';
 import { VehicleService, type IVehicle } from '@/services/vehicle';
 import { CarpoolRequestService, type ICarpoolRequest } from '@/services/carpool_request';
 import router from '@/router';
+import ButtonShare from '@/components/ButtonShare.vue';
 
 const route = useRoute();
 const toast = useToast();
 const confirm = useConfirm();
 const { operator } = useAuthStore();
 
-const event = ref<IEvent>({} as IEvent);
+const rawEvent = ref<IEvent>({} as IEvent);
 const participants = ref<IParticipation<IOperator>[]>([]);
 const visitorParticipants = ref<IVisitorParticipation<IVisitor<string>>[]>([]);
 
@@ -329,6 +331,14 @@ const carpoolRequests = computed(() => {
         if (request.status !== 'pending') return false;
         return request.carpool.vehicle.driver === operator.$id;
     });
+});
+
+const event = computed(() => {
+    return {
+        ...rawEvent.value,
+        participations: participants.value,
+        visitor_participations: visitorParticipants.value
+    };
 });
 
 const operatorsMap = computed(() => {
@@ -438,7 +448,7 @@ const loadServices = async () => {
         }
 
         const eventDetails = await EventService.row(eventId) as IEvent;
-        event.value = eventDetails;
+        rawEvent.value = eventDetails;
 
         participants.value = eventDetails.participations as IParticipation<IOperator>[];
 
@@ -451,7 +461,7 @@ const loadServices = async () => {
         //     }
         // })) as IVisitorParticipation<IVisitor<IOperator>>[];
 
-        eventDetails.visitor_participations as IVisitorParticipation<IVisitor<string>>[];
+        visitorParticipants.value = eventDetails.visitor_participations as IVisitorParticipation<IVisitor<string>>[];
 
         carpools.value = eventDetails.carpools as ICarpool<IVehicle>[];
         const carpoolIds = carpools.value.map(c => c.$id);
