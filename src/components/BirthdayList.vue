@@ -1,48 +1,61 @@
 <template>
-  <Carousel v-if="allBirthdays.length > 0" :value="allBirthdays" :numVisible="5" :numScroll="1"
-    :responsiveOptions="responsiveOptions" circular :autoplayInterval="4000">
+  <Carousel :value="dtValue" :numVisible="5" :numScroll="1" :responsiveOptions="responsiveOptions" circular
+    :autoplayInterval="4000">
     <template #item="{ data: birthday }">
-      <div class="p-2 h-full">
-        <Card class="h-full border-1 border-white-alpha-10 overflow-hidden flex flex-column">
-          <template #content>
-            <a class="no-underline"
-              :href="isBirthdayToday(birthday.birth_date) ? `/happy-birthday/${birthday.$id}` : 'javascript:void(0);'">
-              <div class="wrapper">
-                <div v-if="isBirthdayToday(birthday.birth_date)"
-                  class="w-full flex justify-content-between align-items-center absolute top-0 right-0 p-3 z-2">
-                  <Tag value="Feliz Aniversário!" severity="warn" />
-                  <i class="pi pi-gift text-base md:text-xl text-yellow-50"></i>
-                </div>
+      <div v-if="loading" class="flex gap-2 p-2">
+        <Skeleton width="100%" height="16rem" borderRadius="16px" />
+      </div>
+      <template v-else>
+        <div class="p-2 h-full">
+          <Card class="h-full border-1 border-white-alpha-10 overflow-hidden flex flex-column">
+            <template #content>
 
-                <Image v-if="birthday.avatar && isValidUrl(birthday.avatar)" :src="birthday.avatar"
-                  :alt="birthday.codename" class="avatar" />
-                <div v-else class="avatar">
-                  <i class="pi pi-image text-3xl text-blue-200"></i>
+              <a class="no-underline"
+                :href="isBirthdayToday(birthday.birth_date) ? `/happy-birthday/${birthday.$id}` : 'javascript:void(0);'">
+                <div class="wrapper">
+                  <div v-if="isBirthdayToday(birthday.birth_date)"
+                    class="w-full flex justify-content-between align-items-center absolute top-0 right-0 p-3 z-2">
+                    <Tag value="Feliz Aniversário!" severity="warn" />
+                    <i class="pi pi-gift text-base md:text-xl text-yellow-50"></i>
+                  </div>
+
+                  <Image v-if="birthday.avatar && isValidUrl(birthday.avatar)" :src="birthday.avatar"
+                    :alt="birthday.codename" class="avatar" />
+                  <div v-else class="avatar">
+                    <i class="pi pi-image text-3xl text-blue-200"></i>
+                  </div>
+                  <div class="content">
+                    <span class="text-xs md:text-base font-bold text-yellow-500">{{ birthday.codename }}</span>
+                    <span class="text-base md:text-2xl font-bold">{{ getShortName(birthday.name) }}</span>
+                    <span class="text-xs md:text-base">{{ formatDate(birthday.birth_date, true) }}</span>
+                  </div>
                 </div>
-                <div class="content">
-                  <span class="text-xs md:text-base font-bold text-yellow-500">{{ birthday.codename }}</span>
-                  <span class="text-base md:text-2xl font-bold">{{ getShortName(birthday.name) }}</span>
-                  <span class="text-xs md:text-base">{{ formatDate(birthday.birth_date, true) }}</span>
-                </div>
-              </div>
-            </a>
-          </template>
-        </Card>
+              </a>
+            </template>
+          </Card>
+        </div>
+      </template>
+    </template>
+    <template #empty>
+      <div class="flex flex-column align-items-center p-4 text-gray-500">
+        <i class="pi pi-gift text-5xl mb-2"></i>
+        <span class="text-sm">Nenhuma aniversariante no mês.</span>
       </div>
     </template>
-    <template #empty>Nenhum aniversariante encontrado.</template>
   </Carousel>
-  <div v-else class="flex gap-3 p-4">
-    <Skeleton height="20rem" class="w-full" />
-  </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { formatDate, isBirthdayToday, getShortName } from '@/functions/utils';
 import { OperatorService, type IOperator } from '@/services/operator';
+import { useToast } from 'primevue';
 
 const allBirthdays = ref<IOperator[]>([]);
+
+const loading = ref(true);
+
+const toast = useToast();
 
 const isValidUrl = (url: string) => {
   const pattern = /^https?:\/\//;
@@ -74,9 +87,25 @@ const responsiveOptions = ref([
 ]);
 
 onMounted(async () => {
-  allBirthdays.value = await OperatorService.list();
-  // allBirthdays.value = await OperatorService.listBirthdays() as IOperator[];
+  loadServices();
 });
+
+const loadServices = async () => {
+  try {
+    // allBirthdays.value = await OperatorService.list();
+    allBirthdays.value = await OperatorService.listBirthdays() as IOperator[];
+  } catch (error) {
+    console.error("Erro ao carregar serviços:", error);
+    toast.add({ severity: 'error', summary: 'Erro', detail: 'Falha ao carregar dados.' });
+  } finally {
+    loading.value = false;
+  }
+};
+
+const dtValue = computed(() => {
+  return loading.value ? new Array(5).fill({}) : allBirthdays.value;
+});
+
 </script>
 
 <style scoped>

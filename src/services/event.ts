@@ -104,7 +104,7 @@ export const EventService = {
       const isUpdate = !!rowId;
       const id = rowId || ID.unique();
 
-      console.log(file);
+      console.log(isUpdate, file);
       if (file instanceof File) {
         if (isUpdate) {
           this.deleteThumbnail(id);

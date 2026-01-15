@@ -29,3 +29,47 @@
   display: inline-block;
   font-size: var(--p-icon-size);
 }
+
+.rich-text-content {
+  max-width: 100%;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: break-all;
+}
+
+.rich-text-content p {
+  margin: 0;
+}
+
+.text-html {
+  max-width: 100%; 
+  margin: 0 auto; 
+  line-height: 1.6;
+  overflow-wrap: break-word; 
+  word-break: normal; 
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  hyphens: auto;
+  text-align: left;
+}
+
+.text-html p {
+  margin-bottom: 1rem;
+}
+
+.text-html p:last-child {
+  margin-bottom: 0;
+}
+
+.text-html strong {
+  font-weight: 700;
+}
+
+.text-html ul,
+.text-html ol {
+  margin-bottom: 1.5rem;
+  padding-left: 1.5rem;
+}

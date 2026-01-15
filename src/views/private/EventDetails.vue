@@ -1,5 +1,6 @@
 <template>
-    <div class="p-4" v-if="event">
+    <EventSkeleton v-if="loading" />
+    <div v-else class="p-4">
         <div class="border-bottom-1 border-black-alpha-20 pb-4 mb-4">
             <div class="grid">
                 <div class="col-12">
@@ -42,10 +43,10 @@
         <div class="grid">
             <div class="col-12 md:col-8">
                 <Card class="border-1 border-black-alpha-10 mb-4">
-                    <template #title><span class="text-green-400">Briefing da Missão</span></template>
                     <template #content>
-                        <Image :src="event.thumbnail" :alt="event.title" imageClass="w-full" preview />
-                        <p class="text-gray-300">{{ event.description }}</p>
+                        <Image :src="event.thumbnail" :alt="event.title" imageClass="w-full border-round" preview />
+                        <h2 class="text-green-400">Briefing da Missão</h2>
+                        <div class="text-html" v-html="event.description"></div>
                     </template>
                 </Card>
                 <Card class="bg-blue-900 border-1 border-white-alpha-10">
@@ -67,13 +68,13 @@
                 <Card class="bg-blue-900 border-1 border-white-alpha-10 mb-4">
                     <span class="text-green-500">Controle de Operação</span>
                     <template #content>
-                        <div v-if="operator.role === 'admin'" class="buttons flex flex-column gap-2">
+                        <div v-if="operator.role === 'admin'" class="buttons flex flex-column gap-2 mb-3">
                             <Button label="Check-in QR Code" icon="pi pi-qrcode" class="w-full" severity="success"
                                 @click="openScannerDialog = true" />
                             <Button label="Adicionar Visitante" icon="pi pi-plus" class="w-full" severity="warning"
                                 :disabled="availableVisitors.length === 0" @click="openVisitorDialog = true" />
                         </div>
-                        <h4 class="text-sm uppercase text-gray-400 border-bottom-1 border-white-alpha-10 pb-2">
+                        <h4 class="text-sm uppercase text-gray-400 border-bottom-1 border-white-alpha-10 mt-0 pb-2">
                             Lista de Operadores
                         </h4>
                         <Tabs :value="0">
@@ -86,9 +87,9 @@
                                 <TabPanel :value="0">
                                     <div v-for="{ $id, operator, checked_in } in participants" :key="$id"
                                         class="flex align-items-center gap-3 mb-3">
-                                        <Avatar v-if="operator.avatar" :image="operator.avatar" shape="circle"
+                                        <Avatar :image="operator.avatar"
+                                            :icon="!operator.avatar ? 'pi pi-user' : undefined" shape="circle"
                                             size="small" />
-                                        <Avatar v-else :label="operator.codename[0]" shape="circle" size="small" />
                                         <span :class="{ 'text-green-400': checked_in }">{{
                                             operator.codename }}</span>
                                         <i v-if="checked_in" class="pi pi-check font-bold text-green-600 ml-auto""></i>
@@ -121,13 +122,12 @@
                     </template>
                 </Card>
                 <Card class="bg-blue-900 border-1 border-white-alpha-10">
-                    <span class="text-green-500">Carona solidária</span>
                     <template #content>
-                        <div class="buttons flex flex-column gap-2">
-                            <Button v-if="vehicles.length > 0" label="Adicionar Carona" icon="pi pi-plus" class="w-full"
-                                severity="warning" @click="openVisitorDialog = true" />
+                        <div v-if="vehicles.length > 0" class="buttons flex flex-column gap-2 mb-3">
+                            <Button label="Adicionar Carona" icon="pi pi-plus" class="w-full" severity="warning"
+                                @click="openVisitorDialog = true" />
                         </div>
-                        <h4 class="text-sm uppercase text-gray-400 border-bottom-1 border-white-alpha-10 pb-2">
+                        <h4 class="text-sm uppercase text-gray-400 border-bottom-1 border-white-alpha-10 mt-0 pb-2">
                             Carona Solidária
                         </h4>
                         <Tabs :value="0">
@@ -247,26 +247,24 @@
 
         <Dialog v-model:visible="openVisitorDialog" header="Adicionar Visitantes" :modal="true"
             class="w-full md:w-30rem">
-            <div class="grid">
-                <div class="col-12">
-                    <FloatLabel variant="in">
-                        <MultiSelect v-model="selectedVisitors" :options="availableVisitors" optionLabel="codename"
-                            filter :maxSelectedLabels="3" class="w-full" display="chip">
-                            <template #option="slotProps">
-                                <div class="flex flex-column">
-                                    <span class="font-bold">{{ slotProps.option.name }} ({{ slotProps.option.codename
+            <div class="col-12">
+                <FloatLabel variant="in">
+                    <MultiSelect v-model="selectedVisitors" :options="availableVisitors" optionLabel="codename" filter
+                        :maxSelectedLabels="3" class="w-full" display="chip">
+                        <template #option="slotProps">
+                            <div class="flex flex-column">
+                                <span class="font-bold">{{ slotProps.option.name }} ({{ slotProps.option.codename
                                     }})</span>
-                                    <small class="text-gray-500">Convidado por {{
-                                        slotProps.option.operator.codename }}</small>
-                                </div>
-                            </template>
-                            <template #empty>Nenhum visitante disponível</template>
-                        </MultiSelect>
-                        <label>Visitantes</label>
-                    </FloatLabel>
-                    <Button label="Adicionar Visitantes" icon="pi pi-check-circle" severity="success"
-                        class="w-full mt-2" :disabled="selectedVisitors.length === 0" @click="addVisitorParcipations" />
-                </div>
+                                <small class="text-gray-500">Convidado por {{
+                                    slotProps.option.operator.codename }}</small>
+                            </div>
+                        </template>
+                        <template #empty>Nenhum visitante disponível</template>
+                    </MultiSelect>
+                    <label>Visitantes</label>
+                </FloatLabel>
+                <Button label="Adicionar Visitantes" icon="pi pi-check-circle" severity="success" class="w-full mt-2"
+                    :disabled="selectedVisitors.length === 0" @click="addVisitorParcipations" />
             </div>
         </Dialog>
 
@@ -306,6 +304,7 @@ import { VisitorService, type IVisitor } from '@/services/visitor';
 import { CarpoolService, type ICarpool } from '@/services/carpool';
 import { VehicleService, type IVehicle } from '@/services/vehicle';
 import { CarpoolRequestService, type ICarpoolRequest } from '@/services/carpool_request';
+import router from '@/router';
 
 const route = useRoute();
 const toast = useToast();
@@ -337,6 +336,8 @@ const operatorsMap = computed(() => {
 });
 
 const vehicles = ref<IVehicle[]>([]);
+
+const loading = ref(false);
 
 const isConfirmed = ref(false);
 const openScannerDialog = ref(false);
@@ -424,44 +425,63 @@ const mapUrl = computed(() => {
     return `https://maps.google.com/maps?q=${coords.lat},${coords.lng}&z=15&output=embed`;
 });
 
-onMounted(async () => {
-    const eventId = route.params.id?.toString();
-
-    if (!eventId) return;
-
-    const eventDetails = await EventService.row(eventId) as IEvent;
-    event.value = eventDetails;
-
-    participants.value = eventDetails.participations as IParticipation<IOperator>[];
-
-    // const participations = eventDetails.visitor_participations as IVisitorParticipation<IVisitor<string>>[];
-
-    // const hydrated: IVisitorParticipation<IVisitor<IOperator>>[] = participations.map((vp) => {
-    //     return {
-    //         ...vp,
-    //         visitor: {
-    //             ...vp.visitor,
-    //             operator: getOperator(vp.visitor.operator) || ({} as IOperator)
-    //         }
-    //     };
-    // });
-
-    // visitorParticipants.value = hydrated;
-    visitorParticipants.value = eventDetails.visitor_participations as IVisitorParticipation<IVisitor<string>>[];
-
-
-    carpools.value = eventDetails.carpools as ICarpool<IVehicle>[];
-    const carpoolIds = carpools.value.map(carpool => carpool.$id);
-
-    if (carpoolIds.length > 0) {
-        requests.value = await CarpoolRequestService.listByCarpools(carpoolIds);
-    }
-
-    vehicles.value = await VehicleService.listByOperator(operator.$id);
-
-    visitors.value = await VisitorService.list();
-    isConfirmed.value = participants.value.some(p => p.operator.$id === operator.$id);
+onMounted(() => {
+    loadServices();
 });
+
+const loadServices = async () => {
+    try {
+        loading.value = true;
+        const eventId = route.params.id?.toString();
+
+        if (!eventId) {
+            router.push('/events');
+            return;
+        }
+
+        const eventDetails = await EventService.row(eventId) as IEvent;
+        event.value = eventDetails;
+
+        participants.value = eventDetails.participations as IParticipation<IOperator>[];
+
+        // const rawVisitors = (eventDetails.visitor_participations || []) as IVisitorParticipation<IVisitor<string>>[];
+        // visitorParticipants.value = rawVisitors.map((vp) => ({
+        //     ...vp,
+        //     visitor: {
+        //         ...vp.visitor,
+        //         operator: getOperator(vp.visitor.operator) || ({} as IOperator)
+        //     }
+        // })) as IVisitorParticipation<IVisitor<IOperator>>[];
+
+        eventDetails.visitor_participations as IVisitorParticipation<IVisitor<string>>[];
+
+        carpools.value = eventDetails.carpools as ICarpool<IVehicle>[];
+        const carpoolIds = carpools.value.map(c => c.$id);
+
+        const [requestsData, vehiclesData, visitorsData] = await Promise.all([
+            carpoolIds.length > 0 ? CarpoolRequestService.listByCarpools(carpoolIds) : [],
+            VehicleService.listByOperator(operator.$id),
+            VisitorService.list()
+        ]);
+
+        requests.value = requestsData;
+        vehicles.value = vehiclesData;
+        visitors.value = visitorsData;
+
+        isConfirmed.value = participants.value.some(p => p.operator.$id === operator.$id);
+
+    } catch (error) {
+        console.error("Erro ao carregar dados da missão:", error);
+        toast.add({
+            severity: 'error',
+            summary: 'Erro de Carregamento',
+            detail: 'Não foi possível carregar os detalhes da missão.',
+            life: 5000
+        });
+    } finally {
+        loading.value = false;
+    }
+};
 
 const toggleParticipation = async () => {
     try {

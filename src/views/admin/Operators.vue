@@ -32,8 +32,8 @@
           <template #body="{ data: { avatar } }">
             <Skeleton v-if="loading" width="100%" height="1rem" />
             <template v-else>
-              <Avatar v-if="avatar" :image="avatar" class="mr-2" size="xlarge" shape="circle" />
-              <Avatar v-else icon="pi pi-user" class="mr-2" size="xlarge" shape="circle" />
+              <Avatar :image="avatar" :icon="!avatar ? 'pi pi-user' : undefined" class="mr-2" size="xlarge"
+                shape="circle" />
             </template>
           </template>
         </Column>

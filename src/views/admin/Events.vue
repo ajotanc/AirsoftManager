@@ -6,7 +6,7 @@
                 paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
                 :rowsPerPageOptions="[5, 10, 25]"
                 currentPageReportTemplate="Exibindo {first} a {last} de {totalRecords} evento(s)"
-                tableStyle="min-width: 60rem">
+                tableStyle="min-width: 60rem;">
 
                 <template #header>
                     <div class="flex flex-wrap align-events-center justify-content-between gap-3 p-2">
@@ -26,7 +26,8 @@
                     </div>
                 </template>
 
-                <Column v-for="column in fields" :key="column.name" :header="column.label" :hidden="column.hidden">
+                <Column v-for="column in fields" :key="column.name" :header="column.label" :hidden="column.hidden"
+                    :style="{ width: column.width || '50%' }">
                     <template #body="{ data }">
                         <ColumnContent :column="column" :data="data" :loading="loading" />
                     </template>
@@ -55,40 +56,42 @@
         <Dialog v-model:visible="eventDialog" :style="{ width: '512px' }" header="Detalhes do Evento" :modal="true">
             <Form ref="form" :resolver="resolver" :initialValues="selectedEvent" @submit="saveEvent"
                 :key="selectedEvent.$id || 'new'" class="grid">
-                <div class=" grid">
-                    <div v-for="field in fields" :key="field.name" :class="`col-${field.col}`">
-                        <FormField :name="field.name" v-slot="$field" class="flex flex-column gap-1">
-                            <FloatLabel variant="in">
-                                <component :is="field.component" :id="field.name" v-bind="field.props"
-                                    v-model="$field.value" class="w-full" :class="{ 'p-invalid': $field.invalid }"
-                                    fluid />
-                                <label :for="field.name">{{ field.label }}</label>
-                            </FloatLabel>
+                <div v-for="field in fields" :key="field.name" :class="`col-${field.col}`">
+                    <FormField v-if="field.name === 'description'" :name="field.name" v-slot="$field"
+                        class="flex flex-column gap-1">
+                        <label class="font-bold">{{ field.label }}</label>
+                        <Editor v-model="$field.value" editorStyle="height: 260px"
+                            placeholder="Escreva os detalhes da operação aqui..." />
+                        <Message v-if="$field.invalid" severity="error" size="small" variant="simple">
+                            {{ $field.error?.message }}
+                        </Message>
+                    </FormField>
+                    <FormField v-else :name="field.name" v-slot="$field" class="flex flex-column gap-1">
+                        <FloatLabel variant="in">
+                            <component :is="field.component" :id="field.name" v-bind="field.props"
+                                v-model="$field.value" class="w-full" :class="{ 'p-invalid': $field.invalid }" fluid />
+                            <label :for="field.name">{{ field.label }}</label>
+                        </FloatLabel>
 
-                            <Message v-if="$field.invalid" severity="error" size="small" variant="simple">
-                                {{ $field.error?.message }}
-                            </Message>
-                        </FormField>
-                    </div>
-
-                    <div class="col-12">
-                        <FormField name="thumbnail" v-slot="$field" class="flex flex-column gap-1">
-                            <FileUpload mode="basic" @select="onFileSelect" accept="image/*" class="w-full"
-                                :class="{ 'p-invalid': $field.invalid }" label="Escolher Imagem" fluid />
-
-                            <Image v-if="selectedEvent.thumbnail" :src="selectedEvent.thumbnail"
-                                :alt="selectedEvent.title" width="150" preview />
-
-                            <Message v-if="$field.invalid" severity="error" size="small" variant="simple">
-                                {{ $field.error?.message }}
-                            </Message>
-                        </FormField>
-                    </div>
-
-                    <div class="col-12">
-                        <Button type="submit" label="Publicar Missão Tática" icon="pi pi-save" class="w-full shadow-6"
-                            severity="success" />
-                    </div>
+                        <Message v-if="$field.invalid" severity="error" size="small" variant="simple">
+                            {{ $field.error?.message }}
+                        </Message>
+                    </FormField>
+                </div>
+                <div class="col-12">
+                    <FormField name="thumbnail" v-slot="$field" class="flex flex-column gap-1">
+                        <Image :src="(src as string) || (selectedEvent.thumbnail as string)" alt="Thumbnail do Evento"
+                            imageClass="w-full h-full object-cover mb-2" preview />
+                        <FileUpload mode="basic" @select="onFileSelect" accept="image/*" class="w-full"
+                            :class="{ 'p-invalid': $field.invalid }" label="Escolher Imagem" fluid />
+                        <Message v-if="$field.invalid" severity="error" size="small" variant="simple">
+                            {{ $field.error?.message }}
+                        </Message>
+                    </FormField>
+                </div>
+                <div class="col-12">
+                    <Button type="submit" label="Publicar Missão Tática" icon="pi pi-save" class="w-full shadow-6"
+                        severity="success" />
                 </div>
             </Form>
         </Dialog>
@@ -130,10 +133,11 @@ import Message from "primevue/message";
 import { Form } from '@primevue/forms';
 import { z } from 'zod';
 import { zodResolver } from "@primevue/forms/resolvers/zod";
-import { Textarea, useConfirm, type FileUploadSelectEvent } from "primevue";
+import { useConfirm, type FileUploadSelectEvent } from "primevue";
 import { EventService, type IEvent } from "@/services/event";
 import { formatDateToLocal, type IFields } from "@/functions/utils";
 import { EVENT_TYPES } from "@/constants/airsoft";
+import Editor from "primevue/editor";
 
 onMounted(() => {
     loadServices();
@@ -164,6 +168,8 @@ const confirm = useConfirm();
 
 const eventDialog = ref(false);
 const selectedEvent = ref({} as IEvent);
+
+const src = ref<string | ArrayBuffer | null>(null);
 
 const filters = ref({
     'global': { value: null, matchMode: FilterMatchMode.CONTAINS },
@@ -244,13 +250,15 @@ const saveEvent = async ({ valid, values }: any) => {
 };
 
 const fields: IFields[] = [
-    { name: 'title', label: 'Nome da Missão', component: InputText, col: '12' },
+    { name: 'title', label: 'Nome da Missão', component: InputText, col: '12', width: '25%' },
     {
-        name: 'description', label: 'Briefing', component: Textarea, col: '12', props: {
+        name: 'description', label: 'Briefing da Missão', component: Editor, col: '12', props: {
             rows: 5,
             cols: 30,
-            style: "resize: none"
-        }
+            style: "resize: none",
+            editorStyle: "height: 12.5rem"
+        },
+        isHtml: true
     },
     {
         name: 'date',
@@ -279,13 +287,22 @@ const fields: IFields[] = [
 const onFileSelect = (event: FileUploadSelectEvent) => {
     const file = event.files[0];
 
+    if (!file) return;
+
+    const reader = new FileReader();
+
+    reader.onload = () => {
+        src.value = reader.result;
+    };
+
+    reader.readAsDataURL(file);
+
     selectedEvent.value.thumbnail = file;
 
     if (form.value) {
         form.value.setFieldValue("thumbnail", file);
     }
 };
-
 const confirmDelete = (event: IEvent) => {
     confirm.require({
         message: 'Você tem certeza que deseja excluir este evento?',

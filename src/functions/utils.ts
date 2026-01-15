@@ -8,6 +8,7 @@ export interface IFields {
   props?: any;
   isTag?: boolean;
   isRating?: boolean;
+  isHtml?: boolean;
   hidden?: boolean;
   callback?: (value: any) => string;
   button?: {

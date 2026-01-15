@@ -63,9 +63,8 @@
                 optionValue="$id" class="w-full" :class="{ 'p-invalid': $field.invalid }" fluid>
                 <template #option="slotProps">
                   <div class="flex align-items-center gap-2">
-                    <Avatar v-if="slotProps.option.avatar" :image="slotProps.option.avatar" shape="circle"
-                      size="small" />
-                    <Avatar v-else icon="pi pi-user" shape="circle" size="small" />
+                    <Avatar :image="slotProps.option.avatar" :icon="!slotProps.option.avatar ? 'pi pi-user' : undefined"
+                      shape="circle" size="small" />
                     <span>{{ slotProps.option.codename }}</span>
                   </div>
                 </template>

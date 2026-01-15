@@ -6,8 +6,10 @@
 
     <Rating v-else-if="column.isRating" :modelValue="cellValue" readonly />
 
-    <div v-else class="flex align-items-center gap-2">
-      <span>{{ displayValue || '' }}</span>
+    <div v-else class="flex align-items-center gap-2 w-full overflow-hidden">
+
+      <div v-if="column.isHtml" v-html="displayValue" class="rich-text-content"></div>
+      <span v-else class="text-truncate">{{ displayValue || '' }}</span>
 
       <Button v-if="column.button" v-tooltip.top="column.label" :icon="column.button.icon"
         :severity="column.button.severity" @click="column.button.callback(data)" rounded outlined size="small" />

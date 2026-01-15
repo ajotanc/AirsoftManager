@@ -1,7 +1,8 @@
 <template>
     <div class="relative overflow-hidden flex align-items-center justify-content-center h-full p-4">
         <div class="happy-birthday"></div>
-        <div class=" max-w-30rem w-full text-center relative">
+        <BirthdaySkeleton v-if="loading" />
+        <div v-else class="max-w-30rem w-full text-center relative">
             <p v-if="loading" class="font-bold">Buscando dados no sistema...</p>
             <div v-else-if="isBirthdayToday(operator.birth_date)">
                 <Avatar :image="operator.avatar" style="width: 6rem; height: 6rem;" shape="circle" />
@@ -53,19 +54,29 @@ import { useRoute } from 'vue-router';
 import { isBirthdayToday } from '@/functions/utils';
 import { TEAM_NAME } from '@/constants/airsoft';
 import type { IOperator } from '@/services/operator';
+import { useToast } from 'primevue';
 
 const route = useRoute();
 const operator = ref({} as IOperator);
 const loading = ref(true);
 
-onMounted(() => {
-    const operatorId = route.params.id as string;
+const toast = useToast();
 
-    OperatorService.row(operatorId).then((data) => {
-        operator.value = data;
-        loading.value = false;
-    });
+onMounted(() => {
+    loadServices();
 });
+
+const loadServices = async () => {
+    try {
+        const operatorId = route.params.id as string;
+        operator.value = await OperatorService.row(operatorId);
+    } catch (error) {
+        console.error("Erro ao carregar serviços:", error);
+        toast.add({ severity: 'error', summary: 'Erro', detail: 'Falha ao carregar dados.' });
+    } finally {
+        loading.value = false;
+    }
+};
 
 </script>
 <style scoped>
