@@ -123,5 +123,5 @@ const dtValue = computed(() => {
     return loading.value ? new Array(5).fill({}) : allEvents.value;
 });
 
-const goToEvent = (id: string) => router.push(`/events/${id}`);
+const goToEvent = (id: string) => router.push(`/events/${id}?t=${Date.now()}`);
 </script>

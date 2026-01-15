@@ -29,13 +29,13 @@ export default async (request: Request, context: Context) => {
     const originalResponse = await context.next();
     const html = await originalResponse.text();
 
-    const description = `${event.location} - ${new Date(event.date).toLocaleDateString('pt-BR')} às ${event.startTime}h}`;
+    const description = `${event.location} - ${new Date(event.date).toLocaleDateString('pt-BR')} às ${event.startTime}h`;
 
     const customHtml = html
       .replace(/<title>.*?<\/title>/, `<title>${event.title}</title>`)
+      .replace(/<meta name="description" content=".*?" \/>/g, `<meta name="description" content="${event.description}" />`)
       .replace(/<meta property="og:title" content=".*?" \/>/g, `<meta property="og:title" content="${event.title}" />`)
-      .replace(/<meta name="description" content=".*?" \/>/g, `<meta name="description" content="${description}" />`)
-      .replace(/<meta property="og:description" content=".*?" \/>/g, `<meta property="og:description" content="${event.description}" />`)
+      .replace(/<meta property="og:description" content=".*?" \/>/g, `<meta property="og:description" content="${description}" />`)
       .replace(/<meta property="og:image" content=".*?" \/>/g, `<meta property="og:image" content="${event.thumbnail}" />`);
 
     return new Response(customHtml, {
