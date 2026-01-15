@@ -30,12 +30,13 @@ export default async (request: Request, context: Context) => {
     const originalResponse = await context.next();
     const html = await originalResponse.text();
 
+    const title = `${TEAM_NAME.toUpperCase()} - ${event.title.toUpperCase()}`
     const description = `${event.location} - ${new Date(event.date).toLocaleDateString('pt-BR')} às ${event.startTime}h`;
 
     const customHtml = html
-      .replace(/<title>.*?<\/title>/, `<title>${TEAM_NAME.toUpperCase()} - ${event.title.toUpperCase()}</title>`)
+      .replace(/<title>.*?<\/title>/, `<title>${title}</title>`)
       .replace(/<meta name="description" content=".*?" \/>/g, `<meta name="description" content="${event.description}" />`)
-      .replace(/<meta property="og:title" content=".*?" \/>/g, `<meta property="og:title" content="${event.title}" />`)
+      .replace(/<meta property="og:title" content=".*?" \/>/g, `<meta property="og:title" content="${title}" />`)
       .replace(/<meta property="og:description" content=".*?" \/>/g, `<meta property="og:description" content="${description}" />`)
       .replace(/<meta property="og:image" content=".*?" \/>/g, `<meta property="og:image" content="${event.thumbnail}" />`)
       .replace(/<meta property="og:url" content=".*?" \/>/g, `<meta property="og:url" content="${request.url}" />`);
