@@ -1,5 +1,5 @@
 import { Context } from "@netlify/edge-functions";
-import { Client, TablesDB } from "https://esm.sh/appwrite@14.0.0";
+import { Client, TablesDB } from "https://esm.sh/appwrite";
 
 export default async (request: Request, context: Context) => {
   const url = new URL(request.url);
