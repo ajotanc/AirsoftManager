@@ -390,59 +390,55 @@ const resolver = zodResolver(
   z
     .object({
       name: z.string({ error: "Nome completo obrigatório" }),
-      codename: z.string().min(1, { error: "Codinome obrigatório" }),
+      codename: z.string({ error: "Codinome obrigatório" }),
       identity: z
-        .string()
+        .string({ error: "CPF obrigatório" })
         .refine(isValidIdentity, "CPF inválido")
         .transform((v) => v.replace(/\D/g, "")),
       general_registration: z
-        .string()
-        .min(1, { error: "RG obrigatório" })
+        .string({ error: "RG obrigatório" })
         .transform((v) => v.replace(/\D/g, "")),
       birth_date: z.custom().refine((date) => date instanceof Date || typeof date === 'string', "Data de nascimento obrigatória").transform((date
       ) => formatDateToLocal(date as Date)),
-      blood_type: z.string().min(1, { error: "Tipo sanguíneo obrigatório" }),
-      mother_name: z.string().min(1, { error: "Nome da mãe obrigatório" }),
-      father_name: z.string().optional(),
+      blood_type: z.string({ error: "Tipo sanguíneo obrigatório" }),
+      mother_name: z.string({ error: "Nome da mãe obrigatório" }),
+      father_name: z.string().nullable().optional(),
       phone: z
-        .string()
-        .min(1, { error: "Telefone obrigatório" })
+        .string({ error: "Telefone obrigatório" })
         .transform((v) => v.replace(/\D/g, "")),
 
       cep: z
-        .string()
-        .min(1, { error: "CEP obrigatório" })
+        .string({ error: "CEP obrigatório" })
         .transform((v) => v.replace(/\D/g, "")),
-      address: z.string().min(1, { error: "Endereço obrigatório" }),
-      address_number: z.string().min(1, { error: "Número obrigatório" }),
-      neighborhood: z.string().min(1, { error: "Bairro obrigatório" }),
-      city: z.string().min(1, { error: "Cidade obrigatória" }),
-      state: z.string().min(1, { error: "Estado obrigatório" }),
+      address: z.string({ error: "Endereço obrigatório" }),
+      address_number: z.string({ error: "Número obrigatório" }),
+      neighborhood: z.string({ error: "Bairro obrigatório" }),
+      city: z.string({ error: "Cidade obrigatória" }),
+      state: z.string({ error: "Estado obrigatório" }),
 
-      health_plan: z.boolean(),
-      health_plan_name: z.string().optional(),
-      health_plan_number: z.string().nullable(),
+      health_plan: z.boolean().nullable().optional(),
+      health_plan_name: z.string().nullable().optional(),
+      health_plan_number: z.string().nullable().optional(),
 
-      allergies: z.array(z.string()).optional(),
-      continuous_medication: z.boolean(),
-      medication_details: z.array(z.string()).optional(),
+      allergies: z.array(z.string()).nullable().optional(),
+      continuous_medication: z.boolean().nullable().optional(),
+      medication_details: z.array(z.string()).nullable().optional(),
 
-      emergency_contact: z.string().min(1, { error: "Contato obrigatório" }),
+      emergency_contact: z.string({ error: "Nome do Contato obrigatório" }),
       emergency_contact_phone: z
-        .string()
-        .min(1, { error: "Telefone obrigatório" })
+        .string({ error: "Telefone do Contato obrigatório" })
         .transform((v) => v.replace(/\D/g, "")),
 
-      shirt_size: z.string().min(1, { error: "Tamanho obrigatório" }),
-      instagram: z.string().optional(),
-      media_consent: z.boolean(),
-      terms_accepted: z.boolean().refine((v) => v === true, "Aceite os termos"),
+      shirt_size: z.string({ error: "Tamanho obrigatório" }),
+      instagram: z.string().nullable().optional(),
+      media_consent: z.boolean().nullable().optional(),
+      terms_accepted: z.boolean({ error: "Aceite os termos obrigatório" }).refine((v) => v === true, "Aceite os termos"),
 
-      referral_source: z.coerce.number().nullable(),
-      category: z.coerce.number().nullable(),
-      experience: z.coerce.number().nullable(),
-      number_fdba: z.string().optional(),
-      quote: z.string().optional(),
+      referral_source: z.coerce.number().nullable().optional(),
+      category: z.coerce.number().nullable().optional(),
+      experience: z.coerce.number().nullable().optional(),
+      number_fdba: z.string().nullable().optional(),
+      quote: z.string().nullable().optional(),
     })
     .superRefine((data, ctx) => {
       if (data.health_plan) {
