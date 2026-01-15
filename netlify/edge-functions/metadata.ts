@@ -32,18 +32,13 @@ export default async (request: Request, context: Context) => {
 
     const description = `${event.location} - ${new Date(event.date).toLocaleDateString('pt-BR')} às ${event.startTime}h`;
 
-    const seoTags = `
-      <title>${TEAM_NAME.toUpperCase()} - ${event.title.toUpperCase()}</title>
-      <meta name="description" content="${event.description}" />
-      <meta property="og:title" content="${event.title}" />
-      <meta property="og:description" content="${description}" />
-      <meta property="og:image" content="${event.tumbnail}" />
-      <meta property="og:url" content="${request.url}" />
-      <meta property="og:type" content="website" />
-      <meta name="twitter:card" content="summary_large_image" />
-    `;
-
-    const customHtml = html.replace("<head>", `<head>${seoTags}`);
+    const customHtml = html
+      .replace(/<title>.*?<\/title>/, `<title>${TEAM_NAME.toUpperCase()} - ${event.title.toUpperCase()}</title>`)
+      .replace(/<meta name="description" content=".*?" \/>/g, `<meta name="description" content="${event.description}" />`)
+      .replace(/<meta property="og:title" content=".*?" \/>/g, `<meta property="og:title" content="${event.title}" />`)
+      .replace(/<meta property="og:description" content=".*?" \/>/g, `<meta property="og:description" content="${description}" />`)
+      .replace(/<meta property="og:image" content=".*?" \/>/g, `<meta property="og:image" content="${event.thumbnail}" />`);
+      .replace(/<meta property="og:url" content=".*?" \/>/g, `<meta property="og:url" content="${request.url}" />`);
 
     return new Response(customHtml, {
       headers: { "content-type": "text/html; charset=UTF-8" },
