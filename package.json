@@ -10,6 +10,7 @@
     "generate-pwa-assets": "pwa-assets-generator --preset minimal-2023 public/exd.svg"
   },
   "dependencies": {
+    "@netlify/edge-functions": "^3.0.3",
     "@primevue/forms": "^4.5.3",
     "@primevue/themes": "^4.5.3",
     "add-to-calendar-button": "^2.13.4",

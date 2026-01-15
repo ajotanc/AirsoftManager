@@ -34,7 +34,6 @@ declare module 'vue' {
     OperatorDetails: typeof import('./src/components/operators/OperatorDetails.vue')['default']
     OperatorLoadout: typeof import('./src/components/operators/OperatorLoadout.vue')['default']
     OperatorRankCard: typeof import('./src/components/operators/OperatorRankCard.vue')['default']
-    OverlayBadge: typeof import('primevue/overlaybadge')['default']
     Private: typeof import('./src/components/header/Private.vue')['default']
     Public: typeof import('./src/components/header/Public.vue')['default']
     Qrcode: typeof import('./src/components/operators/Qrcode.vue')['default']
