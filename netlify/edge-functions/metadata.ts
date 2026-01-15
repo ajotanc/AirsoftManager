@@ -37,7 +37,7 @@ export default async (request: Request, context: Context) => {
       .replace(/<meta name="description" content=".*?" \/>/g, `<meta name="description" content="${event.description}" />`)
       .replace(/<meta property="og:title" content=".*?" \/>/g, `<meta property="og:title" content="${event.title}" />`)
       .replace(/<meta property="og:description" content=".*?" \/>/g, `<meta property="og:description" content="${description}" />`)
-      .replace(/<meta property="og:image" content=".*?" \/>/g, `<meta property="og:image" content="${event.thumbnail}" />`);
+      .replace(/<meta property="og:image" content=".*?" \/>/g, `<meta property="og:image" content="${event.thumbnail}" />`)
       .replace(/<meta property="og:url" content=".*?" \/>/g, `<meta property="og:url" content="${request.url}" />`);
 
     return new Response(customHtml, {
