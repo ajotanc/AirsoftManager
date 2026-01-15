@@ -26,7 +26,7 @@
         <span class="text-600 font-medium">Preencha seus dados completos</span>
       </div>
 
-      <Form v-if="operator?.$id" ref="form" v-slot="$form" :resolver="resolver" :initialValues="initialValues"
+      <Form ref="form" v-slot="$form" :resolver="resolver" :initialValues="initialValues"
         @submit="handleUpdateProfile" class="flex flex-column gap-3">
 
         <Panel header="Identificação" toggleable>
@@ -325,11 +325,6 @@
             :loading="loading" />
         </div>
       </Form>
-
-      <div v-else class="flex flex-column gap-3">
-        <Skeleton height="200px" />
-        <Skeleton height="400px" />
-      </div>
     </div>
   </div>
 </template>

@@ -40,54 +40,9 @@ export const useAuthStore = defineStore("auth", {
     async fetchOperator() {
       if (!this.user) return;
 
-      try {
-        const row = await OperatorService.row(this.user.$id);
-        this.operator = row;
-      } catch (error: any) {
-        if (error.code === 404) {
-          console.warn(
-            "Usuário sem perfil detectado. Tentando auto-recuperação..."
-          );
-
-          try {
-            const name = this.user.name;
-            const codename = name.split(" ")[0] || "Recruta";
-
-            const payload: IOperatorDraft = {
-              $id: this.user.$id,
-              name,
-              codename,
-              role: "recruit",
-              status: false,
-              avatar: "",
-              rating: 0,
-              xp: 0,
-              level: 1,
-              prestige: 0,
-              arsenal: [],
-              loadout: [],
-              participations: [],
-              birth_date: null
-            };
-
-            await OperatorService.create(payload as IOperator, this.user.$id);
-
-            this.operator = payload as IOperator;
-            console.log("Perfil recuperado com sucesso!");
-          } catch (createError) {
-            console.error(
-              "Falha crítica: Não foi possível criar o perfil.",
-              createError
-            );
-            this.operator = {} as IOperator;
-          }
-        } else {
-          this.operator = {} as IOperator;
-          console.error("Erro desconhecido:", error);
-        }
-      }
+      const row = await OperatorService.row(this.user.$id);
+      this.operator = row;
     },
-
     async register(email: string, password: string, name: string) {
       try {
         const userAccount = await account.create({
@@ -114,7 +69,6 @@ export const useAuthStore = defineStore("auth", {
           prestige: 0,
           arsenal: [],
           loadout: [],
-          participations: [],
           birth_date: null
         };
 

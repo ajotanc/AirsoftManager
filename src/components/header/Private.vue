@@ -36,11 +36,9 @@
               }}</span>
             </div>
 
-            <div class="relative">
-              <Avatar :image="authStore.operator.avatar" :icon="!authStore.operator.avatar ? 'pi pi-user' : undefined"
-                shape="circle" class="bg-primary-100 text-primary-700" />
-              <Badge v-if="!authStore.isActiveOperator" value="!" severity="danger" class="absolute -top-1 -right-1" />
-            </div>
+            <Avatar size="large" :image="authStore.operator.avatar"
+              :icon="!authStore.operator.avatar ? 'pi pi-user' : undefined" shape="circle"
+              class="bg-primary-100 text-primary-700" />
 
             <i class="pi pi-angle-down text-500 text-sm hidden md:block"></i>
           </div>
@@ -60,7 +58,6 @@ import { useI18n } from "vue-i18n";
 
 import Menubar from "primevue/menubar";
 import Avatar from "primevue/avatar";
-import Badge from "primevue/badge";
 import Menu from "primevue/menu";
 import { ROLES, TEAM_NAME } from "@/constants/airsoft";
 
@@ -175,7 +172,6 @@ const userMenuItems = computed(() => [
     ],
   },
 ]);
-
 
 const toggleMenu = (event: Event) => {
   menu.value.toggle(event);

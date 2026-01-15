@@ -8,7 +8,6 @@ import {
 import { Query, type Models } from "appwrite";
 import type { IArsenal } from "./arsenal";
 import type { ILoadout } from "./loadout";
-import type { IParticipation } from "./event";
 
 export interface IOperator extends Models.Row {
   name: string;
@@ -53,7 +52,6 @@ export interface IOperator extends Models.Row {
   prestige: number;
   arsenal: IArsenal[];
   loadout: ILoadout[];
-  participations: IParticipation[];
 }
 
 export type IOperatorDraft = Omit<IOperator, keyof Models.Row> & {
@@ -99,8 +97,8 @@ export const OperatorService = {
       data,
     });
   },
-  async create(data: IOperator, rowId: string) {
-    return await tables.createRow({
+  async create(data: IOperator, rowId: string): Promise<IOperator> {
+    return await tables.createRow<IOperator>({
       databaseId: DATABASE_ID,
       tableId: TABLE_OPERATORS,
       rowId,
