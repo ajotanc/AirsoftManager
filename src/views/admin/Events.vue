@@ -367,15 +367,16 @@ const copyEventInvite = async (event: IEvent) => {
 
     const message = `
 *${event.title.toUpperCase()}*
----------------------------------------
-📅 *Data:* ${formatDate(event.date, true)}
-⏰ *Horário:* ${event.startTime} às ${event.endTime}
-📍 *Local:* ${event.location} (${event.location_url})
+-------------------------------------------------
 
 🔗 *Briefing / Check-in:*
 ${eventLink}
 
 *Aperte no link acima e confirme a sua presença!*
+
+📅 *Data:* ${formatDate(event.date, true)}
+⏰ *Horário:* ${event.startTime} às ${event.endTime}
+📍 *Local:* ${event.location} (${event.location_url})
 
 > _"No campo de batalha ou na vida: No *${TEAM_NAME}*, ninguém fica para trás!"_
   `.trim();
