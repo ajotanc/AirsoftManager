@@ -1,5 +1,23 @@
 import beepSound from "@/assets/sounds/beep.mp3"; // O '@' aponta para a pasta src
 
+export interface IFields {
+  name: string;
+  label: string;
+  component: any;
+  col?: string;
+  props?: any;
+  isTag?: boolean;
+  isRating?: boolean;
+  hidden?: boolean;
+  callback?: (value: any) => string;
+  button?: {
+    icon: string;
+    severity?: string;
+    callback: (rowData: any) => void;
+  };
+  [key: string]: any;
+}
+
 export const isValidIdentity = (cpf: string): boolean => {
   if (typeof cpf !== "string") return false;
 
@@ -110,13 +128,35 @@ export const playBeep = () => {
   audio.play().catch((e) => console.error("Erro ao reproduzir som:", e));
 };
 
-export const isBirthday = (date?: Date) => {
+export const isBirthdayToday = (date: Date | string | null) => {
   if (!date) return false;
 
   const today = new Date();
   const birthDate = new Date(date);
+
   return (
     today.getMonth() === birthDate.getMonth() &&
     today.getDate() === birthDate.getDate()
   );
 };
+
+export const severityEvent = (type: number | string): string => {
+  switch (Number(type)) {
+    case 1:
+      return 'success';
+    case 2:
+      return 'warn';
+    case 3:
+      return 'danger';
+    case 4:
+      return 'info';
+    case 5:
+      return 'helper';
+    case 6:
+      return 'primary';
+    default:
+      return 'secondary';
+  }
+};
+
+export const getShortName = (name: string) => name && name.split(' ').slice(0, 2).join(' ') || 'Operador';

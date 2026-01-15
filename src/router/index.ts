@@ -6,7 +6,7 @@ const router = createRouter({
   routes: [
     {
       path: "/",
-      component: () => import("../layout/PublicLayout.vue"),
+      component: () => import("../layout/Public.vue"),
       children: [
         { path: "", component: () => import("../views/public/Home.vue") },
         { path: "login", component: () => import("../views/public/Login.vue") },
@@ -18,7 +18,7 @@ const router = createRouter({
     },
     {
       path: "/",
-      component: () => import("../layout/MainLayout.vue"),
+      component: () => import("../layout/Private.vue"),
       meta: { requiresAuth: true },
       children: [
         {
@@ -36,6 +36,9 @@ const router = createRouter({
         {
           path: "loadout",
           component: () => import("../views/private/Loadout.vue"),
+        }, {
+          path: "vehicles",
+          component: () => import("../views/private/Vehicle.vue"),
         },
         {
           path: "game/player-card",
@@ -49,6 +52,11 @@ const router = createRouter({
           path: "events/:id",
           name: "event-details",
           component: () => import("../views/private/EventDetails.vue"),
+        },
+        {
+          path: "/happy-birthday/:id",
+          name: "happy-birthday",
+          component: () => import("../views/private/HappyBirthday.vue"),
         },
         {
           path: "admin/operators",
@@ -66,21 +74,16 @@ const router = createRouter({
           path: "admin/birthdays",
           component: () => import("../views/admin/Birthdays.vue"),
         },
+        {
+          path: "admin/visitors",
+          component: () => import("../views/admin/Visitors.vue"),
+        },
       ],
     },
     {
       path: "/verify/weapon/:id",
       name: "verify-weapon",
       component: () => import("../views/public/VerifyWeapon.vue"),
-      meta: {
-        isPublic: true,
-        layout: "blank",
-      },
-    },
-    {
-      path: "/happy-birthday/:id",
-      name: "happy-birthday",
-      component: () => import("../views/public/HappyBirthday.vue"),
       meta: {
         isPublic: true,
         layout: "blank",

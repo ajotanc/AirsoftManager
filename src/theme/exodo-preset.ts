@@ -2,21 +2,28 @@ import { definePreset } from "@primevue/themes";
 import Aura from "@primevue/themes/aura";
 import { palette } from "@primevue/themes";
 
-const surface = palette("#081534");
-
+const primary = palette("#081534");
 const success = palette("#388E3C");
 const danger = palette("#dc143c");
 const warn = palette("#daa520");
 const help = palette("#7c4dff");
 
 const ExodoPreset = definePreset(Aura, {
+  primitive: {
+    green: success,
+    red: danger,
+    yellow: warn,
+    purple: help,
+    blue: primary,
+  },
   semantic: {
     colorScheme: {
       light: {
-        surface,
+        primary,
+        surface: primary,
         content: {
-          background: "{surface.500}",
-          color: "{surface.0}",
+          background: "{surface.0}",
+          color: "{surface.500}",
         },
         success,
         danger,
@@ -30,6 +37,21 @@ const ExodoPreset = definePreset(Aura, {
       colorScheme: {
         light: {
           root: {
+            success: {
+              background: "{success.500}",
+              hoverBackground: "{success.600}",
+              activeBackground: "{success.700}",
+              borderColor: "{success.500}",
+              hoverBorderColor: "{success.600}",
+              activeBorderColor: "{success.700}",
+              color: "#ffffff",
+              hoverColor: "#ffffff",
+              activeColor: "#ffffff",
+              focusRing: {
+                color: "{success.500}",
+                shadow: "none",
+              },
+            },
             danger: {
               background: "{danger.500}",
               hoverBackground: "{danger.600}",
@@ -60,10 +82,46 @@ const ExodoPreset = definePreset(Aura, {
                 shadow: "none",
               },
             },
+            warn: {
+              background: "{warn.500}",
+              hoverBackground: "{warn.600}",
+              activeBackground: "{warn.700}",
+              borderColor: "{warn.500}",
+              hoverBorderColor: "{warn.600}",
+              activeBorderColor: "{warn.700}",
+              color: "#ffffff",
+              hoverColor: "#ffffff",
+              activeColor: "#ffffff",
+              focusRing: {
+                color: "{warn.500}",
+                shadow: "none",
+              },
+            },
           },
         },
       },
     },
+    tag: {
+      colorScheme: {
+        light: {
+          warn: {
+            background: '{yellow.100}',
+            color: '{yellow.700}'
+          },
+        },
+      }
+    },
+    rating: {
+      icon: {
+        colorScheme: {
+          light: {
+            color: '{yellow.600}',
+            hoverColor: '{yellow.500}',
+            activeColor: '{yellow.500}'
+          },
+        }
+      }
+    }
   },
 });
 

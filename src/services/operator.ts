@@ -11,11 +11,12 @@ import type { ILoadout } from "./loadout";
 import type { IParticipation } from "./event";
 
 export interface IOperator extends Models.Row {
+  name: string;
   codename: string;
   identity?: string;
   general_registration?: string;
   blood_type?: string;
-  birth_date?: Date;
+  birth_date: Date | string | null;
   mother_name?: string;
   father_name?: string;
   phone?: string;

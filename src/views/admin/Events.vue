@@ -2,7 +2,7 @@
     <div class="card">
         <div class="surface-card shadow-2 border-round overflow-hidden">
 
-            <DataTable :value="events" paginator :rows="5" stripedRows :filters="filters"
+            <DataTable :value="dtValue" paginator :rows="5" stripedRows :filters="filters"
                 paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
                 :rowsPerPageOptions="[5, 10, 25]"
                 currentPageReportTemplate="Exibindo {first} a {last} de {totalRecords} evento(s)"
@@ -26,26 +26,16 @@
                     </div>
                 </template>
 
-                <Column v-for="col in EVENTS_COLUMNS" :key="col.field" :field="col.field" :header="col.header">
-                    <template #body="{ data: weapon }">
-                        <Tag v-if="col.isTag" :value="col.map[weapon[col.field] as keyof typeof col.map]"
-                            :severity="col.severity" />
-                        <span v-else-if="col.isDate">
-                            {{
-                                weapon[col.field]
-                                    ? new Date(weapon[col.field]).toLocaleDateString("pt-BR")
-                                    : "-"
-                            }}
-                        </span>
-                        <span v-else>
-                            {{ weapon[col.field] }}
-                        </span>
+                <Column v-for="column in fields" :key="column.name" :header="column.label" :hidden="column.hidden">
+                    <template #body="{ data }">
+                        <ColumnContent :column="column" :data="data" :loading="loading" />
                     </template>
                 </Column>
 
                 <Column header="Ações" style="width: 10%; min-width: 8rem" bodyStyle="text-align: center">
                     <template #body="{ data: event }">
-                        <div class="flex gap-2 justify-content-center">
+                        <Skeleton v-if="loading" width="100%" height="1rem" />
+                        <div v-else class="flex gap-2 justify-content-center">
                             <Button asChild v-slot="slotProps" rounded class="p-button p-button-primary">
                                 <RouterLink :to="`/events/${event.$id}`" rounded class="no-underline"
                                     :class="slotProps.class" v-tooltip.top="'Detalhes'">
@@ -66,7 +56,7 @@
             <Form ref="form" :resolver="resolver" :initialValues="selectedEvent" @submit="saveEvent"
                 :key="selectedEvent.$id || 'new'" class="grid">
                 <div class=" grid">
-                    <div v-for="field in formFields" :key="field.name" :class="`col-${field.col}`">
+                    <div v-for="field in fields" :key="field.name" :class="`col-${field.col}`">
                         <FormField :name="field.name" v-slot="$field" class="flex flex-column gap-1">
                             <FloatLabel variant="in">
                                 <component :is="field.component" :id="field.name" v-bind="field.props"
@@ -121,13 +111,12 @@
 </style>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import { useToast } from "primevue/usetoast";
 import { FilterMatchMode } from '@primevue/core/api';
 import IconField from "primevue/iconfield";
 import InputIcon from "primevue/inputicon";
 import Column from "primevue/column";
-import Tag from "primevue/tag";
 import Button from "primevue/button";
 import Dialog from "primevue/dialog";
 import DataTable from "primevue/datatable";
@@ -141,21 +130,29 @@ import Message from "primevue/message";
 import { Form } from '@primevue/forms';
 import { z } from 'zod';
 import { zodResolver } from "@primevue/forms/resolvers/zod";
-import { formatDateToLocal } from "@/functions/utils";
-import { EVENTS_COLUMNS, EVENT_TYPES } from "@/constants/airsoft";
 import { Textarea, useConfirm, type FileUploadSelectEvent } from "primevue";
 import { EventService, type IEvent } from "@/services/event";
+import { formatDateToLocal, type IFields } from "@/functions/utils";
+import { EVENT_TYPES } from "@/constants/airsoft";
 
 onMounted(() => {
-    loadEvents();
+    loadServices();
 });
 
-const loadEvents = () => {
-    EventService.list().then((data) => {
-        events.value = data;
+const loadServices = async () => {
+    try {
+        events.value = await EventService.list();
+    } catch (error) {
+        console.error("Erro ao carregar serviços:", error);
+        toast.add({ severity: 'error', summary: 'Erro', detail: 'Falha ao carregar dados.' });
+    } finally {
         loading.value = false;
-    });
+    }
 };
+
+const dtValue = computed(() => {
+    return loading.value ? new Array(5).fill({}) : events.value;
+});
 
 const loading = ref(true);
 const events = ref<IEvent[]>([]);
@@ -246,7 +243,7 @@ const saveEvent = async ({ valid, values }: any) => {
     }
 };
 
-const formFields = [
+const fields: IFields[] = [
     { name: 'title', label: 'Nome da Missão', component: InputText, col: '12' },
     {
         name: 'description', label: 'Briefing', component: Textarea, col: '12', props: {
@@ -256,19 +253,26 @@ const formFields = [
         }
     },
     {
-        name: 'date', label: 'Data da Missão', component: DatePicker, col: '12', props: {
-            showIcon: true, dateFormat: 'dd/mm/yy', showButtonBar: true,
-            iconDisplay: "input", manualInput: false, showOnFocus: true
-        }
+        name: 'date',
+        label: 'Data da Missão',
+        component: DatePicker,
+        col: '12',
+        props: {
+            showIcon: true,
+            dateFormat: 'dd/mm/yy',
+            showButtonBar: true,
+            iconDisplay: "input", showOnFocus: true
+        },
+        callback: (value: string) => new Date(value).toLocaleDateString("pt-BR"),
     },
     { name: 'startTime', label: 'Início', component: InputMask, col: '6', props: { mask: '99:99' } },
     { name: 'endTime', label: 'Término', component: InputMask, col: '6', props: { mask: '99:99' } },
     {
-        name: 'type', label: 'Tipo de Missão', component: Select, col: '12',
+        name: 'type', label: 'Tipo de Missão', component: Select, col: '12', isTag: true,
         props: { options: Object.entries(EVENT_TYPES).map(([value, label]) => ({ label, value })), optionLabel: 'label', optionValue: 'value' }
     },
     { name: 'location', label: 'Nome do Local', component: InputText, col: '12' },
-    { name: 'location_url', label: 'URL Google Maps', component: InputText, col: '12' },
+    { name: 'location_url', label: 'URL Google Maps', component: InputText, col: '12', hidden: true },
 ];
 
 

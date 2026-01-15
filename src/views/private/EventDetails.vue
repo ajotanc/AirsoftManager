@@ -1,52 +1,54 @@
 <template>
     <div class="p-4" v-if="event">
         <div class="border-bottom-1 border-black-alpha-20 pb-4 mb-4">
-            <div class="flex justify-content-between align-items-start mb-3">
-                <div>
-                    <Tag :value="EVENT_TYPES[event.type as unknown as keyof typeof EVENT_TYPES]" severity="info"
-                        class="mb-2" />
+            <div class="grid">
+                <div class="col-12">
                     <h1 class="text-4xl font-bold uppercase m-0">
                         {{ event.title }}
                     </h1>
-                    <p class="flex justify-content-center align-items-center text-gray-400 mt-2">
-                        <i class="pi pi-calendar mr-2"></i> {{ formatDate(event.date, true) }} - {{ event.startTime }}
-                        às
-                        {{
-                            event.endTime }}
-                        <span v-if="isConfirmed" class="ml-2 text-green-400 font-bold">
-                            <i class=" pi pi-check-circle text-green-400 mr-2"></i>Presença Confirmada
+                </div>
+                <div class="col-12">
+                    <div class="flex justify-content-between align-items-center">
+                        <Tag :value="EVENT_TYPES[event.type as keyof typeof EVENT_TYPES] || 'Padrão'"
+                            :severity="severityEvent(event.type)" />
+                        <div class="flex flex-column align-items-end justify-content-end">
+                            <span class="text-3xl font-bold text-primary-500">{{ checkinsCount }}</span>
+                            <span class="text-xs text-gray-500 uppercase font-bold ">Check-ins</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <p class="flex flex-column md:flex-row text-gray-400 gap-2">
+                        <span class="flex align-items-center gap-2"><i class="pi pi-calendar"></i> {{
+                            formatDate(event.date, true) }} - {{
+                                event.startTime }} às {{ event.endTime }}</span>
+                        <span v-if="isConfirmed" class="flex align-items-center gap-2 text-green-400 font-bold">
+                            <i class=" pi pi-check-circle text-green-400"></i>Presença Confirmada
                         </span>
                     </p>
-
                 </div>
-                <div class="text-right">
-                    <span class="text-3xl font-bold text-primary-500">{{ checkinsCount }}</span>
-                    <p class="text-xs text-gray-500 uppercase font-bold m-0">Check-ins</p>
+                <div class="col-12">
+                    <div class="flex flex-column md:flex-row gap-2 md:gap-3">
+                        <Button v-if="isConfirmed" label="Cancelar Presença" icon="pi pi-times" severity="error"
+                            @click="toggleParticipation" class="w-full md:w-auto" />
+                        <Button v-else label="Confirmar Presença" icon="pi pi-plus-circle" severity="primary"
+                            @click="toggleParticipation" class="w-full md:w-auto" />
+                        <Button v-if="isConfirmed" label="Adicionar à Agenda" icon="pi pi-calendar-plus" severity="help"
+                            @click="handleCalendarDynamic" class="w-full md:w-auto" />
+                    </div>
                 </div>
-            </div>
-
-            <div class="flex gap-3">
-                <Button v-if="isConfirmed" label="Cancelar Presença" icon="pi pi-times" severity="error"
-                    @click="toggleParticipation" class="w-full md:w-auto" />
-                <Button v-else label="Confirmar Presença" icon="pi pi-plus-circle" severity="primary"
-                    @click="toggleParticipation" class="w-full md:w-auto" />
-                <Button v-if="isConfirmed" label="Adicionar à Agenda" icon="pi pi-calendar-plus" severity="help"
-                    @click="handleCalendarDynamic" class="w-full md:w-auto" />
             </div>
         </div>
-
         <div class="grid">
             <div class="col-12 md:col-8">
                 <Card class="border-1 border-black-alpha-10 mb-4">
                     <template #title><span class="text-green-400">Briefing da Missão</span></template>
                     <template #content>
-                        <div class="w-full rounded"
-                            :style="{ minHeight: '15rem', backgroundImage: `url(${event.thumbnail})`, backgroundSize: 'cover', backgroundPosition: 'center center' }" />
+                        <Image :src="event.thumbnail" :alt="event.title" imageClass="w-full" preview />
                         <p class="text-gray-300">{{ event.description }}</p>
                     </template>
                 </Card>
-
-                <Card class="bg-gray-900 border-1 border-white-alpha-10">
+                <Card class="bg-blue-900 border-1 border-white-alpha-10">
                     <template #title><span class="text-green-400">Localização</span></template>
                     <template #content>
                         <div class="p-3 border-round bg-gray-800 flex justify-content-between align-items-center">
@@ -61,52 +63,213 @@
                     </template>
                 </Card>
             </div>
-
             <div class="col-12 md:col-4">
-                <Card class="bg-gray-900 border-1 border-white-alpha-10 shadow-8">
-                    <template #title><span class="text-green-500">Controle de Operação</span></template>
+                <Card class="bg-blue-900 border-1 border-white-alpha-10 mb-4">
+                    <span class="text-green-500">Controle de Operação</span>
                     <template #content>
-                        <Button v-if="operator.role === 'admin'" label="Check-in QR Code" icon="pi pi-qrcode"
-                            class="w-full" severity="success" @click="showScanner = true" />
-                        <h4 class="text-sm uppercase text-gray-400 border-bottom-1 border-white-alpha-10 pb-2">
-                            Lista de Operadores ({{ participants.length }})
-                        </h4>
-                        <div class="operators-list">
-                            <div v-for="{ $id, operator, checked_in } in participants" :key="$id"
-                                class="flex align-items-center gap-3 mb-3">
-                                <Avatar :image="operator.avatar" shape="circle" size="small" />
-                                <span :class="{ 'text-green-400': checked_in }">{{
-                                    operator.codename }}</span>
-                                <i v-if="checked_in" class="pi pi-check text-xs text-green-400 ml-auto"></i>
-                            </div>
+                        <div v-if="operator.role === 'admin'" class="buttons flex flex-column gap-2">
+                            <Button label="Check-in QR Code" icon="pi pi-qrcode" class="w-full" severity="success"
+                                @click="openScannerDialog = true" />
+                            <Button label="Adicionar Visitante" icon="pi pi-plus" class="w-full" severity="warning"
+                                :disabled="availableVisitors.length === 0" @click="openVisitorDialog = true" />
                         </div>
+                        <h4 class="text-sm uppercase text-gray-400 border-bottom-1 border-white-alpha-10 pb-2">
+                            Lista de Operadores
+                        </h4>
+                        <Tabs :value="0">
+                            <TabList>
+                                <Tab :value="0">Operadores ({{ participants.length }})</Tab>
+                                <Tab :value="1">Visitantes ({{
+                                    visitorParticipants.length }})</Tab>
+                            </TabList>
+                            <TabPanels>
+                                <TabPanel :value="0">
+                                    <div v-for="{ $id, operator, checked_in } in participants" :key="$id"
+                                        class="flex align-items-center gap-3 mb-3">
+                                        <Avatar v-if="operator.avatar" :image="operator.avatar" shape="circle"
+                                            size="small" />
+                                        <Avatar v-else :label="operator.codename[0]" shape="circle" size="small" />
+                                        <span :class="{ 'text-green-400': checked_in }">{{
+                                            operator.codename }}</span>
+                                        <i v-if="checked_in" class="pi pi-check font-bold text-green-600 ml-auto""></i>
+                                    </div>
+                                </TabPanel>
+                                <TabPanel :value="1">
+                                            <div v-for="{ $id, visitor, checked_in } in visitorParticipants" :key="$id"
+                                                class="flex align-items-center gap-3 mb-3">
+                                                <Avatar :label="visitor.name[0]" shape="circle" size="small" />
+                                                <div class="flex flex-column">
+                                                    <span :class="{ 'font-bold text-green-600': checked_in }">{{
+                                                        visitor.codename }}</span>
+                                                    <small class="text-gray-700">Convidado por <strong>{{
+                                                        getOperatorName(visitor.operator) }}</strong></small>
+                                                </div>
+                                                <div v-if="!checked_in && operator.role === 'admin'"
+                                                    class="flex gap-2 ml-auto">
+                                                    <Button icon=" pi pi-times" severity="danger" rounded
+                                                        @click="deleteVisitorParticipation($id, visitor)" size="small"
+                                                        v-tooltip.top="'Cancelar Presença'" />
+                                                    <Button icon=" pi pi-check" severity="success" rounded
+                                                        @click="checkInVisitor($id)" size="small"
+                                                        v-tooltip.top="'Confirmar Presença'" />
+                                                </div>
+                                                <i v-else class="pi pi-check font-bold text-green-600 ml-auto"></i>
+                                            </div>
+                                </TabPanel>
+                            </TabPanels>
+                        </Tabs>
+                    </template>
+                </Card>
+                <Card class="bg-blue-900 border-1 border-white-alpha-10">
+                    <span class="text-green-500">Carona solidária</span>
+                    <template #content>
+                        <div class="buttons flex flex-column gap-2">
+                            <Button v-if="vehicles.length > 0" label="Adicionar Carona" icon="pi pi-plus" class="w-full"
+                                severity="warning" @click="openVisitorDialog = true" />
+                        </div>
+                        <h4 class="text-sm uppercase text-gray-400 border-bottom-1 border-white-alpha-10 pb-2">
+                            Carona Solidária
+                        </h4>
+                        <Tabs :value="0">
+                            <TabList>
+                                <Tab :value="0">Disponíveis ({{ carpools.length }})</Tab>
+                                <Tab :value="1">Aceitas ({{ carpoolAccepteds.length }})</Tab>
+                                <Tab :value="2" :hidden="!hasCarpools">Solicitações ({{ carpoolRequests.length }})</Tab>
+                            </TabList>
+                            <TabPanels>
+                                <TabPanel :value="0">
+                                    <div v-if="carpools.length > 0" v-for="carpool in carpools" :key="carpool.$id"
+                                        class="flex text-gray-700 justify-content-between align-items-center gap-3">
+                                        <div class="flex flex-column gap-1">
+                                            <div class="flex align-items-center gap-2">
+                                                <i class="pi pi-user text-sm"></i>
+                                                <span class="text-sm font-bold">
+                                                    {{ getOperatorName(carpool.vehicle.driver) }}
+                                                </span>
+                                            </div>
+                                            <div class="flex align-items-center gap-2 text-sm">
+                                                <i class="pi pi-car text-sm"></i>
+                                                <span class="text-sm">
+                                                    {{ carpool.vehicle.model }} <span v-if="carpool.vehicle.color">({{
+                                                        carpool.vehicle.color }})</span>
+                                                </span>
+                                            </div>
+                                            <div class="flex align-items-center gap-2 text-sm">
+                                                <i class="pi pi-users text-sm"></i>
+                                                <span class="text-sm">
+                                                    {{ carpool.available_seats }} vagas disponíveis
+                                                </span>
+                                            </div>
+                                            <div class="flex align-items-center gap-2 text-sm">
+                                                <i class="pi pi-flag text-sm"></i>
+                                                <span class="text-sm">
+                                                    {{ carpool.departure_point }}
+                                                </span>
+                                            </div>
+                                            <div class="flex align-items-center gap-2 text-sm">
+                                                <i class="pi pi-clock text-sm"></i>
+                                                <span class="text-sm">
+                                                    {{ carpool.departure_time }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <Button v-if="canRequest(carpool)" icon="pi pi-plus" severity="warn" rounded
+                                            @click="requestCarpool(carpool)" size="small"
+                                            v-tooltip.top="'Solicitar Carona'"
+                                            :disabled="carpool.available_seats === 0" />
+                                    </div>
+                                    <div v-else class="flex flex-column align-items-center p-4 text-gray-500">
+                                        <i class="pi pi-car text-5xl mb-2"></i>
+                                        <span class="text-sm">Nenhuma carona para esta missão ainda.</span>
+                                    </div>
+                                </TabPanel>
+                                <TabPanel :value="1">
+                                    <div v-if="carpoolAccepteds.length > 0"
+                                        v-for="({ $id, requester, carpool: { vehicle } }, index) in carpoolAccepteds"
+                                        :key="$id" class="flex text-gray-700 align-items-center gap-3 mb-3">
+                                        <span class="text-sm font-bold">{{ index + 1 }}. <strong>{{
+                                            getOperatorName(vehicle.driver) }}</strong> aceitou a solicitação de
+                                            <strong>{{ requester.codename }}</strong> no veículo {{ vehicle.model }} ({{
+                                                vehicle.color }})</span>
+                                    </div>
+                                    <div v-else class="flex flex-column align-items-center p-4 text-gray-500">
+                                        <i class="pi pi-list-check text-5xl mb-2"></i>
+                                        <span class="text-sm">Nenhum carona solicitada foi aceita.</span>
+                                    </div>
+                                </TabPanel>
+                                <TabPanel :value="2">
+                                    <div v-if="carpoolRequests.length > 0" v-for="request in carpoolRequests"
+                                        :key="request.$id"
+                                        class="flex text-gray-700 justify-content-between align-items-center gap-3 mb-3">
+                                        <span class="text-sm font-bold">{{ request.requester.codename }}</span>
+                                        <div class="flex gap-2">
+                                            <Button icon="pi pi-check" severity="success" rounded size="small"
+                                                @click="handleUpdateStatus(request, 'accepted')"
+                                                v-tooltip.top="'Aceitar'" />
+                                            <Button icon="pi pi-times" severity="danger" rounded size="small"
+                                                @click="handleUpdateStatus(request, 'rejected')"
+                                                v-tooltip.top="'Rejeitar'" />
+                                        </div>
+                                    </div>
+                                    <div v-else class="flex flex-column align-items-center p-4 text-gray-500">
+                                        <i class="pi pi-list text-5xl mb-2"></i>
+                                        <span class="text-sm">Nenhum solicitão foi enviada.</span>
+                                    </div>
+                                </TabPanel>
+                            </TabPanels>
+                        </Tabs>
                     </template>
                 </Card>
             </div>
-
         </div>
 
-        <Dialog v-model:visible="showScanner" header="Check-in de Operador" :modal="true" position="top"
+        <Dialog v-model:visible="openScannerDialog" header="Check-in de Operador" :modal="true"
             class="w-full md:w-30rem custom-scanner-dialog">
             <div class="relative border-round overflow-hidden scanner-viewport">
-                <div class="scanner-overlay">
-                    <div class="flex justify-content-center mb-3">
+                <QrcodeStream class="overflow-hidden" @detect="onDetect" @init="onInit" :track="paintOutline"
+                    :constraints="{ facingMode }">
+                    <div class="scanner-overlay">
+                        <div class="scanner-frame"></div>
                         <SelectButton v-model="facingMode" :options="cameraOptions" optionLabel="label"
                             optionValue="value" class="exodo-camera-switch" />
+                        <div class="scanner-instructions">
+                            <p class="text-xs m-0">Posicione o QR Code dentro da linha e aguarde.</p>
+                            <p class="text-xs opacity-70 m-0">A leitura é automática.</p>
+                        </div>
                     </div>
-                    <qrcode-stream class="scanner-frame overflow-hidden" @detect="onDetect" @init="onInit"
-                        :track="paintOutline" :constraints="{ facingMode }" style="width: 250px; height: 250px;" />
-                    <div class="scanner-instructions">
-                        <p class="text-xs m-0">Posicione o QR Code dentro da linha e aguarde.</p>
-                        <p class="text-xs opacity-70 m-0">A leitura é automática.</p>
-                    </div>
-                </div>
+                </QrcodeStream>
 
                 <div v-if="scannerError" class="center-all p-3 bg-red-900 text-white w-full text-center z-5">
                     {{ scannerError }}
                 </div>
             </div>
         </Dialog>
+
+        <Dialog v-model:visible="openVisitorDialog" header="Adicionar Visitantes" :modal="true"
+            class="w-full md:w-30rem">
+            <div class="grid">
+                <div class="col-12">
+                    <FloatLabel variant="in">
+                        <MultiSelect v-model="selectedVisitors" :options="availableVisitors" optionLabel="codename"
+                            filter :maxSelectedLabels="3" class="w-full" display="chip">
+                            <template #option="slotProps">
+                                <div class="flex flex-column">
+                                    <span class="font-bold">{{ slotProps.option.name }} ({{ slotProps.option.codename
+                                    }})</span>
+                                    <small class="text-gray-500">Convidado por {{
+                                        slotProps.option.operator.codename }}</small>
+                                </div>
+                            </template>
+                            <template #empty>Nenhum visitante disponível</template>
+                        </MultiSelect>
+                        <label>Visitantes</label>
+                    </FloatLabel>
+                    <Button label="Adicionar Visitantes" icon="pi pi-check-circle" severity="success"
+                        class="w-full mt-2" :disabled="selectedVisitors.length === 0" @click="addVisitorParcipations" />
+                </div>
+            </div>
+        </Dialog>
+
     </div>
 </template>
 
@@ -118,30 +281,66 @@ import { useConfirm } from "primevue";
 import { useToast } from "primevue/usetoast";
 import { atcb_action } from 'add-to-calendar-button';
 import { useAuthStore } from '@/stores/auth';
-import { EventService, type IEvent, type IParticipation, type IParticipations } from '@/services/event';
+import { EventService, type IEvent, type IParticipation, type IVisitorParticipation } from '@/services/event';
 import { EVENT_TYPES, TEAM_NAME } from '@/constants/airsoft';
 import { extractCoordsFromUrl, formatDate, playBeep } from '@/functions/utils';
 import type { ATCBActionEventConfig } from 'add-to-calendar-button';
+import { severityEvent } from '@/functions/utils'
 
-import Image from 'primevue/image';
 import Card from 'primevue/card';
 import Button from 'primevue/button';
 import Dialog from 'primevue/dialog';
 import Avatar from 'primevue/avatar';
+import Tag from 'primevue/tag';
+import Tabs from 'primevue/tabs';
+import TabPanel from 'primevue/tabpanel';
+import TabPanels from 'primevue/tabpanels';
+import TabList from 'primevue/tablist';
+import Tab from 'primevue/tab';
+import SelectButton from 'primevue/selectbutton';
+import MultiSelect from 'primevue/multiselect';
+import FloatLabel from 'primevue/floatlabel';
 
 import type { IOperator } from '@/services/operator';
+import { VisitorService, type IVisitor } from '@/services/visitor';
+import { CarpoolService, type ICarpool } from '@/services/carpool';
+import { VehicleService, type IVehicle } from '@/services/vehicle';
+import { CarpoolRequestService, type ICarpoolRequest } from '@/services/carpool_request';
 
 const route = useRoute();
 const toast = useToast();
 const confirm = useConfirm();
 const { operator } = useAuthStore();
 
-const event = ref({} as IEvent);
-const participants = ref([] as IParticipation<IOperator, IEvent
->[]);
+const event = ref<IEvent>({} as IEvent);
+const participants = ref<IParticipation<IOperator>[]>([]);
+const visitorParticipants = ref<IVisitorParticipation<IVisitor<string>>[]>([]);
+
+const visitors = ref<IVisitor<IOperator>[]>([]);
+const selectedVisitors = ref<IVisitor<IOperator>[]>([]);
+
+const carpools = ref<ICarpool<IVehicle>[]>([]);
+const requests = ref<ICarpoolRequest<IOperator, ICarpool<IVehicle>>[]>([]);
+
+const hasCarpools = computed(() => carpools.value.some(carpool => carpool.vehicle.driver === operator.$id));
+
+const carpoolAccepteds = computed(() => requests.value.filter(request => request.status === 'accepted'));
+const carpoolRequests = computed(() => {
+    return requests.value.filter(request => {
+        if (request.status !== 'pending') return false;
+        return request.carpool.vehicle.driver === operator.$id;
+    });
+});
+
+const operatorsMap = computed(() => {
+    return new Map(participants.value.map(p => [p.operator.$id, p.operator]));
+});
+
+const vehicles = ref<IVehicle[]>([]);
 
 const isConfirmed = ref(false);
-const showScanner = ref(false);
+const openScannerDialog = ref(false);
+const openVisitorDialog = ref(false);
 
 const cameraOptions = ref([
     { label: 'Frontal', value: 'user' },
@@ -176,8 +375,6 @@ async function onDetect(detectedCodes: DetectedBarcode[]) {
     if (!operatorId) return;
 
     try {
-        playBeep();
-        if (navigator.vibrate) navigator.vibrate(200);
 
         await EventService.confirmAttendance(event.value.$id, operatorId);
 
@@ -185,11 +382,14 @@ async function onDetect(detectedCodes: DetectedBarcode[]) {
         if (op) op.checked_in = true;
 
         toast.add({ severity: 'success', summary: 'Check-in OK', life: 2000 });
+
+        if (navigator.vibrate) navigator.vibrate(200);
+        playBeep();
     } catch (e) {
         if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
         toast.add({ severity: 'error', summary: 'Falha no Check-in' });
     } finally {
-        showScanner.value = false;
+        openScannerDialog.value = false;
     }
 }
 
@@ -214,17 +414,14 @@ const handleCalendarDynamic = () => {
     atcb_action(config);
 };
 
-const checkinsCount = computed(() => participants.value.filter(p => p.checked_in).length);
+const checkinsCount = computed(() => participants.value.filter(p => p.checked_in).length + visitorParticipants.value.filter(p => p.checked_in).length);
 
 const mapUrl = computed(() => {
-    if (!event.value?.location_url || !event.value?.location) return null;
-
+    if (!event.value?.location_url) return null;
     const coords = extractCoordsFromUrl(event.value.location_url);
     if (!coords) return null;
 
-    const query = `${coords.lat},${coords.lng}`;
-
-    return `https://www.google.com/maps?q=${query}&t=&z=16&ie=UTF8&iwloc=A&output=embed`;
+    return `https://maps.google.com/maps?q=${coords.lat},${coords.lng}&z=15&output=embed`;
 });
 
 onMounted(async () => {
@@ -235,7 +432,34 @@ onMounted(async () => {
     const eventDetails = await EventService.row(eventId) as IEvent;
     event.value = eventDetails;
 
-    participants.value = eventDetails.participations as IParticipations[];
+    participants.value = eventDetails.participations as IParticipation<IOperator>[];
+
+    // const participations = eventDetails.visitor_participations as IVisitorParticipation<IVisitor<string>>[];
+
+    // const hydrated: IVisitorParticipation<IVisitor<IOperator>>[] = participations.map((vp) => {
+    //     return {
+    //         ...vp,
+    //         visitor: {
+    //             ...vp.visitor,
+    //             operator: getOperator(vp.visitor.operator) || ({} as IOperator)
+    //         }
+    //     };
+    // });
+
+    // visitorParticipants.value = hydrated;
+    visitorParticipants.value = eventDetails.visitor_participations as IVisitorParticipation<IVisitor<string>>[];
+
+
+    carpools.value = eventDetails.carpools as ICarpool<IVehicle>[];
+    const carpoolIds = carpools.value.map(carpool => carpool.$id);
+
+    if (carpoolIds.length > 0) {
+        requests.value = await CarpoolRequestService.listByCarpools(carpoolIds);
+    }
+
+    vehicles.value = await VehicleService.listByOperator(operator.$id);
+
+    visitors.value = await VisitorService.list();
     isConfirmed.value = participants.value.some(p => p.operator.$id === operator.$id);
 });
 
@@ -252,7 +476,7 @@ const toggleParticipation = async () => {
                 toast.add({ severity: 'info', summary: 'Cancelado', detail: 'Sua presença foi removida.', life: 3000 });
             }
         } else {
-            const newParticipation = await EventService.createParticipation(event.value.$id, operator.$id) as IParticipations;
+            const newParticipation = await EventService.createParticipation(event.value.$id, operator.$id);
 
             participants.value.push({
                 ...newParticipation,
@@ -260,13 +484,22 @@ const toggleParticipation = async () => {
             });
             isConfirmed.value = true;
 
-            toast.add({ severity: 'success', summary: 'Confirmado', detail: 'Presença confirmada!', life: 3000 });
+            toast.add({ severity: 'success', summary: 'Confirmado!', detail: 'Presença confirmada!', life: 3000 });
 
             confirm.require({
                 message: 'Deseja adicionar este evento a sua agenda?',
                 header: 'Agenda Tática',
                 acceptLabel: 'Sim, adicionar',
                 rejectLabel: 'Agora não',
+                rejectProps: {
+                    label: 'Não',
+                    severity: 'secondary',
+                    outlined: true
+                },
+                acceptProps: {
+                    label: 'Sim',
+                    severity: 'danger'
+                },
                 accept: () => {
                     handleCalendarDynamic();
                 }
@@ -279,31 +512,191 @@ const toggleParticipation = async () => {
 };
 
 const openMaps = () => window.open(event.value.location_url, '_blank');
+
+const availableVisitors = computed(() => {
+    const alreadyInEventIds = visitorParticipants.value.map(p => p.visitor.$id);
+    return visitors.value.filter(v => !alreadyInEventIds.includes(v.$id));
+});
+
+const addVisitorParcipations = async () => {
+    try {
+        const eventId = event.value.$id;
+
+        const promises = selectedVisitors.value.map(visitor =>
+            EventService.addVisitorToEvent(eventId, visitor.$id)
+        )
+
+        const participations = await Promise.all(promises) as IVisitorParticipation<IVisitor<IOperator>>[];
+        const participationsHydrated: IVisitorParticipation<IVisitor<string>>[] = participations.map((vp) => ({
+            ...vp,
+            visitor: {
+                ...vp.visitor,
+                operator: vp.visitor.operator.$id
+            }
+        }));
+
+        visitorParticipants.value.push(...participationsHydrated);
+
+        toast.add({
+            severity: 'success',
+            summary: 'Sucesso',
+            detail: `${selectedVisitors.value.length} visitantes adicionados!`,
+            life: 3000
+        });
+
+        selectedVisitors.value = [];
+    } catch (e) {
+        toast.add({ severity: 'error', summary: 'Erro ao vincular visitantes', life: 3000 });
+    } finally {
+        openVisitorDialog.value = false;
+    }
+};
+
+const deleteVisitorParticipation = async (participationId: string, visitor: IVisitor) => {
+    confirm.require({
+        message: `Deseja remover o visitante ${visitor.codename} da lista?`,
+        header: 'Remover Visitante',
+        acceptLabel: 'Sim',
+        rejectLabel: 'Não',
+        rejectProps: {
+            label: 'Não',
+            severity: 'secondary',
+            outlined: true
+        },
+        acceptProps: {
+            label: 'Sim',
+            severity: 'danger'
+        },
+        accept: async () => {
+            await EventService.deleteVisitorParticipation(participationId);
+            visitorParticipants.value = visitorParticipants.value.filter(v => v.$id !== participationId);
+
+            toast.add({ severity: 'success', summary: 'Visitante removido da lista!', life: 3000 });
+        }
+    });
+}
+
+const checkInVisitor = async (participationId: string) => {
+    confirm.require({
+        message: `Deseja confirmar a presença do visitante?`,
+        header: 'Confirmar Presença',
+        acceptLabel: 'Sim',
+        rejectLabel: 'Não',
+        rejectProps: {
+            label: 'Não',
+            severity: 'secondary',
+            outlined: true
+        },
+        acceptProps: {
+            label: 'Sim',
+            severity: 'danger'
+        },
+        accept: async () => {
+            await EventService.confirmVisitorAttendance(participationId);
+            const visitorParticipantion = visitorParticipants.value.find(v => v.$id === participationId);
+
+            if (visitorParticipantion) visitorParticipantion.checked_in = true;
+
+            toast.add({ severity: 'success', summary: 'Presença confirmada do visitante!', life: 3000 });
+
+            if (navigator.vibrate) navigator.vibrate(200);
+            playBeep();
+        }
+    });
+};
+
+const requestCarpool = async (carpool: ICarpool<IVehicle>) => {
+    try {
+        const { $id, vehicle, departure_point, departure_time } = carpool;
+        const { codename, phone } = getOperator(vehicle.driver) as IOperator;
+
+        const response = await CarpoolRequestService.create($id, operator.$id) as ICarpoolRequest<IOperator, ICarpool<IVehicle>>;
+
+        requests.value.push({
+            ...response,
+            carpool
+        });
+
+        const message = `Fala ${codename}, solicitei uma vaga na sua carona pelo App do Êxodo para o evento *${event.value.title}* (Saída: ${departure_point} às ${departure_time}). Pode confirmar lá pra mim?`;
+        const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+
+        window.open(url, "_blank");
+
+        toast.add({ severity: 'info', summary: 'Solicitado', detail: 'Pedido enviado e WhatsApp aberto!', life: 3000 });
+    } catch (error) {
+        toast.add({ severity: 'error', summary: 'Erro', detail: 'Falha ao solicitar vaga.', life: 3000 });
+    }
+};
+
+const handleUpdateStatus = async (request: ICarpoolRequest<IOperator, ICarpool<IVehicle>>, status: 'accepted' | 'rejected') => {
+    try {
+        await CarpoolRequestService.updateStatus(request.$id, status);
+
+        request.status = status;
+
+        if (status === 'accepted') {
+            const carpool = carpools.value.find(carpool => carpool.$id === request.carpool.$id)!;
+
+            carpool.available_seats--
+
+            await CarpoolService.updateSeats(carpool.$id, carpool.available_seats);
+
+            toast.add({ severity: 'success', summary: 'Confirmado!', detail: 'Carona confirmada!', life: 3000 });
+        } else {
+            toast.add({ severity: 'info', summary: 'Rejeitado!', detail: 'Carona rejeitada!', life: 3000 });
+        }
+    } catch (e) {
+        toast.add({ severity: 'error', summary: 'Erro ao atualizar' });
+    }
+};
+
+const canRequest = (carpool: ICarpool<IVehicle>) => {
+    const isOwner = carpool.vehicle.driver === operator.$id;
+    const hasPendingOrAccepted = requests.value.some(r =>
+        r.carpool.$id === carpool.$id &&
+        r.requester.$id === operator.$id &&
+        r.status !== 'rejected'
+    );
+
+    return !isOwner && !hasPendingOrAccepted;
+};
+
+const getOperator = (id: string) => operatorsMap.value.get(id);
+const getOperatorName = (id: string) => operatorsMap.value.get(id)?.codename || 'Desconhecido';
 </script>
 
 <style scoped>
 .scanner-viewport {
-    height: 450px;
+    /* height: 450px; */
     display: flex;
     flex-direction: column;
 }
 
 .scanner-overlay {
+    width: 100%;
     height: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: space-between;
     z-index: 1;
-    padding: 1rem;
+    padding-block: 2rem;
+    background: transparent;
+    position: relative;
 }
 
 .scanner-frame {
-    border: 5px solid transparent;
-    border-radius: 20px;
-    background: linear-gradient(white, white) padding-box,
-        linear-gradient(to bottom right, #dc143c, #daa520) border-box;
-    box-shadow: 0 0 0 1000px rgba(0, 0, 0, 0.3);
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 260px;
+    height: 260px;
+    border: 0.5rem solid;
+    border-image: linear-gradient(to bottom right, var(--p-blue-500), var(--p-red-500), var(--p-yellow-500), var(--p-yellow-500), var(--p-red-500), var(--p-blue-500)) 1;
+    box-shadow: 0 0 0 100vmax rgba(0, 0, 0, 0.4);
+    pointer-events: none;
+    z-index: 2;
 }
 
 .scanner-instructions {
@@ -315,17 +708,11 @@ const openMaps = () => window.open(event.value.location_url, '_blank');
 }
 
 /* Estilo do SelectButton (Alternador Frontal/Traseira) */
-:deep(.exodo-camera-switch .p-button) {
-    background: #1e293b;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: white;
-    font-size: 0.8rem;
-    font-weight: bold;
-    text-transform: uppercase;
+:deep(.col-4, col-6, .col-12) {
+    padding: 0 !important;
 }
 
-:deep(.exodo-camera-switch .p-highlight) {
-    background: var(--primary-color) !important;
-    color: var(--primary-color-text) !important;
+:deep(.exodo-camera-switch) {
+    z-index: 3;
 }
 </style>

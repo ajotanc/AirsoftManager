@@ -28,7 +28,20 @@
           </Card>
         </div>
         <div class="col-12">
-          <EventList />
+          <Card>
+            <template #title>Evento(s)</template>
+            <template #content>
+              <EventList />
+            </template>
+          </Card>
+        </div>
+        <div class="col-12">
+          <Card>
+            <template #title>Aniversariante(s)</template>
+            <template #content>
+              <BirthdayList />
+            </template>
+          </Card>
         </div>
       </div>
     </div>
@@ -41,9 +54,9 @@ import { useI18n } from "vue-i18n";
 
 import Card from "primevue/card";
 
-import Qrcode from "@/components/operators/Qrcode.vue";
 import OperatorRankCard from "@/components/operators/OperatorRankCard.vue";
 import EventList from "@/components/EventList.vue";
+import BirthdayList from "@/components/BirthdayList.vue";
 
 const { isActiveOperator, operator: { arsenal, loadout } } = useAuthStore();
 const { t } = useI18n();

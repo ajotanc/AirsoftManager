@@ -1,7 +1,7 @@
 <template>
     <div class="card">
         <div class="surface-card shadow-2 border-round overflow-hidden">
-            <DataTable :value="ratings" paginator :rows="5" stripedRows :filters="filters"
+            <DataTable :value="dtValue" paginator :rows="5" stripedRows :filters="filters"
                 paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
                 :rowsPerPageOptions="[5, 10, 25]"
                 currentPageReportTemplate="Exibindo {first} a {last} de {totalRecords} voto(s)"
@@ -27,27 +27,29 @@
 
                 <Column header="Operador">
                     <template #body="{ data: vote }">
-                        <span>{{ vote.target.codename }}</span>
-                    </template>
-                </Column>
-                <Column v-for="col in SKILL_ATTRIBUTES" :key="col.field" :field="col.field" :header="col.header">
-                    <template #body="{ data: vote }">
-                        <Rating v-model="vote[col.field]" readonly />
+                        <Skeleton v-if="loading" width="100%" height="1rem" />
+                        <template v-else>{{ vote.target.codename }}</template>
                     </template>
                 </Column>
 
-                <Column header="Ações" style="width: 10%; min-width: 8rem" bodyStyle="text-align: center">
-                    <template #body="{ data: rating }">
-                        <div class="flex gap-2 justify-content-center">
+                <Column v-for="column in fields" :key="column.name" :header="column.label">
+                    <template #body="{ data }">
+                        <ColumnContent :column="column" :data="data" :loading="loading" />
+                    </template>
+                </Column>
+
+                <Column header=" Ações" style="width: 10%">
+                    <template #body="{ data }">
+                        <Skeleton v-if="loading" width="100%" height="1rem" />
+                        <div v-else class="flex gap-2 justify-content-center">
                             <Button icon="pi pi-pencil" text rounded severity="secondary" v-tooltip.top="'Editar'"
-                                @click="editRating(rating)" />
+                                @click="editRating(data)" />
                             <Button icon="pi pi-trash" text rounded severity="danger" v-tooltip.top="'Excluir'"
-                                @click="confirmDelete(rating)" />
+                                @click="confirmDelete(data)" />
                         </div>
                     </template>
                 </Column>
 
-                <template #loading>Carregando...</template>
                 <template #empty>Nenhum voto encontrado.</template>
             </DataTable>
         </div>
@@ -76,7 +78,7 @@
                                             shape="circle" size="small" />
                                         <span>{{availableOperators.find(op => op.$id ===
                                             slotProps.value)?.codename
-                                            }}</span>
+                                        }}</span>
                                     </div>
                                 </template>
                             </Select>
@@ -87,7 +89,7 @@
                         </Message>
                     </FormField>
                 </div>
-                <div v-for="field in formFields" :key="field.name" :class="`col-${field.col}`">
+                <div v-for="field in fields" :key="field.name" :class="`col-${field.col}`">
                     <FormField :name="field.name" v-slot="$field" class="flex flex-column gap-1">
                         <label :for="field.name" class="font-bold">{{ field.label }}</label>
                         <component :is="field.component" :id="field.name" v-bind="field.props" v-model="$field.value"
@@ -129,6 +131,8 @@ import { Rating, useConfirm } from "primevue";
 import { RatingService, type IRating } from "@/services/rating";
 import { OperatorService, type IOperator } from "@/services/operator";
 import { useAuthStore } from "@/stores/auth";
+import { type IFields } from "@/functions/utils";
+import ColumnContent from "@/components/ColumnContent.vue";
 
 const { operator } = useAuthStore();
 
@@ -137,8 +141,6 @@ onMounted(() => {
 });
 
 const loadServices = async () => {
-    loading.value = true;
-
     try {
         const [ratingsData, operatorsData] = await Promise.all([
             RatingService.getRatingsForVoter(operator.$id),
@@ -174,6 +176,10 @@ const loadServices = async () => {
         loading.value = false;
     }
 };
+
+const dtValue = computed(() => {
+    return loading.value ? new Array(5).fill({}) : ratings.value;
+});
 
 const loading = ref(true);
 const ratings = ref<IRating<IOperator, IOperator>[]>([]);
@@ -255,10 +261,10 @@ const saveRating = async ({ valid, values }: any) => {
     }
 };
 
-const formFields = computed(() => [
+const fields = computed<IFields[]>(() => [
     ...SKILL_ATTRIBUTES.map(({ field: name, header: label }) => {
         return {
-            name, label, component: Rating, col: '6', props: { stars: 5 }
+            name, label, component: Rating, isRating: true, col: '6', props: { stars: 5 }
         }
     })
 ]);

@@ -5,7 +5,7 @@
       severity="help" raised />
 
     <div ref="cardRef"
-      class="story-layout bg-gray-900 text-white relative overflow-hidden flex flex-column align-items-center justify-content-between">
+      class="story-layout bg-blue-900 text-white relative overflow-hidden flex flex-column align-items-center justify-content-between">
 
       <div class="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
       </div>

@@ -1,42 +1,55 @@
 <template>
-    <Carousel :value="allEvents" :numVisible="3" :numScroll="1" :responsiveOptions="responsiveOptions" circular
-        :autoplayInterval="3000" class="m-2">
-        <template #item="{ data: event }">
-            <Card class="overflow-hidden mx-2">
-                <template #header>
-                    <div class="relative overflow-hidden">
-                        <Tag :value="EVENT_TYPES[event.type as keyof typeof EVENT_TYPES] || 'Padrão'"
-                            :severity="severity(event.type)" class="absolute top-0 left-0 m-3 z-2" />
+    <div class="carousel-container w-full overflow-hidden px-2">
+        <Carousel v-if="allEvents.length > 0" :value="allEvents" :numVisible="5" :numScroll="1"
+            :responsiveOptions="responsiveOptions" circular :autoplayInterval="4000">
+            <template #item="{ data: event }">
+                <div class="p-2 h-full">
+                    <Card class="h-full border-1 border-white-alpha-10 overflow-hidden flex flex-column">
+                        <template #header>
+                            <div class="relative">
+                                <Tag :value="EVENT_TYPES[event.type as keyof typeof EVENT_TYPES] || 'Padrão'"
+                                    :severity="severityEvent(event.type)" class="absolute top-0 left-0 m-2 z-2" />
+                                <div v-if="event.thumbnail && isValidUrl(event.thumbnail)" class="w-full" :style="{
+                                    height: '10rem',
+                                    backgroundImage: `url(${event.thumbnail})`,
+                                    backgroundSize: 'cover',
+                                    backgroundPosition: 'center'
+                                }" />
+                                <div v-else class="flex align-items-center justify-content-center bg-gray-800"
+                                    style="height: 10rem;">
+                                    <i class="pi pi-image text-3xl text-gray-600"></i>
+                                </div>
+                            </div>
+                        </template>
 
-                        <div v-if="event.thumbnail && isValidUrl(event.thumbnail)" class="w-full rounded"
-                            :style="{ minHeight: '12rem', backgroundImage: `url(${event.thumbnail})`, backgroundSize: 'cover', backgroundPosition: 'center center' }" />
-                        <div v-else class="flex align-items-center justify-content-center bg-gray-200"
-                            style="min-height: 12rem;">
-                            <i class="pi pi-image"></i>
-                        </div>
-                    </div>
-                </template>
-                <template #title>{{ event.title }}</template>
-                <template #subtitle>{{ event.location }}</template>
-                <template #content>
-                    <div class="flex gap-2 align-items-center text-gray-400">
-                        <div class="flex align-items-center gap-2">
-                            <i class="pi pi-calendar text-primary"></i>
-                            <span>{{ formatDate(event.date, true) }}</span>
-                        </div>
-                        <div class="flex align-items-center gap-2">
-                            <i class="pi pi-clock text-primary"></i>
-                            <span>{{ event.startTime }} - {{ event.endTime }}</span>
-                        </div>
-                    </div>
-                </template>
-                <template #footer>
-                    <Button label="Ver mais..." icon="pi pi-external-link" class="w-full" severity="primary"
-                        @click="goToEvent(event.$id)" />
-                </template>
-            </Card>
-        </template>
-    </Carousel>
+                        <template #title>
+                            <div class="text-lg font-bold text-gold-500 line-clamp-1 mt-2">
+                                {{ event.title }}
+                            </div>
+                        </template>
+
+                        <template #content>
+                            <div class="flex flex-column gap-1 text-sm text-gray-400">
+                                <span><i class="pi pi-map-marker mr-1 text-xs"></i>{{ event.location }}</span>
+                                <span><i class="pi pi-calendar mr-1 text-xs text-primary-500"></i>{{
+                                    formatDate(event.date, true) }}</span>
+                            </div>
+                        </template>
+
+                        <template #footer>
+                            <div class="mt-auto">
+                                <Button label="Ver Missão" icon="pi pi-search" class="w-full p-button-sm"
+                                    @click="goToEvent(event.$id)" />
+                            </div>
+                        </template>
+                    </Card>
+                </div>
+            </template>
+        </Carousel>
+        <div v-else class="flex gap-3 p-4">
+            <Skeleton height="20rem" class="w-full" />
+        </div>
+    </div>
 </template>
 
 <script setup lang="ts">
@@ -44,7 +57,7 @@ import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { EventService, type IEvent } from '@/services/event';
 import { EVENT_TYPES } from '@/constants/airsoft';
-import { formatDate } from '@/functions/utils';
+import { formatDate, severityEvent } from '@/functions/utils';
 
 const router = useRouter();
 const allEvents = ref<IEvent[]>([]);
@@ -57,52 +70,29 @@ const isValidUrl = (url: string) => {
 const responsiveOptions = ref([
     {
         breakpoint: '1400px',
-        numVisible: 2,
+        numVisible: 5, // Telas grandes: 3 itens
         numScroll: 1
     },
     {
         breakpoint: '1199px',
-        numVisible: 3,
+        numVisible: 3, // Telas médias: 2 itens
         numScroll: 1
     },
     {
         breakpoint: '767px',
-        numVisible: 2,
+        numVisible: 2, // Tablets/Mobile: 1 item (Essencial para não esmagar os cards)
         numScroll: 1
     },
     {
         breakpoint: '575px',
         numVisible: 1,
         numScroll: 1
+
     }
 ]);
 
-const severity = (type: number): string => {
-    switch (type) {
-        case 1:
-            return 'success';
-        case 2:
-            return 'warn';
-        case 3:
-            return 'danger';
-        case 4:
-            return 'info';
-        case 5:
-            return 'helper';
-        case 6:
-            return 'primary';
-        default:
-            return 'secondary';
-    }
-};
-
 onMounted(async () => {
-    const now = new Date();
-    const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
-
-    const result = await EventService.list() as IEvent[];
-    // const result = await EventService.listFromDate(firstDayOfMonth) as IEvent[];
-    allEvents.value = result;
+    allEvents.value = await EventService.list() as IEvent[];
 });
 
 const goToEvent = (id: string) => router.push(`/events/${id}`);

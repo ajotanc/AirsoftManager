@@ -4,8 +4,7 @@
       class="border-none border-bottom-1 surface-border border-noround px-4 py-2 surface-section">
       <template #start>
         <div class="flex align-items-center gap-2 mr-4 cursor-pointer" @click="router.push('/dashboard')">
-          <i class="pi pi-shield text-2xl text-primary"></i>
-          <span class="font-bold text-xl text-900">AIRSOFT</span>
+          <img src="/exd.webp" :alt="TEAM_NAME" class="h-4rem">
         </div>
       </template>
 
@@ -63,7 +62,7 @@ import Menubar from "primevue/menubar";
 import Avatar from "primevue/avatar";
 import Badge from "primevue/badge";
 import Menu from "primevue/menu";
-import { ROLES } from "@/constants/airsoft";
+import { ROLES, TEAM_NAME } from "@/constants/airsoft";
 
 const authStore = useAuthStore();
 const router = useRouter();
@@ -97,6 +96,12 @@ const navItems = computed(() => [
         label: t("menu.loadout"),
         icon: "ri-t-shirt-2-line",
         route: "/loadout",
+        visible: authStore.isActiveOperator,
+      },
+      {
+        label: "Veiculos",
+        icon: "ri-car-line",
+        route: "/vehicles",
         visible: authStore.isActiveOperator,
       },
     ],
@@ -137,6 +142,11 @@ const navItems = computed(() => [
         label: "Aniversariantes",
         icon: "ri-cake-2-line",
         route: "/admin/birthdays",
+      },
+      {
+        label: "Visitantes",
+        icon: "ri-group-3-line",
+        route: "/admin/visitors",
       },
       {
         label: "Financeiro",

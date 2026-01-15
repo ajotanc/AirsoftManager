@@ -6,9 +6,6 @@ import {
   type IOperator,
   type IOperatorDraft,
 } from "@/services/operator";
-import type { IArsenal } from "@/services/arsenal";
-import type { ILoadout } from "@/services/loadout";
-import type { IParticipations } from "@/services/event";
 
 export const useAuthStore = defineStore("auth", {
   state: () => ({
@@ -58,17 +55,19 @@ export const useAuthStore = defineStore("auth", {
 
             const payload: IOperatorDraft = {
               $id: this.user.$id,
+              name,
               codename,
               role: "recruit",
               status: false,
               avatar: "",
               rating: 0,
               xp: 0,
-              level: 0,
+              level: 1,
               prestige: 0,
               arsenal: [],
               loadout: [],
               participations: [],
+              birth_date: null
             };
 
             await OperatorService.create(payload as IOperator, this.user.$id);
@@ -104,17 +103,19 @@ export const useAuthStore = defineStore("auth", {
 
         const payload: IOperatorDraft = {
           $id: userAccount.$id,
+          name,
           codename,
           role: "recruit",
           status: false,
           avatar: "",
           rating: 0,
           xp: 0,
-          level: 0,
+          level: 1,
           prestige: 0,
           arsenal: [],
           loadout: [],
           participations: [],
+          birth_date: null
         };
 
         await OperatorService.create(payload as IOperator, userAccount.$id);

@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-column min-h-screen">
-    <AppHeader />
+    <Header />
     <div class="col-12 md:col p-3">
       <router-view />
     </div>
@@ -11,6 +11,6 @@
 </template>
 
 <script setup lang="ts">
-import AppHeader from "@/components/AppHeader.vue";
+import Header from "@/components/header/Private.vue";
 const year = new Date().getFullYear();
 </script>

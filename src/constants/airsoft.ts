@@ -201,7 +201,6 @@ export const ARSENAL_COLUMNS = [
   },
   { field: "joule", header: "Joule" },
   { field: "fps", header: "FPS" },
-  // { field: "invoice", header: "Nota Fiscal" },
   { field: "maintained_at", header: "Última Manutenção", isDate: true },
 ];
 
@@ -220,8 +219,8 @@ export const SKILL_ATTRIBUTES: SkillAttribute[] = [
   { field: "communication", header: "Comunicação", tag: "COM" },
   { field: "mobility", header: "Mobilidade", tag: "MOB" },
   { field: "stealth", header: "Furtividade", tag: "FUR" },
-  // { field: "teste", header: "Teste", tag: "TES" },
 ];
+
 
 export const RADAR_OPTIONS: ChartOptions<"radar"> = {
   responsive: true,

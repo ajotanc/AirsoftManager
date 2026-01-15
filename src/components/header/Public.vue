@@ -3,8 +3,7 @@
     <Menubar :model="items" class="border-none border-bottom-1 surface-border border-noround p-3 surface-overlay">
       <template #start>
         <div class="flex align-items-center gap-2 mr-4 cursor-pointer" @click="router.push('/')">
-          <i class="pi pi-shield text-2xl text-orange-500"></i>
-          <span class="font-bold text-xl text-900">Êxodo Airsoft</span>
+          <img src="/exd.webp" :alt="TEAM_NAME" class="h-4rem">
         </div>
       </template>
 
@@ -22,6 +21,7 @@
 import { useRouter } from "vue-router";
 import Menubar from "primevue/menubar";
 import Button from "primevue/button";
+import { TEAM_NAME } from "@/constants/airsoft";
 
 const router = useRouter();
 

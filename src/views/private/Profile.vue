@@ -29,6 +29,15 @@
         class="flex flex-column gap-3">
         <Panel header="Identificação" toggleable>
           <div class="grid formgrid">
+            <div class="field col-12">
+              <FloatLabel variant="in">
+                <InputText name="name" class="w-full" fluid />
+                <label>Nome Completo</label>
+              </FloatLabel>
+              <Message v-if="$form.name?.invalid" severity="error" size="small" variant="simple">{{
+                $form.name.error.message }}</Message>
+            </div>
+
             <div class="field col-6">
               <FloatLabel variant="in">
                 <InputText name="codename" class="w-full" fluid />
@@ -375,6 +384,7 @@ const form = ref();
 const fileInput = ref<HTMLInputElement | null>(null);
 
 const initialValues = ref({
+  name: "",
   codename: "",
   identity: "",
   general_registration: "",
@@ -411,6 +421,7 @@ const initialValues = ref({
 const resolver = zodResolver(
   z
     .object({
+      name: z.string({ error: "Nome completo obrigatório" }),
       codename: z.string().min(1, { error: "Codinome obrigatório" }),
       identity: z
         .string()
@@ -421,9 +432,8 @@ const resolver = zodResolver(
         .min(1, { error: "RG obrigatório" })
         .transform((v) => v.replace(/\D/g, "")),
 
-      birth_date: z.coerce
-        .date({ error: "Data de nascimento obrigatória" })
-        .transform((date) => formatDateToLocal(date)),
+      birth_date: z.custom().refine((date) => date instanceof Date || typeof date === 'string', "Data de nascimento obrigatória").transform((date
+      ) => formatDateToLocal(date as Date)),
 
       blood_type: z.string().min(1, { error: "Tipo sanguíneo obrigatório" }),
       mother_name: z.string().min(1, { error: "Nome da mãe obrigatório" }),
@@ -510,20 +520,15 @@ const resolver = zodResolver(
 );
 
 onMounted(() => {
-  if (!authStore.operator) return;
+  if (!authStore.operator || !form.value) return;
 
-  Object.keys(initialValues.value).forEach((key) => {
-    const value = (authStore.operator as any)[key];
+  const values = { ...authStore.operator };
 
-    if (value) {
-      form.value.setFieldValue(
-        key,
-        key === "birth_date"
-          ? new Date(value).toLocaleDateString("pt-BR")
-          : value
-      );
-    }
-  });
+  if (values.birth_date) {
+    values.birth_date = new Date(values.birth_date).toLocaleDateString("pt-BR");
+  }
+
+  form.value.setValues(values);
 });
 
 const handleUpdateProfile = async ({ valid, values }: any) => {
@@ -558,23 +563,22 @@ const handleUpdateProfile = async ({ valid, values }: any) => {
   }
 };
 
-const handleCep = async (event: Event) => {
-  const target = event.target as HTMLInputElement;
-  const cep = target.value.replace(/\D/g, "");
-
+const handleCep = async (event: any) => {
+  const cep = event.target.value.replace(/\D/g, "");
   if (cep.length !== 8) return;
 
   try {
     const address = await addressByCep(cep);
-
     if (address && !address.erro) {
-      form.value.setFieldValue("address", address.logradouro);
-      form.value.setFieldValue("neighborhood", address.bairro);
-      form.value.setFieldValue("city", address.localidade);
-      form.value.setFieldValue("state", address.uf);
+      form.value.setValues({
+        address: address.logradouro,
+        neighborhood: address.bairro,
+        city: address.localidade,
+        state: address.uf
+      });
     }
   } catch (err) {
-    console.error(err);
+    console.error("Erro ao buscar CEP:", err);
   }
 };
 

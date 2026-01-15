@@ -115,7 +115,7 @@
           <div class="field col-12">
             <FloatLabel variant="in">
               <DatePicker name="maintained_at" class="w-full" dateFormat="dd/mm/yy" showIcon showButtonBar
-                iconDisplay="input" :showOnFocus="true" :manualInput="false" fluid />
+                iconDisplay="input" :showOnFocus="true" fluid />
               <label>Última Manutenção</label>
             </FloatLabel>
             <Message v-if="$form.maintained_at?.invalid" severity="error" size="small" variant="simple">{{

@@ -2,13 +2,13 @@
   <div class="card">
     <div class="surface-card shadow-2 border-round overflow-hidden">
 
-      <DataTable ref="dt" :value="operators" paginator :rows="5" stripedRows :filters="filters"
+      <DataTable ref="dt" :value="dtValue" paginator :rows="5" stripedRows :filters="filters"
         v-model:editingRows="editingRows" editMode="row" dataKey="$id" @row-edit-save="handleUpdate"
         paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
         :rowsPerPageOptions="[5, 10, 25]"
         currentPageReportTemplate="Exibindo {first} a {last} de {totalRecords} operadore(s)"
-        tableStyle="min-width: 50rem" :loading="loading" v-model:expandedRows="expandedRows"
-        :exportFilename="exportFilename" csvSeparator=";">
+        tableStyle="min-width: 50rem" v-model:expandedRows="expandedRows" :exportFilename="exportFilename"
+        csvSeparator=";">
 
         <template #header>
           <div class="flex flex-wrap align-items-center justify-content-between gap-3 p-2">
@@ -28,37 +28,64 @@
         </template>
 
         <Column expander style="width: 5rem" />
-        <Column field="avatar">
-          <template #body="{ data, field }">
-            <Avatar :image="data[field]" class="mr-2" size="xlarge" shape="circle" />
+        <Column header="Avatar">
+          <template #body="{ data: { avatar } }">
+            <Skeleton v-if="loading" width="100%" height="1rem" />
+            <template v-else>
+              <Avatar v-if="avatar" :image="avatar" class="mr-2" size="xlarge" shape="circle" />
+              <Avatar v-else icon="pi pi-user" class="mr-2" size="xlarge" shape="circle" />
+            </template>
           </template>
         </Column>
-        <Column field="codename" header="Codinome"></Column>
-        <Column field="rating" header="Graduação">
-          <template #body="{ data, field }">
-            <Rating v-model="data[field]" :readonly="true" />
-          </template>
-          <template #editor="{ data, field }">
-            <Rating v-model="data[field]" />
-          </template>
-        </Column>
-        <Column field="role" header="Cargo">
-          <template #body="{ data, field }">
-            <Tag :value="ROLES.find((role) => role.code === data[field])?.name" :severity="'contrast'" />
-          </template>
-          <template #editor="{ data, field }">
-            <Select :options="ROLES" v-model="data[field]" optionLabel="name" optionValue="code" class="w-full" fluid />
-          </template>
-          >
-        </Column>
-        <Column field="status" header="Situação">
-          <template #body="{ data, field }">
-            <Tag :value="data[field] ? 'Ativo' : 'Inativo'" :severity="data[field] ? 'success' : 'danger'" />
-          </template>
-          <template #editor="{ data, field }">
-            <ToggleSwitch v-model="data[field]" />
+
+        <Column header="Codinome">
+          <template #body="{ data: { name, codename } }">
+            <Skeleton v-if="loading" width="100%" height="1rem" />
+            <template v-else>
+              <div class="flex flex-column">
+                <span class="font-bold">{{ getShortName(name) }}</span>
+                <small>{{ codename }}</small>
+              </div>
+            </template>
           </template>
         </Column>
+
+        <Column header="Graduação">
+          <template #body="{ data: { rating } }">
+            <Skeleton v-if="loading" width="100%" height="1rem" />
+            <template v-else>
+              <Rating :modelValue="rating" :readonly="true" />
+            </template>
+          </template>
+          <template #editor="{ data: { rating } }">
+            <Rating :modelValue="rating" />
+          </template>
+        </Column>
+
+        <Column header="Cargo">
+          <template #body="{ data: { role } }">
+            <Skeleton v-if="loading" width="100%" height="1rem" />
+            <template v-else>
+              <Tag :value="ROLES.find((item) => item.code === role)?.name" :severity="'contrast'" />
+            </template>
+          </template>
+          <template #editor="{ data: { role } }">
+            <Select :options="ROLES" :modelValue="role" optionLabel="name" optionValue="code" class="w-full" fluid />
+          </template>
+        </Column>
+
+        <Column header="Situação">
+          <template #body="{ data: { status } }">
+            <Skeleton v-if="loading" width="100%" height="1rem" />
+            <template v-else>
+              <Tag :value="status ? 'Ativo' : 'Inativo'" :severity="status ? 'success' : 'danger'" />
+            </template>
+          </template>
+          <template #editor="{ data: { status } }">
+            <ToggleSwitch :modelValue="status" />
+          </template>
+        </Column>
+
         <Column :rowEditor="true" bodyStyle="text-align: right;"></Column>
 
         <template #expansion="{ data: operator }">
@@ -67,10 +94,8 @@
 
         <template #empty>Nenhum operador encontrado.</template>
 
-        <template #loading>Carregando...</template>
-
         <template #paginatorstart>
-          <Button icon="pi pi-refresh" rounded raised @click="loadOperators" size="small" v-tooltip.top="'Atualizar'" />
+          <Button icon="pi pi-refresh" rounded raised @click="loadServices" size="small" v-tooltip.top="'Atualizar'" />
         </template>
 
         <template #paginatorend>
@@ -102,6 +127,7 @@ import { ROLES } from "@/constants/airsoft";
 
 import { OperatorService } from "@/services/operator";
 import { useAuthStore } from "@/stores/auth";
+import { getShortName } from "@/functions/utils";
 
 const toast = useToast();
 const authStore = useAuthStore();
@@ -116,15 +142,23 @@ const filters = ref({
 });
 
 onMounted(() => {
-  loadOperators();
+  loadServices();
 });
 
-const loadOperators = () => {
-  OperatorService.list().then((data) => {
-    operators.value = data;
+const loadServices = async () => {
+  try {
+    operators.value = await OperatorService.list();
+  } catch (error) {
+    console.error("Erro ao carregar serviços:", error);
+    toast.add({ severity: 'error', summary: 'Erro', detail: 'Falha ao carregar dados.' });
+  } finally {
     loading.value = false;
-  });
+  }
 };
+
+const dtValue = computed(() => {
+  return loading.value ? new Array(5).fill({}) : operators.value;
+});
 
 const loading = ref(true);
 const operators = ref([]);
@@ -162,7 +196,7 @@ const handleUpdate = async (event) => {
       life: 3000,
     });
   } catch (error) {
-    loadOperators();
+    loadServices();
     console.error("Falha ao salvar", error);
     toast.add({
       severity: "error",

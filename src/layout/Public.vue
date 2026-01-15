@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-column min-h-screen surface-ground">
-    <PublicHeader />
+    <Header />
 
     <div class="flex-grow-1">
       <router-view />
@@ -19,5 +19,5 @@
 </template>
 
 <script setup lang="ts">
-import PublicHeader from "@/components/PublicHeader.vue";
+import Header from "@/components/header/Public.vue";
 </script>

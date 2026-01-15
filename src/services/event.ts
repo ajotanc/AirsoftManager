@@ -9,10 +9,13 @@ import {
 import { OperatorService, type IOperator } from "@/services/operator";
 import { XP_VALUES, calculateLevel } from "@/constants/airsoft";
 import { ID, Query, type Models } from "appwrite";
+import type { IVisitor } from "./visitor";
+import type { ICarpool } from "./carpool";
 
 // IDs das tabelas que você vai criar no Appwrite
 export const TABLE_EVENTS = "events";
 export const TABLE_PARTICIPATIONS = "participations";
+export const TABLE_VISITOR_PARTICIPATIONS = "visitor_participations";
 
 export interface IEvent extends Models.Row {
   title: string;
@@ -26,17 +29,26 @@ export interface IEvent extends Models.Row {
   description: string;
   thumbnail?: string;
   participations?: IParticipation[];
+  visitor_participations?: IVisitorParticipation[];
+  carpools?: ICarpool[];
 }
 
-export interface IParticipation<TOp = string | IOperator, TEv = string | IEvent>
+export interface IParticipation<TOp = string | IOperator>
   extends Models.Row {
-  event: TEv;
+  event: string;
   operator: TOp;
   status: boolean;
   checked_in: boolean;
 }
 
-export type IParticipations = IParticipation<IOperator, IEvent>;
+export type IParticipations = IParticipation<IOperator>;
+
+export interface IVisitorParticipation<TOv = string | IVisitor>
+  extends Models.Row {
+  event: string;
+  visitor: TOv;
+  checked_in: boolean;
+}
 
 export const EventService = {
   async row(rowId: string): Promise<IEvent> {
@@ -46,7 +58,15 @@ export const EventService = {
         tableId: TABLE_EVENTS,
         rowId,
         queries: [
-          Query.select(["*", "participations.*", "participations.operator.*"]),
+          Query.select([
+            "*",
+            "participations.*",
+            "participations.operator.*",
+            "visitor_participations.*",
+            "visitor_participations.visitor.*",
+            "carpools.*",
+            "carpools.vehicle.*",
+          ]),
         ],
       });
     } catch (error) {
@@ -56,12 +76,12 @@ export const EventService = {
   },
   async list(): Promise<IEvent[]> {
     try {
-      const response = await tables.listRows({
+      const response = await tables.listRows<IEvent>({
         databaseId: DATABASE_ID,
         tableId: TABLE_EVENTS,
         queries: [Query.orderDesc("date")],
       });
-      return response.rows as [] as IEvent[];
+      return response.rows;
     } catch (error) {
       console.error("Erro ao listar eventos:", error);
       return [] as IEvent[];
@@ -251,4 +271,39 @@ export const EventService = {
       throw new Error("Falha ao processar imagem da missão.");
     }
   },
+  async addVisitorToEvent(eventId: string, visitorId: string): Promise<IVisitorParticipation> {
+    return await tables.createRow({
+      databaseId: DATABASE_ID,
+      tableId: TABLE_VISITOR_PARTICIPATIONS,
+      rowId: ID.unique(),
+      data: {
+        event: eventId,
+        visitor: visitorId,
+        checked_in: false,
+      },
+    });
+  },
+  async confirmVisitorAttendance(participationId: string): Promise<IVisitorParticipation> {
+    return await tables.updateRow({
+      databaseId: DATABASE_ID,
+      tableId: TABLE_VISITOR_PARTICIPATIONS,
+      rowId: participationId,
+      data: { checked_in: true },
+    });
+  },
+  async deleteVisitorParticipation(participationId: string): Promise<{}> {
+    return await tables.deleteRow({
+      databaseId: DATABASE_ID,
+      tableId: TABLE_VISITOR_PARTICIPATIONS,
+      rowId: participationId,
+    });
+  },
+  async listVisitorParticipations(eventId: string): Promise<IVisitorParticipation[]> {
+    const response = await tables.listRows<IVisitorParticipation>({
+      databaseId: DATABASE_ID,
+      tableId: TABLE_VISITOR_PARTICIPATIONS,
+      queries: [Query.equal("event", eventId), Query.select(["*", "visitor.*", "visitor.operator.*"])]
+    });
+    return response.rows;
+  }
 };
