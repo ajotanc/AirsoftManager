@@ -1,6 +1,6 @@
 <template>
-  <Carousel :key="dtValue.length" circula :showNavigators="dtValue.length > 1" :value="dtValue" :numVisible="5"
-    :numScroll="1" :responsiveOptions="responsiveOptions" :autoplayInterval="4000">
+  <Carousel :key="dtValue.length" :circular="dtValue.length > 5" :showNavigators="dtValue.length > 1" :value="dtValue"
+    :numVisible="5" :numScroll="1" :responsiveOptions="responsiveOptions" :autoplayInterval="4000">
     <template #item="{ data: birthday }">
       <div v-if="loading" class="flex gap-2 p-2">
         <Skeleton width="100%" height="16rem" borderRadius="16px" />
