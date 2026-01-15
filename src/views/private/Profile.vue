@@ -417,12 +417,12 @@ const resolver = zodResolver(
       state: z.string({ error: "Estado obrigatório" }),
 
       health_plan: z.boolean().nullable().optional(),
-      health_plan_name: z.string().nullable().optional(),
-      health_plan_number: z.string().nullable().optional(),
+      health_plan_name: z.string().nullable(),
+      health_plan_number: z.string().nullable(),
 
       allergies: z.array(z.string()).nullable().optional(),
       continuous_medication: z.boolean().nullable().optional(),
-      medication_details: z.array(z.string()).nullable().optional(),
+      medication_details: z.array(z.string()).nullable(),
 
       emergency_contact: z.string({ error: "Nome do Contato obrigatório" }),
       emergency_contact_phone: z
