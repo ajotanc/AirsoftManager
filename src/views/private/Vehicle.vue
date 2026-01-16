@@ -45,14 +45,32 @@
     </div>
 
     <Dialog v-model:visible="vehicleDialog" :style="{ width: '512px' }" header="Veículo" :modal="true">
-      <Form ref="form" :resolver="resolver" :initialValues="selectedVehicle" @submit="saveVehicle" class="grid"
+      <Form :resolver="resolver" :initialValues="selectedVehicle" @submit="saveVehicle" class="grid"
         :key="selectedVehicle.$id || 'new'">
-        <div v-for="field in fields" :key="field.name" :class="`col-${field.col}`">
-          <FormField :name="field.name" v-slot="$field" class="flex flex-column gap-1">
+        <div v-for="{ name, label, component, col, props } in fields" :key="name" :class="`col-${col}`">
+          <FormField v-if="component.name === 'ColorPicker'" :name="name" v-slot="$field" class="flex gap-1">
+            <div class="flex flex-column align-items-center gap-2">
+              <label class="font-bold" :for="name">{{ label }}</label>
+              <component :is="component" :id="name" v-bind="props" :name="name" v-model="$field.value" fluid />
+            </div>
+            <Message v-if="$field.invalid" severity="error" size="small" variant="simple">
+              {{ $field.error?.message }}
+            </Message>
+          </FormField>
+          <FormField v-else-if="component.name === 'ToggleSwitch'" :name="name" v-slot="$field" class="flex gap-1">
+            <div class="flex align-items-center gap-2">
+              <component :is="component" :id="name" v-bind="props" :name="name" v-model="$field.value" fluid />
+              <label class="font-bold" :for="name">{{ label }}</label>
+            </div>
+            <Message v-if="$field.invalid" severity="error" size="small" variant="simple">
+              {{ $field.error?.message }}
+            </Message>
+          </FormField>
+          <FormField v-else :name="name" v-slot="$field" class="flex flex-column gap-1">
             <FloatLabel variant="in">
-              <component :is="field.component" :id="field.name" v-bind="field.props" v-model="$field.value"
-                class="w-full" :class="{ 'p-invalid': $field.invalid }" fluid />
-              <label :for="field.name">{{ field.label }}</label>
+              <component :is="component" :id="name" v-bind="props" v-model="$field.value" class="w-full"
+                :class="{ 'p-invalid': $field.invalid }" fluid />
+              <label :for="name">{{ label }}</label>
             </FloatLabel>
 
             <Message v-if="$field.invalid" severity="error" size="small" variant="simple">
@@ -86,7 +104,7 @@ import Message from "primevue/message";
 import { Form } from '@primevue/forms';
 import { z } from 'zod';
 import { zodResolver } from "@primevue/forms/resolvers/zod";
-import { InputNumber, useConfirm } from "primevue";
+import { ColorPicker, InputNumber, useConfirm } from "primevue";
 import { VehicleService, type IVehicle } from "@/services/vehicle";
 import { useAuthStore } from "@/stores/auth";
 import { type IFields } from "@/functions/utils";
@@ -183,8 +201,12 @@ const fields = computed<IFields[]>(() => [
   },
   { name: "brand", label: "Marca", component: InputText, col: "6" },
   { name: "model", label: "Modelo", component: InputText, col: "6" },
-  { name: "color", label: "Cor", component: InputText, col: "6" },
   { name: "total_seats", label: "Total de vagas", component: InputNumber, col: "6" },
+  {
+    name: "color", label: "Cor", component: ColorPicker, col: "6", props: {
+      format: 'hex'
+    }
+  },
 ]);
 
 const confirmDelete = (vehicle: IVehicle) => {

@@ -114,11 +114,12 @@
                   ]" style="aspect-ratio: 1; width: 80px;" @click="
                     toggleItem(item)">
 
-                  <Image :src="getImageUrl(item)" :alt="item"
-                    imageClass="`w-full h-full p-2 transition-all transition-duration-500 transition-ease-in-out' ${(isEquipped(item) ? 'opacity-100' : 'opacity-30')}`"
+                  <Image :src="getImageUrl(item)" :alt="item" class="flex overflow-hidden"
+                    :imageClass="['p-2 transition-all transition-duration-500 transition-ease-in-out', isEquipped(item) ? 'opacity-100' : 'opacity-70']"
                     :imageStyle="{
                       filter: isEquipped(item) ? 'none' : 'grayscale(100%)',
-                      scale: isEquipped(item) ? '1.1' : '1'
+                      scale: isEquipped(item) ? '1.1' : '1',
+                      objectFit: 'cover'
                     }" />
                 </div>
               </div>

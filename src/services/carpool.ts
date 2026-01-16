@@ -10,7 +10,10 @@ export interface ICarpool<Vh = string | IVehicle> extends Models.Row {
   available_seats: number;
   departure_point: string;
   departure_time: string;
+  selected?: IVehicle;
 }
+
+export type ICarpoolDetail = ICarpool<IVehicle<string>>;
 
 export const CarpoolService = {
   async listByEvent(eventId: string): Promise<ICarpool<IVehicle>[]> {
@@ -36,6 +39,24 @@ export const CarpoolService = {
       rowId: ID.unique(),
       data: data as ICarpool,
     });
+  },
+  async upsert(
+    rowId: string | undefined,
+    data: Partial<ICarpool>
+  ): Promise<ICarpool> {
+    try {
+      const id = rowId || ID.unique();
+
+      return await tables.upsertRow<ICarpool>({
+        databaseId: DATABASE_ID,
+        tableId: TABLE_CARPOOLS,
+        rowId: id,
+        data,
+      });
+    } catch (error) {
+      console.error("Erro no upsert:", error);
+      throw error;
+    }
   },
   async delete(rowId: string): Promise<{}> {
     return await tables.deleteRow({

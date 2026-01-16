@@ -3,8 +3,8 @@
     <div class="surface-card p-4 shadow-2 border-round w-full lg:w-12">
       <div class="flex justify-content-between align-items-start">
         <div class="avatar-wrapper cursor-pointer" @click="triggerFileInput">
-          <Avatar :image="operator.avatar" :icon="!operator.avatar ? 'pi pi-user' : undefined" class="text-xl"
-            size="xlarge" shape="circle" :style="loading ? 'opacity: 0.5' : ''" />
+          <Avatar :image="operator.avatar" :icon="operator.avatar ? 'pi pi-user' : undefined"
+            class="text-xl bg-gray-200" size="xlarge" shape="circle" :style="loading ? 'opacity: 0.5' : ''" />
 
           <div class="avatar-overlay">
             <i class="pi pi-camera text-white text-xl"></i>
@@ -326,9 +326,9 @@
           </div>
         </div>
 
+        {{ $form.errors }}
         <div class="mt-4">
-          <Button type="submit" label="Finalizar Cadastro" icon="pi pi-check" class="w-full md:w-auto"
-            :loading="loading" />
+          <Button type="submit" label="Salvar" class="w-full md:w-auto" :loading="loading" />
         </div>
       </Form>
     </div>
@@ -359,7 +359,6 @@ import { useAuthStore } from "@/stores/auth";
 import {
   isValidIdentity,
   addressByCep,
-  formatDateToLocal,
 } from "@/functions/utils";
 import { OperatorService, type IOperator } from "@/services/operator";
 
@@ -386,99 +385,56 @@ const initialValues = computed(() => {
   };
 });
 
+const staticSchema = z.object({
+  name: z.string({ error: "Nome completo obrigatório" }).min(1, "Nome completo obrigatório"),
+  codename: z.string({ error: "Codinome obrigatório" }).min(1, "Codinome obrigatório"),
+  identity: z.string({ error: "CPF obrigatório" })
+    .refine(isValidIdentity, "CPF inválido")
+    .transform((v) => v.replace(/\D/g, "")),
+  general_registration: z.string({ error: "RG obrigatório" })
+    .transform((v) => v.replace(/\D/g, "")),
+  birth_date: z.any().refine(val => !!val, "Data obrigatória").transform((date) => new Date(date).toISOString()),
+  blood_type: z.string({ error: "Tipo sanguíneo obrigatório" }),
+  mother_name: z.string({ error: "Nome da mãe obrigatório" }),
+  phone: z.string({ error: "Telefone obrigatório" }).transform((v) => v.replace(/\D/g, "")),
+  cep: z.string({ error: "CEP obrigatório" }).transform((v) => v.replace(/\D/g, "")),
+  address: z.string({ error: "Endereço obrigatório" }),
+  address_number: z.string({ error: "Número obrigatório" }),
+  neighborhood: z.string({ error: "Bairro obrigatório" }),
+  city: z.string({ error: "Cidade obrigatória" }),
+  state: z.string({ error: "Estado obrigatório" }),
+  emergency_contact: z.string({ error: "Nome do Contato obrigatório" }),
+  emergency_contact_phone: z.string({ error: "Telefone do Contato obrigatório" }).transform((v) => v.replace(/\D/g, "")),
+  shirt_size: z.string({ error: "Tamanho obrigatório" }),
+  terms_accepted: z.boolean({ error: "Aceite os termos obrigatório" }).refine(v => v === true, "Aceite os termos obrigatório"),
+}).loose();
+
+const medicalSchema = z.object({
+  health_plan: z.boolean().nullish(),
+  health_plan_name: z.string().nullish(),
+  health_plan_number: z.string().nullish(),
+  continuous_medication: z.boolean().nullish(),
+  medication_details: z.array(z.string()).nullish(),
+}).superRefine((data, ctx) => {
+  if (data.health_plan === true) {
+    if (!data.health_plan_name?.trim()) {
+      ctx.addIssue({ code: 'custom', message: "Informe o nome do plano de saúde", path: ["health_plan_name"] });
+    }
+    if (!data.health_plan_number?.trim()) {
+      ctx.addIssue({ code: 'custom', message: "Informe o número da carteira", path: ["health_plan_number"] });
+    }
+  }
+
+  if (data.continuous_medication === true && !data.medication_details?.length) {
+    ctx.addIssue({ code: 'custom', message: "Informe quais medicamentos você utiliza", path: ["medication_details"] });
+  }
+});
+
 const resolver = zodResolver(
-  z
-    .object({
-      name: z.string({ error: "Nome completo obrigatório" }),
-      codename: z.string({ error: "Codinome obrigatório" }),
-      identity: z
-        .string({ error: "CPF obrigatório" })
-        .refine(isValidIdentity, "CPF inválido")
-        .transform((v) => v.replace(/\D/g, "")),
-      general_registration: z
-        .string({ error: "RG obrigatório" })
-        .transform((v) => v.replace(/\D/g, "")),
-      birth_date: z.custom().refine((date) => date instanceof Date || typeof date === 'string', "Data de nascimento obrigatória").transform((date
-      ) => formatDateToLocal(date as Date)),
-      blood_type: z.string({ error: "Tipo sanguíneo obrigatório" }),
-      mother_name: z.string({ error: "Nome da mãe obrigatório" }),
-      father_name: z.string().nullable().optional(),
-      phone: z
-        .string({ error: "Telefone obrigatório" })
-        .transform((v) => v.replace(/\D/g, "")),
-
-      cep: z
-        .string({ error: "CEP obrigatório" })
-        .transform((v) => v.replace(/\D/g, "")),
-      address: z.string({ error: "Endereço obrigatório" }),
-      address_number: z.string({ error: "Número obrigatório" }),
-      neighborhood: z.string({ error: "Bairro obrigatório" }),
-      city: z.string({ error: "Cidade obrigatória" }),
-      state: z.string({ error: "Estado obrigatório" }),
-
-      health_plan: z.boolean().nullable().optional(),
-      health_plan_name: z.string().nullable(),
-      health_plan_number: z.string().nullable(),
-
-      allergies: z.array(z.string()).nullable().optional(),
-      continuous_medication: z.boolean().nullable().optional(),
-      medication_details: z.array(z.string()).nullable(),
-
-      emergency_contact: z.string({ error: "Nome do Contato obrigatório" }),
-      emergency_contact_phone: z
-        .string({ error: "Telefone do Contato obrigatório" })
-        .transform((v) => v.replace(/\D/g, "")),
-
-      shirt_size: z.string({ error: "Tamanho obrigatório" }),
-      instagram: z.string().nullable().optional(),
-      media_consent: z.boolean().nullable().optional(),
-      terms_accepted: z.boolean({ error: "Aceite os termos obrigatório" }).refine((v) => v === true, "Aceite os termos"),
-
-      referral_source: z.coerce.number().nullable().optional(),
-      category: z.coerce.number().nullable().optional(),
-      experience: z.coerce.number().nullable().optional(),
-      number_fdba: z.string().nullable().optional(),
-      quote: z.string().nullable().optional(),
-    })
-    .superRefine((data, ctx) => {
-      if (data.health_plan) {
-        if (!data.health_plan_name) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: "Informe o plano de saúde",
-            path: ["health_plan_name"],
-          });
-        }
-        if (!data.health_plan_number) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: "Informe o número da carteira do plano de saúde",
-            path: ["health_plan_number"],
-          });
-        }
-      }
-
-      if (data.continuous_medication && !data.medication_details?.length) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: "Informe os medicamentos",
-          path: ["medication_details"],
-        });
-      }
-    })
-    .transform((data) => {
-      if (data.terms_accepted) {
-        return {
-          ...data,
-          terms_accepted_at: new Date().toISOString(),
-        };
-      }
-
-      return {
-        ...data,
-        terms_accepted_at: null,
-      };
-    })
+  staticSchema.and(medicalSchema).transform((data) => ({
+    ...data,
+    terms_accepted_at: data.terms_accepted ? new Date().toISOString() : null,
+  }))
 );
 
 const handleUpdateProfile = async ({ valid, values }: any) => {

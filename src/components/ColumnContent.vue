@@ -1,15 +1,19 @@
 <template>
-  <Skeleton v-if="loading" width="100%" height="1rem" />
+  <Skeleton v-if="loading" width="80%" height="1.2rem" />
 
   <template v-else>
-    <Tag v-if="column.isTag" :value="displayValue" />
+    <Tag v-if="column.component?.name === 'Tag'" :value="displayValue" :severity="column.props?.severity" />
+    <Rating v-else-if="column.component?.name === 'Rating'" :modelValue="Number(cellValue)" readonly :cancel="false" />
+    <ColorPicker v-else-if="column.component?.name === 'ColorPicker'" :modelValue="cellValue"
+      style="pointer-events: none;" />
+    <div v-else-if="column.component?.name === 'Editor'" v-html="displayValue" class="rich-text-content"></div>
+    <template v-else-if="column.component.name === 'ToggleSwitch'">
+      <i v-if="cellValue" :class="[column.icon || PrimeIcons.CHECK, `text-${column.iconColor || 'primary'}-500`]" />
+      <i v-else :class="[PrimeIcons.TIMES, 'text-red-300']" />
+    </template>
 
-    <Rating v-else-if="column.isRating" :modelValue="cellValue" readonly />
-
-    <div v-else class="flex align-items-center gap-2 w-full overflow-hidden">
-
-      <div v-if="column.isHtml" v-html="displayValue" class="rich-text-content"></div>
-      <span v-else class="text-truncate">{{ displayValue || '' }}</span>
+    <div v-else class="flex align-items-center gap-2">
+      <span>{{ displayValue }}</span>
 
       <Button v-if="column.button" v-tooltip.top="column.label" :icon="column.button.icon"
         :severity="column.button.severity" @click="column.button.callback(data)" rounded outlined size="small" />
@@ -19,39 +23,69 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
-import { Tag, Rating, Button } from "primevue";
+import Skeleton from 'primevue/skeleton';
+import Tag from 'primevue/tag';
+import Rating from 'primevue/rating';
+import Button from 'primevue/button';
+import { PrimeIcons } from '@primevue/core/api';
 import type { IFields } from "@/functions/utils";
 
-const { column, data, loading } = defineProps<{
+const props = defineProps<{
   column: IFields;
   data: any;
   loading: boolean;
 }>();
 
 const cellValue = computed(() => {
-  const name = column.name;
-  if (!name || !data) return "";
-  return name.split('.').reduce((obj, key) => (obj ? obj[key] : ""), data);
+  if (!props.column.name || !props.data) return "";
+  return props.column.name.split('.').reduce((obj, key) => (obj?.[key] ?? ""), props.data);
 });
 
 const displayValue = computed(() => {
   const val = cellValue.value;
+  if (val === null || val === undefined || val === "") return "";
 
-  if (column.isTag && column.props?.options) {
-    return getLabelFromOptions(column.props.options, val);
+  if (props.column.component?.name === 'InputMask') {
+    return formatByMask(val, props.column.props?.mask);
   }
 
-  if (column.callback) {
-    return column.callback(val);
+  if (props.column.component?.name === 'DatePicker') {
+    const date = new Date(val);
+    return isNaN(date.getTime()) ? val : date.toLocaleDateString("pt-BR");
+  }
+
+  if (props.column.isTag && props.column.props?.options) {
+    const options = props.column.props.options;
+    const option = options.find(({ value }: { value: string }) => String(value) === String(val));
+    return option ? option.label : val;
+  }
+
+  if (props.column.callback) {
+    return props.column.callback(val);
   }
 
   return val;
 });
 
-const getLabelFromOptions = (options: any[] | undefined, value: any): string => {
-  if (!options || value === undefined || value === null) return "N/A";
+const formatByMask = (value: any, mask: string | undefined): string => {
+  if (!value || !mask) return String(value || "");
 
-  const option = options.find((opt) => opt.value === value.toString());
-  return option ? option.label : value;
+  const cleanValue = String(value).replace(/\D/g, "");
+  let i = 0;
+
+  return mask.replace(/9/g, () => cleanValue[i++] || "");
 };
 </script>
+
+<style scoped>
+.text-truncate {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+}
+
+.rich-text-content :deep(img) {
+  max-width: 100%;
+}
+</style>

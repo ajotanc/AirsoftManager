@@ -219,7 +219,6 @@ const fields = computed<IFields[]>(() => [
   {
     name: "phone",
     label: "Telefone / Whatsapp",
-    callback: (value: string) => formatPhone(value),
     button: {
       severity: "success",
       icon: "pi pi-whatsapp",
@@ -283,9 +282,4 @@ const editVisitor = async (visitor: IVisitor<IOperator>) => {
 const hideDialog = () => {
   visitorDialog.value = false;
 };
-
-const formatPhone = (value: string) => {
-  return value.replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3");
-};
-
 </script>

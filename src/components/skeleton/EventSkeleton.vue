@@ -24,6 +24,7 @@
           <div class="flex gap-3">
             <Skeleton width="180px" height="3rem" />
             <Skeleton width="180px" height="3rem" />
+            <Skeleton width="3rem" height="3rem" />
           </div>
         </div>
       </div>
@@ -44,7 +45,7 @@
 
         <div class="surface-card p-4 border-round border-1 border-white-alpha-10 bg-blue-900">
           <Skeleton width="30%" height="1.5rem" class="mb-3" />
-          <div class="p-3 border-round bg-gray-800 flex justify-content-between">
+          <div class="py-2 border-round flex justify-content-between">
             <Skeleton width="60%" height="1.2rem" />
             <Skeleton width="100px" height="1.2rem" />
           </div>

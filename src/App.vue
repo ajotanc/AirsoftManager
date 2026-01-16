@@ -1,7 +1,7 @@
 <template>
   <Toast />
   <ConfirmDialog :style="{ width: '360px' }"></ConfirmDialog>
-  <router-view />
+  <router-view :key="$route.fullPath" />
   <InstallPrompt />
   <ReloadPrompt />
 </template>

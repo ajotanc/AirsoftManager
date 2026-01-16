@@ -73,3 +73,7 @@
   margin-bottom: 1.5rem;
   padding-left: 1.5rem;
 }
+
+.p-avatar img {
+  object-fit: cover;
+}

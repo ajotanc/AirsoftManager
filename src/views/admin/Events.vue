@@ -134,7 +134,7 @@ import { z } from 'zod';
 import { zodResolver } from "@primevue/forms/resolvers/zod";
 import { InputNumber, useConfirm, type FileUploadSelectEvent } from "primevue";
 import { EventService, type IEvent } from "@/services/event";
-import { formatDateToLocal, goToEvent, type IFields } from "@/functions/utils";
+import { goToEvent, type IFields } from "@/functions/utils";
 import { EVENT_TYPES } from "@/constants/airsoft";
 import Editor from "primevue/editor";
 import ButtonShare from "@/components/ButtonShare.vue";
@@ -189,8 +189,7 @@ const missionSchema = z.object({
     description: z.string({ error: "Campo obrigatório" }).min(10, { error: "Briefing insuficiente" }),
     location: z.string({ error: "Campo obrigatório" }).min(3, { error: "Local obrigatório" }),
     type: z.string({ error: "Selecione o tipo" }).transform((type) => Number.parseInt(type)),
-    date: z.custom().refine((date) => date instanceof Date || typeof date === 'string', "Data obrigatória").transform((date
-    ) => formatDateToLocal(date as Date)),
+    date: z.any().refine(val => !!val, "Data obrigatória").transform((date) => new Date(date).toISOString()),
     startTime: z.string({ error: "Início obrigatório" }),
     endTime: z.string({ error: "Término obrigatório" }),
     minimum_effective: z.number({ error: "Efetivo mínimo obrigatório" }),
@@ -277,7 +276,6 @@ const fields: IFields[] = [
             showButtonBar: true,
             iconDisplay: "input", showOnFocus: true
         },
-        callback: (value: string) => new Date(value).toLocaleDateString("pt-BR"),
     },
     { name: 'startTime', label: 'Início', component: InputMask, col: '6', props: { mask: '99:99' } },
     { name: 'endTime', label: 'Término', component: InputMask, col: '6', props: { mask: '99:99' } },

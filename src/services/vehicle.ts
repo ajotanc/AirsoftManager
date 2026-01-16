@@ -4,8 +4,8 @@ import type { IOperator } from "./operator";
 
 export const TABLE_VEHICLES = "vehicles";
 
-export interface IVehicle extends Models.Row {
-  driver: string;
+export interface IVehicle<Tv = string | IOperator> extends Models.Row {
+  driver: Tv;
   type: 'car' | 'motorcycle';
   brand: string;
   model: string;

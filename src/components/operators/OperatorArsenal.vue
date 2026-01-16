@@ -25,24 +25,9 @@
           </div>
         </template>
 
-        <Column v-for="col in ARSENAL_COLUMNS" :key="col.field" :field="col.field" :header="col.header">
-          <template #body="{ data: weapon }">
-            <div v-if="col.field === 'name' && weapon.is_favorite" class="flex align-items-center gap-2">
-              <span>{{ weapon[col.field] }}</span>
-              <i class="pi pi-star-fill text-yellow-500 text-sm" v-tooltip.top="'Arma Favorito'"></i>
-            </div>
-            <Tag v-else-if="col.isTag" :value="col.map[weapon[col.field] as keyof typeof col.map]"
-              :severity="col.severity" />
-            <span v-else-if="col.isDate">
-              {{
-                weapon[col.field]
-                  ? new Date(weapon[col.field]).toLocaleDateString("pt-BR")
-                  : "-"
-              }}
-            </span>
-            <span v-else>
-              {{ weapon[col.field] }}
-            </span>
+        <Column v-for="column in fields" :key="column.name" :header="column.label">
+          <template #body="{ data }">
+            <ColumnContent :column="column" :data="data" :loading="false" />
           </template>
         </Column>
 
@@ -67,106 +52,73 @@
 
     <Dialog v-model:visible="weaponDialog" header="Detalhes do Arsenal" :style="{ width: '50vw' }"
       :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
-      <Form v-slot="$form" :resolver="resolver" :initialValues="selectedWeapon" class="flex flex-column gap-3"
-        @submit="saveWeapon">
-        <div class="grid formgrid">
-          <div class="field col-12">
-            <FloatLabel variant="in">
-              <InputText name="name" class="w-full" fluid />
-              <label>Nome</label>
-            </FloatLabel>
-            <Message v-if="$form.name?.invalid" severity="error" size="small" variant="simple">{{
-              $form.name.error.message }}</Message>
-          </div>
-          <div class="field col-12">
-            <FloatLabel variant="in">
-              <Select :options="WEAPON_TYPES_OPTIONS" optionLabel="name" optionValue="code" name="type" class="w-full"
-                fluid />
-              <label>Tipo</label>
-            </FloatLabel>
-            <Message v-if="$form.type?.invalid" severity="error" size="small" variant="simple">{{
-              $form.type.error.message }}</Message>
-          </div>
-          <div class="field col-12">
-            <FloatLabel variant="in">
-              <Select :options="CATEGORIES_OPTIONS" optionLabel="name" optionValue="code" name="category" class="w-full"
-                fluid />
-              <label>Categoria</label>
-            </FloatLabel>
-            <Message v-if="$form.category?.invalid" severity="error" size="small" variant="simple">{{
-              $form.category.error.message }}</Message>
-          </div>
-          <div class="field col-6">
-            <FloatLabel variant="in">
-              <InputMask name="joule" mask="9.99" class="w-full" inputmode="numeric" fluid />
-              <label>Joule</label>
-            </FloatLabel>
-            <Message v-if="$form.joule?.invalid" severity="error" size="small" variant="simple">{{
-              $form.joule.error.message }}</Message>
-          </div>
-          <div class="field col-6">
-            <FloatLabel variant="in">
-              <InputNumber name="fps" class="w-full" inputmode="numeric" fluid />
-              <label>FPS</label>
-            </FloatLabel>
-            <Message v-if="$form.fps?.invalid" severity="error" size="small" variant="simple">{{
-              $form.fps.error.message }}</Message>
-          </div>
-          <div class="field col-12">
-            <FloatLabel variant="in">
-              <DatePicker name="maintained_at" class="w-full" dateFormat="dd/mm/yy" showIcon showButtonBar
-                iconDisplay="input" :showOnFocus="true" fluid />
-              <label>Última Manutenção</label>
-            </FloatLabel>
-            <Message v-if="$form.maintained_at?.invalid" severity="error" size="small" variant="simple">{{
-              $form.maintained_at.error.message }}</Message>
-          </div>
-          <div class="field col-12">
+      <Form :resolver="resolver" :initialValues="selectedWeapon" @submit="saveWeapon" class="grid"
+        :key="selectedWeapon.$id || 'new'">
+        <div v-for="{ name, label, component, col, props } in fields" :key="name" :class="`col-${col}`">
+          <FormField v-if="component.name === 'ToggleSwitch'" :name="name" v-slot="$field"
+            class="flex flex-column gap-1">
             <div class="flex gap-2">
-              <ToggleSwitch name="is_favorite" fluid />
-              <label>Arma Favorita</label>
+              <component :is="component" :id="name" v-bind="props" :name="name" v-model="$field.value" fluid />
+              <label :for="name">{{ label }}</label>
             </div>
-          </div>
-          <div class="field col-12" v-if="selectedWeapon.$id && !selectedWeapon.invoice">
-            <FileUpload mode="advanced" accept="application/pdf" :maxFileSize="MAX_SIZE" @select="onSelectedFiles">
-              <template #header="{ chooseCallback, clearCallback, files }">
-                <div class="flex flex-wrap justify-between items-center flex-1 gap-4">
-                  <div class="flex gap-2">
-                    <Button @click="chooseCallback" icon="pi pi-file-pdf" rounded variant="outlined"
-                      severity="secondary" :disabled="files.length === 1" v-tooltip.top="'Anexar Nota Fiscal'"></Button>
-                    <Button @click="uploadInvoice" icon="pi pi-save" rounded variant="outlined" severity="success"
-                      :disabled="files.length === 0" :loading="uploading" v-tooltip.top="'Upload'"></Button>
-                    <Button @click="clearCallback" icon="pi pi-times" rounded variant="outlined" severity="danger"
-                      :disabled="files.length === 0" v-tooltip.top="'Limpar'"></Button>
-                  </div>
-                </div>
-              </template>
-              <template #content="{ files, messages }">
-                <div class="flex flex-column" v-if="files.length > 0">
-                  <Message v-for="message of messages" :key="message" severity="error">
-                    {{ message }}
-                  </Message>
+            <Message v-if="$field.invalid" severity="error" size="small" variant="simple">
+              {{ $field.error?.message }}
+            </Message>
+          </FormField>
+          <FormField v-else :name="name" v-slot="$field" class="flex flex-column gap-1">
+            <FloatLabel variant="in">
+              <component :is="component" :id="name" v-bind="props" v-model="$field.value" class="w-full"
+                :class="{ 'p-invalid': $field.invalid }" fluid />
+              <label :for="name">{{ label }}</label>
+            </FloatLabel>
 
-                  <div class="flex flex-wrap">
-                    <div v-for="(file) of files" :key="file.name + file.type + file.size"
-                      class="flex justify-content-center align-items-center border border-surface items-center gap-2">
-                      <i class="pi pi-file-pdf"></i>
-                      <span class="font-semibold text-ellipsis max-w-60 whitespace-nowrap overflow-hidden">{{
-                        file.name }}</span>
-                    </div>
-                  </div>
-                </div>
-              </template>
-              <template #empty>
-                <span>Selecione a <strong>Nota Fiscal</strong> (Nf-e) da sua arma.</span>
-              </template>
-            </FileUpload>
-
-          </div>
+            <Message v-if="$field.invalid" severity="error" size="small" variant="simple">
+              {{ $field.error?.message }}
+            </Message>
+          </FormField>
         </div>
-        <div class="flex justify-content-end gap-2">
-          <Button label="Cancelar" icon="pi pi-times" text @click="hideDialog" />
-          <Button type="submit" label="Salvar" icon="pi pi-check" />
+
+        <div class="col-12" v-if="selectedWeapon.$id && !selectedWeapon.invoice">
+          <FileUpload mode="advanced" accept="application/pdf" :maxFileSize="MAX_SIZE" @select="onSelectedFiles">
+            <template #header="{ chooseCallback, clearCallback, files }">
+              <div class="flex flex-wrap justify-between items-center flex-1 gap-4">
+                <div class="flex gap-2">
+                  <Button @click="chooseCallback" icon="pi pi-file-pdf" rounded variant="outlined" severity="secondary"
+                    :disabled="files.length === 1" v-tooltip.top="'Anexar Nota Fiscal'"></Button>
+                  <Button @click="uploadInvoice" icon="pi pi-save" rounded variant="outlined" severity="success"
+                    :disabled="files.length === 0" :loading="uploading" v-tooltip.top="'Upload'"></Button>
+                  <Button @click="clearCallback" icon="pi pi-times" rounded variant="outlined" severity="danger"
+                    :disabled="files.length === 0" v-tooltip.top="'Limpar'"></Button>
+                </div>
+              </div>
+            </template>
+            <template #content="{ files, messages }">
+              <div class="flex flex-column" v-if="files.length > 0">
+                <Message v-for="message of messages" :key="message" severity="error">
+                  {{ message }}
+                </Message>
+
+                <div class="flex flex-wrap">
+                  <div v-for="(file) of files" :key="file.name + file.type + file.size"
+                    class="flex justify-content-center align-items-center border border-surface items-center gap-2">
+                    <i class="pi pi-file-pdf"></i>
+                    <span class="font-semibold text-ellipsis max-w-60 whitespace-nowrap overflow-hidden">{{
+                      file.name }}</span>
+                  </div>
+                </div>
+              </div>
+            </template>
+            <template #empty>
+              <span>Selecione a <strong>Nota Fiscal</strong> (Nf-e) da sua arma.</span>
+            </template>
+          </FileUpload>
+        </div>
+
+        <div class="col-12">
+          <div class="flex justify-content-end gap-2">
+            <Button label="Cancelar" outlined @click="hideDialog" />
+            <Button type="submit" label="Salvar" />
+          </div>
         </div>
       </Form>
     </Dialog>
@@ -195,16 +147,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, nextTick, type PropType } from "vue";
+import { ref, nextTick, type PropType, computed } from "vue";
 import QrcodeVue from 'qrcode.vue';
 import { toPng } from 'html-to-image';
 import { useToast } from "primevue/usetoast";
-import { FilterMatchMode } from '@primevue/core/api';
+import { FilterMatchMode, PrimeIcons } from '@primevue/core/api';
 import { zodResolver } from "@primevue/forms/resolvers/zod";
 import { z } from "zod";
 
+
 import Column from "primevue/column";
-import Tag from "primevue/tag";
 import Button from "primevue/button";
 import Dialog from "primevue/dialog";
 import DataTable from "primevue/datatable";
@@ -215,10 +167,11 @@ import Select from "primevue/select";
 import InputNumber from "primevue/inputnumber";
 import FileUpload, { type FileUploadSelectEvent } from "primevue/fileupload";
 
-import { ARSENAL_COLUMNS, WEAPON_TYPES_OPTIONS, CATEGORIES_OPTIONS } from "@/constants/airsoft";
+import { WEAPON_TYPES_OPTIONS, CATEGORIES_OPTIONS } from "@/constants/airsoft";
 import { ArsenalService, type IArsenal } from "@/services/arsenal";
-import { formatDateToLocal } from "@/functions/utils";
-import { useConfirm } from "primevue";
+import { InputMask, ToggleSwitch, useConfirm } from "primevue";
+import type { IFields } from "@/functions/utils";
+import ColumnContent from "../ColumnContent.vue";
 
 const invoice = ref();
 
@@ -291,21 +244,53 @@ const confirmDelete = (weapon: IArsenal) => {
 
 const MAX_SIZE = 5 * 1024 * 1024;
 
-const resolver = zodResolver(
-  z.object({
-    name: z.string("Nome é obrigatório!").min(2, "O nome precisa ter ao menos 2 caractere!"),
-    type: z.number({ error: "Selecione o tipo" }),
-    category: z.number({ error: "Selecione a categoria" }),
-    joule: z.coerce.number({ error: "Informe o Joule" }).gt(0, { error: "Joule deve ser maior que 0.00" }).transform((value) => value && value.toString()),
-    fps: z.number({ error: "Informe o FPS" }).max(550, { error: "FPS deve ser menor ou igual a 550" }).gt(0, { error: "FPS deve ser maior que 0" }),
-    maintained_at: z.coerce
-      .date({ error: "Data de nascimento obrigatória" })
-      .nullable()
-      .optional()
-      .transform((date) => date && formatDateToLocal(date)),
-    is_favorite: z.boolean().nullable().optional(),
-  })
-);
+const fields = computed<IFields[]>(() => [
+  {
+    name: "name", label: "Nome", component: InputText, col: '12',
+  },
+  {
+    name: "type", label: "Tipo de Arma", component: Select, col: "6", props: {
+      options: WEAPON_TYPES_OPTIONS, optionLabel: "label", optionValue: "value",
+    },
+    isTag: true
+  },
+  {
+    name: "category", label: "Categoria", component: Select, col: "6", props: {
+      options: CATEGORIES_OPTIONS, optionLabel: "label", optionValue: "value",
+    },
+    isTag: true
+  },
+  { name: "fps", label: "FPS", component: InputNumber, col: '6' },
+  {
+    name: "joule", label: "Joule", component: InputMask, col: '6', props: {
+      mask: "9.99", inputmode: "numeric"
+    }
+  },
+  {
+    name: "maintained_at", label: "Última Manutenção", component: DatePicker, col: '6',
+    props: {
+      dateFormat: "dd/mm/yy", showIcon: true, showButtonBar: true, iconDisplay: "input", showOnFocus: true
+    }
+  },
+  {
+    name: "is_favorite", label: "Arma Favorita", component: ToggleSwitch, col: '12',
+    isHtml: true,
+    icon: PrimeIcons.STAR_FILL,
+    iconColor: 'yellow',
+  }
+]);
+
+const weaponSchema = z.object({
+  name: z.string("Nome é obrigatório!").min(2, "O nome precisa ter ao menos 2 caractere!"),
+  type: z.number({ error: "Selecione o tipo" }),
+  category: z.number({ error: "Selecione a categoria" }),
+  joule: z.coerce.number({ error: "Informe o Joule" }).gt(0, { error: "Joule deve ser maior que 0.00" }).transform((value) => value && value.toString()),
+  fps: z.number({ error: "Informe o FPS" }).max(550, { error: "FPS deve ser menor ou igual a 550" }).gt(0, { error: "FPS deve ser maior que 0" }),
+  maintained_at: z.date({ error: "Data de manutenção obrigatória" }).nullish().transform((date) => date && new Date(date).toISOString()),
+  is_favorite: z.boolean().nullish(),
+});
+
+const resolver = ref(zodResolver(weaponSchema));
 
 const weaponDialog = ref(false);
 const qrDialog = ref(false);
@@ -412,17 +397,16 @@ const saveWeapon = async ({ valid, values }: any) => {
 }
 
 const editWeapon = (weapon: IArsenal) => {
-  console.log(weapon);
-  const data = { ...weapon, maintained_at: weapon.maintained_at ? new Date(weapon.maintained_at) : null };
-  selectedWeapon.value = data;
+  selectedWeapon.value = {
+    ...weapon,
+    maintained_at: weapon.maintained_at ? new Date(weapon.maintained_at) : null
+  };
   weaponDialog.value = true;
 };
 
 
 const uploadInvoice = async () => {
-
   if (invoice.value.length === 0) return;
-
   const file = invoice.value[0];
 
   try {

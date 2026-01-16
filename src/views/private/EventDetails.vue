@@ -86,7 +86,8 @@
                             </TabList>
                             <TabPanels>
                                 <TabPanel :value="0">
-                                    <div v-for="{ $id, operator, checked_in } in participants" :key="$id"
+                                    <div v-if="participants.length > 0"
+                                        v-for="{ $id, operator, checked_in } in participants" :key="$id"
                                         class="flex align-items-center gap-3 mb-3">
                                         <Avatar :image="operator.avatar"
                                             :icon="!operator.avatar ? 'pi pi-user' : undefined" shape="circle"
@@ -95,28 +96,36 @@
                                             operator.codename }}</span>
                                         <i v-if="checked_in" class="pi pi-check font-bold text-green-600 ml-auto""></i>
                                     </div>
+<div v-else class=" flex flex-column align-items-center p-4 text-gray-500">
+                                            <i class="pi pi-users text-5xl mb-2"></i>
+                                            <span class="text-sm">Nenhum operador participando dessa missão.</span>
+                                    </div>
                                 </TabPanel>
                                 <TabPanel :value="1">
-                                            <div v-for="{ $id, visitor, checked_in } in visitorParticipants" :key="$id"
-                                                class="flex align-items-center gap-3 mb-3">
-                                                <Avatar :label="visitor.name[0]" shape="circle" size="small" />
-                                                <div class="flex flex-column">
-                                                    <span :class="{ 'font-bold text-green-600': checked_in }">{{
-                                                        visitor.codename }}</span>
-                                                    <small class="text-gray-700">Convidado por <strong>{{
-                                                        getOperatorName(visitor.operator) }}</strong></small>
-                                                </div>
-                                                <div v-if="!checked_in && operator.role === 'admin'"
-                                                    class="flex gap-2 ml-auto">
-                                                    <Button icon=" pi pi-times" severity="danger" rounded
-                                                        @click="deleteVisitorParticipation($id, visitor)" size="small"
-                                                        v-tooltip.top="'Cancelar Presença'" />
-                                                    <Button icon=" pi pi-check" severity="success" rounded
-                                                        @click="checkInVisitor($id)" size="small"
-                                                        v-tooltip.top="'Confirmar Presença'" />
-                                                </div>
-                                                <i v-else class="pi pi-check font-bold text-green-600 ml-auto"></i>
-                                            </div>
+                                    <div v-if="visitorParticipants.length > 0"
+                                        v-for="{ $id, visitor, checked_in } in visitorParticipants" :key="$id"
+                                        class="flex align-items-center gap-3 mb-3">
+                                        <Avatar :label="visitor.name[0]" shape="circle" size="small" />
+                                        <div class="flex flex-column">
+                                            <span :class="{ 'font-bold text-green-600': checked_in }">{{
+                                                visitor.codename }}</span>
+                                            <small class="text-gray-700">Convidado por <strong>{{
+                                                getOperatorName(visitor.operator) }}</strong></small>
+                                        </div>
+                                        <div v-if="!checked_in && operator.role === 'admin'" class="flex gap-2 ml-auto">
+                                            <Button icon=" pi pi-times" severity="danger" rounded
+                                                @click="deleteVisitorParticipation($id, visitor)" size="small"
+                                                v-tooltip.top="'Cancelar Presença'" />
+                                            <Button icon=" pi pi-check" severity="success" rounded
+                                                @click="checkInVisitor($id)" size="small"
+                                                v-tooltip.top="'Confirmar Presença'" />
+                                        </div>
+                                        <i v-else class="pi pi-check font-bold text-green-600 ml-auto"></i>
+                                    </div>
+                                    <div v-else class="flex flex-column align-items-center p-4 text-gray-500">
+                                        <i class="pi pi-users text-5xl mb-2"></i>
+                                        <span class="text-sm">Nenhum visitante adicionado a missão.</span>
+                                    </div>
                                 </TabPanel>
                             </TabPanels>
                         </Tabs>
@@ -124,9 +133,9 @@
                 </Card>
                 <Card class="bg-blue-900 border-1 border-white-alpha-10">
                     <template #content>
-                        <div v-if="vehicles.length > 0" class="buttons flex flex-column gap-2 mb-3">
+                        <div v-if="isConfirmed && vehicles.length > 0" class="buttons flex flex-column gap-2 mb-3">
                             <Button label="Adicionar Carona" icon="pi pi-plus" class="w-full" severity="warning"
-                                @click="openVisitorDialog = true" />
+                                @click="newCarpool" />
                         </div>
                         <h4 class="text-sm uppercase text-gray-400 border-bottom-1 border-white-alpha-10 mt-0 pb-2">
                             Carona Solidária
@@ -151,9 +160,10 @@
                                             <div class="flex align-items-center gap-2 text-sm">
                                                 <i class="pi pi-car text-sm"></i>
                                                 <span class="text-sm">
-                                                    {{ carpool.vehicle.model }} <span v-if="carpool.vehicle.color">({{
-                                                        carpool.vehicle.color }})</span>
+                                                    {{ carpool.vehicle.model }}
                                                 </span>
+                                                <i v-if="carpool.vehicle.color" class="border-1 border-circle"
+                                                    :style="{ backgroundColor: `#${carpool.vehicle.color}`, width: '1rem', aspectRatio: '1' }"></i>
                                             </div>
                                             <div class="flex align-items-center gap-2 text-sm">
                                                 <i class="pi pi-users text-sm"></i>
@@ -178,6 +188,12 @@
                                             @click="requestCarpool(carpool)" size="small"
                                             v-tooltip.top="'Solicitar Carona'"
                                             :disabled="carpool.available_seats === 0" />
+                                        <div v-if="hasCarpools" class="flex align-itens-center gap-2">
+                                            <Button icon="pi pi-pencil" size="small" rounded
+                                                @click="editCarpool(carpool)" v-tooltip.top="'Editar'" />
+                                            <Button icon="pi pi-times" size="small" severity="danger" rounded
+                                                @click="deleteCarpool(carpool)" v-tooltip.top="'Excluir'" />
+                                        </div>
                                     </div>
                                     <div v-else class="flex flex-column align-items-center p-4 text-gray-500">
                                         <i class="pi pi-car text-5xl mb-2"></i>
@@ -255,7 +271,7 @@
                         <template #option="slotProps">
                             <div class="flex flex-column">
                                 <span class="font-bold">{{ slotProps.option.name }} ({{ slotProps.option.codename
-                                    }})</span>
+                                }})</span>
                                 <small class="text-gray-500">Convidado por {{
                                     slotProps.option.operator.codename }}</small>
                             </div>
@@ -269,6 +285,39 @@
             </div>
         </Dialog>
 
+        <Dialog v-model:visible="openCarpoolDialog" :style="{ width: '512px' }" header="Veículo" :modal="true">
+            <Form :resolver="resolver" :initialValues="selectedCarpool" @submit="saveCarpool" class="grid"
+                :key="selectedCarpool.$id || 'new'">
+                <div v-for="{ name, label, component, col, props } in carpoolFields" :key="name" :class="`col-${col}`">
+                    <FormField v-if="['ToggleSwitch', 'ColorPicker'].includes(component.name)" :name="name"
+                        v-slot="$field" class="flex flex-column gap-1">
+                        <div class="flex gap-2">
+                            <component :is="component" :id="name" v-bind="props" :name="name" v-model="$field.value"
+                                fluid />
+                            <label :for="name">{{ label }}</label>
+                        </div>
+                        <Message v-if="$field.invalid" severity="error" size="small" variant="simple">
+                            {{ $field.error?.message }}
+                        </Message>
+                    </FormField>
+                    <FormField v-else :name="name" v-slot="$field" class="flex flex-column gap-1">
+                        <FloatLabel variant="in">
+                            <component :is="component" :id="name" v-bind="props" v-model="$field.value" class="w-full"
+                                :class="{ 'p-invalid': $field.invalid }" fluid />
+                            <label :for="name">{{ label }}</label>
+                        </FloatLabel>
+
+                        <Message v-if="$field.invalid" severity="error" size="small" variant="simple">
+                            {{ $field.error?.message }}
+                        </Message>
+                    </FormField>
+                </div>
+
+                <div class="col-12">
+                    <Button type="submit" label="Salvar" class="w-full shadow-6" severity="success" />
+                </div>
+            </Form>
+        </Dialog>
     </div>
 </template>
 
@@ -276,13 +325,13 @@
 import { ref, onMounted, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import { QrcodeStream, type DetectedBarcode } from 'vue-qrcode-reader';
-import { useConfirm } from "primevue";
+import { InputMask, InputNumber, InputText, Select, useConfirm } from "primevue";
 import { useToast } from "primevue/usetoast";
 import { atcb_action } from 'add-to-calendar-button';
 import { useAuthStore } from '@/stores/auth';
-import { EventService, type IEvent, type IParticipation, type IVisitorParticipation } from '@/services/event';
+import { EventService, type IEvent, type IParticipation, type IVisitorParticipation, type IVisitorParticipationDetail } from '@/services/event';
 import { EVENT_TYPES, TEAM_NAME } from '@/constants/airsoft';
-import { formatDate, playBeep } from '@/functions/utils';
+import { formatDate, playBeep, type IFields } from '@/functions/utils';
 import type { ATCBActionEventConfig } from 'add-to-calendar-button';
 import { severityEvent } from '@/functions/utils'
 
@@ -302,11 +351,13 @@ import FloatLabel from 'primevue/floatlabel';
 
 import type { IOperator } from '@/services/operator';
 import { VisitorService, type IVisitor } from '@/services/visitor';
-import { CarpoolService, type ICarpool } from '@/services/carpool';
+import { CarpoolService, type ICarpool, type ICarpoolDetail } from '@/services/carpool';
 import { VehicleService, type IVehicle } from '@/services/vehicle';
 import { CarpoolRequestService, type ICarpoolRequest } from '@/services/carpool_request';
 import router from '@/router';
 import ButtonShare from '@/components/ButtonShare.vue';
+import { zodResolver } from '@primevue/forms/resolvers/zod';
+import z from 'zod';
 
 const route = useRoute();
 const toast = useToast();
@@ -315,13 +366,14 @@ const { operator } = useAuthStore();
 
 const rawEvent = ref<IEvent>({} as IEvent);
 const participants = ref<IParticipation<IOperator>[]>([]);
-const visitorParticipants = ref<IVisitorParticipation<IVisitor<string>>[]>([]);
+const visitorParticipants = ref<IVisitorParticipationDetail[]>([]);
 
 const visitors = ref<IVisitor<IOperator>[]>([]);
 const selectedVisitors = ref<IVisitor<IOperator>[]>([]);
 
-const carpools = ref<ICarpool<IVehicle>[]>([]);
-const requests = ref<ICarpoolRequest<IOperator, ICarpool<IVehicle>>[]>([]);
+const carpools = ref<ICarpool<IVehicle<string>>[]>([]);
+
+const requests = ref<ICarpoolRequest<IOperator, ICarpoolDetail>[]>([]);
 
 const hasCarpools = computed(() => carpools.value.some(carpool => carpool.vehicle.driver === operator.$id));
 
@@ -352,11 +404,176 @@ const loading = ref(false);
 const isConfirmed = ref(false);
 const openScannerDialog = ref(false);
 const openVisitorDialog = ref(false);
+const openCarpoolDialog = ref(false);
 
 const cameraOptions = ref([
     { label: 'Frontal', value: 'user' },
     { label: 'Traseira', value: 'environment' },
 ]);
+
+// CARPOOLS
+const selectedCarpool = ref<ICarpool>({} as ICarpool);
+
+const carpoolFields = computed<IFields[]>(() => [
+    {
+        name: "vehicle", label: "Veículo", component: Select, col: "12", props: {
+            options: availableVehicles.value,
+            optionLabel: "model",
+            optionValue: "$id",
+            "onUpdate:modelValue": (val: string) => { selectedCarpool.value.vehicle = val }
+        },
+    },
+    { name: "departure_point", label: "Saída", component: InputText, col: "12" },
+    { name: "departure_time", label: "Horário de saída", component: InputMask, col: "6", props: { mask: "99:99" } },
+    {
+        name: "available_seats",
+        label: "Total de vagas",
+        component: InputNumber, col: "6",
+        props: {
+            min: 1,
+            max: getVehicleCapacity(selectedCarpool.value.vehicle),
+            showClear: true,
+            mode: "decimal"
+        }
+    },
+]);
+
+const carpoolSchema = z.object({
+    departure_point: z.string({ error: "Saída obrigatória" }),
+    departure_time: z.string({ error: "Horário de saída obrigatório" })
+        .regex(/^([01]\d|2[0-3]):[0-5]\d$/, "Hora inválida (00:00 - 23:59)"),
+    vehicle: z.string({ error: "Marca obrigatório" }),
+    available_seats: z.number({ error: "Vagas disponíveis obrigtaório" }).min(1, "Mínimo 1 vaga")
+})
+
+const resolver = ref(zodResolver(carpoolSchema));
+
+const availableVehicles = computed(() => {
+    if (selectedCarpool.value.$id) {
+        return [selectedCarpool.value.selected];
+    }
+
+    const alreadyVehicles = carpools.value.map(p => p.vehicle.$id);
+    return vehicles.value.filter(v => !alreadyVehicles.includes(v.$id));
+});
+
+const carpoolsWithRequests = computed(() => {
+    return new Set(
+        requests.value
+            .filter(request => request.status !== 'rejected')
+            .map(request => request.carpool.$id)
+    );
+});
+
+const saveCarpool = async ({ valid, values }: any) => {
+    if (!valid) return false;
+
+    try {
+        const payload = {
+            ...values,
+            event: event.value.$id,
+        }
+
+        const carpool = await CarpoolService.upsert(selectedCarpool.value.$id, payload) as ICarpool<IVehicle<IOperator>>;
+        const index = carpools.value.findIndex((item) => item.$id === carpool.$id);
+
+        const carpoolHydrated = {
+            ...carpool,
+            vehicle: {
+                ...carpool.vehicle,
+                driver: carpool.vehicle.driver.$id
+            }
+        }
+
+        if (index !== -1) {
+            carpools.value[index] = carpoolHydrated;
+        } else {
+            carpools.value.push(carpoolHydrated);
+        }
+
+        toast.add({
+            severity: "success",
+            summary: "Sucesso!",
+            detail: "Carona salva com sucesso!",
+            life: 3000,
+        });
+    } catch (error: any) {
+        console.error("Erro ao salvar:", error);
+        toast.add({ severity: "error", summary: "Erro", detail: "Falha ao registrar o visitante.", life: 3000 });
+    } finally {
+        openCarpoolDialog.value = false;
+    }
+};
+
+const deleteCarpool = (carpool: ICarpool<IVehicle>) => {
+    if (carpoolsWithRequests.value.has(carpool.$id)) {
+        toast.add({
+            severity: 'warn',
+            summary: 'Ação Bloqueada',
+            detail: 'Não é possível excluir uma carona que já possui solicitações de operadores.',
+            life: 3000
+        });
+        return;
+    }
+
+    confirm.require({
+        message: 'Você tem certeza que deseja excluir este carona?',
+        header: carpool.vehicle.model,
+        rejectProps: {
+            label: 'Não',
+            severity: 'secondary',
+            outlined: true
+        },
+        acceptProps: {
+            label: 'Sim',
+            severity: 'danger'
+        },
+        accept: async () => {
+            try {
+                await CarpoolService.delete(carpool.$id);
+                carpools.value = carpools.value.filter((item) => item.$id !== carpool.$id);
+
+                toast.add({
+                    severity: "success",
+                    summary: "Sucesso",
+                    detail: "Veículo excluído com sucesso!",
+                    life: 3000,
+                });
+
+            } catch (error: any) {
+                console.error("Erro ao enviar formulário:", error);
+
+                toast.add({
+                    severity: "error",
+                    summary: "Erro",
+                    detail: error.message || "Falha ao excluir os dados. Tente novamente.",
+                    life: 4000,
+                });
+            }
+        },
+    });
+};
+
+const newCarpool = async () => {
+    selectedCarpool.value = {} as ICarpool<IVehicle>;
+    openCarpoolDialog.value = true;
+};
+
+const editCarpool = async (carpool: ICarpool<IVehicle>) => {
+    selectedCarpool.value = {
+        ...carpool,
+        vehicle: carpool.vehicle.$id,
+        selected: carpool.vehicle
+    }
+
+    openCarpoolDialog.value = true;
+};
+
+const getVehicleCapacity = (vehicleId: string | IVehicle) => {
+    const vehicle = availableVehicles.value.find(v => v?.$id === vehicleId);
+    return vehicle ? vehicle.total_seats : 300;
+};
+// CARPOOLS
 
 const facingMode = ref<'environment' | 'user'>('environment');
 const scannerError = ref('');
@@ -452,7 +669,7 @@ const loadServices = async () => {
 
         participants.value = eventDetails.participations as IParticipation<IOperator>[];
 
-        // const rawVisitors = (eventDetails.visitor_participations || []) as IVisitorParticipation<IVisitor<string>>[];
+        // const rawVisitors = (eventDetails.visitor_participations || []) as IVisitorParticipationDetail[];
         // visitorParticipants.value = rawVisitors.map((vp) => ({
         //     ...vp,
         //     visitor: {
@@ -461,9 +678,9 @@ const loadServices = async () => {
         //     }
         // })) as IVisitorParticipation<IVisitor<IOperator>>[];
 
-        visitorParticipants.value = eventDetails.visitor_participations as IVisitorParticipation<IVisitor<string>>[];
+        visitorParticipants.value = eventDetails.visitor_participations as IVisitorParticipationDetail[];
 
-        carpools.value = eventDetails.carpools as ICarpool<IVehicle>[];
+        carpools.value = eventDetails.carpools as ICarpool<IVehicle<string>>[];
         const carpoolIds = carpools.value.map(c => c.$id);
 
         const [requestsData, vehiclesData, visitorsData] = await Promise.all([
@@ -472,9 +689,9 @@ const loadServices = async () => {
             VisitorService.list()
         ]);
 
-        requests.value = requestsData;
-        vehicles.value = vehiclesData;
-        visitors.value = visitorsData;
+        requests.value = requestsData as ICarpoolRequest<IOperator, ICarpoolDetail>[];
+        vehicles.value = vehiclesData as IVehicle[];
+        visitors.value = visitorsData as IVisitor<IOperator>[];
 
         isConfirmed.value = participants.value.some(p => p.operator.$id === operator.$id);
 
@@ -555,7 +772,7 @@ const addVisitorParcipations = async () => {
         )
 
         const participations = await Promise.all(promises) as IVisitorParticipation<IVisitor<IOperator>>[];
-        const participationsHydrated: IVisitorParticipation<IVisitor<string>>[] = participations.map((vp) => ({
+        const participationsHydrated: IVisitorParticipationDetail[] = participations.map((vp) => ({
             ...vp,
             visitor: {
                 ...vp.visitor,
@@ -633,7 +850,7 @@ const checkInVisitor = async (participationId: string) => {
     });
 };
 
-const requestCarpool = async (carpool: ICarpool<IVehicle>) => {
+const requestCarpool = async (carpool: ICarpool<IVehicle<string>>) => {
     try {
         const { $id, vehicle, departure_point, departure_time } = carpool;
         const { codename, phone } = getOperator(vehicle.driver) as IOperator;

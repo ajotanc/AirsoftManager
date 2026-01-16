@@ -101,9 +101,9 @@ export const WEAPON_TYPES = {
 };
 
 export const WEAPON_TYPES_OPTIONS = Object.entries(WEAPON_TYPES).map(
-  ([index, name]) => ({
-    name,
-    code: Number.parseInt(index),
+  ([index, label]) => ({
+    label,
+    value: Number.parseInt(index),
   })
 );
 
@@ -115,9 +115,9 @@ export const CATEGORIES = {
 };
 
 export const CATEGORIES_OPTIONS = Object.entries(CATEGORIES).map(
-  ([index, name]) => ({
-    name,
-    code: Number.parseInt(index),
+  ([index, label]) => ({
+    label,
+    value: Number.parseInt(index),
   })
 );
 

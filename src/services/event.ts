@@ -42,14 +42,14 @@ export interface IParticipation<TOp = string | IOperator>
   checked_in: boolean;
 }
 
-export type IParticipations = IParticipation<IOperator>;
-
 export interface IVisitorParticipation<TOv = string | IVisitor>
   extends Models.Row {
   event: string;
   visitor: TOv;
   checked_in: boolean;
 }
+
+export type IVisitorParticipationDetail = IVisitorParticipation<IVisitor<string>>;
 
 export const EventService = {
   async row(rowId: string): Promise<IEvent> {
@@ -81,7 +81,13 @@ export const EventService = {
         databaseId: DATABASE_ID,
         tableId: TABLE_EVENTS,
         queries: [
-          Query.select(["*", "participations.*", "visitor_participations.*"]),
+          Query.select([
+            "*",
+            "participations.*",
+            "participations.operator.*",
+            "visitor_participations.*",
+            "visitor_participations.visitor.*"
+          ]),
           Query.orderDesc("date")
         ],
       });
