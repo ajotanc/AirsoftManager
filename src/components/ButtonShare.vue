@@ -17,6 +17,7 @@ defineOptions({
 
 const { event } = defineProps<{
   event: IEvent;
+  share?: boolean;
 }>();
 
 const toast = useToast();
@@ -55,28 +56,23 @@ const shareNative = async () => {
   ];
 
   const text = messageBlocks.filter(Boolean).join('\n').concat('\n\n');
+  const files: File[] = [];
 
   try {
-    if (thumbnail && navigator.canShare) {
+    if (thumbnail) {
       const response = await fetch(thumbnail);
       const blob = await response.blob();
       const file = new File([blob], `${title}.png`, { type: blob.type });
 
-      if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({
-          files: [file],
-          title,
-          text
-        });
-        return;
-      }
+      files.push(file);
     }
 
     if (navigator.share) {
       await navigator.share({
         title,
         text,
-        url
+        url,
+        ...(files.length > 0 ? { files } : {})
       });
     } else {
       await copyToClipboard(text);
