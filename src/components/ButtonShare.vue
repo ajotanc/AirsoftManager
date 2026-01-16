@@ -15,7 +15,7 @@ defineOptions({
   inheritAttrs: false
 });
 
-const { event } = defineProps<{
+const { event, share } = defineProps<{
   event: IEvent;
   share?: boolean;
 }>();
@@ -56,32 +56,15 @@ const shareNative = async () => {
   ];
 
   const text = messageBlocks.filter(Boolean).join('\n').concat('\n\n');
-  const files: File[] = [];
 
-  try {
-    if (thumbnail) {
-      const response = await fetch(thumbnail);
-      const blob = await response.blob();
-      const file = new File([blob], `${title}.png`, { type: blob.type });
-
-      files.push(file);
+  if (share && navigator.share) {
+    try {
+      await navigator.share({ title, text, url });
+    } catch (error) {
+      if ((error as Error).name !== 'AbortError') console.error('Erro no share:', error);
     }
-
-    if (navigator.share) {
-      await navigator.share({
-        title,
-        text,
-        url,
-        ...(files.length > 0 ? { files } : {})
-      });
-    } else {
-      await copyToClipboard(text);
-    }
-
-  } catch (error) {
-    if ((error as Error).name !== 'AbortError') {
-      console.error('Erro ao compartilhar:', error);
-    }
+  } else {
+    await copyToClipboard(text.trim());
   }
 };
 

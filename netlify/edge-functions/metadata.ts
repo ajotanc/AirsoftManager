@@ -30,17 +30,33 @@ export default async (request: Request, context: Context) => {
     const originalResponse = await context.next();
     const html = await originalResponse.text();
 
-    const title = `${TEAM_NAME.toUpperCase()} - ${event.title.toUpperCase()}`
+    const title = `★★★★★ · ${TEAM_NAME.toUpperCase()} · ${event.title.toUpperCase()}`
     const description = `${event.location} - ${new Date(event.date).toLocaleDateString('pt-BR')} às ${event.startTime}h`;
+    const image = event.thumbnail;
 
     const metaTags = `
   <title>${title}</title>
+  <meta name="description" content="${description}" />
   <meta property="og:title" content="${title}" />
   <meta property="og:description" content="${description}" />
-  <meta property="og:image" content="${event.thumbnail}" />
+  <meta property="og:image" content="${image}" />
+  <meta property="og:image:secure_url" content="${image}" />
+  <meta property="og:image:type" content="image/png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:url" content="${request.url}" />
   <meta property="og:type" content="website" />
   <meta name="twitter:card" content="summary_large_image" />
-`;
+  <meta name="twitter:title" content="${title}" />
+  <meta name="twitter:description" content="${description}" />
+  <meta name="twitter:image" content="${image}" />
+    `;
+
+    html = html
+      .replace(/<title>.*?<\/title>/g, "")
+      .replace(/<meta property="og:.*?" \/>/g, "")
+      .replace(/<meta name="twitter:.*?" \/>/g, "")
+      .replace(/<meta name="description" content=".*?" \/>/g, "");
 
     const customHtml = html.replace("</head>", `${metaTags}</head>`);
 
