@@ -3,7 +3,7 @@
     <div class="surface-card p-4 shadow-2 border-round w-full lg:w-12">
       <div class="flex justify-content-between align-items-start">
         <div class="avatar-wrapper cursor-pointer" @click="triggerFileInput">
-          <Avatar :image="operator.avatar" :icon="operator.avatar ? 'pi pi-user' : undefined"
+          <Avatar :image="operator.avatar" :icon="!operator.avatar ? 'pi pi-user' : undefined"
             class="text-xl bg-gray-200" size="xlarge" shape="circle" :style="loading ? 'opacity: 0.5' : ''" />
 
           <div class="avatar-overlay">
