@@ -23,16 +23,17 @@ const toast = useToast();
 
 const shareNative = async () => {
   const baseUrl = window.location.origin;
-  const url = `${baseUrl}/events/${event.$id}?t=${Date.now()}`;
+  const { $id, location, location_url, date, type, minimum_effective, startTime, endTime, thumbnail, ...eventData } = event;
+  const url = `${baseUrl}/events/${$id}?t=${Date.now()}`;
 
-  const title = event.title.toUpperCase();
+  const title = eventData.title.toUpperCase();
 
-  const participations = event.participations as IParticipation<IOperator>[];
+  const participations = eventData.participations as IParticipation<IOperator>[];
   const operators = participations.map(({ operator }, i) =>
     `${(i + 1).toString().padStart(2, '0')}. ${operator.codename}`
   ).join('\n');
 
-  const visitor_participations = event.visitor_participations as IVisitorParticipation<IVisitor>[];
+  const visitor_participations = eventData.visitor_participations as IVisitorParticipation<IVisitor>[];
   const visitors = visitor_participations.map(({ visitor }, i) =>
     `${(i + 1).toString().padStart(2, '0')}. ${visitor.codename}`
   ).join('\n');
@@ -41,8 +42,8 @@ const shareNative = async () => {
 
   const header = `*${title}*\n-------------------------------------------------`;
   const checkin = `🔗 *Briefing / Check-in:*\n${url}\n\n*Aperte no link acima e confirme a sua presença!*`;
-  const info = `-------------------------------------------------\n⚠️ *Tipo:* ${EVENT_TYPES[event.type as keyof typeof EVENT_TYPES]}\n⚠️ *Efetivo Mínimo:* ${event.minimum_effective}\n⚠️ *Efetivo Atual:* ${effective}/${event.minimum_effective}`;
-  const footer = `-------------------------------------------------\n📅 *Data:* ${formatDate(event.date, true)}\n⏰ *Horário:* ${event.startTime} às ${event.endTime}\n📍 *Local:* ${event.location}\n🗾 *Maps:* ${event.location_url}\n-------------------------------------------------\n\n> _"No campo de batalha ou na vida: No *${TEAM_NAME}*, ninguém fica para trás!"_`;
+  const info = `-------------------------------------------------\n⚠️ *Tipo:* ${EVENT_TYPES[type as keyof typeof EVENT_TYPES]}\n⚠️ *Efetivo Mínimo:* ${minimum_effective}\n⚠️ *Efetivo Atual:* ${effective}/${minimum_effective}`;
+  const footer = `-------------------------------------------------\n📅 *Data:* ${formatDate(date, true)}\n⏰ *Horário:* ${startTime} às ${endTime}\n📍 *Local:* ${location}\n🗾 *Maps:* ${location_url}\n-------------------------------------------------\n\n> _"No campo de batalha ou na vida: No *${TEAM_NAME}*, ninguém fica para trás!"_`;
 
   const messageBlocks = [
     header,
@@ -53,33 +54,53 @@ const shareNative = async () => {
     footer
   ];
 
-  const text = messageBlocks.filter(Boolean).join('\n').trim();
+  const text = messageBlocks.filter(Boolean).join('\n').concat('\n');
 
-  if (navigator.share) {
-    try {
-      await navigator.share({ title, text });
-    } catch (err) {
-      console.log('Compartilhamento cancelado!');
-    }
-  } else {
-    try {
-      await navigator.clipboard.writeText(text);
+  try {
+    if (thumbnail) {
+      const response = await fetch(thumbnail);
+      const blob = await response.blob();
 
-      toast.add({
-        severity: 'success',
-        summary: 'Convite Copiado',
-        detail: 'O conteúdo do convite está no seu clipboard.',
-        life: 3000
-      });
-    } catch (err) {
-      console.error("Falha ao copiar:", err);
-      toast.add({
-        severity: 'error',
-        summary: 'Erro',
-        detail: 'Não foi possível copiar para o clipboard.',
-        life: 3000
-      });
+      const file = new File([blob], 'thumbnail.jpg', { type: blob.type });
+
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          title,
+          text,
+          url,
+          files: [file],
+        });
+      }
+    } else {
+      if (navigator.share) {
+        try {
+          await navigator.share({ title, text, url });
+        } catch (error) {
+          console.error('Erro ao compartilhar:', error);
+        }
+      } else {
+        try {
+          await navigator.clipboard.writeText(text);
+
+          toast.add({
+            severity: 'success',
+            summary: 'Convite Copiado',
+            detail: 'O conteúdo do convite está no seu clipboard.',
+            life: 3000
+          });
+        } catch (error) {
+          console.error("Falha ao copiar:", error);
+          toast.add({
+            severity: 'error',
+            summary: 'Erro',
+            detail: 'Não foi possível copiar para o clipboard.',
+            life: 3000
+          });
+        }
+      }
     }
+  } catch (error) {
+    console.error('Erro ao compartilhar:', error);
   }
 };
 </script>
