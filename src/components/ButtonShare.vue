@@ -54,53 +54,48 @@ const shareNative = async () => {
     footer
   ];
 
-  const text = messageBlocks.filter(Boolean).join('\n').concat('\n');
+  const text = messageBlocks.filter(Boolean).join('\n').concat('\n\n');
+  const files: File[] = [];
 
   try {
-    if (thumbnail) {
-      const response = await fetch(thumbnail);
-      const blob = await response.blob();
+    if (thumbnail && navigator.canShare) {
+      try {
+        const response = await fetch(thumbnail);
+        const blob = await response.blob();
+        const file = new File([blob], `${title}.png`, { type: blob.type });
 
-      const file = new File([blob], 'thumbnail.jpg', { type: blob.type });
-
-      if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({
-          title,
-          text,
-          url,
-          files: [file],
-        });
-      }
-    } else {
-      if (navigator.share) {
-        try {
-          await navigator.share({ title, text, url });
-        } catch (error) {
-          console.error('Erro ao compartilhar:', error);
+        if (navigator.canShare({ files: [file] })) {
+          files.push(file);
         }
-      } else {
-        try {
-          await navigator.clipboard.writeText(text);
-
-          toast.add({
-            severity: 'success',
-            summary: 'Convite Copiado',
-            detail: 'O conteúdo do convite está no seu clipboard.',
-            life: 3000
-          });
-        } catch (error) {
-          console.error("Falha ao copiar:", error);
-          toast.add({
-            severity: 'error',
-            summary: 'Erro',
-            detail: 'Não foi possível copiar para o clipboard.',
-            life: 3000
-          });
-        }
+      } catch (e) {
+        console.warn("Não foi possível carregar a imagem para share, enviando apenas texto.");
       }
     }
+
+    if (navigator.share) {
+      await navigator.share({
+        title,
+        text,
+        url,
+        ...(files.length > 0 ? { files } : {})
+      });
+    } else {
+      await copyToClipboard(text);
+    }
+
   } catch (error) {
-    console.error('Erro ao compartilhar:', error);
+    if ((error as Error).name !== 'AbortError') {
+      console.error('Erro ao compartilhar:', error);
+    }
+  }
+};
+
+const copyToClipboard = async (content: string) => {
+  try {
+    await navigator.clipboard.writeText(content);
+    toast.add({ severity: 'success', summary: 'Copiado', detail: 'Convite copiado para o clipboard.', life: 3000 });
+  } catch (err) {
+    console.error("Erro ao copiar:", err);
   }
 };
 </script>
