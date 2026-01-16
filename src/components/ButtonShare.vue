@@ -42,7 +42,7 @@ const shareNative = async () => {
   const header = `*${title}*\n-------------------------------------------------`;
   const checkin = `🔗 *Briefing / Check-in:*\n${url}\n\n*Aperte no link acima e confirme a sua presença!*`;
   const info = `-------------------------------------------------\n⚠️ *Tipo:* ${EVENT_TYPES[event.type as keyof typeof EVENT_TYPES]}\n⚠️ *Efetivo Mínimo:* ${event.minimum_effective}\n⚠️ *Efetivo Atual:* ${effective}/${event.minimum_effective}`;
-  const footer = `-------------------------------------------------\n📅 * Data:* ${formatDate(event.date, true)}\n⏰ * Horário:* ${event.startTime} às ${event.endTime}\n📍 * Local:* ${event.location}\n🗾 * Maps:* ${event.location_url}\n-------------------------------------------------\n\n> _"No campo de batalha ou na vida: No *${TEAM_NAME}*, ninguém fica para trás!"_`;
+  const footer = `-------------------------------------------------\n📅 *Data:* ${formatDate(event.date, true)}\n⏰ *Horário:* ${event.startTime} às ${event.endTime}\n📍 *Local:* ${event.location}\n🗾 *Maps:* ${event.location_url}\n-------------------------------------------------\n\n> _"No campo de batalha ou na vida: No *${TEAM_NAME}*, ninguém fica para trás!"_`;
 
   const messageBlocks = [
     header,
@@ -57,7 +57,7 @@ const shareNative = async () => {
 
   if (navigator.share) {
     try {
-      await navigator.share({ title, text, url });
+      await navigator.share({ title, text });
     } catch (err) {
       console.log('Compartilhamento cancelado!');
     }
