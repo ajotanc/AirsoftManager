@@ -25,6 +25,7 @@
             <Skeleton width="180px" height="3rem" />
             <Skeleton width="180px" height="3rem" />
             <Skeleton width="3rem" height="3rem" />
+            <Skeleton width="3rem" height="3rem" />
           </div>
         </div>
       </div>

@@ -81,7 +81,7 @@ const navItems = computed(() => [
   {
     label: "Equipamentos",
     icon: "ri-suitcase-2-line",
-    visible: authStore.isAdmin,
+    visible: authStore.isActiveOperator,
     items: [
       {
         label: t("menu.arsenal"),
@@ -106,7 +106,7 @@ const navItems = computed(() => [
   {
     label: "Games",
     icon: "ri-gamepad-line",
-    visible: authStore.isAdmin,
+    visible: authStore.isActiveOperator,
     items: [
       {
         label: "Ratings",

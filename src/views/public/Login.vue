@@ -66,13 +66,10 @@ const initialValues = ref({
 
 const resolver = zodResolver(
   z.object({
-    email: z
-      .string()
-      .min(1, { message: "O email é obrigatório." })
-      .email({ message: "Email inválido." }),
+    email: z.email({ message: "Email inválido." }),
     password: z
       .string()
-      .min(6, { message: "A senha deve ter no mínimo 6 caracteres." }),
+      .min(8, { message: "A senha deve ter no mínimo 6 caracteres." }),
   })
 );
 
