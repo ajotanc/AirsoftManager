@@ -59,7 +59,11 @@ const shareNative = async () => {
 
   if (share && navigator.share) {
     try {
-      await navigator.share({ title, text, url });
+      await navigator.share({
+        title,
+        text: "Confira o briefing da missão no link abaixo:",
+        url
+      });
     } catch (error) {
       if ((error as Error).name !== 'AbortError') console.error('Erro no share:', error);
     }

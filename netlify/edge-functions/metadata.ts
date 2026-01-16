@@ -30,8 +30,8 @@ export default async (request: Request, context: Context) => {
     const originalResponse = await context.next();
     const html = await originalResponse.text();
 
-    const title = `★★★★★ · ${TEAM_NAME.toUpperCase()} · ${event.title.toUpperCase()}`
-    const description = `${event.location} - ${new Date(event.date).toLocaleDateString('pt-BR')} às ${event.startTime}h`;
+    const title = `${TEAM_NAME.toUpperCase()} · ${event.title.toUpperCase()}`
+    const description = `★★★★★ · ${event.location} · ${new Date(event.date).toLocaleDateString('pt-BR')} às ${event.startTime}h`;
     const image = event.thumbnail;
 
     const metaTags = `
@@ -42,6 +42,7 @@ export default async (request: Request, context: Context) => {
   <meta property="og:image" content="${image}" />
   <meta property="og:image:secure_url" content="${image}" />
   <meta property="og:image:type" content="image/png" />
+  <meta property="og:image:alt" content="${title}" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <meta property="og:url" content="${request.url}" />
