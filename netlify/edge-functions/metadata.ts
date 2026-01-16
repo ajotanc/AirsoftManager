@@ -52,13 +52,13 @@ export default async (request: Request, context: Context) => {
   <meta name="twitter:image" content="${image}" />
     `;
 
-    html = html
+    const newHtml = html
       .replace(/<title>.*?<\/title>/g, "")
       .replace(/<meta property="og:.*?" \/>/g, "")
       .replace(/<meta name="twitter:.*?" \/>/g, "")
       .replace(/<meta name="description" content=".*?" \/>/g, "");
 
-    const customHtml = html.replace("</head>", `${metaTags}</head>`);
+    const customHtml = newHtml.replace("</head>", `${metaTags}</head>`);
 
     return new Response(customHtml, {
       headers: { "content-type": "text/html; charset=UTF-8" },
