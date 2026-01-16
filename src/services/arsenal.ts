@@ -16,7 +16,7 @@ export interface IArsenal {
   invoice: string | null;
   category: number | null;
   avatar: string | null;
-  maintained_at: Date | null;
+  maintained_at: Date | string | null;
   operator: string;
   is_favorite: boolean | null;
 }

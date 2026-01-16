@@ -1,3 +1,5 @@
+import imageCompression from 'browser-image-compression';
+
 import beepSound from "@/assets/sounds/beep.mp3";
 import router from "@/router";
 
@@ -79,15 +81,31 @@ export async function addressByCep(
   }
 }
 
-export const formatDate = (
-  date: Date | string | null,
-  returnString = false
-): Date | string | null => {
-  if (!date) return null;
+export const formatDate = (date: any): Date => {
+  let parsed: Date;
 
-  return returnString
-    ? new Date(date).toLocaleDateString("pt-BR")
-    : new Date(date);
+  if (date instanceof Date) {
+    parsed = date;
+  }
+
+  else if (typeof date === 'string' && date.trim().length > 0 && date.includes('/')) {
+    const parts = date.split('/');
+
+    if (parts.length === 3) {
+      const day = parseInt(parts[0] ?? "1", 10);
+      const month = parseInt(parts[1] ?? "1", 10) - 1;
+      const year = parseInt(parts[2] ?? "1970", 10);
+
+      parsed = new Date(year, month, day);
+    } else {
+      parsed = new Date(date);
+    }
+  }
+  else {
+    parsed = new Date(date);
+  }
+
+  return isNaN(parsed.getTime()) ? new Date() : parsed;
 };
 
 const assetsMap = import.meta.glob("@/assets/*.{png,jpg,jpeg,svg,webp}", {
@@ -147,6 +165,34 @@ export const severityEvent = (type: number | string): string => {
       return 'secondary';
   }
 };
+
+export const processImage = async (file: File) => {
+  const options = {
+    maxSizeMB: 0.2,
+    maxWidthOrHeight: 1200,
+    useWebWorker: true,
+    fileType: 'image/webp',
+    initialQuality: 0.8
+  };
+
+  try {
+    const compressedBlob = await imageCompression(file, options);
+
+    const fileName = file.name.replace(/\.[^/.]+$/, "") + ".webp";
+    const finalFile = new File([compressedBlob], fileName, {
+      type: 'image/webp',
+      lastModified: Date.now(),
+    });
+
+    console.log(`Original: ${(file.size / 1024).toFixed(2)} KB`);
+    console.log(`WebP Otimizado: ${(finalFile.size / 1024).toFixed(2)} KB`);
+
+    return finalFile;
+  } catch (error) {
+    console.error("Erro na conversão para WebP:", error);
+    return file;
+  }
+}
 
 export const getShortName = (name: string) => name && name.split(' ').slice(0, 2).join(' ') || 'Operador';
 export const goToEvent = (id: string) => router.push(`/events/${id}?t=${Date.now()}`);

@@ -1,4 +1,4 @@
-// src/services/event.ts
+import { ID, Query, type Models } from "appwrite";
 import {
   tables,
   DATABASE_ID,
@@ -8,11 +8,11 @@ import {
 } from "@/services/appwrite";
 import { OperatorService, type IOperator } from "@/services/operator";
 import { XP_VALUES, calculateLevel } from "@/constants/airsoft";
-import { ID, Query, type Models } from "appwrite";
+
 import type { IVisitor } from "./visitor";
 import type { ICarpool } from "./carpool";
+import { processImage } from "@/functions/utils";
 
-// IDs das tabelas que você vai criar no Appwrite
 export const TABLE_EVENTS = "events";
 export const TABLE_PARTICIPATIONS = "participations";
 export const TABLE_VISITOR_PARTICIPATIONS = "visitor_participations";
@@ -249,8 +249,9 @@ export const EventService = {
       rowId: participationId,
     });
   },
-  async uploadThumbnail(rowId: string, file: File): Promise<string> {
+  async uploadThumbnail(rowId: string, thumbnail: File): Promise<string> {
     const fileId = `thumbnail-${rowId}`;
+    const file = await processImage(thumbnail);
 
     try {
       await storage.createFile({
@@ -311,4 +312,4 @@ export const EventService = {
     });
     return response.rows;
   }
-};
+}

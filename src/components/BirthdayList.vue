@@ -27,7 +27,7 @@
                   <div class="content">
                     <span class="text-xs md:text-base font-bold text-yellow-500">{{ birthday.codename }}</span>
                     <span class="text-base md:text-2xl font-bold">{{ getShortName(birthday.name) }}</span>
-                    <span class="text-xs md:text-base">{{ formatDate(birthday.birth_date, true) }}</span>
+                    <span class="text-xs md:text-base">{{ formatDate(birthday.birth_date).toLocaleDateString('pt-BR') }}</span>
                   </div>
                 </div>
               </a>

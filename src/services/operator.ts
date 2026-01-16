@@ -8,6 +8,7 @@ import {
 import { Query, type Models } from "appwrite";
 import type { IArsenal } from "./arsenal";
 import type { ILoadout } from "./loadout";
+import { processImage } from "@/functions/utils";
 
 export interface IOperator extends Models.Row {
   name: string;
@@ -112,7 +113,8 @@ export const OperatorService = {
       await storage.deleteFile({ bucketId: BUCKET_ID, fileId });
     }
 
-    await storage.createFile({ bucketId: BUCKET_ID, fileId, file });
+    const newFile = await processImage(file);
+    await storage.createFile({ bucketId: BUCKET_ID, fileId, file: newFile });
 
     const originalUrl = storage.getFileView({ bucketId: BUCKET_ID, fileId });
     const urlFormatted = `${originalUrl}&v=${Date.now()}`;

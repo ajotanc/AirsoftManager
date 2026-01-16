@@ -359,6 +359,7 @@ import { useAuthStore } from "@/stores/auth";
 import {
   isValidIdentity,
   addressByCep,
+  formatDate,
 } from "@/functions/utils";
 import { OperatorService, type IOperator } from "@/services/operator";
 
@@ -393,7 +394,7 @@ const staticSchema = z.object({
     .transform((v) => v.replace(/\D/g, "")),
   general_registration: z.string({ error: "RG obrigatório" })
     .transform((v) => v.replace(/\D/g, "")),
-  birth_date: z.any().refine(val => !!val, "Data obrigatória").transform((date) => new Date(date).toISOString()),
+  birth_date: z.custom().refine((date) => date instanceof Date || typeof date === 'string', "Data obrigatória").transform((date) => date && formatDate(date).toISOString()),
   blood_type: z.string({ error: "Tipo sanguíneo obrigatório" }),
   mother_name: z.string({ error: "Nome da mãe obrigatório" }),
   phone: z.string({ error: "Telefone obrigatório" }).transform((v) => v.replace(/\D/g, "")),

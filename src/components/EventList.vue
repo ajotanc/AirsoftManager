@@ -37,7 +37,7 @@
                                 <div class="flex flex-column gap-1 text-sm text-gray-400">
                                     <span><i class="pi pi-map-marker mr-1 text-xs"></i>{{ event.location }}</span>
                                     <span><i class="pi pi-calendar mr-1 text-xs text-primary-500"></i>{{
-                                        formatDate(event.date, true) }}</span>
+                                        formatDate(event.date).toLocaleDateString('pt-BR') }}</span>
                                 </div>
                             </template>
                             <template #footer>
@@ -62,10 +62,10 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
-import { EventService, type IEvent } from '@/services/event';
 import { EVENT_TYPES } from '@/constants/airsoft';
 import { formatDate, severityEvent, goToEvent } from '@/functions/utils';
 import { Skeleton, useToast } from 'primevue';
+import { EventService, type IEvent } from '@/services/event';
 
 const allEvents = ref<IEvent[]>([]);
 

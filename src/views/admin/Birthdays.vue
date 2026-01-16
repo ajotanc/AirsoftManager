@@ -35,7 +35,7 @@
                 <Column header="Data de Nascimento">
                     <template #body="{ data: operators }">
                         <Skeleton v-if="loading" width="100%" height="1rem" />
-                        <template v-else>{{ formatDate(operators.birth_date, true) }}</template>
+                        <template v-else>{{ formatDate(operators.birth_date).toLocaleDateString('pt-BR') }}</template>
                     </template>
                 </Column>
 

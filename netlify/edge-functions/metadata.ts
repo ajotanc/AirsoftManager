@@ -32,7 +32,7 @@ export default async (request: Request, context: Context) => {
 
     const title = `${TEAM_NAME.toUpperCase()} · ${event.title.toUpperCase()}`
     const description = `★★★★★ · ${event.location} · ${new Date(event.date).toLocaleDateString('pt-BR')} às ${event.startTime}h`;
-    const image = event.thumbnail.concat(`v=${Date.now()}&.png`);
+    const image = event.thumbnail;
 
     const metaTags = `
   <title>${title}</title>

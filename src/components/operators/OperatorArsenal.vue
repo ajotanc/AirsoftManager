@@ -170,7 +170,7 @@ import FileUpload, { type FileUploadSelectEvent } from "primevue/fileupload";
 import { WEAPON_TYPES_OPTIONS, CATEGORIES_OPTIONS } from "@/constants/airsoft";
 import { ArsenalService, type IArsenal } from "@/services/arsenal";
 import { InputMask, ToggleSwitch, useConfirm } from "primevue";
-import type { IFields } from "@/functions/utils";
+import { formatDate, type IFields } from "@/functions/utils";
 import ColumnContent from "../ColumnContent.vue";
 
 const invoice = ref();
@@ -286,7 +286,7 @@ const weaponSchema = z.object({
   category: z.number({ error: "Selecione a categoria" }),
   joule: z.coerce.number({ error: "Informe o Joule" }).gt(0, { error: "Joule deve ser maior que 0.00" }).transform((value) => value && value.toString()),
   fps: z.number({ error: "Informe o FPS" }).max(550, { error: "FPS deve ser menor ou igual a 550" }).gt(0, { error: "FPS deve ser maior que 0" }),
-  maintained_at: z.date({ error: "Data de manutenção obrigatória" }).nullish().transform((date) => date && new Date(date).toISOString()),
+  maintained_at: z.custom().refine((date) => date instanceof Date || typeof date === 'string', "Data obrigatória").transform((date) => date && formatDate(date).toISOString()),
   is_favorite: z.boolean().nullish(),
 });
 
