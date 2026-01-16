@@ -55,20 +55,20 @@ const shareNative = async () => {
   ];
 
   const text = messageBlocks.filter(Boolean).join('\n').concat('\n\n');
-  const files: File[] = [];
 
   try {
     if (thumbnail && navigator.canShare) {
-      try {
-        const response = await fetch(thumbnail);
-        const blob = await response.blob();
-        const file = new File([blob], `${title}.png`, { type: blob.type });
+      const response = await fetch(thumbnail);
+      const blob = await response.blob();
+      const file = new File([blob], `${title}.png`, { type: blob.type });
 
-        if (navigator.canShare({ files: [file] })) {
-          files.push(file);
-        }
-      } catch (e) {
-        console.warn("Não foi possível carregar a imagem para share, enviando apenas texto.");
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          files: [file],
+          title,
+          text
+        });
+        return;
       }
     }
 
@@ -76,8 +76,7 @@ const shareNative = async () => {
       await navigator.share({
         title,
         text,
-        url,
-        ...(files.length > 0 ? { files } : {})
+        url
       });
     } else {
       await copyToClipboard(text);

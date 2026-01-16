@@ -33,13 +33,16 @@ export default async (request: Request, context: Context) => {
     const title = `${TEAM_NAME.toUpperCase()} - ${event.title.toUpperCase()}`
     const description = `${event.location} - ${new Date(event.date).toLocaleDateString('pt-BR')} às ${event.startTime}h`;
 
-    const customHtml = html
-      .replace(/<title>.*?<\/title>/, `<title>${title}</title>`)
-      .replace(/<meta name="description" content=".*?" \/>/g, `<meta name="description" content="${event.description}" />`)
-      .replace(/<meta property="og:title" content=".*?" \/>/g, `<meta property="og:title" content="${title}" />`)
-      .replace(/<meta property="og:description" content=".*?" \/>/g, `<meta property="og:description" content="${description}" />`)
-      .replace(/<meta property="og:image" content=".*?" \/>/g, `<meta property="og:image" content="${event.thumbnail}" />`)
-      .replace(/<meta property="og:url" content=".*?" \/>/g, `<meta property="og:url" content="${request.url}" />`);
+    const metaTags = `
+  <title>${title}</title>
+  <meta property="og:title" content="${title}" />
+  <meta property="og:description" content="${description}" />
+  <meta property="og:image" content="${event.thumbnail}" />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+`;
+
+    const customHtml = html.replace("</head>", `${metaTags}</head>`);
 
     return new Response(customHtml, {
       headers: { "content-type": "text/html; charset=UTF-8" },
