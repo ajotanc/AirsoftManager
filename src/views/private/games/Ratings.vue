@@ -38,7 +38,7 @@
                     </template>
                 </Column>
 
-                <Column header=" Ações" style="width: 10%">
+                <Column header="Ações" style="width: 10%">
                     <template #body="{ data }">
                         <Skeleton v-if="loading" width="100%" height="1rem" />
                         <div v-else class="flex gap-2 justify-content-center">
@@ -65,20 +65,21 @@
                                 :class="{ 'p-invalid': $field.invalid }" fluid>
                                 <template #option="slotProps">
                                     <div class="flex align-items-center gap-2">
-                                        <Avatar icon="pi pi-user" :image="slotProps.option.avatar" shape="circle"
-                                            size="small" />
+                                        <Avatar :icon="!slotProps.option.avatar ? 'pi pi-user' : undefined"
+                                            :image="slotProps.option.avatar" shape="circle" size="small" />
                                         <span>{{ slotProps.option.codename }}</span>
                                     </div>
                                 </template>
 
                                 <template #value="slotProps">
                                     <div v-if="slotProps.value" class="flex align-items-center gap-2">
-                                        <Avatar icon="pi pi-user"
+                                        <Avatar
+                                            :icon="!availableOperators.find(op => op.$id === slotProps.value)?.avatar ? 'pi pi-user' : undefined"
                                             :image="availableOperators.find(op => op.$id === slotProps.value)?.avatar"
                                             shape="circle" size="small" />
                                         <span>{{availableOperators.find(op => op.$id ===
                                             slotProps.value)?.codename
-                                        }}</span>
+                                            }}</span>
                                     </div>
                                 </template>
                             </Select>
