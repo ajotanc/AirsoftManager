@@ -27,7 +27,8 @@
                   <div class="content">
                     <span class="text-xs md:text-base font-bold text-yellow-500">{{ birthday.codename }}</span>
                     <span class="text-base md:text-2xl font-bold">{{ getShortName(birthday.name) }}</span>
-                    <span class="text-xs md:text-base">{{ formatDate(birthday.birth_date).toLocaleDateString('pt-BR') }}</span>
+                    <span class="text-xs md:text-base">{{ formatDate(birthday.birth_date).toLocaleDateString('pt-BR')
+                    }}</span>
                   </div>
                 </div>
               </a>
@@ -37,10 +38,7 @@
       </template>
     </template>
     <template #empty>
-      <div class="flex flex-column align-items-center p-4 text-gray-500">
-        <i class="pi pi-gift text-5xl mb-2"></i>
-        <span class="text-sm">Nenhuma aniversariante no mês.</span>
-      </div>
+      <Empty label="Nenhum aniversariante no mês." icon="pi pi-gift" />
     </template>
   </Carousel>
 </template>
@@ -50,6 +48,7 @@ import { ref, onMounted, computed } from 'vue';
 import { formatDate, isBirthdayToday, getShortName } from '@/functions/utils';
 import { OperatorService, type IOperator } from '@/services/operator';
 import { useToast } from 'primevue';
+import Empty from './Empty.vue';
 
 const allBirthdays = ref<IOperator[]>([]);
 

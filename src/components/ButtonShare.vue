@@ -73,40 +73,32 @@ const shareNative = async () => {
 
   const text = messageBlocks.filter(Boolean).join('\n').concat('\n\n');
 
-  if (share && thumbnail) {
+  if (share && thumbnail && navigator.share) {
     try {
       const response = await fetch(thumbnail);
       const blob = await response.blob();
-
-      const file = new File([blob], 'thumbnail.webp', { type: 'image/webp' });
+      const file = new File([blob], `${Date.now()}-thumbnail.webp`, { type: 'image/webp' });
 
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({
-          files: [file],
-          title,
-          text
-        });
-
-        return;
+        return await navigator.share({ files: [file], title, text });
       }
     } catch (e) {
-      console.error("Erro ao processar imagem para share:", e);
+      if ((e as Error).name !== 'AbortError') console.error("Erro no share de arquivo:", e);
     }
   }
 
   if (share && navigator.share) {
     try {
-      await navigator.share({
+      return await navigator.share({
         title,
-        text: "Confira o briefing da missão no link abaixo:",
-        url
+        text
       });
     } catch (error) {
-      if ((error as Error).name !== 'AbortError') console.error('Erro no share:', error);
+      if ((error as Error).name !== 'AbortError') console.error('Erro no share de texto:', error);
     }
-  } else {
-    await copyToClipboard(text.trim());
   }
+
+  await copyToClipboard(text.trim());
 };
 
 const copyToClipboard = async (content: string) => {

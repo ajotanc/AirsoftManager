@@ -14,6 +14,8 @@
                                 <div class="relative">
                                     <Tag :value="EVENT_TYPES[event.type as keyof typeof EVENT_TYPES] || 'Padrão'"
                                         :severity="severityEvent(event.type)" class="absolute top-0 left-0 m-2 z-2" />
+                                    <Tag v-if="event.is_finished" icon="pi pi-check-circle" value="Finalizado" severity="warn"
+                                        class="absolute top-0 right-0 m-2 z-2" />
                                     <div v-if="event.thumbnail && isValidUrl(event.thumbnail)" class="w-full" :style="{
                                         height: '10rem',
                                         backgroundImage: `url(${event.thumbnail})`,
@@ -51,10 +53,7 @@
                 </template>
             </template>
             <template #empty>
-                <div class="flex flex-column align-items-center p-4 text-gray-500">
-                    <i class="pi pi-calendar text-5xl mb-2"></i>
-                    <span class="text-sm">Nenhuma eventos econtrado.</span>
-                </div>
+                <Empty label="Nenhum evento encontrado." icon="pi pi-calendar" />
             </template>
         </Carousel>
     </div>
