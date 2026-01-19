@@ -4,7 +4,7 @@
       <Card class="border-top-3 border-red-500 text-center">
         <template #content>
           <i class="pi pi-lock text-4xl text-red-500 mb-3"></i>
-          <h2>{{ t("dashboard.pending") }}</h2>
+          <h2>Aguardando Aprovação</h2>
           <p>Aguardando validação do comando.</p>
         </template>
       </Card>
@@ -49,16 +49,13 @@
 </template>
 
 <script setup lang="ts">
-import { useAuthStore } from "@/stores/auth";
-import { useI18n } from "vue-i18n";
-
 import Card from "primevue/card";
+import { useAuthStore } from "@/stores/auth";
 
 import OperatorRankCard from "@/components/operators/OperatorRankCard.vue";
 import EventList from "@/components/EventList.vue";
 import BirthdayList from "@/components/BirthdayList.vue";
 
 const { isActiveOperator, operator: { arsenal, loadout } } = useAuthStore();
-const { t } = useI18n();
 
 </script>

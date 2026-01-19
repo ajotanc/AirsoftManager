@@ -80,7 +80,7 @@ export const OperatorService = {
         tableId: TABLE_OPERATORS,
         queries: [
           Query.select(["*", "arsenal.*", "loadout.*"]),
-          Query.orderDesc("$createdAt"),
+          Query.orderAsc("codename")
         ],
       });
 

@@ -21,6 +21,7 @@ declare module 'vue' {
     ColorPicker: typeof import('primevue/colorpicker')['default']
     ColumnContent: typeof import('./src/components/ColumnContent.vue')['default']
     ConfirmDialog: typeof import('primevue/confirmdialog')['default']
+    Drawer: typeof import('primevue/drawer')['default']
     Empty: typeof import('./src/components/Empty.vue')['default']
     EventList: typeof import('./src/components/EventList.vue')['default']
     EventSkeleton: typeof import('./src/components/skeleton/EventSkeleton.vue')['default']
@@ -31,6 +32,9 @@ declare module 'vue' {
     InputIcon: typeof import('primevue/inputicon')['default']
     InputText: typeof import('primevue/inputtext')['default']
     InstallPrompt: typeof import('./src/components/InstallPrompt.vue')['default']
+    Knob: typeof import('primevue/knob')['default']
+    Menu: typeof import('primevue/menu')['default']
+    Menubar: typeof import('primevue/menubar')['default']
     Message: typeof import('primevue/message')['default']
     OperatorArsenal: typeof import('./src/components/operators/OperatorArsenal.vue')['default']
     OperatorDetails: typeof import('./src/components/operators/OperatorDetails.vue')['default']
@@ -48,6 +52,7 @@ declare module 'vue' {
     Toast: typeof import('primevue/toast')['default']
   }
   export interface GlobalDirectives {
+    Ripple: typeof import('primevue/ripple')['default']
     Tooltip: typeof import('primevue/tooltip')['default']
   }
 }

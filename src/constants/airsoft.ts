@@ -10,6 +10,8 @@ export const EVENT_TYPES = {
   2: "Evento",
   3: "Manutenção",
   4: "Curso",
+  5: "Reunião",
+  6: "Outros",
 };
 
 export const XP_VALUES = {
@@ -144,8 +146,15 @@ export const PMC_EXCEPTIONS = ["helmet", "ski_mask", "headset"];
 
 export const ROLES = [
   { label: "Administrador", value: "admin" },
-  { label: "Recruta", value: "recruit" },
+  { label: "Armaria", value: "armory" },
+  { label: "Eventos", value: "events" },
+  { label: "Financeiro", value: "finance" },
+  { label: "Manutenção", value: "maintenance" },
+  { label: "Mídias", value: "media" },
   { label: "Operador", value: "operator" },
+  { label: "Recruta", value: "recruit" },
+  { label: "Recursos Humanos", value: "human_resources" },
+  { label: "Uniforme", value: "uniform" },
 ];
 
 export const SHIRT_SIZES = ["PP", "P", "M", "G", "GG", "XG"];

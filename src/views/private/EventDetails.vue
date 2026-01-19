@@ -1,6 +1,6 @@
 <template>
     <EventSkeleton v-if="loading" />
-    <div v-else class="p-4">
+    <div v-else class="p-3">
         <div class="border-bottom-1 border-black-alpha-20 pb-4 mb-4">
             <div class="grid">
                 <div class="col-12">
@@ -104,13 +104,16 @@
                                         <Avatar :image="operator.avatar"
                                             :icon="!operator.avatar ? 'pi pi-user' : undefined" shape="circle"
                                             size="small" />
-                                        <span
-                                            :class="{ 'text-green-400': checked_in, 'line-through text-red-400': event.is_finished && !checked_in }">{{
+                                        <span class="font-bold"
+                                            :class="{ 'text-green-400': checked_in, 'text-red-400': event.is_finished && !checked_in }">{{
                                                 operator.codename }}</span>
-                                        <i v-if="checked_in" class="pi pi-check font-bold text-green-600 ml-auto""></i>
+                                        <i v-if="isFinished && checked_in"
+                                            class="pi pi-check text-green-300 ml-auto"></i>
+                                        <i v-else-if="isFinished && !checked_in"
+                                            class="pi pi-times text-red-300 ml-auto"></i>
                                     </div>
                                     <Empty v-else label=" Nenhum operador participando dessa missão."
-                                            icon="pi pi-users" />
+                                        icon="pi pi-users" />
                                 </TabPanel>
                                 <TabPanel :value="1">
                                     <div v-if="visitorParticipants.length > 0"
@@ -118,8 +121,8 @@
                                         class="flex align-items-center gap-3 mb-3">
                                         <Avatar :label="visitor.name[0]" shape="circle" size="small" />
                                         <div class="flex flex-column">
-                                            <span
-                                                :class="{ 'font-bold text-green-600': checked_in, 'line-through text-red-400': event.is_finished && !checked_in }">{{
+                                            <span class="font-bold"
+                                                :class="{ 'text-green-600': checked_in, 'text-red-400': event.is_finished && !checked_in }">{{
                                                     visitor.codename }} ({{ visitor.team }})</span>
                                             <small class="text-gray-700">Convidado por <strong>{{
                                                 getOperatorName(visitor.operator) }}</strong></small>
@@ -133,8 +136,10 @@
                                                 @click="deleteVisitorParticipation($id, visitor)" size="small"
                                                 v-tooltip.top="'Excluir Presença'" />
                                         </div>
-                                        <i v-else-if="checked_in"
-                                            class="pi pi-check font-bold text-green-600 ml-auto"></i>
+                                        <i v-if="isFinished && checked_in"
+                                            class="pi pi-check text-green-300 ml-auto"></i>
+                                        <i v-else-if="isFinished && !checked_in"
+                                            class="pi pi-times text-red-300 ml-auto"></i>
                                     </div>
                                     <Empty v-else label="Nenhum visitante adicionado a missão." icon="pi pi-users" />
                                 </TabPanel>
@@ -146,10 +151,10 @@
                     <template #content>
                         <div v-if="isConfirmed && vehicles.length > 0" class="buttons flex flex-column gap-2 mb-3">
                             <Button label="Adicionar Carona" icon="pi pi-plus" class="w-full" severity="info"
-                                @click="newCarpool" :disabled="isFinished" />
+                                @click="newCarpool" :disabled="availableVisitors.length > 0 || isFinished" />
                         </div>
                         <h4 class="text-sm uppercase text-gray-400 border-bottom-1 border-white-alpha-10 mt-0 pb-2">
-                            Carona Solidária
+                            Lista de Caronas
                         </h4>
                         <Tabs :value="0">
                             <TabList>
@@ -204,7 +209,7 @@
                                                 <template v-if="carpool.vehicle.driver === operator.$id">
                                                     <Button icon="pi pi-pencil" size="small" rounded
                                                         @click="editCarpool(carpool)" v-tooltip.top="'Editar'" />
-                                                    <Button icon="pi pi-times" size="small" severity="danger" rounded
+                                                    <Button icon="pi pi-trash" size="small" severity="danger" rounded
                                                         @click="deleteCarpool(carpool)" v-tooltip.top="'Excluir'" />
                                                 </template>
                                             </div>
@@ -256,7 +261,7 @@
                     <div class="scanner-overlay">
                         <div class="scanner-frame"></div>
                         <SelectButton v-model="facingMode" :options="cameraOptions" optionLabel="label"
-                            optionValue="value" class="exodo-camera-switch" />
+                            optionValue="value" class="camera-switch" />
                         <div class="scanner-instructions">
                             <p class="text-xs m-0">Posicione o QR Code dentro da linha e aguarde.</p>
                             <p class="text-xs opacity-70 m-0">A leitura é automática.</p>
@@ -713,6 +718,8 @@ const loadServices = async () => {
         visitorParticipants.value = eventDetails.visitor_participations as IVisitorParticipationDetail[];
 
         carpools.value = eventDetails.carpools as ICarpool<IVehicle<string>>[];
+
+
         const carpoolIds = carpools.value.map(c => c.$id);
 
         const [requestsData, vehiclesData, visitorsData] = await Promise.all([
@@ -887,6 +894,8 @@ const requestCarpool = async (carpool: ICarpool<IVehicle<string>>) => {
         const { $id, vehicle, departure_point, departure_time } = carpool;
         const { codename, phone } = getOperator(vehicle.driver) as IOperator;
 
+        console.log($id);
+
         const response = await CarpoolRequestService.create($id, operator.$id) as ICarpoolRequest<IOperator, ICarpool<IVehicle>>;
 
         requests.value.push({
@@ -928,7 +937,11 @@ const handleUpdateStatus = async (request: ICarpoolRequest<IOperator, ICarpool<I
 };
 
 const canRequest = (carpool: ICarpool<IVehicle>) => {
+
+    if (hasCarpools.value) return false;
+
     const isOwner = carpool.vehicle.driver === operator.$id;
+
     const hasPendingOrAccepted = requests.value.some(r =>
         r.carpool.$id === carpool.$id &&
         r.requester.$id === operator.$id &&
@@ -1002,7 +1015,7 @@ const getOperatorName = (id: string) => operatorsMap.value.get(id)?.codename || 
     padding: 0 !important;
 }
 
-:deep(.exodo-camera-switch) {
+:deep(.camera-switch) {
     z-index: 3;
 }
 </style>

@@ -76,7 +76,8 @@
     <Dialog v-model:visible="uniformDialog" :style="{ width: '360px' }" header="Detalhes do Loadout" :modal="true">
       <div class="flex flex-column gap-3">
         <FloatLabel variant="in">
-          <Select :options="UNIFORMS_OPTIONS_FILTER" name="type_uniform" v-model="selectedUniform.type_uniform" class="w-full" :disabled="!!selectedUniform.$id" fluid />
+          <Select :options="UNIFORMS_OPTIONS_FILTER" optionLabel="label" optionValue="value" name="type_uniform"
+            v-model="selectedUniform.type_uniform" class="w-full" :disabled="!!selectedUniform.$id" fluid />
           <label>Uniformes</label>
         </FloatLabel>
         <div

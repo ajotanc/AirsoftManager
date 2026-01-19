@@ -2,8 +2,8 @@
   <Toast />
   <ConfirmDialog :style="{ width: '360px' }"></ConfirmDialog>
   <router-view :key="$route.fullPath" />
-  <InstallPrompt />
-  <ReloadPrompt />
+  <!-- <InstallPrompt />
+  <ReloadPrompt /> -->
 </template>
 
 <style>
@@ -25,6 +25,6 @@ body {
 </style>
 
 <script setup lang="ts">
-import InstallPrompt from '@/components/InstallPrompt.vue';
-import ReloadPrompt from '@/components/ReloadPrompt.vue';
+// import InstallPrompt from '@/components/InstallPrompt.vue';
+// import ReloadPrompt from '@/components/ReloadPrompt.vue';
 </script>

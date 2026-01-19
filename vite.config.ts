@@ -2,8 +2,8 @@ import { fileURLToPath, URL } from "node:url";
 import { defineConfig, loadEnv } from "vite";
 import vue from "@vitejs/plugin-vue";
 import Components from "unplugin-vue-components/vite";
-import { VitePWA } from "vite-plugin-pwa";
 import { PrimeVueResolver } from "@primevue/auto-import-resolver";
+import { VitePWA } from "vite-plugin-pwa";
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd());
@@ -18,18 +18,23 @@ export default defineConfig(({ mode }) => {
         registerType: "autoUpdate",
         includeAssets: ["favicon.ico", "apple-touch-icon.png", "mask-icon.svg"],
         manifest: {
-          name: `${env.VITE_TEAM_NAME} - ${env.TITLE}`,
+          name: `${env.VITE_TEAM_NAME} - ${env.VITE_TITLE}`,
           short_name: env.VITE_TEAM_NAME,
           start_url: "/login",
           display: "standalone",
-          description: `${env.VITE_TEAM_NAME} - ${env.DESCRIPTION}`,
+          description: `${env.VITE_TEAM_NAME} - ${env.VITE_DESCRIPTON}`,
           theme_color: "#081534",
-          background_color: "#081534",
+          background_color: "#FFFFFF",
           lang: "pt-BR",
           orientation: "portrait",
           icons: [
             {
-              src: "pwa-192x192.png",
+              src: "pwa-64x64.png",
+              sizes: "64x64",
+              type: "image/png",
+            },
+            {
+              src: "pwa-64x64.png",
               sizes: "192x192",
               type: "image/png",
             },

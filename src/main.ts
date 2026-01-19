@@ -10,14 +10,14 @@ import ToastService from "primevue/toastservice";
 import Tooltip from "primevue/tooltip";
 import ConfirmationService from "primevue/confirmationservice";
 import { registerSW } from "virtual:pwa-register";
+import StyleClass from 'primevue/styleclass';
+import Ripple from 'primevue/ripple';
 
 import "primeicons/primeicons.css";
 import "primeflex/primeflex.css";
 import "./style.css";
 
 import "remixicon/fonts/remixicon.css";
-
-// import Aura from "@primevue/themes/aura";
 
 const app = createApp(App);
 const pinia = createPinia();
@@ -109,3 +109,6 @@ authStore
   .catch((err) => {
     console.error("Erro ao conectar no Appwrite:", err);
   });
+
+app.directive('styleclass', StyleClass);
+app.directive('ripple', Ripple);

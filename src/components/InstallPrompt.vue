@@ -1,10 +1,11 @@
 <template>
-    <div v-if="installPrompt" class="install-banner">
+    <div class="install-banner">
         <Message severity="info" :sticky="true">
-            <div class="flex align-items-center gap-3">
-                <span>Deseja instalar o <strong>Êxodo Airsoft</strong> no seu celular?</span>
+            <div class="flex align-items-center gap-2">
+                <Image src="/exd.webp" imageClass="w-5rem"/>
+                <span>Deseja instalar o <strong>{{ TEAM_NAME }}</strong> no seu celular?</span>
+                <Button class="absolute top-0 right-0" icon="pi pi-times" text @click="installPrompt = null" />
                 <Button label="Instalar" severity="success" size="small" @click="clickInstall" />
-                <Button icon="pi pi-times" text @click="installPrompt = null" />
             </div>
         </Message>
     </div>
@@ -14,8 +15,10 @@
 import { ref, onMounted } from 'vue'
 import Button from 'primevue/button'
 import Message from 'primevue/message'
+import { TEAM_NAME } from '@/constants/airsoft.ts'
 
 const installPrompt = ref(null)
+const visible = ref(true);
 
 onMounted(() => {
     window.addEventListener('beforeinstallprompt', (e) => {
@@ -44,11 +47,10 @@ const clickInstall = async () => {
 <style scoped>
 .install-banner {
     position: fixed;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
+    bottom: 0;
+    left: 0;
     z-index: 9999;
-    width: 90%;
-    max-width: 500px;
+    width: calc(100% - 2.5rem);
+    margin: 1rem;
 }
 </style>

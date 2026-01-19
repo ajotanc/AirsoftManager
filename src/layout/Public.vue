@@ -12,12 +12,15 @@
         <i class="pi pi-instagram text-xl text-600 cursor-pointer"></i>
         <i class="pi pi-whatsapp text-xl text-600 cursor-pointer"></i>
       </div>
-      <span class="text-500 text-sm">&copy; 2025 Airsoft Team Management. Todos os direitos
-        reservados.</span>
+      <span class="text-500 text-sm">
+        AJOTA {{ year }} &copy; {{ description }}
+      </span>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import Header from "@/components/header/Public.vue";
+const year = new Date().getFullYear();
+const description = import.meta.env.VITE_TITLE;
 </script>
