@@ -4,8 +4,6 @@
             <div class="flex flex-column align-items-center text-center p-3">
                 <div class="flex relative mb-2 cursor-pointer"
                     v-tooltip.top="`Status de Progressão: ${xpInLevel} / 200 XP`">
-                    <!-- <div class="xp-ring absolute p-4 border-circle" :style="ringStyle">
-                    </div> -->
                     <Avatar :image="operator.avatar" shape="circle" class="operator-avatar z-1 border-surface-900" />
                     <Knob v-model="xpPercent" class="xp-ring" :min="0" :max="EXPERIENCE_PER_LEVEL" :strokeWidth="5"
                         readonly :size="140" />

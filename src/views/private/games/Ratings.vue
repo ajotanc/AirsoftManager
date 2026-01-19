@@ -50,7 +50,9 @@
                     </template>
                 </Column>
 
-                <template #empty>Nenhum voto encontrado.</template>
+                <template #empty>
+                    <Empty label="Nenhum voto cadastrado" icon="ri-bookmark-3-line" />
+                </template>
             </DataTable>
         </div>
 

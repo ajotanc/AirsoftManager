@@ -52,7 +52,9 @@
                     </template>
                 </Column>
 
-                <template #empty>Nenhum Aniversariante encontrado.</template>
+                <template #empty>
+                    <Empty label="Nenhum aniversariante encontrado para este mês" icon="ri ri-cake-2-line" />
+                </template>
             </DataTable>
         </div>
     </div>

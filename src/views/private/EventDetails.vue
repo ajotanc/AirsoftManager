@@ -33,13 +33,15 @@
                     </p>
                 </div>
                 <div class="col-12">
-                    <div class="flex flex-column md:flex-row gap-2 md:gap-3">
-                        <Button v-if="isConfirmed" label="Cancelar Presença" icon="pi pi-times" severity="error"
-                            @click="toggleParticipation" class="w-full md:w-auto" />
-                        <Button v-else label="Confirmar Presença" icon="pi pi-plus-circle" severity="primary"
-                            @click="toggleParticipation" class="w-full md:w-auto" />
-                        <Button v-if="isConfirmed" label="Adicionar à Agenda" icon="pi pi-calendar-plus" severity="help"
-                            @click="handleCalendarDynamic" class="w-full md:w-auto" />
+                    <div class="flex flex-column md:flex-row gap-2">
+                        <div v-if="!isFinished" class="flex flex-column md:flex-row gap-2">
+                            <Button v-if="isConfirmed" label="Cancelar Presença" icon="pi pi-times" severity="error"
+                                @click="toggleParticipation" />
+                            <Button v-else label="Confirmar Presença" icon="pi pi-plus-circle" severity="primary"
+                                @click="toggleParticipation" />
+                            <Button v-if="isConfirmed" label="Adicionar à Agenda" icon="pi pi-calendar-plus"
+                                severity="help" @click="handleCalendarDynamic" />
+                        </div>
                         <div class="flex gap-2">
                             <ButtonShare :event="event" icon="pi pi-copy" outlined v-tooltip.top="'Copiar Missão'" />
                             <ButtonShare :event="event" :share="true" icon="pi pi-share-alt" outlined
@@ -284,7 +286,7 @@
                         <template #option="slotProps">
                             <div class="flex flex-column">
                                 <span class="font-bold">{{ slotProps.option.name }} ({{ slotProps.option.codename
-                                }})</span>
+                                    }})</span>
                                 <small class="text-gray-500">Convidado por {{
                                     slotProps.option.operator.codename }}</small>
                             </div>

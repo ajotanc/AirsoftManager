@@ -92,7 +92,9 @@
           <OperatorDetails :operator="operator" />
         </template>
 
-        <template #empty>Nenhum operador encontrado.</template>
+        <template #empty>
+          <Empty message="Nenhum operador encontrado." icon="ri ri-group-line" />
+        </template>
 
         <template #paginatorstart>
           <Button icon="pi pi-refresh" rounded raised @click="loadServices" size="small" v-tooltip.top="'Atualizar'" />
@@ -128,6 +130,7 @@ import { ROLES } from "@/constants/airsoft";
 import { OperatorService } from "@/services/operator";
 import { useAuthStore } from "@/stores/auth";
 import { getShortName } from "@/functions/utils";
+import Empty from "@/components/Empty.vue";
 
 const toast = useToast();
 const authStore = useAuthStore();

@@ -14,8 +14,8 @@
                                 <div class="relative">
                                     <Tag :value="EVENT_TYPES[event.type as keyof typeof EVENT_TYPES] || 'Padrão'"
                                         :severity="severityEvent(event.type)" class="absolute top-0 left-0 m-2 z-2" />
-                                    <Tag v-if="event.is_finished" icon="pi pi-check-circle" value="Finalizado" severity="warn"
-                                        class="absolute top-0 right-0 m-2 z-2" />
+                                    <Tag v-if="event.is_finished" icon="pi pi-check-circle" value="Finalizado"
+                                        severity="warn" class="absolute top-0 right-0 m-2 z-2" />
                                     <div v-if="event.thumbnail && isValidUrl(event.thumbnail)" class="w-full" :style="{
                                         height: '10rem',
                                         backgroundImage: `url(${event.thumbnail})`,
@@ -30,7 +30,7 @@
                             </template>
 
                             <template #title>
-                                <div class="text-lg font-bold text-gold-500 line-clamp-1 mt-2">
+                                <div class="text-lg font-bold text-gold-500 line-clamp-1">
                                     {{ event.title }}
                                 </div>
                             </template>
@@ -38,7 +38,7 @@
                             <template #content>
                                 <div class="flex flex-column gap-1 text-sm text-gray-400">
                                     <span><i class="pi pi-map-marker mr-1 text-xs"></i>{{ event.location }}</span>
-                                    <span><i class="pi pi-calendar mr-1 text-xs text-primary-500"></i>{{
+                                    <span><i class="pi pi-calendar mr-1 text-xs text-gray-400"></i>{{
                                         formatDate(event.date).toLocaleDateString('pt-BR') }}</span>
                                 </div>
                             </template>
@@ -53,7 +53,7 @@
                 </template>
             </template>
             <template #empty>
-                <Empty label="Nenhum evento encontrado." icon="pi pi-calendar" />
+                <Empty label="Nenhum evento encontrado" icon="ri-calendar-event-line" />
             </template>
         </Carousel>
     </div>

@@ -152,7 +152,8 @@
 
             <FormField name="referral_source" v-slot="$field" class="field col-12 md:col-4 flex flex-column gap-1">
               <FloatLabel variant="in">
-                <Select v-model="$field.value" :options="SOURCES" optionLabel="label" optionValue="value" class="w-full" fluid />
+                <Select v-model="$field.value" :options="SOURCES" optionLabel="label" optionValue="value" class="w-full"
+                  fluid />
                 <label>Como conheceu?</label>
               </FloatLabel>
             </FormField>

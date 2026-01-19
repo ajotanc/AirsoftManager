@@ -40,7 +40,9 @@
           </template>
         </Column>
 
-        <template #empty>Nenhum voto encontrado.</template>
+        <template #empty>
+          <Empty label="Nenhum veículo cadastrado" icon="ri ri-car-line" />
+        </template>
       </DataTable>
     </div>
 

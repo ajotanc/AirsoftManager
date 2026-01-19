@@ -70,6 +70,10 @@
             </Tag>
           </div>
         </template>
+
+        <template #empty>
+          <Empty label="Nenhum uniforme cadastrado" icon="ri ri-t-shirt-line" />
+        </template>
       </DataTable>
     </div>
 

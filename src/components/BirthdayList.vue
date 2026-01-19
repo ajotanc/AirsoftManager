@@ -38,7 +38,7 @@
       </template>
     </template>
     <template #empty>
-      <Empty label="Nenhum aniversariante no mês." icon="pi pi-gift" />
+      <Empty label="Nenhum aniversariante encontrado para este mês" icon="ri ri-cake-2-line" />
     </template>
   </Carousel>
 </template>
@@ -91,7 +91,6 @@ onMounted(async () => {
 
 const loadServices = async () => {
   try {
-    // allBirthdays.value = await OperatorService.list();
     allBirthdays.value = await OperatorService.listBirthdays() as IOperator[];
   } catch (error) {
     console.error("Erro ao carregar serviços:", error);
@@ -152,6 +151,10 @@ const dtValue = computed(() => {
   bottom: 0;
   left: 0;
   padding: 1rem;
+}
+
+:deep(.p-card-body){
+  padding: 0;
 }
 
 :deep(.avatar img) {

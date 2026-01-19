@@ -47,6 +47,10 @@
             </div>
           </template>
         </Column>
+
+        <template #empty>
+          <Empty label="Nenhuma arma cadastrada" icon="ri ri-sword-line" />
+        </template>
       </DataTable>
     </div>
 

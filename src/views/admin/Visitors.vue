@@ -49,7 +49,9 @@
           </template>
         </Column>
 
-        <template #empty>Nenhum voto encontrado.</template>
+        <template #empty>
+          <Empty label="Nenhum visitante cadastrado" icon="ri ri-group-3-line" />
+        </template>
       </DataTable>
     </div>
 

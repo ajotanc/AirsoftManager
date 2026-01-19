@@ -195,20 +195,21 @@ export const processImage = async (file: File) => {
 }
 
 export const handleAddItem = (event: KeyboardEvent, field: any) => {
-  if ([',', ';'].includes(event.key)) {
+  const triggers = [',', ';', 'Enter'];
+
+  if (triggers.includes(event.key) || event.code === 'Enter') {
     event.preventDefault();
     event.stopPropagation();
 
     const target = event.target as HTMLInputElement;
-    const value = target.value.trim().replace(/,$/, '');
+    const rawValue = target.value || '';
+    const cleanValue = rawValue.trim().replace(/[吸引,;]$/, '');
 
-    if (value) {
+    if (cleanValue) {
       const current = Array.isArray(field.value) ? [...field.value] : [];
 
-      if (!current.includes(value)) {
-        const newValue = [...current, value];
-
-        field.value = newValue;
+      if (!current.includes(cleanValue)) {
+        const newValue = [...current, cleanValue];
 
         field.onInput({
           value: newValue,
@@ -218,9 +219,20 @@ export const handleAddItem = (event: KeyboardEvent, field: any) => {
       }
 
       target.value = '';
+
+      target.dispatchEvent(new Event('input', { bubbles: true }));
     }
   }
 };
 
-export const getShortName = (name: string) => name && name.split(' ').slice(0, 2).join(' ') || 'Operador';
+export const getShortName = (name: string) => {
+  if (!name) return 'Operador';
+
+  const parts = name.trim().split(/\s+/);
+
+  if (parts.length <= 1) return parts[0];
+
+  return `${parts[0]} ${parts[parts.length - 1]}`;
+};
+
 export const goToEvent = (id: string) => router.push(`/events/${id}?t=${Date.now()}`);

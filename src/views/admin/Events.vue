@@ -51,6 +51,10 @@
                         </div>
                     </template>
                 </Column>
+                
+                <template #empty>
+                    <Empty label="Nenhum evento encontrado" icon="ri-calendar-event-line" />
+                </template>
             </DataTable>
         </div>
 
