@@ -59,7 +59,7 @@ const shareNative = async () => {
   const checkin = `🔗 *Briefing / Check-in:*\n${url}\n\n*Aperte no link acima e confirme a sua presença!*`;
   const info = `-------------------------------------------------\n⚠️ *Tipo:* ${EVENT_TYPES[type as keyof typeof EVENT_TYPES]}\n⚠️ *Efetivo Mínimo:* ${minimum_effective}\n⚠️ *Efetivo Atual:* ${effective}/${minimum_effective}`;
   const eventRule = rule ? `⚠️ *Regra:* ${rule}` : null;
-  const required = `-------------------------------------------------\n📢 *Obrigatório:*\n- Pano vermelho\n- 4 ataruas / torniquetes\n- Óculos de proteção\n- Apito`;
+  const required = `-------------------------------------------------\n📢 *Obrigatório:*\n- Pano vermelho\n- 4 ataduras / torniquetes\n- Óculos de proteção\n- Apito`;
   const eventFinished = is_finished ? "-------------------------------------------------\n🎖️ *MISSÃO FINALIZADA!*" : null;
   const footer = `-------------------------------------------------\n📅 *Data:* ${formatDate(date).toLocaleDateString('pt-BR')}\n⏰ *Horário:* ${startTime} às ${endTime}\n📍 *Local:* ${location}\n🗾 *Maps:* ${location_url}\n-------------------------------------------------\n\n> _"No campo de batalha ou na vida: No *${TEAM_NAME}*, ninguém fica para trás!"_`;
 
