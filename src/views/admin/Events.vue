@@ -39,6 +39,8 @@
                         <div v-else class="flex gap-2 justify-content-center">
                             <ButtonShare :event="event" icon="pi pi-copy" text rounded severity="warn"
                                 v-tooltip.top="'Copiar Conteúdo'" />
+                            <ButtonShare :event="event" icon="pi pi-share-alt" text rounded severity="help"
+                                v-tooltip.top="'Compartilhar'" />
                             <Button icon="pi pi-link" @click="goToEvent(event.$id)" text rounded
                                 v-tooltip.top="'Detalhes'">
                             </Button>

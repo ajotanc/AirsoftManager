@@ -29,7 +29,7 @@ export interface IEvent extends Models.Row {
   description: string;
   thumbnail?: string;
   minimum_effective: number;
-  rule?: "RESCOM" | "MILSIM" | "SAR" | "RUK";
+  rule?: string;
   is_finished: boolean;
   participations?: IParticipation[];
   visitor_participations?: IVisitorParticipation[];

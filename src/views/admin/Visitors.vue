@@ -175,7 +175,7 @@ const visitorSchema = z.object({
   codename: z.string({ error: "Codinome obrigatório" }),
   phone: z.string({ error: "Telefone / Whatsapp obrigatório" }).transform((v) => v.replace(/\D/g, "")),
   operator: z.string({ error: "Selecione um operador" }),
-  team: z.string({ error: "Selecione a sua equipe" }),
+  team: z.string({ error: "Selecione a sua equipe" })
 });
 
 const resolver = ref(zodResolver(visitorSchema));
