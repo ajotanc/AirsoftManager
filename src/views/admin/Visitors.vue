@@ -128,6 +128,7 @@ import { VisitorService, type IVisitor } from "@/services/visitor";
 import { OperatorService, type IOperator } from "@/services/operator";
 import type { IFields } from "@/functions/utils";
 import ColumnContent from "@/components/ColumnContent.vue";
+import { TEAMS } from "@/constants/airsoft";
 
 onMounted(() => {
   loadServices();
@@ -174,6 +175,7 @@ const visitorSchema = z.object({
   codename: z.string({ error: "Codinome obrigatório" }),
   phone: z.string({ error: "Telefone / Whatsapp obrigatório" }).transform((v) => v.replace(/\D/g, "")),
   operator: z.string({ error: "Selecione um operador" }),
+  team: z.string({ error: "Selecione a sua equipe" }),
 });
 
 const resolver = ref(zodResolver(visitorSchema));
@@ -227,6 +229,13 @@ const fields = computed<IFields[]>(() => [
       }
     },
     component: InputMask, col: '6', props: { mask: '(99) 99999-9999' }
+  },
+  {
+    name: "team", label: "Equipe", component: Select, col: "12", props: {
+      options: TEAMS,
+      filter: true,
+    },
+    isTag: true
   },
 ]);
 

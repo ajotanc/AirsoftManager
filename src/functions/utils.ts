@@ -194,5 +194,33 @@ export const processImage = async (file: File) => {
   }
 }
 
+export const handleAddItem = (event: KeyboardEvent, field: any) => {
+  if ([',', ';'].includes(event.key)) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const target = event.target as HTMLInputElement;
+    const value = target.value.trim().replace(/,$/, '');
+
+    if (value) {
+      const current = Array.isArray(field.value) ? [...field.value] : [];
+
+      if (!current.includes(value)) {
+        const newValue = [...current, value];
+
+        field.value = newValue;
+
+        field.onInput({
+          value: newValue,
+          originalEvent: event,
+          target: { value: newValue }
+        });
+      }
+
+      target.value = '';
+    }
+  }
+};
+
 export const getShortName = (name: string) => name && name.split(' ').slice(0, 2).join(' ') || 'Operador';
 export const goToEvent = (id: string) => router.push(`/events/${id}?t=${Date.now()}`);

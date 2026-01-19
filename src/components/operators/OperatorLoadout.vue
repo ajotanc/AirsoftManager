@@ -76,8 +76,7 @@
     <Dialog v-model:visible="uniformDialog" :style="{ width: '360px' }" header="Detalhes do Loadout" :modal="true">
       <div class="flex flex-column gap-3">
         <FloatLabel variant="in">
-          <Select :options="UNIFORMS_OPTIONS_FILTER" name="type_uniform" v-model="selectedUniform.type_uniform"
-            optionLabel="name" optionValue="code" class="w-full" :disabled="!!selectedUniform.$id" fluid />
+          <Select :options="UNIFORMS_OPTIONS_FILTER" name="type_uniform" v-model="selectedUniform.type_uniform" class="w-full" :disabled="!!selectedUniform.$id" fluid />
           <label>Uniformes</label>
         </FloatLabel>
         <div
@@ -254,7 +253,7 @@ const UNIFORMS_OPTIONS_FILTER = computed(() => {
   }
 
   const usedCodes = items.value.map(u => u.type_uniform);
-  return UNIFORMS_OPTIONS.filter(option => !usedCodes.includes(option.code));
+  return UNIFORMS_OPTIONS.filter(option => !usedCodes.includes(option.value));
 });
 
 const uniformDialog = ref(false);
@@ -285,7 +284,7 @@ const newUniform = async () => {
   await nextTick();
 
   const firstAvailable = UNIFORMS_OPTIONS_FILTER.value[0];
-  const defaultType = firstAvailable ? firstAvailable.code : 1;
+  const defaultType = firstAvailable ? firstAvailable.value : 1;
 
   selectedUniform.value = { type_uniform: defaultType } as ILoadout;
   uniformDialog.value = true;

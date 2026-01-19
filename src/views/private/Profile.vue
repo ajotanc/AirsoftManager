@@ -120,7 +120,7 @@
 
             <FormField name="category" v-slot="$field" class="field col-12 md:col-4 flex flex-column gap-1">
               <FloatLabel variant="in">
-                <Select v-model="$field.value" :options="CATEGORIES_OPTIONS" optionLabel="name" optionValue="code"
+                <Select v-model="$field.value" :options="CATEGORIES_OPTIONS" optionLabel="label" optionValue="value"
                   class="w-full" fluid />
                 <label>Categoria</label>
               </FloatLabel>
@@ -128,7 +128,7 @@
 
             <FormField name="experience" v-slot="$field" class="field col-12 md:col-4 flex flex-column gap-1">
               <FloatLabel variant="in">
-                <Select v-model="$field.value" :options="EXPERIENCES" optionLabel="name" optionValue="code"
+                <Select v-model="$field.value" :options="EXPERIENCES" optionLabel="label" optionValue="value"
                   class="w-full" fluid />
                 <label>Nível de Conhecimento</label>
               </FloatLabel>
@@ -152,8 +152,7 @@
 
             <FormField name="referral_source" v-slot="$field" class="field col-12 md:col-4 flex flex-column gap-1">
               <FloatLabel variant="in">
-                <Select v-model="$field.value" :options="SOURCES" optionLabel="name" optionValue="code" class="w-full"
-                  fluid />
+                <Select v-model="$field.value" :options="SOURCES" optionLabel="label" optionValue="value" class="w-full" fluid />
                 <label>Como conheceu?</label>
               </FloatLabel>
             </FormField>
@@ -263,11 +262,12 @@
             <FormField name="medication_details" v-slot="$field" class="field col-12 md:col-9 flex flex-column gap-1">
               <FloatLabel variant="in">
                 <AutoComplete v-model="$field.value" multiple :typeahead="false" fluid
-                  :disabled="!$form.continuous_medication?.value" add-on-blur :input-props="{
+                  :disabled="!$form.continuous_medication?.value"
+                  @keydown="(e: KeyboardEvent) => handleAddItem(e, $field)" :input-props="{
                     enterkeyhint: 'done',
                     inputmode: 'text'
                   }" />
-                <label>Quais medicamentos? (Digite e tecle Enter)</label>
+                <label>Quais medicamentos? (Separe com , ou ;)</label>
               </FloatLabel>
               <Message v-if="$field.invalid" severity="error" size="small" variant="simple">{{ $field.error.message }}
               </Message>
@@ -275,24 +275,26 @@
 
             <FormField name="allergies" v-slot="$field" class="field col-12 flex flex-column gap-1">
               <FloatLabel variant="in">
-                <AutoComplete v-model="$field.value" multiple :typeahead="false" fluid add-on-blur :input-props="{
-                  enterkeyhint: 'done',
-                  inputmode: 'text'
-                }" />
-                <label>Alergias (Digite e tecle Enter)</label>
+                <AutoComplete v-model="$field.value" multiple :typeahead="false" fluid
+                  @keydown="(e: KeyboardEvent) => handleAddItem(e, $field)" :input-props="{
+                    enterkeyhint: 'done',
+                    inputmode: 'text'
+                  }" />
+                <label>Alergias (Separe com , ou ;)</label>
               </FloatLabel>
             </FormField>
           </div>
         </Panel>
 
-        <Panel header="Contato de Emergência" toggleable>
+        <Panel header=" Contato de Emergência" toggleable>
           <div class="grid formgrid">
             <FormField name="emergency_contact" v-slot="$field" class="field col-12 md:col-6 flex flex-column gap-1">
               <FloatLabel variant="in">
                 <InputText v-model="$field.value" class="w-full" fluid />
                 <label>Nome do Contato</label>
               </FloatLabel>
-              <Message v-if="$field.invalid" severity="error" size="small" variant="simple">{{ $field.error.message }}
+              <Message v-if="$field.invalid" severity="error" size="small" variant="simple">{{
+                $field.error.message }}
               </Message>
             </FormField>
 
@@ -302,7 +304,8 @@
                 <InputMask v-model="$field.value" mask="(99) 99999-9999" class="w-full" fluid />
                 <label>Telefone do Contato</label>
               </FloatLabel>
-              <Message v-if="$field.invalid" severity="error" size="small" variant="simple">{{ $field.error.message }}
+              <Message v-if="$field.invalid" severity="error" size="small" variant="simple">{{
+                $field.error.message }}
               </Message>
             </FormField>
           </div>
@@ -360,6 +363,7 @@ import {
   isValidIdentity,
   addressByCep,
   formatDate,
+  handleAddItem
 } from "@/functions/utils";
 import { OperatorService, type IOperator } from "@/services/operator";
 

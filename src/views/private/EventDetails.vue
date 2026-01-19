@@ -4,9 +4,13 @@
         <div class="border-bottom-1 border-black-alpha-20 pb-4 mb-4">
             <div class="grid">
                 <div class="col-12">
-                    <h1 class="text-4xl font-bold uppercase m-0">
-                        {{ event.title }}
-                    </h1>
+                    <div
+                        class="flex flex-column justify-content-between align-items-start md:flex-row md:align-items-center gap-2">
+                        <h1 class="text-4xl font-bold uppercase m-0">
+                            {{ event.title }}
+                        </h1>
+                        <Tag v-if="event.is_finished" value="FINALIZADO" severity="success" />
+                    </div>
                 </div>
                 <div class="col-12">
                     <div class="flex justify-content-between align-items-center">
@@ -75,10 +79,13 @@
                     <span class="text-green-500">Controle de Operação</span>
                     <template #content>
                         <div v-if="operator.role === 'admin'" class="buttons flex flex-column gap-2 mb-3">
+                            <Button v-if="canFinalize" label="Finalizar" icon="pi pi-check" severity="secondary"
+                                class="w-full" @click="finalizeEvent" :disabled="isFinished" />
                             <Button label="Check-in QR Code" icon="pi pi-qrcode" class="w-full" severity="success"
-                                @click="openScannerDialog = true" />
-                            <Button label="Adicionar Visitante" icon="pi pi-plus" class="w-full" severity="warning"
-                                :disabled="availableVisitors.length === 0" @click="openVisitorDialog = true" />
+                                @click="openScannerDialog = true" :disabled="isFinished" />
+                            <Button label="Adicionar Visitante" icon="pi pi-plus" class="w-full" severity="info"
+                                :disabled="availableVisitors.length === 0 || isFinished"
+                                @click="openVisitorDialog = true" />
                         </div>
                         <h4 class="text-sm uppercase text-gray-400 border-bottom-1 border-white-alpha-10 mt-0 pb-2">
                             Lista de Operadores
@@ -97,14 +104,13 @@
                                         <Avatar :image="operator.avatar"
                                             :icon="!operator.avatar ? 'pi pi-user' : undefined" shape="circle"
                                             size="small" />
-                                        <span :class="{ 'text-green-400': checked_in }">{{
-                                            operator.codename }}</span>
+                                        <span
+                                            :class="{ 'text-green-400': checked_in, 'line-through text-red-400': event.is_finished && !checked_in }">{{
+                                                operator.codename }}</span>
                                         <i v-if="checked_in" class="pi pi-check font-bold text-green-600 ml-auto""></i>
                                     </div>
-<div v-else class=" flex flex-column align-items-center p-4 text-gray-500">
-                                            <i class="pi pi-users text-5xl mb-2"></i>
-                                            <span class="text-sm">Nenhum operador participando dessa missão.</span>
-                                    </div>
+                                    <Empty v-else label=" Nenhum operador participando dessa missão."
+                                            icon="pi pi-users" />
                                 </TabPanel>
                                 <TabPanel :value="1">
                                     <div v-if="visitorParticipants.length > 0"
@@ -112,25 +118,25 @@
                                         class="flex align-items-center gap-3 mb-3">
                                         <Avatar :label="visitor.name[0]" shape="circle" size="small" />
                                         <div class="flex flex-column">
-                                            <span :class="{ 'font-bold text-green-600': checked_in }">{{
-                                                visitor.codename }}</span>
+                                            <span
+                                                :class="{ 'font-bold text-green-600': checked_in, 'line-through text-red-400': event.is_finished && !checked_in }">{{
+                                                    visitor.codename }} ({{ visitor.team }})</span>
                                             <small class="text-gray-700">Convidado por <strong>{{
                                                 getOperatorName(visitor.operator) }}</strong></small>
                                         </div>
-                                        <div v-if="!checked_in && operator.role === 'admin'" class="flex gap-2 ml-auto">
-                                            <Button icon=" pi pi-times" severity="danger" rounded
-                                                @click="deleteVisitorParticipation($id, visitor)" size="small"
-                                                v-tooltip.top="'Cancelar Presença'" />
+                                        <div v-if="!event.is_finished && operator.role === 'admin'"
+                                            class="flex gap-1 ml-auto">
                                             <Button icon=" pi pi-check" severity="success" rounded
                                                 @click="checkInVisitor($id)" size="small"
                                                 v-tooltip.top="'Confirmar Presença'" />
+                                            <Button icon=" pi pi-trash" severity="danger" rounded
+                                                @click="deleteVisitorParticipation($id, visitor)" size="small"
+                                                v-tooltip.top="'Excluir Presença'" />
                                         </div>
-                                        <i v-else class="pi pi-check font-bold text-green-600 ml-auto"></i>
+                                        <i v-else-if="checked_in"
+                                            class="pi pi-check font-bold text-green-600 ml-auto"></i>
                                     </div>
-                                    <div v-else class="flex flex-column align-items-center p-4 text-gray-500">
-                                        <i class="pi pi-users text-5xl mb-2"></i>
-                                        <span class="text-sm">Nenhum visitante adicionado a missão.</span>
-                                    </div>
+                                    <Empty v-else label="Nenhum visitante adicionado a missão." icon="pi pi-users" />
                                 </TabPanel>
                             </TabPanels>
                         </Tabs>
@@ -139,8 +145,8 @@
                 <Card class="bg-blue-900 border-1 border-white-alpha-10">
                     <template #content>
                         <div v-if="isConfirmed && vehicles.length > 0" class="buttons flex flex-column gap-2 mb-3">
-                            <Button label="Adicionar Carona" icon="pi pi-plus" class="w-full" severity="warning"
-                                @click="newCarpool" />
+                            <Button label="Adicionar Carona" icon="pi pi-plus" class="w-full" severity="info"
+                                @click="newCarpool" :disabled="isFinished" />
                         </div>
                         <h4 class="text-sm uppercase text-gray-400 border-bottom-1 border-white-alpha-10 mt-0 pb-2">
                             Carona Solidária
@@ -154,56 +160,58 @@
                             <TabPanels>
                                 <TabPanel :value="0">
                                     <div v-if="carpools.length > 0" v-for="carpool in carpools" :key="carpool.$id"
-                                        class="flex text-gray-700 justify-content-between align-items-center gap-3">
-                                        <div class="flex flex-column gap-1">
-                                            <div class="flex align-items-center gap-2">
-                                                <i class="pi pi-user text-sm"></i>
-                                                <span class="text-sm font-bold">
-                                                    {{ getOperatorName(carpool.vehicle.driver) }}
-                                                </span>
+                                        class="flex flex-column text-gray-700">
+                                        <div class="flex justify-content-between align-items-center">
+                                            <div class="flex flex-column gap-2">
+                                                <div class="flex align-items-center gap-2">
+                                                    <i class="pi pi-user text-sm"></i>
+                                                    <span class="text-sm font-bold">
+                                                        {{ getOperatorName(carpool.vehicle.driver) }}
+                                                    </span>
+                                                </div>
+                                                <div class="flex align-items-center gap-2 text-sm">
+                                                    <i class="pi pi-car text-sm"></i>
+                                                    <span class="text-sm">
+                                                        {{ carpool.vehicle.model }}
+                                                    </span>
+                                                    <i v-if="carpool.vehicle.color" class="border-1 border-circle"
+                                                        :style="{ backgroundColor: `#${carpool.vehicle.color}`, width: '1rem', aspectRatio: '1' }"></i>
+                                                </div>
+                                                <div class="flex align-items-center gap-2 text-sm">
+                                                    <i class="pi pi-users text-sm"></i>
+                                                    <span class="text-sm">
+                                                        {{ carpool.available_seats }} vagas disponíveis
+                                                    </span>
+                                                </div>
+                                                <div class="flex align-items-center gap-2 text-sm">
+                                                    <i class="pi pi-flag text-sm"></i>
+                                                    <span class="text-sm">
+                                                        {{ carpool.departure_point }}
+                                                    </span>
+                                                </div>
+                                                <div class="flex align-items-center gap-2 text-sm">
+                                                    <i class="pi pi-clock text-sm"></i>
+                                                    <span class="text-sm">
+                                                        {{ carpool.departure_time }}
+                                                    </span>
+                                                </div>
                                             </div>
-                                            <div class="flex align-items-center gap-2 text-sm">
-                                                <i class="pi pi-car text-sm"></i>
-                                                <span class="text-sm">
-                                                    {{ carpool.vehicle.model }}
-                                                </span>
-                                                <i v-if="carpool.vehicle.color" class="border-1 border-circle"
-                                                    :style="{ backgroundColor: `#${carpool.vehicle.color}`, width: '1rem', aspectRatio: '1' }"></i>
-                                            </div>
-                                            <div class="flex align-items-center gap-2 text-sm">
-                                                <i class="pi pi-users text-sm"></i>
-                                                <span class="text-sm">
-                                                    {{ carpool.available_seats }} vagas disponíveis
-                                                </span>
-                                            </div>
-                                            <div class="flex align-items-center gap-2 text-sm">
-                                                <i class="pi pi-flag text-sm"></i>
-                                                <span class="text-sm">
-                                                    {{ carpool.departure_point }}
-                                                </span>
-                                            </div>
-                                            <div class="flex align-items-center gap-2 text-sm">
-                                                <i class="pi pi-clock text-sm"></i>
-                                                <span class="text-sm">
-                                                    {{ carpool.departure_time }}
-                                                </span>
+                                            <div v-if="!isFinished" class="buttons flex align-items-center gap-1">
+                                                <Button v-if="canRequest(carpool)" icon="pi pi-plus" severity="warn"
+                                                    rounded @click="requestCarpool(carpool)" size="small"
+                                                    v-tooltip.top="'Solicitar Carona'"
+                                                    :disabled="carpool.available_seats === 0" />
+                                                <template v-if="carpool.vehicle.driver === operator.$id">
+                                                    <Button icon="pi pi-pencil" size="small" rounded
+                                                        @click="editCarpool(carpool)" v-tooltip.top="'Editar'" />
+                                                    <Button icon="pi pi-times" size="small" severity="danger" rounded
+                                                        @click="deleteCarpool(carpool)" v-tooltip.top="'Excluir'" />
+                                                </template>
                                             </div>
                                         </div>
-                                        <Button v-if="canRequest(carpool)" icon="pi pi-plus" severity="warn" rounded
-                                            @click="requestCarpool(carpool)" size="small"
-                                            v-tooltip.top="'Solicitar Carona'"
-                                            :disabled="carpool.available_seats === 0" />
-                                        <div v-if="hasCarpools" class="flex align-itens-center gap-2">
-                                            <Button icon="pi pi-pencil" size="small" rounded
-                                                @click="editCarpool(carpool)" v-tooltip.top="'Editar'" />
-                                            <Button icon="pi pi-times" size="small" severity="danger" rounded
-                                                @click="deleteCarpool(carpool)" v-tooltip.top="'Excluir'" />
-                                        </div>
+                                        <Divider />
                                     </div>
-                                    <div v-else class="flex flex-column align-items-center p-4 text-gray-500">
-                                        <i class="pi pi-car text-5xl mb-2"></i>
-                                        <span class="text-sm">Nenhuma carona para esta missão ainda.</span>
-                                    </div>
+                                    <Empty v-else label="Nenhuma carona para esta missão ainda." icon="pi pi-car" />
                                 </TabPanel>
                                 <TabPanel :value="1">
                                     <div v-if="carpoolAccepteds.length > 0"
@@ -214,17 +222,15 @@
                                             <strong>{{ requester.codename }}</strong> no veículo {{ vehicle.model }} ({{
                                                 vehicle.color }})</span>
                                     </div>
-                                    <div v-else class="flex flex-column align-items-center p-4 text-gray-500">
-                                        <i class="pi pi-list-check text-5xl mb-2"></i>
-                                        <span class="text-sm">Nenhum carona solicitada foi aceita.</span>
-                                    </div>
+                                    <Empty v-else label="Nenhuma carona solicitada foi aceita."
+                                        icon="pi pi-list-check" />
                                 </TabPanel>
                                 <TabPanel :value="2">
                                     <div v-if="carpoolRequests.length > 0" v-for="request in carpoolRequests"
                                         :key="request.$id"
                                         class="flex text-gray-700 justify-content-between align-items-center gap-3 mb-3">
                                         <span class="text-sm font-bold">{{ request.requester.codename }}</span>
-                                        <div class="flex gap-2">
+                                        <div v-if="!isFinished" class="flex gap-2">
                                             <Button icon="pi pi-check" severity="success" rounded size="small"
                                                 @click="handleUpdateStatus(request, 'accepted')"
                                                 v-tooltip.top="'Aceitar'" />
@@ -233,10 +239,7 @@
                                                 v-tooltip.top="'Rejeitar'" />
                                         </div>
                                     </div>
-                                    <div v-else class="flex flex-column align-items-center p-4 text-gray-500">
-                                        <i class="pi pi-list text-5xl mb-2"></i>
-                                        <span class="text-sm">Nenhum solicitão foi enviada.</span>
-                                    </div>
+                                    <Empty v-else label="Nenhum solicitão foi enviada." icon="pi pi-list" />
                                 </TabPanel>
                             </TabPanels>
                         </Tabs>
@@ -276,7 +279,7 @@
                         <template #option="slotProps">
                             <div class="flex flex-column">
                                 <span class="font-bold">{{ slotProps.option.name }} ({{ slotProps.option.codename
-                                    }})</span>
+                                }})</span>
                                 <small class="text-gray-500">Convidado por {{
                                     slotProps.option.operator.codename }}</small>
                             </div>
@@ -330,7 +333,7 @@
 import { ref, onMounted, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import { QrcodeStream, type DetectedBarcode } from 'vue-qrcode-reader';
-import { InputMask, InputNumber, InputText, Select, useConfirm } from "primevue";
+import { Divider, InputMask, InputNumber, InputText, Select, useConfirm } from "primevue";
 import { useToast } from "primevue/usetoast";
 import { atcb_action } from 'add-to-calendar-button';
 import { useAuthStore } from '@/stores/auth';
@@ -363,6 +366,7 @@ import router from '@/router';
 import ButtonShare from '@/components/ButtonShare.vue';
 import { zodResolver } from '@primevue/forms/resolvers/zod';
 import z from 'zod';
+import Empty from '@/components/Empty.vue';
 
 const route = useRoute();
 const toast = useToast();
@@ -381,6 +385,7 @@ const carpools = ref<ICarpool<IVehicle<string>>[]>([]);
 const requests = ref<ICarpoolRequest<IOperator, ICarpoolDetail>[]>([]);
 
 const hasCarpools = computed(() => carpools.value.some(carpool => carpool.vehicle.driver === operator.$id));
+const isFinished = computed(() => event.value.is_finished);
 
 const carpoolAccepteds = computed(() => requests.value.filter(request => request.status === 'accepted'));
 const carpoolRequests = computed(() => {
@@ -396,6 +401,28 @@ const event = computed(() => {
         participations: participants.value,
         visitor_participations: visitorParticipants.value
     };
+});
+
+const canFinalize = computed(() => {
+    if (!event.value?.date || !event.value?.endTime) {
+        return false;
+    }
+
+    const { endTime, date, minimum_effective } = event.value;
+
+    const endDateTime = new Date(date.toString().split('T')[0] + 'T00:00:00');
+
+    const [hours, minutes] = endTime.toString().split(':').map(Number);
+    endDateTime.setHours(hours!, minutes!, 0, 0);
+
+    const now = new Date();
+
+    const totalParticipants = participants.value.length + visitorParticipants.value.length;
+
+    const expiredTime = now > endDateTime;
+    const effective = totalParticipants < minimum_effective;
+
+    return expiredTime || effective;
 });
 
 const operatorsMap = computed(() => {
@@ -910,6 +937,19 @@ const canRequest = (carpool: ICarpool<IVehicle>) => {
 
     return !isOwner && !hasPendingOrAccepted;
 };
+
+const finalizeEvent = async () => {
+    try {
+        await EventService.finalize(event.value.$id);
+        rawEvent.value.is_finished = true;
+
+        toast.add({ severity: 'success', summary: 'Missão finalizada!', detail: 'A missão foi finalizada com sucesso.', life: 3000 });
+    } catch (error) {
+        console.error("Erro ao finalizar evento:", error);
+        toast.add({ severity: 'error', summary: 'Erro', detail: 'Não foi possível finalizar o evento.', life: 3000 });
+    }
+};
+
 
 const getOperator = (id: string) => operatorsMap.value.get(id);
 const getOperatorName = (id: string) => operatorsMap.value.get(id)?.codename || 'Desconhecido';

@@ -32,7 +32,7 @@
                 authStore.operator.codename
               }}</span>
               <span class="text-xs text-500">{{
-                ROLES.find((role) => role.code === authStore.operator.role)?.name
+                ROLES.find((role) => role.value === authStore.operator.role)?.label
               }}</span>
             </div>
 

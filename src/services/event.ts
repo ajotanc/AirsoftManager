@@ -28,7 +28,9 @@ export interface IEvent extends Models.Row {
   location_coords?: string;
   description: string;
   thumbnail?: string;
-  minimum_effective?: number;
+  minimum_effective: number;
+  rule?: "RESCOM" | "MILSIM" | "SAR" | "RUK";
+  is_finished: boolean;
   participations?: IParticipation[];
   visitor_participations?: IVisitorParticipation[];
   carpools?: ICarpool[];
@@ -311,5 +313,13 @@ export const EventService = {
       queries: [Query.equal("event", eventId), Query.select(["*", "visitor.*", "visitor.operator.*"])]
     });
     return response.rows;
-  }
+  },
+  async finalize(rowId: string): Promise<IEvent> {
+    return await tables.updateRow({
+      databaseId: DATABASE_ID,
+      tableId: TABLE_EVENTS,
+      rowId,
+      data: { is_finished: true },
+    });
+  },
 }

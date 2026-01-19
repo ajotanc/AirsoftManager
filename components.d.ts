@@ -18,10 +18,10 @@ declare module 'vue' {
     ButtonShare: typeof import('./src/components/ButtonShare.vue')['default']
     Card: typeof import('primevue/card')['default']
     Carousel: typeof import('primevue/carousel')['default']
-    Chips: typeof import('primevue/chips')['default']
     ColorPicker: typeof import('primevue/colorpicker')['default']
     ColumnContent: typeof import('./src/components/ColumnContent.vue')['default']
     ConfirmDialog: typeof import('primevue/confirmdialog')['default']
+    Empty: typeof import('./src/components/Empty.vue')['default']
     EventList: typeof import('./src/components/EventList.vue')['default']
     EventSkeleton: typeof import('./src/components/skeleton/EventSkeleton.vue')['default']
     Form: typeof import('@primevue/forms/form')['default']
@@ -29,7 +29,6 @@ declare module 'vue' {
     IconField: typeof import('primevue/iconfield')['default']
     Image: typeof import('primevue/image')['default']
     InputIcon: typeof import('primevue/inputicon')['default']
-    InputMask: typeof import('primevue/inputmask')['default']
     InputText: typeof import('primevue/inputtext')['default']
     InstallPrompt: typeof import('./src/components/InstallPrompt.vue')['default']
     Message: typeof import('primevue/message')['default']
@@ -47,7 +46,6 @@ declare module 'vue' {
     Skeleton: typeof import('primevue/skeleton')['default']
     Tag: typeof import('primevue/tag')['default']
     Toast: typeof import('primevue/toast')['default']
-    ToggleSwitch: typeof import('primevue/toggleswitch')['default']
   }
   export interface GlobalDirectives {
     Tooltip: typeof import('primevue/tooltip')['default']

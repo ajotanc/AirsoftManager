@@ -135,7 +135,7 @@ import { zodResolver } from "@primevue/forms/resolvers/zod";
 import { InputNumber, useConfirm, type FileUploadSelectEvent } from "primevue";
 import { EventService, type IEvent } from "@/services/event";
 import { formatDate, goToEvent, type IFields } from "@/functions/utils";
-import { EVENT_TYPES } from "@/constants/airsoft";
+import { EVENT_TYPES, RULES } from "@/constants/airsoft";
 import Editor from "primevue/editor";
 import ButtonShare from "@/components/ButtonShare.vue";
 
@@ -192,6 +192,7 @@ const missionSchema = z.object({
     date: z.custom().refine((date) => date instanceof Date || typeof date === 'string', "Data obrigatória").transform((date) => date && formatDate(date).toISOString()),
     startTime: z.string({ error: "Início obrigatório" }),
     endTime: z.string({ error: "Término obrigatório" }),
+    rule: z.string().nullish(),
     minimum_effective: z.number({ error: "Efetivo mínimo obrigatório" }),
     location_url: z.url({ error: "Insira uma URL válida" }).refine((val) => {
         return val.includes('maps.app.goo.gl');
@@ -277,13 +278,17 @@ const fields: IFields[] = [
             iconDisplay: "input", showOnFocus: true
         },
     },
-    { name: 'startTime', label: 'Início', component: InputMask, col: '6', props: { mask: '99:99' } },
-    { name: 'endTime', label: 'Término', component: InputMask, col: '6', props: { mask: '99:99' } },
+    { name: 'startTime', label: 'Início', component: InputMask, col: '4', props: { mask: '99:99' } },
+    { name: 'endTime', label: 'Término', component: InputMask, col: '4', props: { mask: '99:99' } },
+    { name: 'minimum_effective', label: 'Efetivo Mínimo', component: InputNumber, col: '4' },
     {
         name: 'type', label: 'Tipo de Missão', component: Select, col: '6', isTag: true,
         props: { options: Object.entries(EVENT_TYPES).map(([value, label]) => ({ label, value })), optionLabel: 'label', optionValue: 'value' }
     },
-    { name: 'minimum_effective', label: 'Efetivo Mínimo', component: InputNumber, col: '6' },
+    {
+        name: 'rule', label: 'Tipo de Regra', component: Select, col: '6', isTag: true,
+        props: { options: RULES }
+    },
     { name: 'location', label: 'Nome do Local', component: InputText, col: '12' },
     { name: 'location_url', label: 'URL Google Maps', component: InputText, col: '12', hidden: true },
 ];

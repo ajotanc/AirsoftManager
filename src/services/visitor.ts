@@ -7,9 +7,10 @@ export const TABLE_VISITORS = "visitors"; // Crie esta coleção no Appwrite
 export interface IVisitor<TOp = string | IOperator> extends Models.Row {
   name: string;
   codename: string;
+  team: string;
   operator: TOp;
   phone: string;
-  status: boolean;
+  status?: boolean;
   selected?: IOperator;
 }
 

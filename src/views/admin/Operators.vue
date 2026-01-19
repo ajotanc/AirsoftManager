@@ -66,11 +66,11 @@
           <template #body="{ data }">
             <Skeleton v-if="loading" width="100%" height="1rem" />
             <template v-else>
-              <Tag :value="ROLES.find((item) => item.code === data.role)?.name" :severity="'contrast'" />
+              <Tag :value="ROLES.find((item) => item.code === data.role)?.label" :severity="'contrast'" />
             </template>
           </template>
           <template #editor="{ data }">
-            <Select :options="ROLES" v-model="data.role" optionLabel="name" optionValue="code" class="w-full" fluid />
+            <Select :options="ROLES" v-model="data.role" class="w-full" fluid />
           </template>
         </Column>
 
