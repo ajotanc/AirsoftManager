@@ -264,7 +264,7 @@
               <FloatLabel variant="in">
                 <AutoComplete v-model="$field.value" multiple :typeahead="false" fluid
                   :disabled="!$form.continuous_medication?.value"
-                  @keydown="(e: KeyboardEvent) => handleAddItem(e, $field)" :input-props="{
+                  @input="(e: KeyboardEvent) => handleMobileInput(e, $field)" :input-props="{
                     enterkeyhint: 'done',
                     inputmode: 'text'
                   }" />
@@ -277,7 +277,7 @@
             <FormField name="allergies" v-slot="$field" class="field col-12 flex flex-column gap-1">
               <FloatLabel variant="in">
                 <AutoComplete v-model="$field.value" multiple :typeahead="false" fluid
-                  @keydown="(e: KeyboardEvent) => handleAddItem(e, $field)" :input-props="{
+                  @input="(e: KeyboardEvent) => handleMobileInput(e, $field)" :input-props="{
                     enterkeyhint: 'done',
                     inputmode: 'text'
                   }" />
@@ -330,7 +330,6 @@
           </div>
         </div>
 
-        {{ $form.errors }}
         <div class="mt-4">
           <Button type="submit" label="Salvar" class="w-full md:w-auto" :loading="loading" />
         </div>
@@ -364,7 +363,8 @@ import {
   isValidIdentity,
   addressByCep,
   formatDate,
-  handleAddItem
+  handleAddItem,
+  handleMobileInput
 } from "@/functions/utils";
 import { OperatorService, type IOperator } from "@/services/operator";
 

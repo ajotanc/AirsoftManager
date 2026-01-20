@@ -203,7 +203,7 @@ export const handleAddItem = (event: KeyboardEvent, field: any) => {
 
     const target = event.target as HTMLInputElement;
     const rawValue = target.value || '';
-    const cleanValue = rawValue.trim().replace(/[吸引,;]$/, '');
+    const cleanValue = rawValue.trim().replace(/[,;]$/, '');
 
     if (cleanValue) {
       const current = Array.isArray(field.value) ? [...field.value] : [];
@@ -219,9 +219,37 @@ export const handleAddItem = (event: KeyboardEvent, field: any) => {
       }
 
       target.value = '';
-
       target.dispatchEvent(new Event('input', { bubbles: true }));
     }
+  }
+};
+
+export const handleMobileInput = (event: Event, field: any) => {
+  const target = event.target as HTMLInputElement;
+  const value = target.value || '';
+
+  // Verifica se o último caractere digitado é um dos nossos delimitadores
+  if (value.includes(',') || value.includes(';')) {
+    // Remove o delimitador e limpa espaços
+    const cleanValue = value.replace(/[,;]/g, '').trim();
+
+    if (cleanValue) {
+      const current = Array.isArray(field.value) ? [...field.value] : [];
+
+      if (!current.includes(cleanValue)) {
+        const newValue = [...current, cleanValue];
+        
+        // Atualiza o valor do campo no formulário
+        field.onInput({
+          value: newValue,
+          target: { value: newValue }
+        });
+      }
+    }
+
+    // Limpa o campo de texto para o próximo medicamento
+    target.value = '';
+    target.dispatchEvent(new Event('input', { bubbles: true }));
   }
 };
 
