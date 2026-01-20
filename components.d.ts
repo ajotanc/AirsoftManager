@@ -18,6 +18,7 @@ declare module 'vue' {
     ButtonShare: typeof import('./src/components/ButtonShare.vue')['default']
     Card: typeof import('primevue/card')['default']
     Carousel: typeof import('primevue/carousel')['default']
+    Chips: typeof import('primevue/chips')['default']
     ColorPicker: typeof import('primevue/colorpicker')['default']
     ColumnContent: typeof import('./src/components/ColumnContent.vue')['default']
     ConfirmDialog: typeof import('primevue/confirmdialog')['default']
@@ -49,6 +50,7 @@ declare module 'vue' {
     RouterView: typeof import('vue-router')['RouterView']
     Skeleton: typeof import('primevue/skeleton')['default']
     Tag: typeof import('primevue/tag')['default']
+    Textarea: typeof import('primevue/textarea')['default']
     Toast: typeof import('primevue/toast')['default']
   }
   export interface GlobalDirectives {

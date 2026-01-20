@@ -263,7 +263,7 @@
             <FormField name="medication_details" v-slot="$field" class="field col-12 md:col-9 flex flex-column gap-1">
               <FloatLabel variant="in">
                 <AutoComplete inputId="medication_details" v-model="$field.value" multiple fluid
-                  :suggestions="filteredMedications"
+                  :suggestions="filteredMedications" @keydown.enter.prevent
                   @complete="(e) => filteredMedications = search(e.query, MEDICATIONS)"
                   :disabled="!$form.continuous_medication?.value" />
                 <label>Medicamentos de Uso Contínuo</label>
@@ -276,7 +276,7 @@
             <FormField name="allergies" v-slot="$field" class="field col-12 flex flex-column gap-1">
               <FloatLabel variant="in">
                 <AutoComplete inputId="allergies" v-model="$field.value" multiple fluid :suggestions="filteredAllergies"
-                  @complete="(e) => filteredAllergies = search(e.query, ALLERGIES)" />
+                  @keydown.enter.prevent @complete="(e) => filteredAllergies = search(e.query, ALLERGIES)" />
                 <label>Alergias</label>
               </FloatLabel>
               <Message v-if="$field.invalid" severity="error" size="small" variant="simple">{{

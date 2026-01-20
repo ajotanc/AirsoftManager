@@ -13,7 +13,7 @@
                             <template #header>
                                 <div class="relative">
                                     <Tag :value="EVENT_TYPES[event.type as keyof typeof EVENT_TYPES] || 'Padrão'"
-                                        :severity="severityEvent(event.type)" class="absolute top-0 left-0 m-2 z-2" />
+                                        :severity="severityEvent(event.type)" class="absolute top-0 left-0 m-2" />
                                     <Tag v-if="event.is_finished" icon="pi pi-check-circle" value="Finalizado"
                                         severity="warn" class="absolute top-0 right-0 m-2 z-2" />
                                     <div v-if="event.thumbnail && isValidUrl(event.thumbnail)" class="w-full" :style="{
