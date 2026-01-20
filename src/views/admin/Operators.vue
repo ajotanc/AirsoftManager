@@ -14,7 +14,7 @@
           <div class="flex flex-wrap align-items-center justify-content-between gap-3 p-2">
 
             <div class="flex align-items-center gap-3">
-              <span class="text-xl font-bold">Operadores</span>
+              <span class="text-xl font-bold">Operadore(s)</span>
             </div>
 
             <IconField iconPosition="left">

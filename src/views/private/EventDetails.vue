@@ -23,13 +23,20 @@
                     </div>
                 </div>
                 <div class="col-12">
-                    <p class="flex flex-column md:flex-row text-gray-400 gap-2">
+                    <p class="flex flex-column md:flex-row text-gray-500 gap-2">
                         <span class="flex align-items-center gap-2"><i class="pi pi-calendar"></i> {{
                             formatDate(event.date).toLocaleDateString('pt-BR') }} - {{
                                 event.startTime }} às {{ event.endTime }}</span>
                         <span v-if="isConfirmed" class="flex align-items-center gap-2 text-green-400 font-bold">
                             <i class=" pi pi-check-circle text-green-400"></i>Presença Confirmada
                         </span>
+                    </p>
+                    <p class="flex flex-column md:flex-row text-gray-500 gap-2">
+                        <span class="flex align-items-center gap-2"><i class="ri ri-user-3-line"></i> <strong>Efetivo
+                                Mínimo:</strong> {{
+                                    event.minimum_effective }} <i class="ri ri-group-3-line"></i> <strong>Efetivo
+                                Atual:</strong> {{ totalParticipants }}/{{
+                                    event.minimum_effective }}</span>
                     </p>
                 </div>
                 <div class="col-12">
@@ -86,10 +93,10 @@
                             <Button label="Check-in QR Code" icon="pi pi-qrcode" class="w-full" severity="success"
                                 @click="openScannerDialog = true" :disabled="isFinished" />
                             <Button label="Adicionar Visitante" icon="pi pi-plus" class="w-full" severity="info"
-                                :disabled="availableVisitors.length === 0 || isFinished"
-                                @click="openVisitorDialog = true" />
+                                :disabled="availableVisitors.length === 0 || isFinished || !isConfirmed"
+                                @click="newVisitor" />
                         </div>
-                        <h4 class="text-sm uppercase text-gray-400 border-bottom-1 border-white-alpha-10 mt-0 pb-2">
+                        <h4 class="text-sm uppercase text-gray-500 border-bottom-1 border-white-alpha-10 mt-0 pb-2">
                             Lista de Operadores
                         </h4>
                         <Tabs :value="0">
@@ -133,10 +140,10 @@
                                             class="flex gap-1 ml-auto">
                                             <Button icon=" pi pi-check" severity="success" rounded
                                                 @click="checkInVisitor($id)" size="small"
-                                                v-tooltip.top="'Confirmar Presença'" />
+                                                v-tooltip.top="'Confirmar Presença'" :disabled="checked_in" />
                                             <Button icon=" pi pi-trash" severity="danger" rounded
                                                 @click="deleteVisitorParticipation($id, visitor)" size="small"
-                                                v-tooltip.top="'Excluir Presença'" />
+                                                v-tooltip.top="'Excluir Presença'" :disabled="checked_in" />
                                         </div>
                                         <i v-if="isFinished && checked_in"
                                             class="pi pi-check text-green-300 ml-auto"></i>
@@ -153,9 +160,9 @@
                     <template #content>
                         <div v-if="isConfirmed && vehicles.length > 0" class="buttons flex flex-column gap-2 mb-3">
                             <Button label="Adicionar Carona" icon="pi pi-plus" class="w-full" severity="info"
-                                @click="newCarpool" :disabled="availableVisitors.length > 0 || isFinished" />
+                                @click="newCarpool" :disabled="availableVehicles.length === 0 || isFinished" />
                         </div>
-                        <h4 class="text-sm uppercase text-gray-400 border-bottom-1 border-white-alpha-10 mt-0 pb-2">
+                        <h4 class="text-sm uppercase text-gray-500 border-bottom-1 border-white-alpha-10 mt-0 pb-2">
                             Lista de Caronas
                         </h4>
                         <Tabs :value="0">
@@ -204,7 +211,7 @@
                                                 </div>
                                             </div>
                                             <div v-if="!isFinished" class="buttons flex align-items-center gap-1">
-                                                <Button v-if="canRequest(carpool)" icon="pi pi-plus" severity="warn"
+                                                <Button v-if="!canRequest(carpool)" icon="pi pi-plus" severity="warn"
                                                     rounded @click="requestCarpool(carpool)" size="small"
                                                     v-tooltip.top="'Solicitar Carona'"
                                                     :disabled="carpool.available_seats === 0" />
@@ -410,6 +417,10 @@ const event = computed(() => {
     };
 });
 
+const totalParticipants = computed(() => {
+    return participants.value.length + visitorParticipants.value.length;
+});
+
 const canFinalize = computed(() => {
     if (!event.value?.date || !event.value?.endTime) {
         return false;
@@ -424,10 +435,8 @@ const canFinalize = computed(() => {
 
     const now = new Date();
 
-    const totalParticipants = participants.value.length + visitorParticipants.value.length;
-
     const expiredTime = now > endDateTime;
-    const effective = totalParticipants < minimum_effective;
+    const effective = totalParticipants.value < minimum_effective;
 
     return expiredTime || effective;
 });
@@ -480,7 +489,7 @@ const carpoolFields = computed<IFields[]>(() => [
 const carpoolSchema = z.object({
     departure_point: z.string({ error: "Saída obrigatória" }),
     departure_time: z.string({ error: "Horário de saída obrigatório" })
-        .regex(/^([01]\d|2[0-3]):[0-5]\d$/, "Hora inválida (00:00 - 23:59)"),
+        .trim().regex(/^([01]\d|2[0-3]):[0-5]\d$/, "Hora inválida (00:00 - 23:59)"),
     vehicle: z.string({ error: "Marca obrigatório" }),
     available_seats: z.number({ error: "Vagas disponíveis obrigtaório" }).min(1, "Mínimo 1 vaga")
 })
@@ -614,6 +623,11 @@ const getVehicleCapacity = (vehicleId: string | IVehicle) => {
 };
 // CARPOOLS
 
+const newVisitor = () => {
+    selectedVisitors.value = [];
+    openVisitorDialog.value = true;
+};
+
 const facingMode = ref<'environment' | 'user'>('environment');
 const scannerError = ref('');
 
@@ -681,7 +695,7 @@ const handleCalendarDynamic = () => {
     atcb_action(config);
 };
 
-const checkinsCount = computed(() => participants.value.filter(p => p.checked_in).length + visitorParticipants.value.filter(p => p.checked_in).length);
+const checkinsCount = computed(() => (participants.value.filter(p => p.checked_in).length || 0) + (visitorParticipants.value.filter(p => p.checked_in).length || 0));
 
 const mapUrl = computed(() => {
     if (!event.value.location_coords) return null;
@@ -707,20 +721,8 @@ const loadServices = async () => {
         rawEvent.value = eventDetails;
 
         participants.value = eventDetails.participations as IParticipation<IOperator>[];
-
-        // const rawVisitors = (eventDetails.visitor_participations || []) as IVisitorParticipationDetail[];
-        // visitorParticipants.value = rawVisitors.map((vp) => ({
-        //     ...vp,
-        //     visitor: {
-        //         ...vp.visitor,
-        //         operator: getOperator(vp.visitor.operator) || ({} as IOperator)
-        //     }
-        // })) as IVisitorParticipation<IVisitor<IOperator>>[];
-
         visitorParticipants.value = eventDetails.visitor_participations as IVisitorParticipationDetail[];
-
         carpools.value = eventDetails.carpools as ICarpool<IVehicle<string>>[];
-
 
         const carpoolIds = carpools.value.map(c => c.$id);
 
@@ -733,6 +735,8 @@ const loadServices = async () => {
         requests.value = requestsData as ICarpoolRequest<IOperator, ICarpoolDetail>[];
         vehicles.value = vehiclesData as IVehicle[];
         visitors.value = visitorsData as IVisitor<IOperator>[];
+
+        console.log(visitorsData)
 
         isConfirmed.value = participants.value.some(p => p.operator.$id === operator.$id);
 

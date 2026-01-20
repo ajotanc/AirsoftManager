@@ -12,7 +12,7 @@
           <div class="flex flex-wrap align-items-center justify-content-between gap-3 p-2">
 
             <div class="flex align-items-center gap-3">
-              <span class="text-xl font-bold">Loadout</span>
+              <span class="text-xl font-bold">Loadout(s)</span>
               <Button v-if="editable" label="Novo" icon="pi pi-plus" size="small" @click="newUniform"
                 :disabled="checkedAmountUniforms" :loading="isLoadingDialog" />
             </div>
@@ -90,7 +90,7 @@
             <span class="text-gray-400 font-bold text-sm uppercase tracking-widest">Equipamentos</span>
             <Tag :value="`${activeCount}/${totalMandatoryItems}`" severity="warn" />
           </div>
-          <Image :src="getTypeUniform()" alt="Operador" imageClass="absolute w-full opacity-40 left-50"
+          <Image :src="getTypeUniform()" alt="Operador" imageClass="absolute w-full opacity-50 left-50"
             imageStyle="mask-image: linear-gradient(to bottom, black 60%, transparent 100%); transform: translateX(-50%);" />
           <div class="flex justify-content-center align-items-center relative">
             <div class="gap-3" style="display: grid; grid-template-columns: repeat(3, 1fr);">
@@ -148,7 +148,7 @@
   background: url("../../assets/background.webp") center center / cover no-repeat;
   mask-image: linear-gradient(to bottom, black 50%, transparent 100%);
   z-index: -1;
-  opacity: 0.2;
+  opacity: 0.8;
   top: 0;
   left: 0
 }

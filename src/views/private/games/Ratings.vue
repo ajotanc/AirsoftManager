@@ -8,10 +8,10 @@
                 tableStyle="min-width: 60rem">
 
                 <template #header>
-                    <div class="flex flex-wrap align-ratings-center justify-content-between gap-3 p-2">
+                    <div class="flex flex-wrap align-items-center justify-content-between gap-3 p-2">
 
-                        <div class="flex align-ratings-center gap-3">
-                            <span class="text-xl font-bold">Votos</span>
+                        <div class="flex align-items-center gap-3">
+                            <span class="text-xl font-bold">Voto(s)</span>
                             <Button label="Novo" icon="pi pi-plus" size="small" @click="newRating" />
                         </div>
 
@@ -81,7 +81,7 @@
                                             shape="circle" size="small" />
                                         <span>{{availableOperators.find(op => op.$id ===
                                             slotProps.value)?.codename
-                                            }}</span>
+                                        }}</span>
                                     </div>
                                 </template>
                             </Select>

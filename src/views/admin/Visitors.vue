@@ -10,7 +10,7 @@
           <div class="flex flex-wrap align-items-center justify-content-between gap-3 p-2">
 
             <div class="flex align-items-center gap-3">
-              <span class="text-xl font-bold">Visitantes</span>
+              <span class="text-xl font-bold">Visitante(s)</span>
               <Button label="Novo" icon="pi pi-plus" size="small" @click="newRating" />
             </div>
 
@@ -31,9 +31,9 @@
         </Column>
 
         <Column header="Operador">
-          <template #body="{ data: codename }">
+          <template #body="{ data: { operator } }">
             <Skeleton v-if="loading" width="100%" height="1rem" />
-            <template v-else>{{ codename.codename }}</template>
+            <template v-else>{{ operator.codename }}</template>
           </template>
         </Column>
 

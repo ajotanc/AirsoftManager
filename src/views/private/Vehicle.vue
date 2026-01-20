@@ -10,7 +10,7 @@
           <div class="flex flex-wrap align-items-center justify-content-between gap-3 p-2">
 
             <div class="flex align-items-center gap-3">
-              <span class="text-xl font-bold">Veículos</span>
+              <span class="text-xl font-bold">Veículo(s)</span>
               <Button label="Novo" icon="pi pi-plus" size="small" @click="newVehicle" />
             </div>
 

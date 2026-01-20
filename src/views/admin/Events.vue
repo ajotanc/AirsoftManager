@@ -9,10 +9,9 @@
                 tableStyle="min-width: 60rem;">
 
                 <template #header>
-                    <div class="flex flex-wrap align-events-center justify-content-between gap-3 p-2">
-
-                        <div class="flex align-events-center gap-3">
-                            <span class="text-xl font-bold">Loadout</span>
+                    <div class="flex flex-wrap align-items-center justify-content-between gap-3 p-2">
+                        <div class="flex align-items-center gap-3">
+                            <span class="text-xl font-bold">Evento(s)</span>
                             <Button label="Novo" icon="pi pi-plus" size="small" @click="newEvent" />
                         </div>
 
@@ -51,7 +50,7 @@
                         </div>
                     </template>
                 </Column>
-                
+
                 <template #empty>
                     <Empty label="Nenhum evento encontrado" icon="ri-calendar-event-line" />
                 </template>
@@ -196,8 +195,8 @@ const missionSchema = z.object({
     location: z.string({ error: "Campo obrigatório" }).min(3, { error: "Local obrigatório" }),
     type: z.string({ error: "Selecione o tipo" }).transform((type) => Number.parseInt(type)),
     date: z.custom().refine((date) => date instanceof Date || typeof date === 'string', "Data obrigatória").transform((date) => date && formatDate(date).toISOString()),
-    startTime: z.string({ error: "Início obrigatório" }),
-    endTime: z.string({ error: "Término obrigatório" }),
+    startTime: z.string({ error: "Início obrigatório" }).trim().regex(/^([01]\d|2[0-3]):[0-5]\d$/, "Hora inválida (00:00 - 23:59)"),
+    endTime: z.string({ error: "Término obrigatório" }).trim().regex(/^([01]\d|2[0-3]):[0-5]\d$/, "Hora inválida (00:00 - 23:59)"),
     rule: z.string().nullish(),
     minimum_effective: z.number({ error: "Efetivo mínimo obrigatório" }),
     location_url: z.url({ error: "Insira uma URL válida" }).refine((val) => {
@@ -227,13 +226,7 @@ const saveEvent = async ({ valid, values }: any) => {
     if (!valid) return false;
 
     try {
-        const payload = {
-            ...values,
-            location_coords: selectedEvent.value.location_coords
-        }
-
-        const response = await EventService.upsert(selectedEvent.value.$id, payload, values.thumbnail) as IEvent;
-
+        const response = await EventService.upsert(selectedEvent.value.$id, values, values.thumbnail) as IEvent;
         const index = events.value.findIndex((item: IEvent) => item.$id === response.$id);
 
         if (index !== -1) {

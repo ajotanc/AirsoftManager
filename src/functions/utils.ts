@@ -194,65 +194,6 @@ export const processImage = async (file: File) => {
   }
 }
 
-export const handleAddItem = (event: KeyboardEvent, field: any) => {
-  const triggers = [',', ';', 'Enter'];
-
-  if (triggers.includes(event.key) || event.code === 'Enter') {
-    event.preventDefault();
-    event.stopPropagation();
-
-    const target = event.target as HTMLInputElement;
-    const rawValue = target.value || '';
-    const cleanValue = rawValue.trim().replace(/[,;]$/, '');
-
-    if (cleanValue) {
-      const current = Array.isArray(field.value) ? [...field.value] : [];
-
-      if (!current.includes(cleanValue)) {
-        const newValue = [...current, cleanValue];
-
-        field.onInput({
-          value: newValue,
-          originalEvent: event,
-          target: { value: newValue }
-        });
-      }
-
-      target.value = '';
-      target.dispatchEvent(new Event('input', { bubbles: true }));
-    }
-  }
-};
-
-export const handleMobileInput = (event: Event, field: any) => {
-  const target = event.target as HTMLInputElement;
-  const value = target.value || '';
-
-  // Verifica se o último caractere digitado é um dos nossos delimitadores
-  if (value.includes(',') || value.includes(';')) {
-    // Remove o delimitador e limpa espaços
-    const cleanValue = value.replace(/[,;]/g, '').trim();
-
-    if (cleanValue) {
-      const current = Array.isArray(field.value) ? [...field.value] : [];
-
-      if (!current.includes(cleanValue)) {
-        const newValue = [...current, cleanValue];
-        
-        // Atualiza o valor do campo no formulário
-        field.onInput({
-          value: newValue,
-          target: { value: newValue }
-        });
-      }
-    }
-
-    // Limpa o campo de texto para o próximo medicamento
-    target.value = '';
-    target.dispatchEvent(new Event('input', { bubbles: true }));
-  }
-};
-
 export const getShortName = (name: string) => {
   if (!name) return 'Operador';
 
@@ -264,3 +205,28 @@ export const getShortName = (name: string) => {
 };
 
 export const goToEvent = (id: string) => router.push(`/events/${id}?t=${Date.now()}`);
+export const normalize = (str: string) =>
+  str
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+
+export const search = (query: string, sourceArray: string[]): string[] => {
+  const queryNormalized = normalize(query);
+
+  if (!queryNormalized) return [];
+
+  const results = sourceArray.filter((item) => {
+    const itemNormalized = normalize(item);
+    return itemNormalized.includes(queryNormalized);
+  });
+
+  const hasExactMatch = results.some(item => normalize(item) === queryNormalized);
+
+  if (query.trim() && !hasExactMatch) {
+    return [query.trim(), ...results];
+  }
+
+  return results;
+};

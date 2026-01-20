@@ -100,7 +100,7 @@ export const EventService = {
     }
   },
   async create(data: IEvent): Promise<IEvent> {
-    return await tables.updateRow({
+    return await tables.createRow({
       databaseId: DATABASE_ID,
       tableId: TABLE_EVENTS,
       rowId: ID.unique(),

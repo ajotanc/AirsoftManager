@@ -4,11 +4,11 @@
             <div class="flex flex-column align-items-center text-center p-3">
                 <div class="flex relative mb-2 cursor-pointer"
                     v-tooltip.top="`Status de Progressão: ${xpInLevel} / 200 XP`">
-                    <Avatar :image="operator.avatar" shape="circle" class="operator-avatar z-1 border-surface-900" />
+                    <Avatar :image="operator.avatar" shape="circle" class="operator-avatar border-surface-900" />
                     <Knob v-model="xpPercent" class="xp-ring" :min="0" :max="EXPERIENCE_PER_LEVEL" :strokeWidth="5"
                         readonly :size="140" />
                     <div
-                        class="level-tag bg-white text-sm text-surface-900 font-bold border-circle flex align-items-center justify-content-center shadow-4 z-1">
+                        class="level-tag bg-white text-sm text-surface-900 font-bold border-circle flex align-items-center justify-content-center shadow-4">
                         {{ operator.level }}
                     </div>
                 </div>

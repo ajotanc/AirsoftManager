@@ -262,27 +262,26 @@
 
             <FormField name="medication_details" v-slot="$field" class="field col-12 md:col-9 flex flex-column gap-1">
               <FloatLabel variant="in">
-                <AutoComplete v-model="$field.value" multiple :typeahead="false" fluid
-                  :disabled="!$form.continuous_medication?.value"
-                  @input="(e: KeyboardEvent) => handleMobileInput(e, $field)" :input-props="{
-                    enterkeyhint: 'done',
-                    inputmode: 'text'
-                  }" />
-                <label>Quais medicamentos? (Separe com , ou ;)</label>
+                <AutoComplete inputId="medication_details" v-model="$field.value" multiple fluid
+                  :suggestions="filteredMedications"
+                  @complete="(e) => filteredMedications = search(e.query, MEDICATIONS)"
+                  :disabled="!$form.continuous_medication?.value" />
+                <label>Medicamentos de Uso Contínuo</label>
               </FloatLabel>
-              <Message v-if="$field.invalid" severity="error" size="small" variant="simple">{{ $field.error.message }}
+              <Message v-if="$field.invalid" severity="error" size="small" variant="simple">
+                {{ $field.error.message }}
               </Message>
             </FormField>
 
             <FormField name="allergies" v-slot="$field" class="field col-12 flex flex-column gap-1">
               <FloatLabel variant="in">
-                <AutoComplete v-model="$field.value" multiple :typeahead="false" fluid
-                  @input="(e: KeyboardEvent) => handleMobileInput(e, $field)" :input-props="{
-                    enterkeyhint: 'done',
-                    inputmode: 'text'
-                  }" />
-                <label>Alergias (Separe com , ou ;)</label>
+                <AutoComplete inputId="allergies" v-model="$field.value" multiple fluid :suggestions="filteredAllergies"
+                  @complete="(e) => filteredAllergies = search(e.query, ALLERGIES)" />
+                <label>Alergias</label>
               </FloatLabel>
+              <Message v-if="$field.invalid" severity="error" size="small" variant="simple">{{
+                $field.error.message }}
+              </Message>
             </FormField>
           </div>
         </Panel>
@@ -363,12 +362,11 @@ import {
   isValidIdentity,
   addressByCep,
   formatDate,
-  handleAddItem,
-  handleMobileInput
+  search
 } from "@/functions/utils";
 import { OperatorService, type IOperator } from "@/services/operator";
 
-import { CATEGORIES_OPTIONS, SOURCES, SHIRT_SIZES, BLOOD_TYPES, EXPERIENCES } from "@/constants/airsoft";
+import { CATEGORIES_OPTIONS, SOURCES, SHIRT_SIZES, BLOOD_TYPES, EXPERIENCES, ALLERGIES, MEDICATIONS } from "@/constants/airsoft";
 
 const authStore = useAuthStore();
 const { operator } = storeToRefs(authStore);
@@ -378,6 +376,9 @@ const toast = useToast();
 
 const loading = ref(false);
 const form = ref();
+
+const filteredAllergies = ref<string[]>([]);
+const filteredMedications = ref<string[]>([]);
 
 const fileInput = ref<HTMLInputElement | null>(null);
 
@@ -536,6 +537,7 @@ const handleUpdateAvatar = async (event: Event) => {
     input.value = "";
   }
 };
+
 </script>
 
 <style scoped>
