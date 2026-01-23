@@ -1,10 +1,14 @@
 <template>
-  <Toast />
+  <Toast :breakpoints="{ '512px': { width: '92vw', left: '4vw', right: '4vw' } }" />
   <ConfirmDialog :style="{ width: '360px' }"></ConfirmDialog>
   <router-view :key="$route.fullPath" />
 </template>
 
 <style>
+* {
+  box-sizing: border-box;
+}
+
 body {
   margin: 0;
   padding: 0;

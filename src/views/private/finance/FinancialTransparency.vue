@@ -120,7 +120,7 @@
             <Button label="Histórico" icon="pi pi-list" class="p-button-text" @click="cashflowDialog = true" />
           </div>
 
-          <ul class="list-none p-0 m-0">
+          <ul v-if="cashflows.length > 0" class="list-none p-0 m-0">
             <li v-for="flow in cashflows.slice(0, 6)" :key="flow.$id"
               class="flex align-items-center py-3 border-bottom-1 surface-border">
               <div :class="['w-3rem h-3rem flex align-items-center justify-content-center border-round mr-3',
@@ -138,6 +138,7 @@
               </div>
             </li>
           </ul>
+          <Empty v-else label="Nenhuma transação encontrada." icon="ri ri-exchange-funds-line" />
         </div>
       </div>
     </div>
@@ -168,6 +169,7 @@ import { DatePicker, InputNumber, InputText } from "primevue";
 import FinancialTransparencySkeleton from "@/components/skeleton/FinancialTransparencySkeleton.vue";
 import { PaymentService, type IPayment } from "@/services/payment";
 import { formatCurrency } from "@/functions/utils";
+import Empty from "@/components/Empty.vue";
 
 dayjs.locale('pt-br');
 

@@ -165,15 +165,17 @@ export const PaymentService = {
     return payment;
   },
   async contribute(data: IPayment, file: File): Promise<IPayment> {
-    const response = await tables.createRow<IPayment>({
+    const rowId = ID.unique();
+    const urlFormatted = await uploadFile(rowId, file);
+
+    return await tables.createRow({
       databaseId: DATABASE_ID,
       tableId: TABLE_PAYMENTS,
-      rowId: ID.unique(),
-      data,
+      rowId,
+      data: {
+        ...data,
+        receipt_url: urlFormatted,
+      },
     });
-
-    await this.payment(response.$id, file);
-
-    return response;
   },
 };

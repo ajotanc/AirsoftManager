@@ -166,7 +166,7 @@ const makeContribute = (goal: IGoal) => {
   selectedContribute.value = {
     description: `Contribuição: ${goal.title}`,
     amount: 10.00,
-    status: 'created',
+    status: 'pending',
     category: 'goal',
     reference: now.format('MM/YYYY'),
     goal: goal.$id,

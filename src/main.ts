@@ -22,15 +22,13 @@ import "remixicon/fonts/remixicon.css";
 const app = createApp(App);
 const pinia = createPinia();
 
-const updateSW = registerSW({
-  onNeedRefresh() {
-    if (confirm("Nova versão disponível. Deseja atualizar?")) {
-      updateSW(true);
-    }
-  },
-  onOfflineReady() {
-    console.log("App pronto para uso offline!");
-  },
+registerSW({
+  immediate: true,
+  onRegistered(r) {
+    r && setInterval(() => {
+      r.update();
+    }, 60 * 60 * 1000);
+  }
 });
 
 app.use(pinia);

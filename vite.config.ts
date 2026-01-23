@@ -1,5 +1,6 @@
 import { fileURLToPath, URL } from "node:url";
 import { defineConfig, loadEnv } from "vite";
+import AutoImport from 'unplugin-auto-import/vite';
 import vue from "@vitejs/plugin-vue";
 import Components from "unplugin-vue-components/vite";
 import { PrimeVueResolver } from "@primevue/auto-import-resolver";
@@ -12,9 +13,20 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [
       vue(),
-      nodePolyfills({ // 2. Ative os polyfills
+      AutoImport({
+        imports: [
+          'vue',
+          'vue-router',
+          'pinia',
+          {
+            'dayjs': [['default', 'dayjs']]
+          }
+        ],
+        dts: 'src/auto-imports.d.ts',
+      }),
+      nodePolyfills({
         globals: {
-          Buffer: true, // Isso resolve o erro do "buffer"
+          Buffer: true,
           global: true,
           process: true,
         },
@@ -60,6 +72,8 @@ export default defineConfig(({ mode }) => {
           ],
         },
         workbox: {
+          skipWaiting: true,
+          clientsClaim: true,
           maximumFileSizeToCacheInBytes: 4000000,
           globPatterns: ["**/*.{js,css,html,ico,png,svg,webp}"],
           globIgnores: ['**/remixicon-*.svg'],

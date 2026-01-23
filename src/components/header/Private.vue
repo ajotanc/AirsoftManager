@@ -47,7 +47,7 @@
   <Drawer v-model:visible="visible" header="Menu" :closable="true" :block-scroll="true">
     <template #container="{ closeCallback }">
       <div class="flex flex-column h-full">
-        <div class="flex align-items-center justify-content-between px-3 pt-3 shrink-0">
+        <div class="flex align-items-center justify-content-between p-3 shrink-0">
           <span class="inline-flex align-items-center">
             <img src="/exd.webp" :alt="TEAM_NAME" class="h-3rem">
             <span class="font-bold text-xl uppercase text-900 ml-2">{{ TEAM_NAME }}</span>
@@ -56,7 +56,7 @@
         </div>
 
         <div class="overflow-y-auto">
-          <ul class="list-none p-4 m-0">
+          <ul class="list-none p-3 m-0">
             <li v-for="item in navItems" :key="item.label">
               <template v-if="item.visible !== false">
                 <router-link v-if="item.route && !item.disabled" :to="item.route" @click="visible = false"
