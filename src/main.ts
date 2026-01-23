@@ -25,9 +25,15 @@ const pinia = createPinia();
 registerSW({
   immediate: true,
   onRegistered(r) {
-    r && setInterval(() => {
-      r.update();
-    }, 60 * 60 * 1000);
+    if (r) {
+      setInterval(() => {
+        console.log('Verificando atualizações no servidor...');
+        r.update();
+      }, 10 * 60 * 1000);
+    }
+  },
+  onNeedRefresh() {
+    location.reload();
   }
 });
 
