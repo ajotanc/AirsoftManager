@@ -2,7 +2,6 @@ import { ID, Query, type Models } from "appwrite";
 import {
   tables,
   DATABASE_ID,
-  storage,
   BUCKET_ID,
   TABLE_OPERATORS,
 } from "@/services/appwrite";
@@ -11,7 +10,7 @@ import { XP_VALUES, calculateLevel } from "@/constants/airsoft";
 
 import type { IVisitor } from "./visitor";
 import type { ICarpool } from "./carpool";
-import { processImage } from "@/functions/utils";
+import { deleteFile, uploadFile } from "@/functions/utils";
 
 export const TABLE_EVENTS = "events";
 export const TABLE_PARTICIPATIONS = "participations";
@@ -126,10 +125,10 @@ export const EventService = {
 
       if (file instanceof File) {
         if (isUpdate) {
-          this.deleteThumbnail(id);
+          await deleteFile(id);
         }
 
-        data.thumbnail = await this.uploadThumbnail(id, file);
+        data.thumbnail = await uploadFile(id, file);
       }
 
       if (isUpdate) {
@@ -144,7 +143,7 @@ export const EventService = {
   },
   async delete(rowId: string, thumbnail?: string): Promise<{}> {
     if (thumbnail && thumbnail.includes(BUCKET_ID)) {
-      await this.deleteThumbnail(rowId);
+      await deleteFile(rowId);
     }
 
     return await tables.deleteRow({
@@ -250,34 +249,6 @@ export const EventService = {
       tableId: TABLE_PARTICIPATIONS,
       rowId: participationId,
     });
-  },
-  async uploadThumbnail(rowId: string, thumbnail: File): Promise<string> {
-    const fileId = `thumbnail-${rowId}`;
-    const file = await processImage(thumbnail);
-
-    try {
-      await storage.createFile({
-        bucketId: BUCKET_ID,
-        fileId,
-        file,
-      });
-
-      const url = storage.getFileView({ bucketId: BUCKET_ID, fileId });
-      return `${url.toString()}&v=${Date.now()}`;
-    } catch (error) {
-      console.error("Erro no upload da imagem:", error);
-      throw new Error("Falha ao processar imagem da missão.");
-    }
-  },
-  async deleteThumbnail(rowId: string): Promise<{}> {
-    const fileId = `thumbnail-${rowId}`;
-
-    try {
-      return await storage.deleteFile({ bucketId: BUCKET_ID, fileId });
-    } catch (error) {
-      console.error("Erro ao excluir da imagem:", error);
-      throw new Error("Falha ao processar imagem da missão.");
-    }
   },
   async addVisitorToEvent(eventId: string, visitorId: string): Promise<IVisitorParticipation> {
     return await tables.createRow({

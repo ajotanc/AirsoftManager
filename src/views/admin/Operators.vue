@@ -2,8 +2,9 @@
   <div class="card">
     <div class="surface-card shadow-2 border-round overflow-hidden">
 
-      <DataTable ref="dt" :value="dtValue" paginator :rows="5" stripedRows :filters="filters"
-        v-model:editingRows="editingRows" editMode="row" dataKey="$id" @row-edit-save="handleUpdate"
+      <DataTable ref="dt" :value="dtValue" paginator :rows="5" stripedRows v-model:filters="filters"
+        :globalFilterFields="labels" v-model:editingRows="editingRows" editMode="row" dataKey="$id"
+        @row-edit-save="handleUpdate"
         paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
         :rowsPerPageOptions="[5, 10, 25]"
         currentPageReportTemplate="Exibindo {first} a {last} de {totalRecords} operadore(s)"
@@ -89,11 +90,11 @@
         <Column :rowEditor="true" bodyStyle="text-align: right;"></Column>
 
         <template #expansion="{ data: operator }">
-          <OperatorDetails :operator="operator" />
+          <Details :operator="operator" />
         </template>
 
         <template #empty>
-          <Empty message="Nenhum operador encontrado." icon="ri ri-group-line" />
+          <Empty label="Nenhum operador encontrado." icon="ri ri-group-line" />
         </template>
 
         <template #paginatorstart>
@@ -123,8 +124,11 @@ import Button from "primevue/button";
 import Avatar from "primevue/avatar";
 import Select from "primevue/select";
 import ToggleSwitch from "primevue/toggleswitch";
+import IconField from 'primevue/iconfield';
+import InputIcon from 'primevue/inputicon';
+import InputText from 'primevue/inputtext';
 
-import OperatorDetails from "@/components/operators/OperatorDetails.vue";
+import Details from "@/components/operators/Details.vue";
 import { ROLES } from "@/constants/airsoft";
 
 import { OperatorService } from "@/services/operator";
@@ -135,13 +139,28 @@ import Empty from "@/components/Empty.vue";
 const toast = useToast();
 const authStore = useAuthStore();
 
+const loading = ref(true);
+const operators = ref([]);
+const expandedRows = ref({});
+const dt = ref();
+const editingRows = ref([]);
+
 const exportFilename = computed(() => {
   const date = Date.now();
   return `${date}_LISTA_OPERADORES`;
 });
 
 const filters = ref({
-  'global': { value: null, matchMode: FilterMatchMode.CONTAINS },
+  'global': { value: '', matchMode: FilterMatchMode.CONTAINS },
+});
+
+const labels = computed(() => {
+  const firstItem = operators.value?.[0];
+
+  if (!firstItem) return ['$id'];
+
+  return Object.keys(firstItem)
+    .filter(key => !key.startsWith('$'));
 });
 
 onMounted(() => {
@@ -162,12 +181,6 @@ const loadServices = async () => {
 const dtValue = computed(() => {
   return loading.value ? new Array(5).fill({}) : operators.value;
 });
-
-const loading = ref(true);
-const operators = ref([]);
-const expandedRows = ref({});
-const dt = ref();
-const editingRows = ref([]);
 
 const handleUpdate = async (event) => {
   const { newData: { $id, rating, role, status }, index } = event;

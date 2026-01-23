@@ -54,9 +54,11 @@ import Password from "primevue/password";
 import Button from "primevue/button";
 import Message from "primevue/message";
 import FloatLabel from "primevue/floatlabel";
+import { useToast } from "primevue";
 
 const router = useRouter();
 const authStore = useAuthStore();
+const toast = useToast();
 
 const loading = ref(false);
 const initialValues = ref({
@@ -69,7 +71,7 @@ const resolver = zodResolver(
     email: z.email({ message: "Email inválido." }),
     password: z
       .string()
-      .min(8, { message: "A senha deve ter no mínimo 6 caracteres." }),
+      .min(8, { message: "A senha deve ter no mínimo 8 caracteres." }),
   })
 );
 
@@ -79,8 +81,14 @@ const handleLogin = async ({ valid, values }: FormSubmitEvent) => {
     try {
       await authStore.login(values.email, values.password);
       router.push("/dashboard");
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
+      toast.add({
+        severity: "error",
+        summary: "Erro",
+        detail: `Falha ao criar conta: ${error.message}`,
+        life: 3000,
+      });
     } finally {
       loading.value = false;
     }

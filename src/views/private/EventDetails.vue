@@ -293,7 +293,7 @@
                         <template #option="slotProps">
                             <div class="flex flex-column">
                                 <span class="font-bold">{{ slotProps.option.name }} ({{ slotProps.option.codename
-                                    }})</span>
+                                }})</span>
                                 <small class="text-gray-500">Convidado por {{
                                     slotProps.option.operator.codename }}</small>
                             </div>
@@ -336,7 +336,7 @@
                 </div>
 
                 <div class="col-12">
-                    <Button type="submit" label="Salvar" class="w-full shadow-6" severity="success" />
+                    <Button type="submit" label="Salvar" class="w-full" severity="success" />
                 </div>
             </Form>
         </Dialog>
@@ -735,8 +735,6 @@ const loadServices = async () => {
         requests.value = requestsData as ICarpoolRequest<IOperator, ICarpoolDetail>[];
         vehicles.value = vehiclesData as IVehicle[];
         visitors.value = visitorsData as IVisitor<IOperator>[];
-
-        console.log(visitorsData)
 
         isConfirmed.value = participants.value.some(p => p.operator.$id === operator.$id);
 

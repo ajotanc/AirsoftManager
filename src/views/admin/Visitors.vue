@@ -1,61 +1,21 @@
 <template>
   <div class="card">
-    <div class="surface-card shadow-2 border-round overflow-hidden">
-      <DataTable :value="dtValue" paginator :rows="5" stripedRows :filters="filters"
-        paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-        :rowsPerPageOptions="[5, 10, 25]"
-        currentPageReportTemplate="Exibindo {first} a {last} de {totalRecords} voto(s)" tableStyle="min-width: 60rem">
+    <AppTable title="Visitante(s)" :value="visitors" :fields="fields" :loading="loading" icon="ri ri-group-3-line">
+      <template #header-actions>
+        <Button label="Novo" icon="pi pi-plus" size="small" @click="newVisitor" />
+      </template>
 
-        <template #header>
-          <div class="flex flex-wrap align-items-center justify-content-between gap-3 p-2">
+      <template #actions="{ data }">
+        <Skeleton v-if="loading" width="100%" height="1rem" />
+        <div v-else class="flex gap-2 justify-content-center">
+          <Button icon="pi pi-pencil" text rounded severity="secondary" @click="editVisitor(data)" />
+          <Button icon="pi pi-trash" text rounded severity="danger" @click="confirmDelete(data)" />
+        </div>
+      </template>
+    </AppTable>
 
-            <div class="flex align-items-center gap-3">
-              <span class="text-xl font-bold">Visitante(s)</span>
-              <Button label="Novo" icon="pi pi-plus" size="small" @click="newRating" />
-            </div>
-
-            <IconField iconPosition="left">
-              <InputIcon>
-                <i class="pi pi-search" />
-              </InputIcon>
-              <InputText v-model="filters['global'].value" placeholder="Procurar..." />
-            </IconField>
-
-          </div>
-        </template>
-
-        <Column v-for="column in fields" :key="column.name" :header="column.label">
-          <template #body="{ data }">
-            <ColumnContent :column="column" :data="data" :loading="loading" />
-          </template>
-        </Column>
-
-        <Column header="Operador">
-          <template #body="{ data: { operator } }">
-            <Skeleton v-if="loading" width="100%" height="1rem" />
-            <template v-else>{{ operator.codename }}</template>
-          </template>
-        </Column>
-
-        <Column header="Ações" style="width: 10%; min-width: 8rem" bodyStyle="text-align: center">
-          <template #body="{ data: visitor }">
-            <Skeleton v-if="loading" width="100%" height="1rem" />
-            <div v-else class="flex gap-2 justify-content-center">
-              <Button icon="pi pi-pencil" text rounded severity="secondary" v-tooltip.top="'Editar'"
-                @click="editVisitor(visitor)" />
-              <Button icon="pi pi-trash" text rounded severity="danger" v-tooltip.top="'Excluir'"
-                @click="confirmDelete(visitor)" />
-            </div>
-          </template>
-        </Column>
-
-        <template #empty>
-          <Empty label="Nenhum visitante cadastrado" icon="ri ri-group-3-line" />
-        </template>
-      </DataTable>
-    </div>
-
-    <Dialog v-model:visible="visitorDialog" :style="{ width: '512px' }" header="Visitante" :modal="true">
+    <Dialog v-model:visible="visitorDialog" header="Visitante" :modal="true"
+      :style="{ width: '100%', maxWidth: '640px' }" class="m-3">
       <Form ref="form" :resolver="resolver" :initialValues="selectedVisitor" @submit="saveVisitor" class="grid"
         :key="selectedVisitor.$id || 'new'">
         <div class="col-12">
@@ -88,20 +48,44 @@
             </Message>
           </FormField>
         </div>
-        <div v-for="field in fields" :key="field.name" :class="`col-${field.col}`">
-          <FormField :name="field.name" v-slot="$field" class="flex flex-column gap-1">
-            <label :for="field.name" class="font-bold">{{ field.label }}</label>
-            <component :is="field.component" :id="field.name" v-bind="field.props" v-model="$field.value" class="w-full"
-              :class="{ 'p-invalid': $field.invalid }" fluid />
+        <template v-for="{ name, label, component, col, hidden, props } in fields" :key="name">
+          <div :class="`col-12 md:col-${col}`" v-if="!hidden">
+            <FormField v-if="component.name === 'ColorPicker'" :name="name" v-slot="$field" class="flex gap-1">
+              <div class="flex flex-column align-items-center gap-2">
+                <label class="font-bold" :for="name">{{ label }}</label>
+                <component :is="component" :id="name" v-bind="props" :name="name" v-model="$field.value" fluid />
+              </div>
+              <Message v-if="$field.invalid" severity="error" size="small" variant="simple">
+                {{ $field.error?.message }}
+              </Message>
+            </FormField>
+            <FormField v-else-if="component.name === 'ToggleSwitch'" :name="name" v-slot="$field" class="flex gap-1">
+              <div class="flex align-items-center gap-2">
+                <component :is="component" :id="name" v-bind="props" :name="name" v-model="$field.value" fluid />
+                <label class="font-bold" :for="name">{{ label }}</label>
+              </div>
+              <Message v-if="$field.invalid" severity="error" size="small" variant="simple">
+                {{ $field.error?.message }}
+              </Message>
+            </FormField>
+            <FormField v-else :name="name" v-slot="$field" class="flex flex-column gap-1">
+              <FloatLabel variant="in">
+                <component :is="component" :id="name" v-bind="props" v-model="$field.value" class="w-full"
+                  :class="{ 'p-invalid': $field.invalid }" fluid />
+                <label :for="name">{{ label }}</label>
+              </FloatLabel>
 
-            <Message v-if="$field.invalid" severity="error" size="small" variant="simple">
-              {{ $field.error?.message }}
-            </Message>
-          </FormField>
-        </div>
-
-        <div class="col-12">
-          <Button type="submit" label="Salvar" class="w-full shadow-6" severity="success" />
+              <Message v-if="$field.invalid" severity="error" size="small" variant="simple">
+                {{ $field.error?.message }}
+              </Message>
+            </FormField>
+          </div>
+        </template>
+        <div class="col-12 pb-0">
+          <div class="flex justify-content-end gap-2">
+            <Button label="Cancelar" outlined @click="visitorDialog = false" />
+            <Button type="submit" label="Salvar" />
+          </div>
         </div>
       </Form>
     </Dialog>
@@ -111,13 +95,8 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from "vue";
 import { useToast } from "primevue/usetoast";
-import { FilterMatchMode } from '@primevue/core/api';
-import IconField from "primevue/iconfield";
-import InputIcon from "primevue/inputicon";
-import Column from "primevue/column";
 import Button from "primevue/button";
 import Dialog from "primevue/dialog";
-import DataTable from "primevue/datatable";
 import FloatLabel from "primevue/floatlabel";
 import InputText from "primevue/inputtext";
 import Select from "primevue/select";
@@ -129,7 +108,6 @@ import { InputMask, useConfirm } from "primevue";
 import { VisitorService, type IVisitor } from "@/services/visitor";
 import { OperatorService, type IOperator } from "@/services/operator";
 import type { IFields } from "@/functions/utils";
-import ColumnContent from "@/components/ColumnContent.vue";
 import { TEAMS } from "@/constants/airsoft";
 
 onMounted(() => {
@@ -154,10 +132,6 @@ const loadServices = async () => {
   }
 };
 
-const dtValue = computed(() => {
-  return loading.value ? new Array(5).fill({}) : visitors.value;
-});
-
 const loading = ref(true);
 const visitors = ref<IVisitor[]>([]);
 const operators = ref<IOperator[]>([]);
@@ -167,10 +141,6 @@ const confirm = useConfirm();
 
 const visitorDialog = ref(false);
 const selectedVisitor = ref<IVisitor>({} as IVisitor);
-
-const filters = ref({
-  'global': { value: null, matchMode: FilterMatchMode.CONTAINS },
-});
 
 const visitorSchema = z.object({
   name: z.string({ error: "Nome Completo obrigatório" }),
@@ -280,7 +250,7 @@ const confirmDelete = (visitor: IVisitor) => {
   });
 };
 
-const newRating = async () => {
+const newVisitor = async () => {
   selectedVisitor.value = {} as IVisitor;
   visitorDialog.value = true;
 };

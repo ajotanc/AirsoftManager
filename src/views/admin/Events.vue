@@ -1,66 +1,29 @@
 <template>
     <div class="card">
-        <div class="surface-card shadow-2 border-round overflow-hidden">
+        <AppTable title="Evento(s)" :value="events" :fields="fields" :loading="loading"
+            icon="ri ri-calendar-event-line">
+            <template #header-actions>
+                <Button label="Nova" icon="pi pi-plus" size="small" @click="newEvent" />
+            </template>
+            <template #actions="{ data }">
+                <ButtonShare :event="data" icon="pi pi-copy" text rounded severity="warn"
+                    v-tooltip.top="'Copiar Conteúdo'" />
+                <ButtonShare :event="data" icon="pi pi-share-alt" text rounded severity="help"
+                    v-tooltip.top="'Compartilhar'" />
+                <Button icon="pi pi-link" @click="goToEvent(data.$id)" text rounded v-tooltip.top="'Detalhes'">
+                </Button>
+                <Button icon="pi pi-pencil" text rounded severity="info" v-tooltip.top="'Editar'"
+                    @click="editEvent(data)" />
+                <Button icon="pi pi-trash" text rounded severity="danger" v-tooltip.top="'Excluir'"
+                    @click="confirmDelete(data)" />
+            </template>
+        </AppTable>
 
-            <DataTable :value="dtValue" paginator :rows="5" stripedRows :filters="filters"
-                paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-                :rowsPerPageOptions="[5, 10, 25]"
-                currentPageReportTemplate="Exibindo {first} a {last} de {totalRecords} evento(s)"
-                tableStyle="min-width: 60rem;">
-
-                <template #header>
-                    <div class="flex flex-wrap align-items-center justify-content-between gap-3 p-2">
-                        <div class="flex align-items-center gap-3">
-                            <span class="text-xl font-bold">Evento(s)</span>
-                            <Button label="Novo" icon="pi pi-plus" size="small" @click="newEvent" />
-                        </div>
-
-                        <IconField iconPosition="left">
-                            <InputIcon>
-                                <i class="pi pi-search" />
-                            </InputIcon>
-                            <InputText v-model="filters['global'].value" placeholder="Procurar..." />
-                        </IconField>
-
-                    </div>
-                </template>
-
-                <Column v-for="column in fields" :key="column.name" :header="column.label" :hidden="column.hidden"
-                    :style="{ width: column.width || '50%' }">
-                    <template #body="{ data }">
-                        <ColumnContent :column="column" :data="data" :loading="loading" />
-                    </template>
-                </Column>
-
-                <Column header="Ações" style="width: 10%; min-width: 8rem" bodyStyle="text-align: center">
-                    <template #body="{ data: event }">
-                        <Skeleton v-if="loading" width="100%" height="1rem" />
-                        <div v-else class="flex gap-2 justify-content-center">
-                            <ButtonShare :event="event" icon="pi pi-copy" text rounded severity="warn"
-                                v-tooltip.top="'Copiar Conteúdo'" />
-                            <ButtonShare :event="event" icon="pi pi-share-alt" text rounded severity="help"
-                                v-tooltip.top="'Compartilhar'" />
-                            <Button icon="pi pi-link" @click="goToEvent(event.$id)" text rounded
-                                v-tooltip.top="'Detalhes'">
-                            </Button>
-                            <Button icon="pi pi-pencil" text rounded severity="info" v-tooltip.top="'Editar'"
-                                @click="editEvent(event)" />
-                            <Button icon="pi pi-trash" text rounded severity="danger" v-tooltip.top="'Excluir'"
-                                @click="confirmDelete(event)" />
-                        </div>
-                    </template>
-                </Column>
-
-                <template #empty>
-                    <Empty label="Nenhum evento encontrado" icon="ri-calendar-event-line" />
-                </template>
-            </DataTable>
-        </div>
-
-        <Dialog v-model:visible="eventDialog" :style="{ width: '512px' }" header="Detalhes do Evento" :modal="true">
+        <Dialog v-model:visible="eventDialog" header="Detalhes do Evento" :modal="true"
+            :style="{ width: '100%', maxWidth: '640px' }" class="m-3">
             <Form ref="form" :resolver="resolver" :initialValues="selectedEvent" @submit="saveEvent"
                 :key="selectedEvent.$id || 'new'" class="grid">
-                <div v-for="field in fields" :key="field.name" :class="`col-${field.col}`">
+                <div v-for="field in fields" :key="field.name" :class="`col-12 md:col-${field.col}`">
                     <FormField v-if="field.name === 'description'" :name="field.name" v-slot="$field"
                         class="flex flex-column gap-1">
                         <label class="font-bold">{{ field.label }}</label>
@@ -84,8 +47,9 @@
                 </div>
                 <div class="col-12">
                     <FormField name="thumbnail" v-slot="$field" class="flex flex-column gap-1">
-                        <Image :src="(src as string) || (selectedEvent.thumbnail as string)" alt="Thumbnail do Evento"
-                            imageClass="w-full h-full object-cover mb-2" preview />
+                        <label for="thumbnail" class="font-bold">Imagem do Evento</label>
+                        <Image :src="(src as string) || (selectedEvent.thumbnail as string)"
+                            imageClass="w-full h-full object-cover my-2" preview />
                         <FileUpload mode="basic" @select="onFileSelect" accept="image/*" class="w-full"
                             :class="{ 'p-invalid': $field.invalid }" label="Escolher Imagem" fluid />
                         <Message v-if="$field.invalid" severity="error" size="small" variant="simple">
@@ -93,9 +57,11 @@
                         </Message>
                     </FormField>
                 </div>
-                <div class="col-12">
-                    <Button type="submit" label="Publicar Missão Tática" icon="pi pi-save" class="w-full shadow-6"
-                        severity="success" />
+                <div class="col-12 pb-0">
+                    <div class="flex justify-content-end gap-2">
+                        <Button label="Cancelar" outlined @click="eventDialog = false" />
+                        <Button type="submit" label="Salvar" />
+                    </div>
                 </div>
             </Form>
         </Dialog>
@@ -118,15 +84,10 @@
 </style>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted } from "vue";
 import { useToast } from "primevue/usetoast";
-import { FilterMatchMode } from '@primevue/core/api';
-import IconField from "primevue/iconfield";
-import InputIcon from "primevue/inputicon";
-import Column from "primevue/column";
 import Button from "primevue/button";
 import Dialog from "primevue/dialog";
-import DataTable from "primevue/datatable";
 import FloatLabel from "primevue/floatlabel";
 import InputText from "primevue/inputtext";
 import Select from "primevue/select";
@@ -159,10 +120,6 @@ const loadServices = async () => {
     }
 };
 
-const dtValue = computed(() => {
-    return loading.value ? new Array(5).fill({}) : events.value;
-});
-
 const loading = ref(true);
 const events = ref<IEvent[]>([]);
 
@@ -176,10 +133,6 @@ const selectedEvent = ref({} as IEvent);
 
 const src = ref<string | ArrayBuffer | null>(null);
 
-const filters = ref({
-    'global': { value: null, matchMode: FilterMatchMode.CONTAINS },
-});
-
 const MAX_FILE_SIZE = 5 * 1024 * 1024
 const ACCEPTED_IMAGE_TYPES = [
     'image/jpeg',
@@ -188,7 +141,6 @@ const ACCEPTED_IMAGE_TYPES = [
     'image/webp',
 ];
 
-// 1. Schema do Zod (Missão Tática)
 const missionSchema = z.object({
     title: z.string({ error: "Campo obrigatório" }).min(5, { error: "Título muito curto" }),
     description: z.string({ error: "Campo obrigatório" }).min(10, { error: "Briefing insuficiente" }),
@@ -205,15 +157,17 @@ const missionSchema = z.object({
         message: "A URL deve ser um link válido do Google Maps"
     }),
     thumbnail: z.any()
-        .optional()
+        .refine((file) => file instanceof File, {
+            message: "O comprovante é obrigatório.",
+        })
         .refine((file) => {
-            if (!file || !(file instanceof File)) return true;
+            if (!(file instanceof File)) return false;
             return ACCEPTED_IMAGE_TYPES.includes(file.type);
         }, {
             message: "São aceitos arquivos JPEG, JPG, PNG e WEBP.",
         })
         .refine((file) => {
-            if (!file || !(file instanceof File)) return true;
+            if (!(file instanceof File)) return false;
             return file.size <= MAX_FILE_SIZE;
         }, {
             message: "O tamanho da imagem deve ser menor que 5MB.",
@@ -271,11 +225,13 @@ const fields: IFields[] = [
         component: DatePicker,
         col: '12',
         props: {
-            showIcon: true,
-            dateFormat: 'dd/mm/yy',
             showButtonBar: true,
-            iconDisplay: "input", showOnFocus: true
-        },
+            manualInput: false,
+            showIcon: true,
+            focusOnShow: false,
+            iconDisplay: 'input',
+            variant: 'filled'
+        }
     },
     { name: 'startTime', label: 'Início', component: InputMask, col: '4', props: { mask: '99:99' } },
     { name: 'endTime', label: 'Término', component: InputMask, col: '4', props: { mask: '99:99' } },

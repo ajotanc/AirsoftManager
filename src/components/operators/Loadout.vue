@@ -2,7 +2,7 @@
   <div class="card">
     <div class="surface-card shadow-2 border-round overflow-hidden">
 
-      <DataTable :value="items" paginator :rows="5" stripedRows :filters="filters"
+      <DataTable :value="items" paginator :rows="5" stripedRows v-model:filters="filters" :globalFilterFields="labels"
         paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
         :rowsPerPageOptions="[5, 10, 25]"
         currentPageReportTemplate="Exibindo {first} a {last} de {totalRecords} uniforme(s)"
@@ -77,61 +77,66 @@
       </DataTable>
     </div>
 
-    <Dialog v-model:visible="uniformDialog" :style="{ width: '360px' }" header="Detalhes do Loadout" :modal="true">
-      <div class="flex flex-column gap-3">
-        <FloatLabel variant="in">
-          <Select :options="UNIFORMS_OPTIONS_FILTER" optionLabel="label" optionValue="value" name="type_uniform"
-            v-model="selectedUniform.type_uniform" class="w-full" :disabled="!!selectedUniform.$id" fluid />
-          <label>Uniformes</label>
-        </FloatLabel>
-        <div
-          class="inventory flex flex-column gap-3 relative overflow-hidden border-gray-600 border-1 border-round-lg relative p-3">
-          <div class=" flex justify-content-between align-items-center">
-            <span class="text-gray-400 font-bold text-sm uppercase tracking-widest">Equipamentos</span>
-            <Tag :value="`${activeCount}/${totalMandatoryItems}`" severity="warn" />
-          </div>
-          <Image :src="getTypeUniform()" alt="Operador" imageClass="absolute w-full opacity-50 left-50"
-            imageStyle="mask-image: linear-gradient(to bottom, black 60%, transparent 100%); transform: translateX(-50%);" />
-          <div class="flex justify-content-center align-items-center relative">
-            <div class="gap-3" style="display: grid; grid-template-columns: repeat(3, 1fr);">
-              <div v-for="(item, index) in GRID_LAYOUT" :key="index">
-                <div v-if="['rating', 'patch'].includes(item)"
-                  class="flex justify-content-center align-items-center border-solid text-gray-700 border-gray-600 border-1 border-round-lg bg-black-alpha-20 overflow-hidden"
-                  style="aspect-ratio: 1; width: 80px;">
-                  <Image preview v-if="isStandard" :src="getImageUrl(item)" :alt="item"
-                    imageClass="w-full h-full p-2 transition-all transition-duration-500" style="scale: 1.1;" />
-                  <i v-else class="pi pi-minus-circle"></i>
-                </div>
+    <Dialog v-model:visible="uniformDialog" header="Detalhes do Loadout" :modal="true"
+      :style="{ width: '100%', maxWidth: '368px' }" class="m-3">
+      <div class="grid">
+        <div class="col-12 pb-0">
+          <div class="flex flex-column gap-3">
+            <FloatLabel variant="in">
+              <Select :options="UNIFORMS_OPTIONS_FILTER" optionLabel="label" optionValue="value" name="type_uniform"
+                v-model="selectedUniform.type_uniform" class="w-full" :disabled="!!selectedUniform.$id" fluid />
+              <label>Uniformes</label>
+            </FloatLabel>
+            <div
+              class="inventory flex flex-column gap-3 relative overflow-hidden border-gray-600 border-1 border-round-lg relative p-3">
+              <div class=" flex justify-content-between align-items-center">
+                <span class="text-gray-400 font-bold text-sm uppercase tracking-widest">Equipamentos</span>
+                <Tag :value="`${activeCount}/${totalMandatoryItems}`" severity="warn" />
+              </div>
+              <Image :src="getTypeUniform()" alt="Operador" imageClass="absolute w-full opacity-50 left-50"
+                imageStyle="mask-image: linear-gradient(to bottom, black 60%, transparent 100%); transform: translateX(-50%);" />
+              <div class="flex justify-content-center align-items-center relative">
+                <div class="gap-3" style="display: grid; grid-template-columns: repeat(3, 1fr);">
+                  <div v-for="(item, index) in GRID_LAYOUT" :key="index">
+                    <div v-if="['rating', 'patch'].includes(item)"
+                      class="flex justify-content-center align-items-center border-solid text-gray-700 border-gray-600 border-1 border-round-lg bg-black-alpha-20 overflow-hidden"
+                      style="width: 80px; height: 80px;">
+                      <Image preview v-if="isStandard" :src="getImageUrl(item)" :alt="item"
+                        imageClass="w-full h-full p-2 transition-all transition-duration-500" style="scale: 1.1;" />
+                      <i v-else class="pi pi-minus-circle"></i>
+                    </div>
 
-                <div v-else-if="isException(item, selectedUniform.type_uniform)"
-                  class="flex justify-content-center align-items-center border-solid text-gray-700 border-gray-600 border-1 border-round-lg bg-black-alpha-20 overflow-hidden"
-                  style="aspect-ratio: 1; width: 80px;">
-                  <i class="pi pi-minus-circle"></i>
-                </div>
+                    <div v-else-if="isException(item, selectedUniform.type_uniform)"
+                      class="flex justify-content-center align-items-center border-solid text-gray-700 border-gray-600 border-1 border-round-lg bg-black-alpha-20 overflow-hidden"
+                      style="width: 80px; height: 80px;">
+                      <i class="pi pi-minus-circle"></i>
+                    </div>
 
-                <div v-else
-                  class="flex border-solid border-1 border-round-lg bg-black-alpha-20 transition-all transition-duration-500 cursor-pointer"
-                  :class="[
-                    isEquipped(item)
-                      ? 'border-orange-200'
-                      : 'border-gray-600 hover:border-orange-400'
-                  ]" style="aspect-ratio: 1; width: 80px;" @click="
-                    toggleItem(item)">
+                    <div v-else
+                      class="flex border-solid border-1 border-round-lg bg-black-alpha-20 transition-all transition-duration-500 cursor-pointer"
+                      :class="[
+                        isEquipped(item)
+                          ? 'border-orange-200'
+                          : 'border-gray-600 hover:border-orange-400'
+                      ]" style="width: 80px; height: 80px" @click="
+                        toggleItem(item)">
 
-                  <Image :src="getImageUrl(item)" :alt="item" class="flex overflow-hidden"
-                    :imageClass="['p-2 transition-all transition-duration-500 transition-ease-in-out', isEquipped(item) ? 'opacity-100' : 'opacity-70']"
-                    :imageStyle="{
-                      filter: isEquipped(item) ? 'none' : 'grayscale(100%)',
-                      scale: isEquipped(item) ? '1.1' : '1',
-                      objectFit: 'cover'
-                    }" />
+                      <Image :src="getImageUrl(item)" :alt="item" class="flex overflow-hidden"
+                        :imageClass="['p-2 transition-all transition-duration-500 transition-ease-in-out', isEquipped(item) ? 'opacity-100' : 'opacity-70']"
+                        :imageStyle="{
+                          filter: isEquipped(item) ? 'none' : 'grayscale(100%)',
+                          scale: isEquipped(item) ? '1.1' : '1',
+                          objectFit: 'cover'
+                        }" />
+                    </div>
+                  </div>
                 </div>
               </div>
+              <div class="flex justify-content-end gap-2">
+                <Button label="Cancelar" outlined @click="uniformDialog = false" />
+                <Button type="submit" label="Salvar" @click="saveUniform" />
+              </div>
             </div>
-          </div>
-          <div class="flex justify-content-end gap-2">
-            <Button label="Cancelar" icon="pi pi-times" text @click="hideDialog" />
-            <Button type="submit" label="Salvar" icon="pi pi-check" @click="saveUniform" />
           </div>
         </div>
       </div>
@@ -268,7 +273,16 @@ const allOptions = ref(LOADOUT_ITEMS);
 const isLoadingDialog = ref(false);
 
 const filters = ref({
-  'global': { value: null, matchMode: FilterMatchMode.CONTAINS },
+  'global': { value: '', matchMode: FilterMatchMode.CONTAINS },
+});
+
+const labels = computed(() => {
+  const firstItem = items.value?.[0];
+
+  if (!firstItem) return ['$id'];
+
+  return Object.keys(firstItem)
+    .filter(key => !key.startsWith('$'));
 });
 
 const checkUniformComplete = (uniform: ILoadout) => {

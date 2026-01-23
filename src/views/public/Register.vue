@@ -79,7 +79,7 @@ const resolver = zodResolver(
       .email({ message: "Email inválido." }),
     password: z
       .string()
-      .min(6, { message: "A senha deve ter no mínimo 6 caracteres." }),
+      .min(8, { message: "A senha deve ter no mínimo 8 caracteres." }),
   })
 );
 
@@ -96,11 +96,11 @@ const handleRegister = async ({ valid, values }: FormSubmitEvent) => {
       });
 
       router.push("/profile");
-    } catch (error) {
+    } catch (error: any) {
       toast.add({
         severity: "error",
         summary: "Erro",
-        detail: "Falha ao criar conta.",
+        detail: `Falha ao criar conta: ${error.message}`,
         life: 3000,
       });
     } finally {

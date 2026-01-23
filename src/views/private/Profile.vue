@@ -69,7 +69,7 @@
 
             <FormField name="birth_date" v-slot="$field" class="field col-12 md:col-4 flex flex-column gap-1">
               <FloatLabel variant="in">
-                <DatePicker v-model="$field.value" class="w-full" dateFormat="dd/mm/yy" showIcon showButtonBar
+                <DatePicker v-model="$field.value" class="w-full" showIcon showButtonBar
                   iconDisplay="input" :showOnFocus="true" :manualInput="false" fluid />
                 <label>Data de Nascimento</label>
               </FloatLabel>

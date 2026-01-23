@@ -11,8 +11,14 @@
 
   <div v-else class="col-12">
     <div class="grid">
+      <div class="col-12">
+        <Level />
+      </div>
       <div class="col-12 md:col-4">
-        <OperatorRankCard />
+        <Card>
+          <template #title>Financeiro</template>
+          <template #content>{{ openPayments.length }} Pagamento(s) em aberto</template>
+        </Card>
       </div>
       <div class="col-12 md:col-4">
         <Card>
@@ -36,6 +42,14 @@
       </div>
       <div class="col-12">
         <Card>
+          <template #title>Meta(s)</template>
+          <template #content>
+            <GoalList />
+          </template>
+        </Card>
+      </div>
+      <div class="col-12">
+        <Card>
           <template #title>Aniversariante(s)</template>
           <template #content>
             <BirthdayList />
@@ -50,10 +64,31 @@
 import Card from "primevue/card";
 import { useAuthStore } from "@/stores/auth";
 
-import OperatorRankCard from "@/components/operators/OperatorRankCard.vue";
+import Level from "@/components/operators/Level.vue";
 import EventList from "@/components/EventList.vue";
 import BirthdayList from "@/components/BirthdayList.vue";
+import GoalList from "@/components/GoalList.vue";
+import { computed, onMounted, ref } from "vue";
+import { PaymentService, type IPayment } from "@/services/payment";
 
-const { isActiveOperator, operator: { arsenal, loadout } } = useAuthStore();
+const { isActiveOperator, operator: { $id, arsenal, loadout } } = useAuthStore();
 
+const payments = ref<IPayment[]>([]);
+const loading = ref(true);
+
+onMounted(loadServices);
+
+async function loadServices() {
+  loading.value = true;
+
+  try {
+    payments.value = await PaymentService.listByOperator($id)
+  } catch (e) {
+    console.error(e);
+  } finally {
+    loading.value = false;
+  }
+}
+
+const openPayments = computed(() => payments.value.filter(p => p.status === 'created'));
 </script>

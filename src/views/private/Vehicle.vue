@@ -1,88 +1,62 @@
 <template>
   <div class="card">
-    <div class="surface-card shadow-2 border-round overflow-hidden">
-      <DataTable :value="dtValue" paginator :rows="5" stripedRows :filters="filters"
-        paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-        :rowsPerPageOptions="[5, 10, 25]"
-        currentPageReportTemplate="Exibindo {first} a {last} de {totalRecords} voto(s)" tableStyle="min-width: 60rem">
+    <AppTable title="Veículo(s)" :value="vehicles" :fields="fields" :loading="loading" icon="ri ri-car-line">
+      <template #header-actions>
+        <Button label="Nova" icon="pi pi-plus" size="small" @click="newVehicle" />
+      </template>
 
-        <template #header>
-          <div class="flex flex-wrap align-items-center justify-content-between gap-3 p-2">
+      <template #actions="{ data }">
+        <Skeleton v-if="loading" width="100%" height="1rem" />
+        <div v-else class="flex gap-2 justify-content-center">
+          <Button icon="pi pi-pencil" text rounded severity="secondary" @click="editVehicle(data)" />
+          <Button icon="pi pi-trash" text rounded severity="danger" @click="confirmDelete(data)" />
+        </div>
+      </template>
+    </AppTable>
 
-            <div class="flex align-items-center gap-3">
-              <span class="text-xl font-bold">Veículo(s)</span>
-              <Button label="Novo" icon="pi pi-plus" size="small" @click="newVehicle" />
-            </div>
+    <Dialog v-model:visible="vehicleDialog" header="Veículo" :modal="true" :style="{ width: '100%', maxWidth: '640px' }"
+      class="m-3">
+      <Form :resolver="resolver" :initialValues="selectedVehicle" @submit="saveVehicle" class="grid"
+        :key="selectedVehicle.$id || 'new'">
+        <template v-for="{ name, label, component, col, hidden, props } in fields" :key="name">
+          <div :class="`col-12 md:col-${col}`" v-if="!hidden">
+            <FormField v-if="component.name === 'ColorPicker'" :name="name" v-slot="$field" class="flex gap-1">
+              <div class="flex flex-column align-items-center gap-2">
+                <label class="font-bold" :for="name">{{ label }}</label>
+                <component :is="component" :id="name" v-bind="props" :name="name" v-model="$field.value" fluid />
+              </div>
+              <Message v-if="$field.invalid" severity="error" size="small" variant="simple">
+                {{ $field.error?.message }}
+              </Message>
+            </FormField>
+            <FormField v-else-if="component.name === 'ToggleSwitch'" :name="name" v-slot="$field" class="flex gap-1">
+              <div class="flex align-items-center gap-2">
+                <component :is="component" :id="name" v-bind="props" :name="name" v-model="$field.value" fluid />
+                <label class="font-bold" :for="name">{{ label }}</label>
+              </div>
+              <Message v-if="$field.invalid" severity="error" size="small" variant="simple">
+                {{ $field.error?.message }}
+              </Message>
+            </FormField>
+            <FormField v-else :name="name" v-slot="$field" class="flex flex-column gap-1">
+              <FloatLabel variant="in">
+                <component :is="component" :id="name" v-bind="props" v-model="$field.value" class="w-full"
+                  :class="{ 'p-invalid': $field.invalid }" fluid />
+                <label :for="name">{{ label }}</label>
+              </FloatLabel>
 
-            <IconField iconPosition="left">
-              <InputIcon>
-                <i class="pi pi-search" />
-              </InputIcon>
-              <InputText v-model="filters['global'].value" placeholder="Procurar..." />
-            </IconField>
-
+              <Message v-if="$field.invalid" severity="error" size="small" variant="simple">
+                {{ $field.error?.message }}
+              </Message>
+            </FormField>
           </div>
         </template>
 
-        <Column v-for="column in fields" :key="column.name" :header="column.label">
-          <template #body="{ data }">
-            <ColumnContent :column="column" :data="data" :loading="loading" />
-          </template>
-        </Column>
-
-        <Column header=" Ações" style="width: 10%">
-          <template #body="{ data }">
-            <Skeleton v-if="loading" width="100%" height="1rem" />
-            <div v-else class="flex gap-2 justify-content-center">
-              <Button icon="pi pi-pencil" text rounded severity="secondary" @click="editVehicle(data)" />
-              <Button icon="pi pi-trash" text rounded severity="danger" @click="confirmDelete(data)" />
-            </div>
-          </template>
-        </Column>
-
-        <template #empty>
-          <Empty label="Nenhum veículo cadastrado" icon="ri ri-car-line" />
-        </template>
-      </DataTable>
-    </div>
-
-    <Dialog v-model:visible="vehicleDialog" :style="{ width: '512px' }" header="Veículo" :modal="true">
-      <Form :resolver="resolver" :initialValues="selectedVehicle" @submit="saveVehicle" class="grid"
-        :key="selectedVehicle.$id || 'new'">
-        <div v-for="{ name, label, component, col, props } in fields" :key="name" :class="`col-${col}`">
-          <FormField v-if="component.name === 'ColorPicker'" :name="name" v-slot="$field" class="flex gap-1">
-            <div class="flex flex-column align-items-center gap-2">
-              <label class="font-bold" :for="name">{{ label }}</label>
-              <component :is="component" :id="name" v-bind="props" :name="name" v-model="$field.value" fluid />
-            </div>
-            <Message v-if="$field.invalid" severity="error" size="small" variant="simple">
-              {{ $field.error?.message }}
-            </Message>
-          </FormField>
-          <FormField v-else-if="component.name === 'ToggleSwitch'" :name="name" v-slot="$field" class="flex gap-1">
-            <div class="flex align-items-center gap-2">
-              <component :is="component" :id="name" v-bind="props" :name="name" v-model="$field.value" fluid />
-              <label class="font-bold" :for="name">{{ label }}</label>
-            </div>
-            <Message v-if="$field.invalid" severity="error" size="small" variant="simple">
-              {{ $field.error?.message }}
-            </Message>
-          </FormField>
-          <FormField v-else :name="name" v-slot="$field" class="flex flex-column gap-1">
-            <FloatLabel variant="in">
-              <component :is="component" :id="name" v-bind="props" v-model="$field.value" class="w-full"
-                :class="{ 'p-invalid': $field.invalid }" fluid />
-              <label :for="name">{{ label }}</label>
-            </FloatLabel>
-
-            <Message v-if="$field.invalid" severity="error" size="small" variant="simple">
-              {{ $field.error?.message }}
-            </Message>
-          </FormField>
-        </div>
-
-        <div class="col-12">
-          <Button type="submit" label="Salvar" class="w-full shadow-6" severity="success" />
+        <div class="col-12 pb-0">
+          <div class="flex justify-content-end gap-2">
+            <Button label="Cancelar" outlined @click="vehicleDialog = false" />
+            <Button type="submit" label="Salvar" />
+          </div>
         </div>
       </Form>
     </Dialog>
@@ -92,13 +66,8 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from "vue";
 import { useToast } from "primevue/usetoast";
-import { FilterMatchMode } from '@primevue/core/api';
-import IconField from "primevue/iconfield";
-import InputIcon from "primevue/inputicon";
-import Column from "primevue/column";
 import Button from "primevue/button";
 import Dialog from "primevue/dialog";
-import DataTable from "primevue/datatable";
 import FloatLabel from "primevue/floatlabel";
 import InputText from "primevue/inputtext";
 import Select from "primevue/select";
@@ -110,7 +79,6 @@ import { ColorPicker, InputNumber, useConfirm } from "primevue";
 import { VehicleService, type IVehicle } from "@/services/vehicle";
 import { useAuthStore } from "@/stores/auth";
 import { type IFields } from "@/functions/utils";
-import ColumnContent from "@/components/ColumnContent.vue";
 
 const { operator } = useAuthStore();
 
@@ -128,10 +96,6 @@ const loadServices = async () => {
   }
 };
 
-const dtValue = computed(() => {
-  return loading.value ? new Array(5).fill({}) : vehicles.value;
-});
-
 const vehicles = ref<IVehicle[]>([]);
 
 const toast = useToast();
@@ -141,10 +105,6 @@ const loading = ref(true);
 
 const vehicleDialog = ref(false);
 const selectedVehicle = ref<IVehicle>({} as IVehicle);
-
-const filters = ref({
-  'global': { value: null, matchMode: FilterMatchMode.CONTAINS },
-});
 
 const vehicleSchema = z.object({
   type: z.string({ error: "Selecione o tipo de veículo" }),

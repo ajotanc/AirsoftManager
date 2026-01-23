@@ -36,8 +36,10 @@ const shareNative = async () => {
 
     if (checked_in) {
       return `✅ ${index}. ${name}`;
-    } else {
+    } else if (!checked_in && is_finished) {
       return `❎ ${index}. ~${name}~`;
+    } else {
+      return `${index}. ${name}`;
     }
   }).join('\n');
 
@@ -48,8 +50,10 @@ const shareNative = async () => {
 
     if (checked_in) {
       return `✅ ${index}. ${name} (${team})`;
-    } else {
+    } else if (checked_in && is_finished) {
       return `❎ ${index}. ~${name} (${team})~`;
+    } else {
+      return `${index}. ${name} (${team})`;
     }
   }).join('\n');
 

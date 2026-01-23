@@ -2,7 +2,7 @@
   <Skeleton v-if="loading" width="80%" height="1.2rem" />
 
   <template v-else>
-    <Tag v-if="column.component?.name === 'Tag'" :value="displayValue" :severity="column.props?.severity" />
+    <Tag v-if="column.component?.name === 'Select'" :value="displayValue" :severity="severity" />
     <Rating v-else-if="column.component?.name === 'Rating'" :modelValue="Number(cellValue)" readonly :cancel="false" />
     <ColorPicker v-else-if="column.component?.name === 'ColorPicker'" :modelValue="cellValue"
       style="pointer-events: none;" />
@@ -12,12 +12,13 @@
       <i v-else :class="[PrimeIcons.TIMES, 'text-red-300']" />
     </template>
 
-    <div v-else class="flex align-items-center gap-2">
+    <div v-else-if="column.button" class="flex align-items-center gap-2">
       <span>{{ displayValue }}</span>
 
       <Button v-if="column.button" v-tooltip.top="column.label" :icon="column.button.icon"
         :severity="column.button.severity" @click="column.button.callback(data)" rounded outlined size="small" />
     </div>
+    <template v-else>{{ displayValue }}</template>
   </template>
 </template>
 
@@ -41,6 +42,16 @@ const cellValue = computed(() => {
   return props.column.name.split('.').reduce((obj, key) => (obj?.[key] ?? ""), props.data);
 });
 
+const severity = computed(() => {
+  if (props.column.component?.name === 'Select' && props.column.props?.options) {
+    const options = props.column.props.options;
+    const option = options.find(({ value }: { value: string }) => String(value) === String(cellValue.value));
+    return option ? option.severity : undefined;
+  }
+
+  return props.column.props?.severity;
+});
+
 const displayValue = computed(() => {
   const val = cellValue.value;
   if (val === null || val === undefined || val === "") return "";
@@ -49,12 +60,16 @@ const displayValue = computed(() => {
     return formatByMask(val, props.column.props?.mask);
   }
 
+  if (props.column.component?.name === 'InputNumber' && props.column.props?.mode === 'currency') {
+    return new Intl.NumberFormat(props.column.props?.locale, { style: props.column.props.mode, currency: props.column.props.currency }).format(Number(val));
+  }
+
   if (props.column.component?.name === 'DatePicker') {
     const date = new Date(val);
     return isNaN(date.getTime()) ? val : date.toLocaleDateString("pt-BR");
   }
 
-  if (props.column.isTag && props.column.props?.options) {
+  if (props.column.component?.name === 'Select' && props.column.props?.options) {
     const options = props.column.props.options;
     const option = options.find(({ value }: { value: string }) => String(value) === String(val));
     return option ? option.label : val;

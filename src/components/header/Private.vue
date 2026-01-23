@@ -67,6 +67,7 @@
                     <span class="font-medium">{{ item.label }}</span>
                   </a>
                 </router-link>
+
                 <div v-else class="mt-3">
                   <span class="text-xs font-bold text-500 uppercase px-3" :class="{ 'opacity-50': item.disabled }">
                     {{ item.label }}
@@ -81,6 +82,25 @@
                           <span :class="{ 'text-primary font-bold': isActive }">{{ sub.label }}</span>
                         </a>
                       </router-link>
+
+                      <div v-else-if="sub.items" class="mt-2">
+                        <span class="text-xs font-semibold text-400 uppercase pl-4 block mb-1">
+                          {{ sub.label }}
+                        </span>
+                        <ul class="list-none p-0 m-0">
+                          <li v-for="child in sub.items" :key="child.label">
+                            <router-link :to="child.route!" @click="visible = false" v-slot="{ isActive }"
+                              class="no-underline">
+                              <a v-ripple
+                                class="flex align-items-center cursor-pointer p-2 pl-5 border-round text-700 hover:surface-100">
+                                <i :class="[child.icon, 'mr-3 text-sm']"></i>
+                                <span :class="{ 'text-primary font-bold': isActive }">{{ child.label }}</span>
+                              </a>
+                            </router-link>
+                          </li>
+                        </ul>
+                      </div>
+
                       <div v-else class="flex align-items-center p-2 pl-4 opacity-50 cursor-not-allowed">
                         <i :class="[sub.icon, 'mr-3']"></i>
                         <span>{{ sub.label }}</span>
@@ -187,6 +207,23 @@ const navItems = computed<IMenu[]>(() => [
     ],
   },
   {
+    label: "Financeiro",
+    icon: "ri-bank-line",
+    visible: authStore.isActiveOperator,
+    items: [
+      {
+        label: "Meus Pagamentos",
+        icon: "ri-wallet-line",
+        route: "/finance/payments",
+      },
+      {
+        label: "Transparência",
+        icon: "ri-auction-line",
+        route: "/finance/cashflow",
+      },
+    ],
+  },
+  {
     label: "Gestão",
     icon: "ri-briefcase-line",
     visible: authStore.isAdmin,
@@ -214,8 +251,23 @@ const navItems = computed<IMenu[]>(() => [
       {
         label: "Financeiro",
         icon: "ri-bank-line",
-        route: "/admin/finance",
-        disabled: true,
+        items: [
+          {
+            label: "Pagamentos",
+            icon: "ri-wallet-line",
+            route: "/admin/finance/payments",
+          },
+          {
+            label: "Metas",
+            icon: "ri-gift-line",
+            route: "/admin/finance/goals",
+          },
+          {
+            label: "Caixa",
+            icon: "ri-exchange-funds-line",
+            route: "/admin/finance/cashflow",
+          },
+        ],
       },
     ],
   },

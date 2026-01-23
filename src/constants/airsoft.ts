@@ -2,6 +2,9 @@ import type { ChartOptions, ChartData, TooltipItem } from "chart.js";
 
 export const TEAM_NAME = import.meta.env.VITE_TEAM_NAME;
 export const TEAM_TAG = import.meta.env.VITE_TEAM_TAG;
+export const MONTHLY_FEE = Number.parseFloat(import.meta.env.VITE_MONTHLY_FEE);
+export const DUE_DATE = Number.parseInt(import.meta.env.VITE_DUE_DATE, 10);
+
 export const MIN_COMPLETE_UNIFORMS = 3;
 export const EXPERIENCE_PER_LEVEL = 200;
 
@@ -444,3 +447,24 @@ export const ALLERGIES = [
 export const MEDICATIONS = [
   "Acarbose", "Acetazolamida", "Acetilcisteína", "Aciclovir", "Ácido Acetilsalicílico (AAS)", "Ácido Alendrônico", "Ácido Fólico", "Ácido Ursodesoxicólico", "Ácido Valproico", "Adrenalina (Epinefrina)", "Albendazol", "Alfenanil", "Alopurinol", "Alprazolam", "Ambroxol", "Amilorida", "Aminofilina", "Amiodarona", "Amitriptilina", "Amoxicilina", "Amoxicilina + Clavulanato", "Anastrozol", "Anlodipino", "Apixabana", "Atenolol", "Atorvastatina", "Atropina", "Azatioprina", "Azitromicina", "Baclofeno", "Benzoato de Benzila", "Betaistina", "Betametasona", "Bezafibrato", "Bicalutamida", "Bisacodila", "Bisoprolol", "Brimonidina", "Bromazepam", "Brometo de Ipratrópio", "Brometo de Tiotrópio", "Bromexina", "Bromoprida", "Budesonida", "Bupropiona", "Buspirona", "Capecitabina", "Captopril", "Carbamazepina", "Carbonato de Cálcio", "Carbonato de Lítio", "Carisoprodol", "Carvedilol", "Cefadroxila", "Cefalexina", "Ceftriaxona", "Celecoxibe", "Cetirizina", "Cetoconazol", "Cetoprofeno", "Ciclobenzaprina", "Ciclosporina", "Cinarizina", "Ciprofloxacino", "Ciproterona", "Citalopram", "Claritromicina", "Clindamicina", "Clobutinol", "Clomipramina", "Clonazepam", "Clopidogrel", "Cloreto de Potássio", "Clortalidona", "Codeína", "Colchicina", "Colestiramina", "Dabigatrana", "Dapagliflozina", "Desloratadina", "Desogestrel", "Desvenlafaxina", "Dexametasona", "Dextrometorfano", "Diazepam", "Diclofenaco Sódico", "Digoxina", "Dimenidrinato (Dramin)", "Diosmina + Hesperidina", "Dipirona Sódica", "Dobutamina", "Dolutegravir", "Domperidona", "Dopamina", "Doxiciclina", "Dropropizina", "Duloxetina", "Efavirenz", "Empagliflozina", "Enalapril", "Enoxaparina Sódica", "Entecavir", "Escitalopram", "Escopolamina (Buscopan)", "Esomeprazol", "Espironolactona", "Estradiol", "Estrogênios Conjugados", "Etinilestradiol + Gestodeno", "Etoricoxibe", "Ezetimiba", "Febuxostate", "Fenitoína", "Fenofibrato", "Fenoximetilpenicilina", "Fexofenadina (Allegra)", "Finasterida", "Fluconazol", "Fluoxetina", "Fluticasona", "Formoterol", "Furosemida", "Gabapentina", "Gentamicina", "Glibenclamida", "Gliclazida", "Glimepirida", "Glucagon", "Guaifenesina", "Haloperidol", "Hidralazina", "Hidroclorotiazida", "Hidrocortisona", "Hidroxicloroquina", "Hidróxido de Alumínio", "Hidróxido de Magnésio", "Hidroxizina", "Ibuprofeno", "Imatinibe", "Imipramina", "Insulina NPH", "Isosorbida", "Ivermectina", "Lactulose", "Lamivudina", "Lamotrigina", "Latanoprosta", "Letrozol", "Levetiracetam", "Levodropropizina", "Levofloxacino", "Levonorgestrel", "Levotiroxina Sódica", "Liraglutida (Saxenda)", "Loperamida", "Loratadina", "Lorazepam", "Losartana Potássica", "Maleato de Dexclorfeniramina", "Meclizina", "Medroxiprogesterona", "Meloxicam", "Mesalazina", "Metformina", "Metildopa", "Metoclopramida", "Metotrexato", "Metronidazol", "Midazolam", "Mirtazapina", "Montelucaste", "Morfina", "Mupirocina", "Nafazolina", "Naproxeno", "Neomicina + Bacitracina", "Nimesulida", "Nistatina", "Nitazoxanida (Annita)", "Nitrofurantoína", "Nitroglicerina", "Norfloxacino", "Nortriptilina", "Olanzapina", "Omeprazol", "Ondansetrona", "Orfenadrina", "Orlistate", "Oseltamivir (Tamiflu)", "Oximetazolina", "Pantoprazol", "Paracetamol", "Paroxetina", "Pentoxifilina", "Permetrina", "Pioglitazona", "Pirantel", "Piroxicam", "Prednisolona", "Prednisona", "Pregabalina", "Probenecida", "Progesterona", "Prometazina (Fenergan)", "Propofol", "Propranolol", "Quetiapina", "Rabeprazol", "Ranitidina", "Ribavirina", "Risperidona", "Ritonavir", "Rivaroxabana", "Rosuvastatina", "Saccharomyces boulardii", "Salbutamol", "Secnidazol", "Semaglutida (Ozempic)", "Sertralina", "Sibutramina", "Sildenafila (Viagra)", "Silimarina", "Simeticona (Luftal)", "Simvastatina", "Sitagliptina", "Sofosbuvir", "Sucralfato", "Sulfametoxazol + Trimetoprima", "Sulfassalazina", "Sulfato Ferroso", "Tadalafila", "Tamoxifeno", "Tansulosina", "Tenofovir", "Teofilina", "Terbinafina", "Teriparatida", "Timolol", "Tinidazol", "Tizanidina", "Topiramato", "Tramadol", "Trazodona", "Valsartana", "Varfarina Sódica", "Venlafaxina", "Vildagliptina", "Vitamina B12", "Vitamina D3 (Colecalciferol)", "Zolpidem"
 ];
+
+export const TRANSACTION_CATEGORIES = [
+  { value: "monthly_fee", label: "Mensalidade", severity: "info" },
+  { value: "enrollment", label: "Matrícula", severity: "info" },
+  { value: "goal", label: "Metas", severity: "help" },
+  { value: "supply", label: "Suprimentos", severity: "help" },
+  { value: "equipment", label: "Equipamentos", severity: "help" },
+  { value: "others", label: "Outros", severity: "secondary" },
+]
+
+export const TRANSACTION_STATUS = [
+  { value: "created", label: "Emitido", severity: "secondary" },
+  { value: "pending", label: "Pendente", severity: "warn" },
+  { value: "overdue", label: "Vencido", severity: "danger" },
+  { value: "paid", label: "Pago", severity: "success" },
+];
+
+export const CASHFLOW_TYPES = [
+  { value: "income", label: "Entrada", severity: "success" },
+  { value: "expense", label: "Saída", severity: "danger" },
+]

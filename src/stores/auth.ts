@@ -1,3 +1,5 @@
+
+import dayjs from 'dayjs';
 import { defineStore } from "pinia";
 import { account } from "@/services/appwrite";
 import { ID, type Models } from "appwrite";
@@ -6,6 +8,8 @@ import {
   type IOperator,
   type IOperatorDraft,
 } from "@/services/operator";
+import { PaymentService, type IPayment } from "@/services/payment";
+import { DUE_DATE, MONTHLY_FEE, TEAM_NAME } from "@/constants/airsoft";
 
 export const useAuthStore = defineStore("auth", {
   state: () => ({
@@ -72,7 +76,25 @@ export const useAuthStore = defineStore("auth", {
           birth_date: null
         };
 
-        await OperatorService.create(payload as IOperator, userAccount.$id);
+        const operator = await OperatorService.create(payload as IOperator, userAccount.$id);
+        const description = `Matrícula · ${TEAM_NAME}`;
+
+        const date = dayjs();
+        const reference = date.format("MM/YYYY");
+        const due_date = date.add(DUE_DATE, 'day').toISOString();
+
+        const payment = {
+          amount: MONTHLY_FEE,
+          status: 'created',
+          category: 'enrollment',
+          reference,
+          description,
+          receipt_url: null,
+          due_date,
+          operator: operator.$id
+        } as IPayment;
+
+        await PaymentService.create(payment);
 
         await this.init();
       } catch (error) {

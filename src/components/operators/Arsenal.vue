@@ -2,7 +2,7 @@
   <div class="card">
     <div class="surface-card shadow-2 border-round overflow-hidden">
 
-      <DataTable :value="items" paginator :rows="5" stripedRows :filters="filters"
+      <DataTable :value="items" paginator :rows="5" stripedRows v-model:filters="filters" :globalFilterFields="labels"
         paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
         :rowsPerPageOptions="[5, 10, 25]"
         currentPageReportTemplate="Exibindo {first} a {last} de {totalRecords} arma(s)" tableStyle="min-width: 50rem">
@@ -54,11 +54,11 @@
       </DataTable>
     </div>
 
-    <Dialog v-model:visible="weaponDialog" header="Detalhes do Arsenal" :style="{ width: '50vw' }"
-      :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
-      <Form :resolver="resolver" :initialValues="selectedWeapon" @submit="saveWeapon" class="grid"
-        :key="selectedWeapon.$id || 'new'">
-        <div v-for="{ name, label, component, col, props } in fields" :key="name" :class="`col-${col}`">
+    <Dialog v-model:visible="weaponDialog" header="Detalhes do Arsenal" :style="{ width: '100%', maxWidth: '640px' }"
+      class="m-3">
+      <Form :resolver="resolver" :initialValues="selectedWeapon" @submit="saveWeapon" :key="selectedWeapon.$id || 'new'"
+        class="grid">
+        <div v-for="{ name, label, component, col, props } in fields" :key="name" :class="`col-12 md:col-${col}`">
           <FormField v-if="component.name === 'ToggleSwitch'" :name="name" v-slot="$field"
             class="flex flex-column gap-1">
             <div class="flex gap-2">
@@ -118,7 +118,7 @@
           </FileUpload>
         </div>
 
-        <div class="col-12">
+        <div class="col-12 pb-0">
           <div class="flex justify-content-end gap-2">
             <Button label="Cancelar" outlined @click="hideDialog" />
             <Button type="submit" label="Salvar" />
@@ -127,23 +127,28 @@
       </Form>
     </Dialog>
 
-    <Dialog v-model:visible="qrDialog" modal header="Etiqueta de Patrimônio" :style="{ width: '360px' }">
-      <div class="flex flex-column align-items-center gap-4">
-        <div ref="label" class="border-2 border-round p-3 text-center surface-0 shadow-2 bg-white">
-          <div class="text-xs mb-2 text-gray-600 font-mono">
-            {{ selectedWeapon.name }}
-          </div>
-          <QrcodeVue :value="generateUrl(selectedWeapon.$id)" :size="200" level="H" background="#ffffff"
-            foreground="#000000" />
-          <div class="text-xs mt-2 text-gray-600 font-mono">
-            ID: {{ selectedWeapon.$id }}
-          </div>
-        </div>
+    <Dialog v-model:visible="qrDialog" modal header="Etiqueta de Patrimônio"
+      :style="{ width: '100%', maxWidth: '368px' }" class="m-3">
+      <div class="grid">
+        <div class="col-12">
+          <div class="flex flex-column align-items-center gap-3">
+            <div ref="label" class="border-2 border-round p-3 text-center surface-0 shadow-2 bg-white">
+              <div class="text-xs font-bold mb-2 text-gray-600">
+                {{ selectedWeapon.name }}
+              </div>
+              <QrcodeVue :value="generateUrl(selectedWeapon.$id)" :size="200" level="H" background="#ffffff"
+                foreground="#000000" />
+              <div class="text-xs mt-2 text-gray-600">
+                ID: {{ selectedWeapon.$id }}
+              </div>
+            </div>
 
-        <div class="flex flex-column w-full gap-2">
-          <Button label="Baixar Etiqueta" icon="pi pi-download" @click="downloadQrCode" severity="success"
-            :loading="downloading" />
-          <small class="text-center text-gray-500">Imprima e cole no equipamento.</small>
+            <div class="flex flex-column w-full gap-2">
+              <Button label="Baixar Etiqueta" icon="pi pi-download" @click="downloadQrCode" severity="success"
+                :loading="downloading" />
+              <small class="text-center text-gray-500">Imprima e cole no equipamento.</small>
+            </div>
+          </div>
         </div>
       </div>
     </Dialog>
@@ -158,7 +163,6 @@ import { useToast } from "primevue/usetoast";
 import { FilterMatchMode, PrimeIcons } from '@primevue/core/api';
 import { zodResolver } from "@primevue/forms/resolvers/zod";
 import { z } from "zod";
-
 
 import Column from "primevue/column";
 import Button from "primevue/button";
@@ -306,7 +310,16 @@ const downloading = ref(false);
 const uploading = ref(false);
 
 const filters = ref({
-  'global': { value: null, matchMode: FilterMatchMode.CONTAINS },
+  'global': { value: '', matchMode: FilterMatchMode.CONTAINS },
+});
+
+const labels = computed(() => {
+  const firstItem = items.value?.[0];
+
+  if (!firstItem) return ['$id'];
+
+  return Object.keys(firstItem)
+    .filter(key => !key.startsWith('$'));
 });
 
 const generateUrl = (weaponId: string) => {

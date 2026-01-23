@@ -1,7 +1,12 @@
 import imageCompression from 'browser-image-compression';
+import dayjs from 'dayjs';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
 
 import beepSound from "@/assets/sounds/beep.mp3";
 import router from "@/router";
+import { BUCKET_ID, storage } from '@/services/appwrite';
+
+dayjs.extend(customParseFormat);
 
 export interface IFields {
   name: string;
@@ -13,6 +18,7 @@ export interface IFields {
   isRating?: boolean;
   isHtml?: boolean;
   hidden?: boolean;
+  show?: boolean;
   icon?: string;
   iconColor?: string;
   button?: {
@@ -205,6 +211,7 @@ export const getShortName = (name: string) => {
 };
 
 export const goToEvent = (id: string) => router.push(`/events/${id}?t=${Date.now()}`);
+
 export const normalize = (str: string) =>
   str
     .trim()
@@ -230,3 +237,36 @@ export const search = (query: string, sourceArray: string[]): string[] => {
 
   return results;
 };
+
+export const uploadFile = async (rowId: string, file: File): Promise<string> => {
+  const fileId = `file-${rowId}`;
+  const newFile = file.type.includes('image/') ? await processImage(file) : file;
+
+  try {
+    await storage.createFile({
+      bucketId: BUCKET_ID,
+      fileId,
+      file: newFile,
+    });
+
+    const url = storage.getFileView({ bucketId: BUCKET_ID, fileId });
+    return `${url.toString()}&v=${Date.now()}`;
+  } catch (error) {
+    console.error("Erro no upload da imagem:", error);
+    throw new Error("Falha ao processar imagem da missão.");
+  }
+}
+
+export const deleteFile = async (rowId: string, filename?: string): Promise<{}> => {
+  const fileId = `${filename || 'file'}-${rowId}`;
+
+  try {
+    return await storage.deleteFile({ bucketId: BUCKET_ID, fileId });
+  } catch (error) {
+    console.error("Erro ao excluir da imagem:", error);
+    throw new Error("Falha ao processar imagem da missão.");
+  }
+}
+
+export const dateToISOString = (date: Date | string) => dayjs(date, typeof date === 'string' ? 'DD/MM/YYYY' : undefined).toISOString()
+export const formatCurrency = (value: number) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);

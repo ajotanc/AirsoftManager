@@ -3,6 +3,7 @@ import { defineConfig, loadEnv } from "vite";
 import vue from "@vitejs/plugin-vue";
 import Components from "unplugin-vue-components/vite";
 import { PrimeVueResolver } from "@primevue/auto-import-resolver";
+import { nodePolyfills } from 'vite-plugin-node-polyfills'
 import { VitePWA } from "vite-plugin-pwa";
 
 export default defineConfig(({ mode }) => {
@@ -11,6 +12,13 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [
       vue(),
+      nodePolyfills({ // 2. Ative os polyfills
+        globals: {
+          Buffer: true, // Isso resolve o erro do "buffer"
+          global: true,
+          process: true,
+        },
+      }),
       Components({
         resolvers: [PrimeVueResolver()],
       }),
@@ -34,7 +42,7 @@ export default defineConfig(({ mode }) => {
               type: "image/png",
             },
             {
-              src: "pwa-64x64.png",
+              src: "pwa-192x192.png",
               sizes: "192x192",
               type: "image/png",
             },
@@ -78,6 +86,10 @@ export default defineConfig(({ mode }) => {
         },
       }),
     ],
+    define: {
+      'process.env': {},
+      global: 'window',
+    },
     resolve: {
       alias: {
         "@": fileURLToPath(new URL("./src", import.meta.url)),

@@ -59,12 +59,16 @@ const router = createRouter({
           component: () => import("../views/private/HappyBirthday.vue"),
         },
         {
-          path: "admin/operators",
-          component: () => import("../views/admin/Operators.vue"),
+          path: "finance/payments",
+          component: () => import("../views/private/finance/Payments.vue"),
         },
         {
-          path: "admin/finance",
-          component: () => import("../views/admin/Finance.vue"),
+          path: "finance/cashflow",
+          component: () => import("../views/private/finance/FinancialTransparency.vue"),
+        },
+        {
+          path: "admin/operators",
+          component: () => import("../views/admin/Operators.vue"),
         },
         {
           path: "admin/events",
@@ -77,6 +81,18 @@ const router = createRouter({
         {
           path: "admin/visitors",
           component: () => import("../views/admin/Visitors.vue"),
+        },
+        {
+          path: "admin/finance/payments",
+          component: () => import("../views/private/finance/Payments.vue"),
+        },
+        {
+          path: "admin/finance/goals",
+          component: () => import("../views/admin/finance/Goals.vue"),
+        },
+        {
+          path: "admin/finance/cashflow",
+          component: () => import("../views/admin/finance/Cashflow.vue"),
         },
       ],
     },
