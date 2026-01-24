@@ -14,6 +14,10 @@ const router = createRouter({
           path: "register",
           component: () => import("../views/public/Register.vue"),
         },
+        { path: "verify-email", component: () => import("../views/public/VerifyEmail.vue") },
+        { path: "awaiting-verification", component: () => import("../views/public/AwaitingVerification.vue") },
+        { path: "forgot-password", component: () => import("../views/public/ForgotPassword.vue") },
+        { path: "reset-password", component: () => import("../views/public/ResetPassword.vue") },
       ],
     },
     {
@@ -110,27 +114,26 @@ const router = createRouter({
 });
 
 router.beforeEach(async (to, _, next) => {
-  const authStore = useAuthStore();
+  const { user, init, loading, isAuthenticated, hasCompletedSetup, isActiveOperator } = useAuthStore();
 
-  if (authStore.loading) await authStore.init();
+  if (loading) await init();
 
-  const isAuth = authStore.isAuthenticated;
-  const requiresAuth = to.meta.requiresAuth;
+  if (to.meta.requiresAuth) {
+    if (!user) {
+      return next('/login');
+    }
 
-  if (requiresAuth && !isAuth) {
-    return next("/login");
+    if (!user.emailVerification && to.path !== '/awaiting-verification') {
+      return next('/awaiting-verification');
+    }
   }
 
-  if (isAuth && (to.path === "/login" || to.path === "/register")) {
+  if (isAuthenticated && (to.path === "/login" || to.path === "/register")) {
     return next("/dashboard");
   }
 
-  if (isAuth) {
-    if (
-      !authStore.hasCompletedSetup &&
-      authStore.isActiveOperator &&
-      to.path !== "/profile"
-    ) {
+  if (isAuthenticated) {
+    if (!hasCompletedSetup && isActiveOperator && to.path !== "/profile") {
       return next("/profile");
     }
   }

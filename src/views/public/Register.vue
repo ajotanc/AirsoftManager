@@ -1,46 +1,51 @@
 <template>
-  <div class="flex align-items-center justify-content-center min-h-screen surface-ground px-4">
+  <div class="flex align-items-center justify-content-center flex-1 surface-ground p-3">
     <div class="surface-card p-4 shadow-2 border-round w-full lg:w-4">
-      <div class="text-center mb-5">
-        <div class="text-900 text-3xl font-medium mb-3">
-          Junte-se ao esquadrão
-        </div>
-        <span class="text-600 font-medium line-height-3">...</span>
+      <div class="text-center mb-3">
+        <div class="text-900 text-3xl font-bold uppercase">JUNTE-SE A NÓS</div>
+        <span class="text-sm font-italic m-0">Onde a estratégia encontra a irmandade.</span>
       </div>
 
-      <Form v-slot="$form" :resolver="resolver" :initialValues="initialValues" @submit="handleRegister"
-        class="flex flex-column gap-4">
-        <div class="flex flex-column gap-2">
+      <Form :resolver="resolver" :initialValues="initialValues" @submit="handleRegister" class="flex flex-column gap-4">
+        <FormField name="name" v-slot="$field" class="flex flex-column gap-2">
           <FloatLabel variant="in">
-            <InputText name="name" type="text" class="w-full" fluid />
-            <label for="name">Nome Completo</label>
+            <InputText type="text" class="w-full" v-model="$field.value" fluid />
+            <label>Nome Completo</label>
           </FloatLabel>
-          <Message v-if="$form.name?.invalid" severity="error" size="small" variant="simple">
-            {{ $form.name.error.message }}
+          <Message v-if="$field.invalid" severity="error" size="small" variant="simple">
+            {{ $field.error.message }}
           </Message>
-        </div>
-
-        <div class="flex flex-column gap-2">
+        </FormField>
+        <FormField name="email" v-slot="$field" class="flex flex-column gap-2">
           <FloatLabel variant="in">
-            <InputText name="email" type="text" class="w-full" fluid />
-            <label for="email">E-mail</label>
+            <InputText type="text" class="w-full" v-model="$field.value" fluid />
+            <label>E-mail</label>
           </FloatLabel>
-          <Message v-if="$form.email?.invalid" severity="error" size="small" variant="simple">
-            {{ $form.email.error.message }}
+          <Message v-if="$field.invalid" severity="error" size="small" variant="simple">
+            {{ $field.error.message }}
           </Message>
-        </div>
-
-        <div class="flex flex-column gap-2">
+        </FormField>
+        <FormField name="password" v-slot="$field" class="flex flex-column gap-2">
           <FloatLabel variant="in">
-            <Password name="password" :feedback="false" toggleMask class="w-full" fluid />
-            <label for="password">Senha</label>
+            <Password :feedback="false" toggleMask class="w-full" v-model="$field.value" fluid />
+            <label>Senha</label>
           </FloatLabel>
-          <Message v-if="$form.password?.invalid" severity="error" size="small" variant="simple">
-            {{ $form.password.error.message }}
+          <template v-if="$field.invalid">
+            <Message v-for="(error, index) of $field.errors" :key="index" severity="error" size="small" class="text-xs"
+              variant="simple">{{ error.message }}</Message>
+          </template>
+        </FormField>
+        <FormField name="confirmPassword" v-slot="$field" class="flex flex-column gap-2">
+          <FloatLabel variant="in">
+            <Password :feedback="false" toggleMask class="w-full" v-model="$field.value" fluid />
+            <label>Confirmar Senha</label>
+          </FloatLabel>
+          <Message v-if="$field.invalid" severity="error" size="small" variant="simple">
+            {{ $field.error.message }}
           </Message>
-        </div>
+        </FormField>
 
-        <Button type="submit" label="Cadastrar" icon="pi pi-sign-in" :loading="loading" />
+        <Button type="submit" label="Cadastrar" :loading="loading" />
       </Form>
     </div>
   </div>
@@ -54,12 +59,12 @@ import { useToast } from "primevue/usetoast";
 import { zodResolver } from "@primevue/forms/resolvers/zod";
 import { z } from "zod";
 
-import { Form, type FormSubmitEvent } from "@primevue/forms";
+import { Form, FormField, type FormSubmitEvent } from "@primevue/forms";
 import InputText from "primevue/inputtext";
 import Password from "primevue/password";
 import Button from "primevue/button";
-import Message from "primevue/message";
 import FloatLabel from "primevue/floatlabel";
+import Message from "primevue/message";
 
 const authStore = useAuthStore();
 const router = useRouter();
@@ -70,17 +75,30 @@ const initialValues = ref({
   name: "",
   email: "",
   password: "",
+  confirmPassword: ""
 });
 
 const resolver = zodResolver(
   z.object({
-    name: z.string().min(1, { message: "O nome competo é obrigatório." }),
-    email: z
-      .email({ message: "Email inválido." }),
+    name: z.string().min(1, { error: "O nome completo é obrigatório." })
+      .trim()
+      .regex(/^[A-ZÀ-Ÿa-zà-ÿ]+(?:\s+[A-ZÀ-Ÿa-zà-ÿ]+)+$/, {
+        error: "Informe o seu nome completo.",
+      }),
+    email: z.string().min(1, { error: "O e-mail é obrigatório." }).email({ error: "Email inválido." }),
     password: z
       .string()
-      .min(8, { message: "A senha deve ter no mínimo 8 caracteres." }),
+      .min(8, { error: "A senha deve ter no mínimo 8 caracteres." })
+      .regex(/[A-Z]/, { error: "Pelo menos uma letra maiúscula." })
+      .regex(/[a-z]/, { error: "Pelo menos uma letra minúscula." })
+      .regex(/[0-9]/, { error: "Pelo menos um número." })
+      .regex(/[^a-zA-Z0-9]/, { error: "Pelo menos um caractere especial." }),
+    confirmPassword: z.string().min(1, { error: "A confirmação é obrigatória." }),
   })
+    .refine((data) => data.password === data.confirmPassword, {
+      error: "As senhas não coincidem.",
+      path: ["confirmPassword"],
+    })
 );
 
 const handleRegister = async ({ valid, values }: FormSubmitEvent) => {
@@ -88,21 +106,10 @@ const handleRegister = async ({ valid, values }: FormSubmitEvent) => {
     loading.value = true;
     try {
       await authStore.register(values.email, values.password, values.name);
-      toast.add({
-        severity: "success",
-        summary: "Bem-vindo",
-        detail: "Conta criada!",
-        life: 3000,
-      });
-
-      router.push("/profile");
+      toast.add({ severity: "success", summary: "Bem-vindo", detail: "Verifique seu e-mail!", life: 5000 });
+      router.push("/awaiting-verification");
     } catch (error: any) {
-      toast.add({
-        severity: "error",
-        summary: "Erro",
-        detail: `Falha ao criar conta: ${error.message}`,
-        life: 3000,
-      });
+      toast.add({ severity: "error", summary: "Erro", detail: error.error || error.message, life: 3000 });
     } finally {
       loading.value = false;
     }

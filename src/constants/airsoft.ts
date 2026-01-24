@@ -2,6 +2,7 @@ import type { ChartOptions, ChartData, TooltipItem } from "chart.js";
 
 export const TEAM_NAME = import.meta.env.VITE_TEAM_NAME;
 export const TEAM_TAG = import.meta.env.VITE_TEAM_TAG;
+export const TEAM_MOTTO = import.meta.env.VITE_TEAM_MOTTO;
 export const MONTHLY_FEE = Number.parseFloat(import.meta.env.VITE_MONTHLY_FEE);
 export const DUE_DATE = Number.parseInt(import.meta.env.VITE_DUE_DATE, 10);
 

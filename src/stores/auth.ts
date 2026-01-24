@@ -43,9 +43,13 @@ export const useAuthStore = defineStore("auth", {
     },
     async fetchOperator() {
       if (!this.user) return;
-
-      const row = await OperatorService.row(this.user.$id);
-      this.operator = row;
+      try {
+        const row = await OperatorService.row(this.user.$id);
+        this.operator = row || {} as IOperator;
+      } catch (error) {
+        console.error("Operador não encontrado no banco:", error);
+        this.operator = {} as IOperator;
+      }
     },
     async register(email: string, password: string, name: string) {
       try {
@@ -97,6 +101,10 @@ export const useAuthStore = defineStore("auth", {
         await PaymentService.create(payment);
 
         await this.init();
+
+        return await account.createEmailVerification({
+          url: `${window.location.origin}/verify-email`
+        });
       } catch (error) {
         console.error("Erro no fluxo de registro:", error);
         throw error;
@@ -113,5 +121,46 @@ export const useAuthStore = defineStore("auth", {
       this.user = null;
       this.operator = {} as IOperator;
     },
+    async resendVerification() {
+      try {
+        return await account.createEmailVerification({
+          url: `${window.location.origin}/verify-email`
+        });
+      } catch (error) {
+        console.error("Erro ao reenviar verificação:", error);
+        throw error;
+      }
+    },
+    async forgotPassword(email: string) {
+      try {
+        return await account.createRecovery({
+          email,
+          url: `${window.location.origin}/reset-password`
+        });
+      } catch (error) {
+        console.error("Erro ao solicitar recuperação:", error);
+        throw error;
+      }
+    },
+    async resetPassword(userId: string, secret: string, password: string) {
+      try {
+        return await account.updateRecovery({
+          userId,
+          secret,
+          password
+        });
+      } catch (error) {
+        console.error("Erro ao resetar senha:", error);
+        throw error;
+      }
+    },
+    async updatePassword(newPassword: string, oldPassword: string) {
+      try {
+        return await account.updatePassword({ password: newPassword, oldPassword });
+      } catch (error) {
+        console.error("Erro ao atualizar senha:", error);
+        throw error;
+      }
+    }
   },
 });

@@ -8,9 +8,9 @@
       </template>
 
       <template #end>
-        <div class="flex gap-2">
-          <Button label="Entrar" icon="pi pi-sign-in" text @click="router.push('/login')" />
-          <Button label="Alistar-se" icon="pi pi-user-plus" severity="warning" @click="router.push('/register')" />
+        <div class="flex flex-column md:flex-row gap-2">
+          <Button label="Entrar" outlined @click="router.push('/login')" />
+          <Button label="Alistar-se" @click="router.push('/register')" />
         </div>
       </template>
     </Menubar>
