@@ -45,12 +45,16 @@ const router = createRouter({
           component: () => import("../views/private/Vehicle.vue"),
         },
         {
-          path: "game/player-card",
-          component: () => import("../views/private/games/PlayerCard.vue"),
+          path: "game/badges",
+          component: () => import("../views/private/games/Badges.vue"),
         },
         {
           path: "game/ratings",
           component: () => import("../views/private/games/Ratings.vue"),
+        },
+        {
+          path: "game/player-card",
+          component: () => import("../views/private/games/PlayerCard.vue"),
         },
         {
           path: "events/:id",
@@ -114,9 +118,13 @@ const router = createRouter({
 });
 
 router.beforeEach(async (to, _, next) => {
-  const { user, init, loading, isAuthenticated, hasCompletedSetup, isActiveOperator } = useAuthStore();
+  const authStore = useAuthStore();
 
-  if (loading) await init();
+  if (authStore.loading) {
+    await authStore.init();
+  }
+
+  const { user, isAuthenticated, hasCompletedSetup, isActiveOperator } = authStore;
 
   if (to.meta.requiresAuth) {
     if (!user) {
@@ -128,7 +136,7 @@ router.beforeEach(async (to, _, next) => {
     }
   }
 
-  if (isAuthenticated && (to.path === "/login" || to.path === "/register")) {
+  if (isAuthenticated && ["/login", "/register", "/"].includes(to.path)) {
     return next("/dashboard");
   }
 

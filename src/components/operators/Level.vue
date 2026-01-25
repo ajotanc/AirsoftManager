@@ -5,8 +5,8 @@
                 <div class="flex relative mb-2 cursor-pointer"
                     v-tooltip.top="`Status de Progressão: ${xpInLevel} / 200 XP`">
                     <Avatar :image="operator.avatar" shape="circle" class="operator-avatar border-surface-900" />
-                    <Knob v-model="xpPercent" class="xp-ring" :min="0" :max="EXPERIENCE_PER_LEVEL" :strokeWidth="5"
-                        readonly :size="140" />
+                    <Knob :showValue="false" v-model="xpPercent" class="xp-ring" :min="0" :max="EXPERIENCE_PER_LEVEL"
+                        :strokeWidth="5" readonly :size="140" />
                     <div
                         class="level-tag bg-white text-sm text-surface-900 font-bold border-circle flex align-items-center justify-content-center shadow-4">
                         {{ operator.level }}
@@ -23,7 +23,18 @@
                     "{{ currentRank?.description }}"
                 </p>
 
-                <div class="flex flex-column mt-4">
+                <AvatarGroup v-if="badges" class="mt-3">
+                    <template v-for="badge in badges" :key="badge.slug">
+                        <Avatar :icon="badge.icon" size="large" shape="circle" :style="{
+                            color: '#FFFFFF',
+                            backgroundColor: badge.color,
+                        }" />
+                    </template>
+                    <Avatar :label="`+${(operator.badges?.length - badges.length) || 0}`" size="large" shape="circle"
+                        class="font-bold" style="font-size: 1rem;" />
+                </AvatarGroup>
+
+                <div class="flex flex-column mt-3">
                     <div class="text-center mb-2 text-xs font-bold uppercase">
                         Registro Tático
                     </div>
@@ -36,7 +47,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import { LEVELS, EXPERIENCE_PER_LEVEL } from '@/constants/airsoft';
+import { LEVELS, EXPERIENCE_PER_LEVEL, ALL_BADGES_DEFINITION } from '@/constants/airsoft';
 import { useAuthStore } from '@/stores/auth';
 import Qrcode from './Qrcode.vue';
 
@@ -48,6 +59,8 @@ const xpPercent = computed(() => (xpInLevel.value / EXPERIENCE_PER_LEVEL) * 100)
 const currentRank = computed(() => {
     return LEVELS.find(r => operator.level >= r.min && operator.level <= r.max) || LEVELS[0];
 });
+
+const badges = computed(() => ALL_BADGES_DEFINITION.filter(b => operator.featured_badges.includes(b.slug)));
 
 </script>
 

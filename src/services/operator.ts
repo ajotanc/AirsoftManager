@@ -51,8 +51,11 @@ export interface IOperator extends Models.Row {
   xp: number;
   level: number;
   prestige: number;
+  is_donor?: boolean;
   arsenal: IArsenal[];
   loadout: ILoadout[];
+  badges: string[];
+  featured_badges: string[];
 }
 
 export type IOperatorDraft = Omit<IOperator, keyof Models.Row> & {
@@ -90,7 +93,7 @@ export const OperatorService = {
       return [];
     }
   },
-  async update(rowId: string, data: IOperator): Promise<IOperator> {
+  async update(rowId: string, data: Partial<IOperator>): Promise<IOperator> {
     return await tables.updateRow({
       databaseId: DATABASE_ID,
       tableId: TABLE_OPERATORS,

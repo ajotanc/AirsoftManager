@@ -32,6 +32,9 @@
           <template #content>{{ loadout.length }} Loadout(s) cadastrado(s)</template>
         </Card>
       </div>
+      <div v-if="isAdmin" class="col-12">
+        <AdminBadgeScanner />
+      </div>
       <div class="col-12">
         <Card>
           <template #title>Evento(s)</template>
@@ -70,8 +73,9 @@ import BirthdayList from "@/components/BirthdayList.vue";
 import GoalList from "@/components/GoalList.vue";
 import { computed, onMounted, ref } from "vue";
 import { PaymentService, type IPayment } from "@/services/payment";
+import AdminBadgeScanner from "@/components/AdminBadgeScanner.vue";
 
-const { isActiveOperator, operator: { $id, arsenal, loadout } } = useAuthStore();
+const { isActiveOperator, isAdmin, operator: { $id, arsenal, loadout } } = useAuthStore();
 
 const payments = ref<IPayment[]>([]);
 const loading = ref(true);

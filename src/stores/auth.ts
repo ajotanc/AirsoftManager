@@ -77,6 +77,8 @@ export const useAuthStore = defineStore("auth", {
           prestige: 0,
           arsenal: [],
           loadout: [],
+          badges: [],
+          featured_badges: [],
           birth_date: null
         };
 

@@ -469,3 +469,51 @@ export const CASHFLOW_TYPES = [
   { value: "income", label: "Entrada", severity: "success" },
   { value: "expense", label: "Saída", severity: "danger" },
 ]
+
+export const ALL_BADGES_DEFINITION = [
+  ...[1, 2, 3, 4, 5].map(n => ({
+    slug: `rating_star_${n}`, label: `${n} Estrelas`, icon: 'ri-star-fill', color: '#fbbf24', description: `Graduação oficial de ${n} estrelas no time.`
+  })),
+  ...LEVELS.map(l => ({
+    slug: `rank_${l.label.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '_')}`,
+    label: `Patente: ${l.label}`, icon: 'ri-medal-fill', color: '#f59e0b', description: l.description
+  })),
+  ...SKILL_ATTRIBUTES.map(s => ({
+    slug: `master_${s.field}`, label: `Mestre em ${s.header}`, icon: 'ri-shield-flash-fill', color: '#a78bfa', description: `Média de excelência em ${s.header} nos votos do time.`
+  })),
+  { slug: 'specialty_assault', label: 'Especialista Assault', icon: 'ri-crosshair-2-line', color: '#f87171', description: 'Operador focado em linha de frente e progressão.' },
+  { slug: 'specialty_dmr', label: 'Especialista DMR', icon: 'ri-target-line', color: '#a78bfa', description: 'Precisão e suporte a média distância.' },
+  { slug: 'specialty_sniper', label: 'Especialista Sniper', icon: 'ri-focus-3-line', color: '#60a5fa', description: 'Olhos do time e eliminação de alvos críticos.' },
+  { slug: 'specialty_support', label: 'Especialista Suporte', icon: 'ri-shield-flash-line', color: '#fbbf24', description: 'Supressão e volume de fogo constante.' },
+  { slug: 'arsenal_collector', label: 'Colecionador', icon: 'ri-stack-line', color: '#3b82f6', description: 'Possui um arsenal com 5 ou mais equipamentos.' },
+  { slug: 'high_power_unit', label: 'Força de Impacto', icon: 'ri-fire-fill', color: '#ef4444', description: 'Equipamento operando acima de 400 FPS.' },
+  { slug: 'certified_sniper', label: 'Sniper Certificado', icon: 'ri-crosshair-line', color: '#60a5fa', description: 'Possui armamento de categoria Sniper no arsenal.' },
+  { slug: 'verified_arsenal', label: 'Arsenal Legalizado', icon: 'ri-file-list-3-line', color: '#10b981', description: 'Equipamentos com Nota Fiscal anexada ao sistema.' },
+  { slug: 'standard_operator', label: 'Operador Padrão', icon: 'ri-shield-user-line', color: '#22c55e', description: 'Possui pelo menos 1 loadout completo e verificado.' },
+  { slug: 'tactical_chameleon', label: 'Camaleão Tático', icon: 'ri-palette-line', color: '#10b981', description: 'Possui os 3 loadouts oficiais do time completos.' },
+  { slug: 'pmc_expert', label: 'Especialista PMC', icon: 'ri-skull-line', color: '#78350f', description: 'Domina o estilo de operação Private Military Company.' },
+  { slug: 'active_standing', label: 'Operador em Dia', icon: 'ri-coins-line', color: '#22c55e', description: 'Sem pendências financeiras com o time.' },
+  { slug: 'generous_contributor', label: 'Doador de Metas', icon: 'ri-hand-coin-line', color: '#f472b6', description: 'Contribuiu para metas coletivas do Êxodo Airsoft.' },
+  { slug: 'punctual_operator', label: 'Pontualidade Britânica', icon: 'ri-calendar-check-line', color: '#10b981', description: 'Pagamentos realizados sempre dentro do prazo.' },
+  { slug: 'blood_donor', label: 'Doador de Sangue', icon: 'ri-heart-pulse-fill', color: '#ef4444', description: 'Operador que contribui com o banco de sangue local.' },
+  { slug: 'health_protected', label: 'Plano Ativo', icon: 'ri-shield-cross-line', color: '#34d399', description: 'Possui plano de saúde informado para emergências.' },
+  { slug: 'safety_first', label: 'Segurança em Foco', icon: 'ri-first-aid-kit-line', color: '#10b981', description: 'Informações de alergias e remédios devidamente preenchidas.' },
+  { slug: 'emergency_ready', label: 'Contato de Emergência', icon: 'ri-phone-line', color: '#f87171', description: 'Possui contato de emergência configurado no perfil.' },
+  { slug: 'social_media_elite', label: 'Elite Digital', icon: 'ri-instagram-line', color: '#e1306c', description: 'Perfil vinculado ao Instagram para promoção do time.' },
+  { slug: 'terms_compliant', label: 'Estatuto Aceito', icon: 'ri-file-check-line', color: '#64748b', description: 'Aceitou formalmente os termos e regras do time.' },
+  { slug: 'profile_storyteller', label: 'Identidade Tática', icon: 'ri-chat-quote-line', color: '#a78bfa', description: 'Possui uma frase de efeito configurada no perfil.' },
+  { slug: 'birthday_warrior', label: 'Aniversariante', icon: 'ri-cake-3-line', color: '#f472b6', description: 'Badge especial ativada no dia do aniversário.' },
+  { slug: 'camera_ready', label: 'Fotogênico', icon: 'ri-camera-lens-line', color: '#3b82f6', description: 'Concedeu autorização para uso de imagem em mídias.' },
+  { slug: 'prestige_master', label: 'Mestre Prestígio', icon: 'ri-vip-crown-fill', color: '#8b5cf6', description: 'Operador que atingiu o primeiro nível de prestígio.' },
+  { slug: 'pioneer_member', label: 'Membro Pioneiro', icon: 'ri-flag-2-line', color: '#6366f1', description: 'Membro que faz parte da fundação/início do projeto.' },
+  { slug: 'seasoned_veteran', label: 'Veterano Calejado', icon: 'ri-user-star-line', color: '#10b981', description: 'Experiência avançada comprovada em campo.' },
+  { slug: 'federated_operator', label: 'Operador Federado', icon: 'ri-government-line', color: '#3b82f6', description: 'Possui registro oficial na FDBA.' },
+  { slug: 'mobile_unit', label: 'Unidade Móvel', icon: 'ri-car-fill', color: '#64748b', description: 'Operador possui veículo cadastrado para o time.' },
+  { slug: 'logistics_specialist', label: 'Especialista em Logística', icon: 'ri-route-line', color: '#f59e0b', description: 'Já ofereceu carona para outros membros em eventos.' },
+  { slug: 'hospitality_host', label: 'Anfitrião', icon: 'ri-user-add-line', color: '#22c55e', description: 'Trouxe visitantes e novos recrutas para conhecer o time.' },
+  { slug: 'road_captain', label: 'Capitão de Estrada', icon: 'ri-steering-2-fill', color: '#f59e0b', description: 'Líder em caronas oferecidas para o time.' },
+  { slug: 'team_ambassador', label: 'Embaixador Êxodo', icon: 'ri-user-add-fill', color: '#3b82f6', description: 'Responsável por trazer novos visitantes para a Arena.' },
+  { slug: 'armorer_apprentice', label: 'Aprendiz de Armeiro', icon: 'ri-tools-fill', color: '#94a3b8', description: 'Realizou sua primeira manutenção técnica no sistema.' },
+  { slug: 'well_maintained', label: 'Arsenal Impecável', icon: 'ri-shield-star-line', color: '#10b981', description: 'Todos os equipamentos do arsenal estão com a revisão em dia.' },
+  { slug: 'iron_operator', label: 'Iron Operator', icon: 'ri-robot-fill', color: '#ef4444', description: 'Conquista Lendária: Elite em Rating, Nível e Organização.' },
+];

@@ -195,6 +195,11 @@ const navItems = computed<IMenu[]>(() => [
     visible: authStore.isActiveOperator,
     items: [
       {
+        label: "Conquistas",
+        icon: "ri-medal-line",
+        route: "/game/badges",
+      },
+      {
         label: "Ratings",
         icon: "ri-bookmark-3-line",
         route: "/game/ratings",

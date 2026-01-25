@@ -11,9 +11,11 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    AdminBadgeScanner: typeof import('./src/components/AdminBadgeScanner.vue')['default']
     AppTable: typeof import('./src/components/AppTable.vue')['default']
     Arsenal: typeof import('./src/components/operators/Arsenal.vue')['default']
     Avatar: typeof import('primevue/avatar')['default']
+    AvatarGroup: typeof import('primevue/avatargroup')['default']
     BirthdayList: typeof import('./src/components/BirthdayList.vue')['default']
     BirthdaySkeleton: typeof import('./src/components/skeleton/BirthdaySkeleton.vue')['default']
     Button: typeof import('primevue/button')['default']
