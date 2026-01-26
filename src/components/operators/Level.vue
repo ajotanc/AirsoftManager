@@ -24,7 +24,7 @@
             <template v-for="badge in featuredBadges" :key="badge.slug">
                 <BadgeIcon :slug="badge.slug" earned group />
             </template>
-            <BadgeIcon group :counter="extraBadgesCount" />
+            <BadgeIcon group :counter="badgesCount" />
         </div>
 
         <div v-if="qrcode" class="flex flex-column mt-3">
@@ -39,12 +39,8 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { LEVELS, EXPERIENCE_PER_LEVEL, ALL_BADGES_DEFINITION } from '@/constants/airsoft';
-import { useAuthStore } from '@/stores/auth';
 import Qrcode from './Qrcode.vue';
 import type { IOperator } from '@/services/operator';
-
-const authStore = useAuthStore();
-
 
 const operator = defineModel('operator', {
     type: Object as PropType<IOperator>,
@@ -55,13 +51,6 @@ const props = defineProps<{
     qrcode?: boolean;
 }>();
 
-onMounted(() => {
-    if (!operator.value || !operator.value.$id) {
-        operator.value = authStore.operator;
-    }
-});
-
-// Lógica de XP: Usamos o valor real (0-200) no Knob
 const xpInLevel = computed(() => (operator.value.xp || 0) % EXPERIENCE_PER_LEVEL);
 
 const currentRank = computed(() => {
@@ -69,13 +58,12 @@ const currentRank = computed(() => {
     return LEVELS.find(r => level >= r.min && level <= r.max) || LEVELS[0];
 });
 
-const extraBadgesCount = computed(() => {
+const badgesCount = computed(() => {
     const total = operator.value.badges?.length || 0;
     const featuredCount = operator.value.featured_badges?.length || 0;
     return total - featuredCount;
 });
 
-// Filtra apenas as medalhas que o cara escolheu destacar
 const featuredBadges = computed(() => {
     const featured = operator.value.featured_badges || [];
     return ALL_BADGES_DEFINITION.filter(b => featured.includes(b.slug));

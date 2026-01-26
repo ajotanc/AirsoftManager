@@ -12,7 +12,7 @@
   <div v-else class="col-12">
     <div class="grid">
       <div class="col-12">
-        <Level />
+        <Level :operator="operator" :qrcode="true" />
       </div>
       <div class="col-12 md:col-4">
         <Card>
@@ -75,7 +75,8 @@ import { computed, onMounted, ref } from "vue";
 import { PaymentService, type IPayment } from "@/services/payment";
 import AdminBadgeScanner from "@/components/AdminBadgeScanner.vue";
 
-const { isActiveOperator, isAdmin, operator: { $id, arsenal, loadout } } = useAuthStore();
+const { isActiveOperator, isAdmin, operator } = useAuthStore();
+const { $id, arsenal, loadout } = operator;
 
 const payments = ref<IPayment[]>([]);
 const loading = ref(true);

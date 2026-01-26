@@ -2,17 +2,12 @@
     <div v-if="loading" class="flex justify-content-center">
         <ProgressSpinner />
     </div>
-
-    <div v-else-if="op" class="flex flex-column align-items-center justify-content-center">
+    <div v-else-if="operator.codename" class="flex flex-column align-items-center justify-content-center">
         <div class="w-full">
-            <Level :operator="op" />
+            <Level :operator="operator" />
         </div>
     </div>
-
-    <div v-else class="text-center">
-        <i class="ri-user-search-line text-6xl text-secondary"></i>
-        <p>Operador não encontrado.</p>
-    </div>
+    <Empty v-else label="Operador não encontrado." icon="ri ri-user-line" />
 </template>
 
 <script setup lang="ts">
@@ -23,7 +18,7 @@ import PlayerCard from './games/PlayerCard.vue';
 import Level from '@/components/operators/Level.vue';
 
 const route = useRoute();
-const op = ref<IOperator | null>(null);
+const operator = ref<IOperator>({} as IOperator);
 const loading = ref(true);
 
 const getAvailabilityLabel = (val?: string) => {
@@ -33,7 +28,8 @@ const getAvailabilityLabel = (val?: string) => {
 
 onMounted(async () => {
     const instagram = route.params.instagram as string;
-    op.value = await OperatorService.getByInstagram(instagram);
+    operator.value = await OperatorService.getByInstagram(instagram);
     loading.value = false;
 });
+
 </script>
