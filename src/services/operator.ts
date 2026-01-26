@@ -56,6 +56,8 @@ export interface IOperator extends Models.Row {
   loadout: ILoadout[];
   badges: string[];
   featured_badges: string[];
+  profession?: string;
+  availability?: "saturday" | "sunday" | "both" | "none";
 }
 
 export type IOperatorDraft = Omit<IOperator, keyof Models.Row> & {
@@ -83,7 +85,7 @@ export const OperatorService = {
         tableId: TABLE_OPERATORS,
         queries: [
           Query.select(["*", "arsenal.*", "loadout.*"]),
-          Query.orderAsc("codename")
+          Query.orderAsc("codename"),
         ],
       });
 
@@ -109,7 +111,11 @@ export const OperatorService = {
       data,
     });
   },
-  async changeAvatar(rowId: string, avatar: string, file: File): Promise<IOperator> {
+  async changeAvatar(
+    rowId: string,
+    avatar: string,
+    file: File
+  ): Promise<IOperator> {
     const fileId = `avatar-${rowId}`;
 
     if (avatar) {
@@ -149,6 +155,22 @@ export const OperatorService = {
     } catch (error) {
       console.error("Erro ao buscar usuários:", error);
       return [];
+    }
+  },
+  async getByInstagram(instagram: string): Promise<IOperator> {
+    try {
+      const response = await tables.listRows<IOperator>({
+        databaseId: DATABASE_ID,
+        tableId: TABLE_OPERATORS,
+        queries: [Query.equal("instagram", instagram)],
+      });
+
+      return response.total === 1
+        ? (response.rows[0] as IOperator)
+        : ({} as IOperator);
+    } catch (error) {
+      console.error("Erro ao buscar usuário:", error);
+      return {} as IOperator;
     }
   },
 };

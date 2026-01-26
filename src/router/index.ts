@@ -14,10 +14,22 @@ const router = createRouter({
           path: "register",
           component: () => import("../views/public/Register.vue"),
         },
-        { path: "verify-email", component: () => import("../views/public/VerifyEmail.vue") },
-        { path: "awaiting-verification", component: () => import("../views/public/AwaitingVerification.vue") },
-        { path: "forgot-password", component: () => import("../views/public/ForgotPassword.vue") },
-        { path: "reset-password", component: () => import("../views/public/ResetPassword.vue") },
+        {
+          path: "verify-email",
+          component: () => import("../views/public/VerifyEmail.vue"),
+        },
+        {
+          path: "awaiting-verification",
+          component: () => import("../views/public/AwaitingVerification.vue"),
+        },
+        {
+          path: "forgot-password",
+          component: () => import("../views/public/ForgotPassword.vue"),
+        },
+        {
+          path: "reset-password",
+          component: () => import("../views/public/ResetPassword.vue"),
+        },
       ],
     },
     {
@@ -40,7 +52,8 @@ const router = createRouter({
         {
           path: "loadout",
           component: () => import("../views/private/Loadout.vue"),
-        }, {
+        },
+        {
           path: "vehicles",
           component: () => import("../views/private/Vehicle.vue"),
         },
@@ -55,6 +68,11 @@ const router = createRouter({
         {
           path: "game/player-card",
           component: () => import("../views/private/games/PlayerCard.vue"),
+        },
+        {
+          path: "operator/:instagram",
+          name: "operator-profile",
+          component: () => import("../views/private/Operator.vue"),
         },
         {
           path: "events/:id",
@@ -72,7 +90,8 @@ const router = createRouter({
         },
         {
           path: "finance/cashflow",
-          component: () => import("../views/private/finance/FinancialTransparency.vue"),
+          component: () =>
+            import("../views/private/finance/FinancialTransparency.vue"),
         },
         {
           path: "admin/operators",
@@ -124,15 +143,16 @@ router.beforeEach(async (to, _, next) => {
     await authStore.init();
   }
 
-  const { user, isAuthenticated, hasCompletedSetup, isActiveOperator } = authStore;
+  const { user, isAuthenticated, hasCompletedSetup, isActiveOperator } =
+    authStore;
 
   if (to.meta.requiresAuth) {
     if (!user) {
-      return next('/login');
+      return next("/login");
     }
 
-    if (!user.emailVerification && to.path !== '/awaiting-verification') {
-      return next('/awaiting-verification');
+    if (!user.emailVerification && to.path !== "/awaiting-verification") {
+      return next("/awaiting-verification");
     }
   }
 
