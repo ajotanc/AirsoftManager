@@ -242,10 +242,10 @@ export const RADAR_OPTIONS: ChartOptions<"radar"> = {
     r: {
       angleLines: {
         display: true,
-        color: "rgba(255, 255, 255, 0.1)",
+        color: "rgba(255, 255, 255, 0.15)",
       },
       grid: {
-        color: "rgba(255, 255, 255, 0.1)",
+        color: "rgba(255, 255, 255, 0.15)",
       },
       suggestedMin: 0,
       suggestedMax: 5,
@@ -264,11 +264,11 @@ export const RADAR_OPTIONS: ChartOptions<"radar"> = {
   plugins: {
     legend: { display: false },
     tooltip: {
-      backgroundColor: "rgba(17, 24, 39, 0.95)",
-      titleColor: "#22c55e",
+      backgroundColor: "rgba(13, 21, 51, 0.95)",
+      titleColor: "#DAA520",
       bodyFont: { size: 14 },
       padding: 12,
-      borderColor: "rgba(34, 197, 94, 0.3)",
+      borderColor: "rgba(218, 165, 32, 0.3)",
       borderWidth: 2,
       callbacks: {
         title: (context: TooltipItem<"radar">[]) => {
@@ -292,13 +292,13 @@ export const getRadarChartData = (stats: SkillStats): ChartData<"radar"> => {
         label: "Nível",
         data: SKILL_ATTRIBUTES.map((attr) => stats[attr.field] || 0),
 
-        backgroundColor: "rgba(34, 197, 94, 0.25)",
-        borderColor: "#22c55e",
+        backgroundColor: "rgba(218, 165, 32, 0.3)",
+        borderColor: "#DAA520",
         borderWidth: 2,
-        pointBackgroundColor: "#22c55e",
+        pointBackgroundColor: "#DAA520",
         pointBorderColor: "#fff",
         pointHoverBackgroundColor: "#fff",
-        pointHoverBorderColor: "#22c55e",
+        pointHoverBorderColor: "#DAA520",
         fill: true,
       },
     ],
@@ -516,4 +516,53 @@ export const ALL_BADGES_DEFINITION = [
   { slug: 'armorer_apprentice', label: 'Aprendiz de Armeiro', icon: 'ri-tools-fill', color: '#94a3b8', description: 'Realizou sua primeira manutenção técnica no sistema.' },
   { slug: 'well_maintained', label: 'Arsenal Impecável', icon: 'ri-shield-star-line', color: '#10b981', description: 'Todos os equipamentos do arsenal estão com a revisão em dia.' },
   { slug: 'iron_operator', label: 'Iron Operator', icon: 'ri-robot-fill', color: '#ef4444', description: 'Conquista Lendária: Elite em Rating, Nível e Organização.' },
+];
+
+export const AVAILABILITY_TYPES = [
+  { label: 'Sábado', value: 'saturday' },
+  { label: 'Domingo', value: 'sunday' },
+  { label: 'Fim de Semana', value: 'both' },
+]
+
+export const PROFESSION_TYPES = [
+  "Médico", "Advogado", "Engenheiro Civil", "Professor", "Arquiteto",
+  "Contador", "Psicólogo", "Enfermeiro", "Dentista", "Veterinário",
+  "Fisioterapeuta", "Nutricionista", "Farmacêutico", "Biólogo", "Geólogo",
+  "Astrônomo", "Físico", "Químico", "Matemático", "Estatístico",
+  "Arqueólogo", "Antropólogo", "Sociólogo", "Filósofo", "Historiador",
+  "Geógrafo", "Jornalista", "Publicitário", "Designer Gráfico", "Ilustrador",
+  "Fotógrafo", "Cinegrafista", "Editor de Vídeo", "Ator", "Dançarino",
+  "Músico", "Maestro", "Escultor", "Pintor Artístico", "Escritor",
+  "Tradutor", "Intérprete", "Bibliotecário", "Museólogo", "Arquivista",
+  "Administrador", "Economista", "Corretor de Imóveis", "Corretor de Seguros", "Gerente de Vendas",
+  "Vendedor", "Recepcionista", "Secretária", "Auxiliar Administrativo", "Porteiro",
+  "Zelador", "Faxineiro", "Jardineiro", "Paisagista", "Agrônomo",
+  "Zootecnista", "Pescador", "Agricultor", "Marceneiro", "Carpinteiro",
+  "Pedreiro", "Mestre de Obras", "Eletricista", "Encanador", "Pintor Predial",
+  "Gesseiro", "Serralheiro", "Soldador", "Mecânico", "Funileiro",
+  "Estofador", "Alfaiate", "Costureira", "Modelo", "Cabeleireiro",
+  "Barbeiro", "Manicure", "Esteticista", "Maquiador", "Tatuador",
+  "Piercer", "Garçom", "Bartender", "Sommelier", "Barista",
+  "Confeiteiro", "Açougueiro", "Peixeiro", "Cozinheiro", "Comissário de Bordo",
+  "Guia de Turismo", "Agente de Viagens", "Piloto de Avião", "Motorista de Caminhão", "Motorista de Ônibus",
+  "Maquinista", "Capitão de Navio", "Mergulhador", "Salva-vidas", "Bombeiro",
+  "Policial", "Delegado", "Juiz", "Promotor", "Diplomata",
+  "Político", "Guarda Municipal", "Vigilante", "Detetive", "Perito Criminal",
+  "Paramédico", "Instrumentador Cirúrgico", "Radiologista", "Topógrafo", "Programador",
+  "Analista de Sistemas", "Web Designer", "Social Media", "Gestor de Tráfego", "Copywriter",
+  "Revisor", "Dublador", "Locutor", "Sonoplasta", "Iluminador",
+  "Cenógrafo", "Figurinista", "Curador de Arte", "Joalheiro", "Relojoeiro",
+  "Sapateiro", "Chaveiro", "Vidraceiro", "Marmorista", "Azulejista",
+  "Engenheiro Químico", "Engenheiro Elétrico", "Engenheiro Mecânico", "Engenheiro de Produção", "Engenheiro Ambiental",
+  "Engenheiro de Alimentos", "Engenheiro de Minas", "Engenheiro Naval", "Engenheiro Aeroespacial", "Engenheiro Biomédico",
+  "Atleta", "Treinador", "Árbitro", "Preparador Físico", "Personal Trainer",
+  "Instrutor de Yoga", "Piloto de Corrida", "Coreógrafo", "Malabarista", "Mágico",
+  "Humorista", "Roteirista", "Produtor", "Diretor de Cinema", "Crítico",
+  "Coach", "Consultor de RH", "Headhunter", "Auditor", "Despachante",
+  "Agente Funerário", "Embalsamador", "Florista", "Adestrador", "Tosador",
+  "Biotecnólogo", "Ecólogo", "Meteorologista", "Oceanógrafo", "Paleontólogo",
+  "Cartógrafo", "Urbanista", "Decorador", "Organizador de Eventos", "Cerimonialista",
+  "Relações Públicas", "Captador de Recursos", "Analista de Investimentos", "Trader", "Minerador",
+  "Ourives", "Alfarrabista", "Calígrafo", "Cartunista", "Cenotécnico",
+  "Cobrador", "Desenhista Industrial", "Ebanista", "Enólogo", "Paleógrafo"
 ];

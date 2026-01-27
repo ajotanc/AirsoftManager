@@ -1,25 +1,25 @@
 <template>
     <div class="badge-icon-container" :class="{ 'is-grouped': group }" tabindex="0"
         v-tooltip.top.focus="badgeInfo.label" :style="{
-            width: size === 'large' ? '50px' : '48px',
-            height: size === 'large' ? '50px' : '48px'
+            width: size === 'large' ? '50px' : size === 'small' ? '38px' : '48px',
+            height: size === 'large' ? '50px' : size === 'small' ? '38px' : '48px',
         }">
         <div v-if="badgeInfo.label" class="badge-mask">
             <div class="badge-circle flex align-items-center justify-content-center" :style="{
                 backgroundColor: earned ? badgeInfo.color + '20' : '#f1f5f9',
                 borderColor: earned ? badgeInfo.color : '#e2e8f0',
             }">
-                <i :class="[earned ? badgeInfo.icon : 'ri-lock-line', size === 'large' ? 'text-2xl' : 'text-xl']"
+                <i :class="[earned ? badgeInfo.icon : 'ri-lock-line', size === 'large' ? 'text-2xl' : size === 'small' ? 'text-base' : 'text-xl']"
                     :style="{ color: earned ? badgeInfo.color : '#94a3b8' }"></i>
             </div>
         </div>
         <div v-if="!badgeInfo.label && counter" class="badge-mask cursor-pointer" @click="$router.push('/game/badges')">
             <div class="badge-circle flex align-items-center justify-content-center" :style="{
-                backgroundColor: '#f1f5f9',
-                borderColor: '#e2e8f0',
+                backgroundColor: 'var(--p-gray-300)',
+                borderColor: 'var(--p-gray-400)',
             }">
-                <span class="text-sm font-bold" :style="{ color: '#94a3b8' }">+{{ counter
-                }}</span>
+                <span class="text-sm font-bold" :style="{ color: 'var(--p-gray-700)' }">+{{ counter
+                    }}</span>
             </div>
         </div>
     </div>
@@ -34,7 +34,7 @@ const props = defineProps<{
     earned?: boolean;
     group?: boolean;
     counter?: number;
-    size?: 'normal' | 'large';
+    size?: 'small' | 'normal' | 'large';
 }>();
 
 const badgeInfo = computed(() => {

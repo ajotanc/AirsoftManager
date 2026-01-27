@@ -27,8 +27,8 @@ export const BadgeService = {
     const rank = LEVELS.find(l => operator.level >= l.min && operator.level <= l.max);
     if (rank) earned.add(`rank_${rank.label.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '_')}`);
 
-    if (operator.specialty) {
-      const spec = CATEGORIES[operator.specialty as keyof typeof CATEGORIES]?.toLowerCase();
+    if (operator.category) {
+      const spec = CATEGORIES[operator.category as keyof typeof CATEGORIES]?.toLowerCase();
       if (spec) earned.add(`specialty_${spec}`);
     }
 

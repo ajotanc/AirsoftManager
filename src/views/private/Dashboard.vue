@@ -9,56 +9,62 @@
     </Card>
   </div>
 
-  <div v-else class="col-12">
-    <div class="grid">
-      <div class="col-12">
-        <Level :operator="operator" :qrcode="true" />
-      </div>
-      <div class="col-12 md:col-4">
-        <Card>
-          <template #title>Financeiro</template>
-          <template #content>{{ openPayments.length }} Pagamento(s) em aberto</template>
-        </Card>
-      </div>
-      <div class="col-12 md:col-4">
-        <Card>
-          <template #title>Arma(s)</template>
-          <template #content>{{ arsenal.length }} Arma(s) cadastrada(s)</template>
-        </Card>
-      </div>
-      <div class="col-12 md:col-4">
-        <Card>
-          <template #title>Loadout(s)</template>
-          <template #content>{{ loadout.length }} Loadout(s) cadastrado(s)</template>
-        </Card>
-      </div>
-      <div v-if="isAdmin" class="col-12">
-        <AdminBadgeScanner />
-      </div>
-      <div class="col-12">
-        <Card>
-          <template #title>Evento(s)</template>
-          <template #content>
-            <EventList />
-          </template>
-        </Card>
-      </div>
-      <div class="col-12">
-        <Card>
-          <template #title>Meta(s)</template>
-          <template #content>
-            <GoalList />
-          </template>
-        </Card>
-      </div>
-      <div class="col-12">
-        <Card>
-          <template #title>Aniversariante(s)</template>
-          <template #content>
-            <BirthdayList />
-          </template>
-        </Card>
-      </div>
+  <div v-else class="grid">
+    <div class="col-12">
+      <Level :operator="operator" :qrcode="true" />
+    </div>
+    <div class="col-12 md:col-4">
+      <Card>
+        <template #title>Financeiro</template>
+        <template #content>{{ openPayments.length }} Pagamento(s) em aberto</template>
+      </Card>
+    </div>
+    <div class="col-12 md:col-4">
+      <Card>
+        <template #title>Arma(s)</template>
+        <template #content>{{ arsenal.length }} Arma(s) cadastrada(s)</template>
+      </Card>
+    </div>
+    <div class="col-12 md:col-4">
+      <Card>
+        <template #title>Loadout(s)</template>
+        <template #content>{{ loadout.length }} Loadout(s) cadastrado(s)</template>
+      </Card>
+    </div>
+    <div class="col-12">
+      <Card>
+        <template #title>Operadore(s) ativo(s)</template>
+        <template #content>
+          <OperatorList />
+        </template>
+      </Card>
+    </div>
+    <div v-if="isAdmin" class="col-12">
+      <AdminBadgeScanner />
+    </div>
+    <div class="col-12">
+      <Card>
+        <template #title>Evento(s)</template>
+        <template #content>
+          <EventList />
+        </template>
+      </Card>
+    </div>
+    <div class="col-12">
+      <Card>
+        <template #title>Meta(s)</template>
+        <template #content>
+          <GoalList />
+        </template>
+      </Card>
+    </div>
+    <div class="col-12">
+      <Card>
+        <template #title>Aniversariante(s)</template>
+        <template #content>
+          <BirthdayList />
+        </template>
+      </Card>
     </div>
   </div>
 </template>
@@ -74,6 +80,7 @@ import GoalList from "@/components/GoalList.vue";
 import { computed, onMounted, ref } from "vue";
 import { PaymentService, type IPayment } from "@/services/payment";
 import AdminBadgeScanner from "@/components/AdminBadgeScanner.vue";
+import OperatorList from "@/components/operators/List.vue";
 
 const { isActiveOperator, isAdmin, operator } = useAuthStore();
 const { $id, arsenal, loadout } = operator;

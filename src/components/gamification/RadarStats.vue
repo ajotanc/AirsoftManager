@@ -1,6 +1,6 @@
 <template>
-  <div style="position: relative; height: 100%; width: 100%;">
-    <Radar :data="chartConfig" :options="chartOptions" />
+  <div :style="{ position: 'relative', height, width }">
+    <Radar :data="chartConfig" :options="RADAR_OPTIONS" />
   </div>
 </template>
 
@@ -28,6 +28,14 @@ ChartJS.register(
 );
 
 const props = defineProps({
+  width: {
+    type: String,
+    default: '300px'
+  },
+  height: {
+    type: String,
+    default: '300px'
+  },
   stats: {
     type: Object,
     required: true,
@@ -36,5 +44,4 @@ const props = defineProps({
 });
 
 const chartConfig = computed(() => getRadarChartData(props.stats));
-const chartOptions = RADAR_OPTIONS;
 </script>

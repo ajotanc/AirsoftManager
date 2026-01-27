@@ -1,60 +1,53 @@
 <template>
-    <div class="badge-list-container p-4">
-        <div v-if="header" class="flex flex-column md:flex-row justify-content-between align-items-center mb-3">
-            <div class="flex flex-column text-center md:text-left mb-3 md:mb-0">
-                <h2 class="text-2xl font-bold m-0">Minhas Conquistas</h2>
-                <span class="text-lg">{{ operator.badges?.length || 0 }}/{{ ALL_BADGES_DEFINITION.length }}</span>
-            </div>
-            <Tag severity="warn" :value="`${operator.featured_badges?.length || 0} / 5 Destaques`"
-                icon="pi pi-star-fill" />
+    <div v-if="showActions" class="flex flex-column md:flex-row justify-content-between align-items-center mb-3">
+        <div class="flex flex-column text-center md:text-left mb-3 md:mb-0">
+            <h2 class="text-2xl font-bold m-0">Minhas Conquistas</h2>
+            <span class="text-lg">{{ operator.badges?.length || 0 }}/{{ ALL_BADGES_DEFINITION.length }}</span>
         </div>
+        <Tag severity="warn" :value="`${operator.featured_badges?.length || 0} / 5 Destaques`" icon="pi pi-star-fill" />
+    </div>
 
-        <div class="flex flex-wrap justify-content-center gap-3">
-            <div v-for="badge in ALL_BADGES_DEFINITION" :key="badge.slug"
-                class="badge-item flex flex-column justify-content-center align-items-center gap-3 p-3 border-2 border-round transition-all transition-duration-300 relative"
-                :class="{
-                    'earned-badge': isEarned(badge.slug),
-                    'locked-badge': !isEarned(badge.slug),
-                    'featured-badge': isFeatured(badge.slug)
-                }" tabindex="0" v-tooltip.bottom.focus="badge.description" :style="{
+    <div class="flex flex-wrap justify-content-center gap-3">
+        <div v-for="badge in ALL_BADGES_DEFINITION" :key="badge.slug"
+            class="badge-item flex flex-column justify-content-center align-items-center gap-3 p-3 border-2 border-round transition-all transition-duration-300 relative"
+            :class="{
+                'earned-badge': isEarned(badge.slug),
+                'locked-badge': !isEarned(badge.slug),
+                'featured-badge': isFeatured(badge.slug)
+            }" tabindex="0" v-tooltip.bottom.focus="badge.description" :style="{
                     backgroundColor: isFeatured(badge.slug) ? badge.color + '25' : '',
                     borderColor: isFeatured(badge.slug) ? badge.color + '60' : ''
                 }">
+            <BadgeIcon :slug="badge.slug" :earned="isEarned(badge.slug)" size="large" />
 
-                <BadgeIcon :slug="badge.slug" :earned="isEarned(badge.slug)" size="large" />
-
-                <span class="badge-label font-bold text-xs text-center uppercase">
-                    {{ badge.label }}
-                </span>
-                <Button @click="toggleFeatured(badge.slug)" severity="warn" class="absolute top-0 right-0"
-                    :icon="isFeatured(badge.slug) ? 'ri ri-star-fill' : 'ri ri-star-line'"
-                    :disabled="(operator.featured_badges.length === 5 && !isFeatured(badge.slug) || !isEarned(badge.slug))"
-                    text size="small" />
-            </div>
+            <span class="badge-label font-bold text-xs text-center uppercase">
+                {{ badge.label }}
+            </span>
+            <Button v-if="showActions" @click="toggleFeatured(badge.slug)" severity="warn"
+                class="absolute top-0 right-0" :icon="isFeatured(badge.slug) ? 'ri ri-star-fill' : 'ri ri-star-line'"
+                :disabled="(operator.featured_badges?.length === 5 && !isFeatured(badge.slug) || !isEarned(badge.slug))"
+                text size="small" />
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
 import { ALL_BADGES_DEFINITION } from '@/constants/airsoft';
 import { useAuthStore } from '@/stores/auth';
-import { OperatorService } from '@/services/operator';
+import { OperatorService, type IOperator } from '@/services/operator';
 import { useToast } from 'primevue/usetoast';
 import Tag from 'primevue/tag';
 
-const authStore = useAuthStore();
-const operator = computed(() => authStore.operator);
 const toast = useToast();
+const authStore = useAuthStore();
 
-const items = defineModel('items', {
-    type: Array as PropType<string[]>,
-    default: () => []
+const operator = defineModel('operator', {
+    type: Object as PropType<IOperator>,
+    default: () => ({} as IOperator),
 });
 
-
 const props = defineProps({
-    header: {
+    showActions: {
         type: Boolean,
         default: false
     }

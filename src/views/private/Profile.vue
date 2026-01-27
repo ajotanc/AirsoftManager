@@ -27,14 +27,14 @@
       </div>
 
       <Form ref="form" v-slot="$form" :resolver="resolver" :initialValues="initialValues" @submit="handleUpdateProfile"
-        class="flex flex-column gap-3">
+        class="flex flex-column gap-3" v-asterisk="operatorSchema">
 
         <Panel header="Identificação" toggleable>
           <div class="grid formgrid">
             <FormField name="name" v-slot="$field" class="field col-12 flex flex-column gap-1">
               <FloatLabel variant="in">
                 <InputText v-model="$field.value" class="w-full" fluid />
-                <label>Nome Completo</label>
+                <label :for="$field.props.name">Nome Completo</label>
               </FloatLabel>
               <Message v-if="$field.invalid" severity="error" size="small" variant="simple">{{ $field.error.message }}
               </Message>
@@ -43,7 +43,7 @@
             <FormField name="codename" v-slot="$field" class="field col-12 md:col-6 flex flex-column gap-1">
               <FloatLabel variant="in">
                 <InputText v-model="$field.value" class="w-full" fluid />
-                <label>Codinome / Nome de Guerra</label>
+                <label :for="$field.props.name">Codinome / Nome de Guerra</label>
               </FloatLabel>
               <Message v-if="$field.invalid" severity="error" size="small" variant="simple">{{ $field.error.message }}
               </Message>
@@ -52,7 +52,7 @@
             <FormField name="identity" v-slot="$field" class="field col-12 md:col-3 flex flex-column gap-1">
               <FloatLabel variant="in">
                 <InputMask v-model="$field.value" mask="999.999.999-99" inputmode="numeric" class="w-full" fluid />
-                <label>CPF</label>
+                <label :for="$field.props.name">CPF</label>
               </FloatLabel>
               <Message v-if="$field.invalid" severity="error" size="small" variant="simple">{{ $field.error.message }}
               </Message>
@@ -61,7 +61,7 @@
             <FormField name="general_registration" v-slot="$field" class="field col-12 md:col-3 flex flex-column gap-1">
               <FloatLabel variant="in">
                 <InputText v-model="$field.value" inputmode="numeric" class="w-full" fluid />
-                <label>RG</label>
+                <label :for="$field.props.name">RG</label>
               </FloatLabel>
               <Message v-if="$field.invalid" severity="error" size="small" variant="simple">{{ $field.error.message }}
               </Message>
@@ -69,9 +69,9 @@
 
             <FormField name="birth_date" v-slot="$field" class="field col-12 md:col-4 flex flex-column gap-1">
               <FloatLabel variant="in">
-                <DatePicker v-model="$field.value" class="w-full" showIcon showButtonBar
-                  iconDisplay="input" :showOnFocus="true" :manualInput="false" fluid />
-                <label>Data de Nascimento</label>
+                <DatePicker v-model="$field.value" class="w-full" showIcon showButtonBar iconDisplay="input"
+                  :showOnFocus="true" :manualInput="false" fluid />
+                <label :for="$field.props.name">Data de Nascimento</label>
               </FloatLabel>
               <Message v-if="$field.invalid" severity="error" size="small" variant="simple">{{ $field.error.message }}
               </Message>
@@ -80,7 +80,7 @@
             <FormField name="blood_type" v-slot="$field" class="field col-12 md:col-4 flex flex-column gap-1">
               <FloatLabel variant="in">
                 <Select v-model="$field.value" :options="BLOOD_TYPES" class="w-full" fluid />
-                <label>Tipo Sanguíneo</label>
+                <label :for="$field.props.name">Tipo Sanguíneo</label>
               </FloatLabel>
               <Message v-if="$field.invalid" severity="error" size="small" variant="simple">{{ $field.error.message }}
               </Message>
@@ -89,14 +89,14 @@
             <FormField name="number_fdba" v-slot="$field" class="field col-12 md:col-4 flex flex-column gap-1">
               <FloatLabel variant="in">
                 <InputText v-model="$field.value" class="w-full" fluid />
-                <label>Nº de Registro FBDA</label>
+                <label :for="$field.props.name">Nº de Registro FBDA</label>
               </FloatLabel>
             </FormField>
 
             <FormField name="mother_name" v-slot="$field" class="field col-12 md:col-6 flex flex-column gap-1">
               <FloatLabel variant="in">
                 <InputText v-model="$field.value" class="w-full" fluid />
-                <label>Nome da Mãe</label>
+                <label :for="$field.props.name">Nome da Mãe</label>
               </FloatLabel>
               <Message v-if="$field.invalid" severity="error" size="small" variant="simple">{{ $field.error.message }}
               </Message>
@@ -105,14 +105,14 @@
             <FormField name="father_name" v-slot="$field" class="field col-12 md:col-6 flex flex-column gap-1">
               <FloatLabel variant="in">
                 <InputText v-model="$field.value" class="w-full" fluid />
-                <label>Nome do Pai</label>
+                <label :for="$field.props.name">Nome do Pai</label>
               </FloatLabel>
             </FormField>
 
             <FormField name="phone" v-slot="$field" class="field col-12 md:col-4 flex flex-column gap-1">
               <FloatLabel variant="in">
                 <InputMask v-model="$field.value" mask="(99) 99999-9999" class="w-full" inputmode="numeric" fluid />
-                <label>Celular / WhatsApp</label>
+                <label :for="$field.props.name">Celular / WhatsApp</label>
               </FloatLabel>
               <Message v-if="$field.invalid" severity="error" size="small" variant="simple">{{ $field.error.message }}
               </Message>
@@ -122,7 +122,7 @@
               <FloatLabel variant="in">
                 <Select v-model="$field.value" :options="CATEGORIES_OPTIONS" optionLabel="label" optionValue="value"
                   class="w-full" fluid />
-                <label>Categoria</label>
+                <label :for="$field.props.name">Categoria</label>
               </FloatLabel>
             </FormField>
 
@@ -130,21 +130,26 @@
               <FloatLabel variant="in">
                 <Select v-model="$field.value" :options="EXPERIENCES" optionLabel="label" optionValue="value"
                   class="w-full" fluid />
-                <label>Nível de Conhecimento</label>
+                <label :for="$field.props.name">Nível de Conhecimento</label>
               </FloatLabel>
             </FormField>
 
             <FormField name="instagram" v-slot="$field" class="field col-12 md:col-4 flex flex-column gap-1">
-              <FloatLabel variant="in">
-                <InputText v-model="$field.value" class="w-full" fluid />
-                <label>Instagram (Opcional)</label>
-              </FloatLabel>
+              <InputGroup>
+                <InputGroupAddon>
+                  <span>@</span>
+                </InputGroupAddon>
+                <FloatLabel variant="in">
+                  <InputText v-model="$field.value" class="w-full" fluid />
+                  <label :for="$field.props.name">Instagram (Opcional)</label>
+                </FloatLabel>
+              </InputGroup>
             </FormField>
 
             <FormField name="shirt_size" v-slot="$field" class="field col-12 md:col-4 flex flex-column gap-1">
               <FloatLabel variant="in">
                 <Select v-model="$field.value" :options="SHIRT_SIZES" class="w-full" fluid />
-                <label>Tamanho da Camisa</label>
+                <label :for="$field.props.name">Tamanho da Camisa</label>
               </FloatLabel>
               <Message v-if="$field.invalid" severity="error" size="small" variant="simple">{{ $field.error.message }}
               </Message>
@@ -154,15 +159,35 @@
               <FloatLabel variant="in">
                 <Select v-model="$field.value" :options="SOURCES" optionLabel="label" optionValue="value" class="w-full"
                   fluid />
-                <label>Como conheceu?</label>
+                <label :for="$field.props.name">Como conheceu?</label>
               </FloatLabel>
             </FormField>
 
-            <FormField name="quote" v-slot="$field" class="field col-12 flex flex-column gap-1">
+            <FormField name="quote" v-slot="$field" class="field col-12 md:col-4 flex flex-column gap-1">
               <FloatLabel variant="in">
                 <InputText v-model="$field.value" class="w-full" fluid />
-                <label>Citação</label>
+                <label :for="$field.props.name">Citação</label>
               </FloatLabel>
+            </FormField>
+
+            <FormField name="profession" v-slot="$field" class="field col-12 md:col-4 flex flex-column gap-1">
+              <FloatLabel variant="in">
+                <AutoComplete v-model="$field.value" fluid :suggestions="filteredProfessions" @keydown.enter.prevent
+                  @complete="(e) => filteredProfessions = search(e.query, PROFESSION_TYPES)" />
+                <label :for="$field.props.name">Profissão</label>
+              </FloatLabel>
+              <Message v-if="$field.invalid" severity="error" size="small" variant="simple">{{ $field.error.message }}
+              </Message>
+            </FormField>
+
+            <FormField name="availability" v-slot="$field" class="field col-12 md:col-4 flex flex-column gap-1">
+              <FloatLabel variant="in">
+                <Select v-model="$field.value" :options="AVAILABILITY_TYPES" optionLabel="label" optionValue="value"
+                  class="w-full" fluid />
+                <label :for="$field.props.name">Disponibilidade</label>
+              </FloatLabel>
+              <Message v-if="$field.invalid" severity="error" size="small" variant="simple">{{ $field.error.message }}
+              </Message>
             </FormField>
           </div>
         </Panel>
@@ -172,7 +197,7 @@
             <FormField name="cep" v-slot="$field" class="field col-12 md:col-3 flex flex-column gap-1">
               <FloatLabel variant="in">
                 <InputMask v-model="$field.value" mask="99999-999" class="w-full" @blur="handleCep" fluid />
-                <label>CEP</label>
+                <label :for="$field.props.name">CEP</label>
               </FloatLabel>
               <Message v-if="$field.invalid" severity="error" size="small" variant="simple">{{ $field.error.message }}
               </Message>
@@ -181,7 +206,7 @@
             <FormField name="address" v-slot="$field" class="field col-12 md:col-7 flex flex-column gap-1">
               <FloatLabel variant="in">
                 <InputText v-model="$field.value" class="w-full" fluid />
-                <label>Logradouro (Rua/Av)</label>
+                <label :for="$field.props.name">Logradouro (Rua/Av)</label>
               </FloatLabel>
               <Message v-if="$field.invalid" severity="error" size="small" variant="simple">{{ $field.error.message }}
               </Message>
@@ -190,7 +215,7 @@
             <FormField name="address_number" v-slot="$field" class="field col-12 md:col-2 flex flex-column gap-1">
               <FloatLabel variant="in">
                 <InputText v-model="$field.value" class="w-full" fluid />
-                <label>Nº</label>
+                <label :for="$field.props.name">Nº</label>
               </FloatLabel>
               <Message v-if="$field.invalid" severity="error" size="small" variant="simple">{{ $field.error.message }}
               </Message>
@@ -199,7 +224,7 @@
             <FormField name="neighborhood" v-slot="$field" class="field col-12 md:col-5 flex flex-column gap-1">
               <FloatLabel variant="in">
                 <InputText v-model="$field.value" class="w-full" fluid />
-                <label>Bairro</label>
+                <label :for="$field.props.name">Bairro</label>
               </FloatLabel>
               <Message v-if="$field.invalid" severity="error" size="small" variant="simple">{{ $field.error.message }}
               </Message>
@@ -208,7 +233,7 @@
             <FormField name="city" v-slot="$field" class="field col-12 md:col-5 flex flex-column gap-1">
               <FloatLabel variant="in">
                 <InputText v-model="$field.value" class="w-full" fluid />
-                <label>Cidade</label>
+                <label :for="$field.props.name">Cidade</label>
               </FloatLabel>
               <Message v-if="$field.invalid" severity="error" size="small" variant="simple">{{ $field.error.message }}
               </Message>
@@ -217,7 +242,7 @@
             <FormField name="state" v-slot="$field" class="field col-12 md:col-2 flex flex-column gap-1">
               <FloatLabel variant="in">
                 <InputText v-model="$field.value" class="w-full" fluid />
-                <label>UF</label>
+                <label :for="$field.props.name">UF</label>
               </FloatLabel>
               <Message v-if="$field.invalid" severity="error" size="small" variant="simple">{{ $field.error.message }}
               </Message>
@@ -230,14 +255,14 @@
             <FormField name="health_plan" v-slot="$field" class="field col-12 md:col-3 flex align-items-center">
               <div class="flex align-items-center">
                 <Checkbox v-model="$field.value" binary inputId="health_plan" />
-                <label for="health_plan" class="ml-2 cursor-pointer">Possui Plano de Saúde?</label>
+                <label :for="$field.props.name" class="ml-2 cursor-pointer">Possui Plano de Saúde?</label>
               </div>
             </FormField>
 
             <FormField name="health_plan_name" v-slot="$field" class="field col-12 md:col-6 flex flex-column gap-1">
               <FloatLabel variant="in">
                 <InputText v-model="$field.value" class="w-full" :disabled="!$form.health_plan?.value" fluid />
-                <label>Nome do plano</label>
+                <label :for="$field.props.name">Nome do plano</label>
               </FloatLabel>
               <Message v-if="$field.invalid" severity="error" size="small" variant="simple">{{ $field.error.message }}
               </Message>
@@ -246,7 +271,7 @@
             <FormField name="health_plan_number" v-slot="$field" class="field col-12 md:col-3 flex flex-column gap-1">
               <FloatLabel variant="in">
                 <InputText v-model="$field.value" class="w-full" :disabled="!$form.health_plan?.value" fluid />
-                <label>Nº da Carteira</label>
+                <label :for="$field.props.name">Nº da Carteira</label>
               </FloatLabel>
               <Message v-if="$field.invalid" severity="error" size="small" variant="simple">{{ $field.error.message }}
               </Message>
@@ -256,7 +281,7 @@
               class="field col-12 md:col-3 flex align-items-center">
               <div class="flex align-items-center">
                 <Checkbox v-model="$field.value" binary inputId="continuous_medication" />
-                <label for="continuous_medication" class="ml-2 cursor-pointer">Usa medicação contínua?</label>
+                <label :for="$field.props.name" class="ml-2 cursor-pointer">Usa medicação contínua?</label>
               </div>
             </FormField>
 
@@ -266,7 +291,7 @@
                   :suggestions="filteredMedications" @keydown.enter.prevent
                   @complete="(e) => filteredMedications = search(e.query, MEDICATIONS)"
                   :disabled="!$form.continuous_medication?.value" />
-                <label>Medicamentos de Uso Contínuo</label>
+                <label :for="$field.props.name">Medicamentos de Uso Contínuo</label>
               </FloatLabel>
               <Message v-if="$field.invalid" severity="error" size="small" variant="simple">
                 {{ $field.error.message }}
@@ -277,7 +302,7 @@
               <FloatLabel variant="in">
                 <AutoComplete inputId="allergies" v-model="$field.value" multiple fluid :suggestions="filteredAllergies"
                   @keydown.enter.prevent @complete="(e) => filteredAllergies = search(e.query, ALLERGIES)" />
-                <label>Alergias</label>
+                <label :for="$field.props.name">Alergias</label>
               </FloatLabel>
               <Message v-if="$field.invalid" severity="error" size="small" variant="simple">{{
                 $field.error.message }}
@@ -291,7 +316,7 @@
             <FormField name="emergency_contact" v-slot="$field" class="field col-12 md:col-6 flex flex-column gap-1">
               <FloatLabel variant="in">
                 <InputText v-model="$field.value" class="w-full" fluid />
-                <label>Nome do Contato</label>
+                <label :for="$field.props.name">Nome do Contato</label>
               </FloatLabel>
               <Message v-if="$field.invalid" severity="error" size="small" variant="simple">{{
                 $field.error.message }}
@@ -302,7 +327,7 @@
               class="field col-12 md:col-6 flex flex-column gap-1">
               <FloatLabel variant="in">
                 <InputMask v-model="$field.value" mask="(99) 99999-9999" class="w-full" fluid />
-                <label>Telefone do Contato</label>
+                <label :for="$field.props.name">Telefone do Contato</label>
               </FloatLabel>
               <Message v-if="$field.invalid" severity="error" size="small" variant="simple">{{
                 $field.error.message }}
@@ -315,13 +340,13 @@
           <div class="col-12 mt-4">
             <FormField name="media_consent" v-slot="$field" class="flex align-items-center mb-3">
               <Checkbox v-model="$field.value" binary inputId="media_consent" />
-              <label for="media_consent" class="ml-2">Aceito o uso da minha imagem para fins de divulgação.</label>
+              <label :for="$field.props.name" class="ml-2">Aceito o uso da minha imagem para fins de divulgação.</label>
             </FormField>
 
             <FormField name="terms_accepted" v-slot="$field" class="flex flex-column gap-1">
               <div class="flex align-items-center">
                 <Checkbox v-model="$field.value" binary inputId="terms_accepted" />
-                <label for="terms_accepted" class="ml-2">Li e aceito os termos de serviço e regulamento interno.</label>
+                <label :for="$field.props.name" class="ml-2">Li e aceito os termos de serviço e regulamento interno.</label>
               </div>
               <Message v-if="$field.invalid" severity="error" size="small" variant="simple">{{ $field.error.message }}
               </Message>
@@ -366,7 +391,7 @@ import {
 } from "@/functions/utils";
 import { OperatorService, type IOperator } from "@/services/operator";
 
-import { CATEGORIES_OPTIONS, SOURCES, SHIRT_SIZES, BLOOD_TYPES, EXPERIENCES, ALLERGIES, MEDICATIONS } from "@/constants/airsoft";
+import { CATEGORIES_OPTIONS, SOURCES, SHIRT_SIZES, BLOOD_TYPES, EXPERIENCES, ALLERGIES, MEDICATIONS, AVAILABILITY_TYPES, PROFESSION_TYPES } from "@/constants/airsoft";
 
 const authStore = useAuthStore();
 const { operator } = storeToRefs(authStore);
@@ -379,6 +404,7 @@ const form = ref();
 
 const filteredAllergies = ref<string[]>([]);
 const filteredMedications = ref<string[]>([]);
+const filteredProfessions = ref<string[]>([]);
 
 const fileInput = ref<HTMLInputElement | null>(null);
 
@@ -392,7 +418,7 @@ const initialValues = computed(() => {
   };
 });
 
-const staticSchema = z.object({
+const operatorSchema = z.object({
   name: z.string({ error: "Nome completo obrigatório" }).min(1, "Nome completo obrigatório"),
   codename: z.string({ error: "Codinome obrigatório" }).min(1, "Codinome obrigatório"),
   identity: z.string({ error: "CPF obrigatório" })
@@ -414,6 +440,8 @@ const staticSchema = z.object({
   emergency_contact_phone: z.string({ error: "Telefone do Contato obrigatório" }).transform((v) => v.replace(/\D/g, "")),
   shirt_size: z.string({ error: "Tamanho obrigatório" }),
   terms_accepted: z.boolean({ error: "Aceite os termos obrigatório" }).refine(v => v === true, "Aceite os termos obrigatório"),
+  availability: z.string({ error: "Escolha sua disponibilidade" }),
+  profession: z.string({ error: "Escolha sua profissão" })
 }).loose();
 
 const medicalSchema = z.object({
@@ -437,12 +465,10 @@ const medicalSchema = z.object({
   }
 });
 
-const resolver = zodResolver(
-  staticSchema.and(medicalSchema).transform((data) => ({
-    ...data,
-    terms_accepted_at: data.terms_accepted ? new Date().toISOString() : null,
-  }))
-);
+const resolver = zodResolver(operatorSchema.and(medicalSchema).transform((data) => ({
+  ...data,
+  terms_accepted_at: data.terms_accepted ? new Date().toISOString() : null,
+})));
 
 const handleUpdateProfile = async ({ valid, values }: any) => {
   if (!valid) return;
@@ -560,7 +586,7 @@ const handleUpdateAvatar = async (event: Event) => {
   justify-content: center;
   opacity: 0;
   transition: opacity 0.3s ease;
-  z-index: 10;
+  /* z-index: 10; */
   border-radius: 50%;
 }
 
@@ -580,5 +606,12 @@ const handleUpdateAvatar = async (event: Event) => {
   background-color: rgba(0, 0, 0, 0.3);
   z-index: 20;
   border-radius: 50%;
+}
+
+.required-field label::after {
+  content: " *";
+  color: var(--p-red-500);
+  /* Usa a cor do PrimeVue */
+  font-weight: bold;
 }
 </style>

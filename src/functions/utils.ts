@@ -5,6 +5,7 @@ import customParseFormat from 'dayjs/plugin/customParseFormat';
 import beepSound from "@/assets/sounds/beep.mp3";
 import router from "@/router";
 import { BUCKET_ID, storage } from '@/services/appwrite';
+import { CATEGORIES_OPTIONS } from '@/constants/airsoft';
 
 dayjs.extend(customParseFormat);
 
@@ -238,8 +239,8 @@ export const search = (query: string, sourceArray: string[]): string[] => {
   return results;
 };
 
-export const uploadFile = async (rowId: string, file: File): Promise<string> => {
-  const fileId = `file-${rowId}`;
+export const uploadFile = async (rowId: string, file: File, filename?: string): Promise<string> => {
+  const fileId = `${filename || 'file'}-${rowId}`;
   const newFile = file.type.includes('image/') ? await processImage(file) : file;
 
   try {
@@ -267,6 +268,15 @@ export const deleteFile = async (rowId: string, filename?: string): Promise<{}> 
     throw new Error("Falha ao processar imagem da missão.");
   }
 }
+
+export const getSpecialtyLabel = (val?: number) => {
+  return CATEGORIES_OPTIONS.find(a => a.value === val)?.label || 'Indisponível';
+};
+
+export const getAvailabilityLabel = (val?: string) => {
+    const maps: any = { saturday: 'Sábados', sunday: 'Domingos', both: 'Fim de Semana', none: 'Indisponível' };
+    return maps[val || 'none'];
+};
 
 export const dateToISOString = (date: Date | string) => dayjs(date, typeof date === 'string' ? 'DD/MM/YYYY' : undefined).toISOString()
 export const formatCurrency = (value: number) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);

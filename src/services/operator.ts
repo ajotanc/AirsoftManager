@@ -34,7 +34,7 @@ export interface IOperator extends Models.Row {
   allergies?: Array<string>;
   continuous_medication?: boolean;
   medication_details?: Array<string>;
-  specialty?: number;
+  category?: number;
   experience?: number;
   instagram?: string;
   shirt_size?: string;
@@ -85,6 +85,23 @@ export const OperatorService = {
         tableId: TABLE_OPERATORS,
         queries: [
           Query.select(["*", "arsenal.*", "loadout.*"]),
+          Query.orderAsc("codename"),
+        ],
+      });
+
+      return response.rows;
+    } catch (error) {
+      console.error("Erro ao buscar usuários:", error);
+      return [];
+    }
+  },
+  async listActive(): Promise<IOperator[]> {
+    try {
+      const response = await tables.listRows<IOperator>({
+        databaseId: DATABASE_ID,
+        tableId: TABLE_OPERATORS,
+        queries: [
+          Query.equal("status", true),
           Query.orderAsc("codename"),
         ],
       });

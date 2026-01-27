@@ -44,4 +44,10 @@ body {
   display: flex;
   flex-direction: column;
 }
+
+.grid {
+  margin-right: 0 !important;
+  margin-left: 0 !important;
+  margin-top: 0 !important;
+}
 </style>

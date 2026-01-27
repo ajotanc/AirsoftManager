@@ -103,6 +103,7 @@ app.mount("#app");
 
 import { useAuthStore } from "@/stores/auth";
 import ExodoPreset from "./theme/exodo-preset";
+import z from "zod";
 const authStore = useAuthStore();
 
 authStore
@@ -116,3 +117,35 @@ authStore
 
 app.directive('styleclass', StyleClass);
 app.directive('ripple', Ripple);
+
+app.directive('asterisk', {
+  mounted(el, binding) {
+    const schema = binding.value;
+    if (!schema || !schema.shape) return;
+
+    const shapes = schema.shape;
+    const labels = el.querySelectorAll('label');
+
+    labels.forEach((label: HTMLLabelElement) => {
+      const container = label.closest('.p-formfield');
+      if (!container) return;
+
+      const input = container.querySelector('input[name], select[name], textarea[name]') as HTMLInputElement;
+
+      const fieldName = input ? input.name : label.htmlFor;
+
+      if (fieldName && shapes[fieldName]) {
+        const isRequired = !(shapes[fieldName] instanceof z.ZodOptional);
+
+        if (isRequired && !label.querySelector('.auto-asterisk')) {
+          const star = document.createElement('span');
+          star.innerText = ' *';
+          star.style.color = 'var(--p-red-500)';
+          star.style.fontWeight = 'bold';
+          star.classList.add('auto-asterisk');
+          label.appendChild(star);
+        }
+      }
+    });
+  }
+});

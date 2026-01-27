@@ -79,7 +79,7 @@ export const CashflowService = {
           await deleteFile(id);
         }
 
-        data.receipt_url = await uploadFile(id, file);
+        data.receipt_url = await uploadFile(id, file, 'cashflow-receipt');
       }
 
       const date = dayjs(data.date);

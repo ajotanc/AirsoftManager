@@ -1,46 +1,80 @@
 <template>
-    <div class="flex flex-column align-items-center text-center p-3">
-        <div class="flex relative mb-2 cursor-pointer" v-tooltip.top="`Status de Progressão: ${xpInLevel} / 200 XP`">
-            <Avatar :image="operator.avatar" shape="circle" class="operator-avatar border-surface-900" />
-            <Knob :showValue="false" v-model="xpInLevel" class="xp-ring" :min="0" :max="EXPERIENCE_PER_LEVEL"
-                :strokeWidth="5" readonly :size="140" />
-            <div
-                class="level-tag bg-white text-sm text-surafce-900 font-bold border-circle flex align-items-center justify-content-center shadow-4">
-                {{ operator.level }}
+    <div class="flex flex-1 flex-column align-items-center text-center gap-2 py-2 overflow-hidden">
+        <Avatar :image="operator.avatar" shape="circle" class="operator-avatar shadow-3" />
+
+        <div class="flex flex-column">
+            <h2 class="text-2xl font-bold m-0 line-height-2 uppercase">{{ operator.codename }}</h2>
+            <div class="flex justify-content-center align-items-center gap-1 text-xs text-gray-500 font-medium mt-1">
+                <span>{{ getSpecialtyLabel(operator.category) }}</span>
+                <span>·</span>
+                <span>Nível {{ operator.level }}</span>
+                <span>·</span>
+                <i class="ri-trophy-fill text-yellow-500"></i>
+                <span>{{ operator.badges?.length || 0 }}</span>
             </div>
         </div>
-        <h2 class="text-3xl font-bold m-0 mt-3 uppercase">{{ operator.codename }}</h2>
-        <div class="flex align-items-center gap-2 mt-3">
-            <span class="font-bold uppercase text-sm">
-                {{ currentRank?.label }}
-            </span>
+
+        <div class="experience flex flex-column align-items-center gap-1 w-full px-4 text-gray-500">
+            <span class="text-xs">{{ operator.xp }}/{{ EXPERIENCE_PER_LEVEL }} XP</span>
+            <ProgressBar :showValue="false" :value="progressValue" style="height: 4px; width: 100%; max-width: 150px;"
+                :pt="{
+                    root: { style: { backgroundColor: 'var(--p-gray-200)' } },
+                    value: { style: { backgroundColor: 'var(--p-red-600)' } }
+                }" />
         </div>
 
-        <p class="text-xs text-gray-500 m-0 px-2 line-height-3 font-italic">
-            "{{ currentRank?.description }}"
-        </p>
+        <div class="flex flex-column px-2">
+            <span class="font-bold text-sm text-gray-800">{{ currentRank?.label }}</span>
+            <p class="text-xs text-gray-500 m-0 line-height-2 font-italic">
+                "{{ currentRank?.description }}"
+            </p>
+        </div>
 
-        <div v-if="featuredBadges.length > 0" class="flex flex-row mt-3">
+        <div v-if="featuredBadges.length > 0" class="flex flex-row py-1">
             <template v-for="badge in featuredBadges" :key="badge.slug">
-                <BadgeIcon :slug="badge.slug" earned group />
+                <BadgeIcon :slug="badge.slug" earned group size="normal" />
             </template>
-            <BadgeIcon group :counter="badgesCount" />
+            <BadgeIcon v-if="badgesCount > 0" group :counter="badgesCount" size="normal" />
         </div>
 
-        <div v-if="qrcode" class="flex flex-column mt-3">
-            <div class="text-center mb-2 text-xs font-bold uppercase">
-                Registro Tático
+        <template v-if="detail">
+            <div v-if="operator.profession || operator.availability" class="flex gap-4 text-xs w-full px-3">
+                <div v-if="operator.profession" class="w-6 flex flex-column text-right">
+                    <span class="text-gray-500 uppercase font-bold" style="font-size: 0.6rem">Profissão</span>
+                    <span class="text-gray-700 font-bold">{{ operator.profession }}</span>
+                </div>
+                <Divider layout="vertical" class="m-0" />
+                <div v-if="operator.availability" class="w-6 flex flex-column text-left">
+                    <span class="text-gray-500 uppercase font-bold" style="font-size: 0.6rem">Disponibilidade</span>
+                    <span class="text-gray-700 font-bold">{{ getAvailabilityLabel(operator.availability) }}</span>
+                </div>
             </div>
-            <Qrcode :id="operator.$id" />
+
+            <div class="flex gap-3 mt-1">
+                <a :href="`https://wa.me/+55${operator.phone}?text=Ol%C3%A1%20${operator.codename}%2C%20vim%20atrav%C3%A9s%20do%20aplicativo%20da%20%2A${TEAM_NAME}%2A%2C%20gostaria%20de%20saber%20mais%20sobre%20seus%20servi%C3%A7os%21`"
+                    target="_blank" class="no-underline text-green-500 hover:scale-110 transition-transform">
+                    <i class="pi pi-whatsapp text-xl"></i>
+                </a>
+                <a :href="`https://instagram.com/${operator.instagram}`" target="_blank"
+                    class="no-underline text-purple-500 hover:scale-110 transition-transform">
+                    <i class="pi pi-instagram text-xl"></i>
+                </a>
+            </div>
+        </template>
+
+        <div v-if="qrcode" class="flex flex-column align-items-center">
+            <span class="text-gray-500 uppercase font-bold mb-1" style="font-size: 0.6rem">Registro Tático</span>
+            <Qrcode :id="operator.$id" :size="80" />
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import { LEVELS, EXPERIENCE_PER_LEVEL, ALL_BADGES_DEFINITION } from '@/constants/airsoft';
+import { LEVELS, EXPERIENCE_PER_LEVEL, ALL_BADGES_DEFINITION, TEAM_NAME } from '@/constants/airsoft';
 import Qrcode from './Qrcode.vue';
 import type { IOperator } from '@/services/operator';
+import { getSpecialtyLabel, getAvailabilityLabel } from '@/functions/utils'
 
 const operator = defineModel('operator', {
     type: Object as PropType<IOperator>,
@@ -49,9 +83,13 @@ const operator = defineModel('operator', {
 
 const props = defineProps<{
     qrcode?: boolean;
+    detail?: boolean;
 }>();
 
-const xpInLevel = computed(() => (operator.value.xp || 0) % EXPERIENCE_PER_LEVEL);
+const progressValue = computed(() => {
+    const percentage = (operator.value.xp / EXPERIENCE_PER_LEVEL) * 100;
+    return Math.min(100, Math.max(0, percentage));
+});
 
 const currentRank = computed(() => {
     const level = operator.value.level || 1;
@@ -72,19 +110,11 @@ const featuredBadges = computed(() => {
 </script>
 
 <style scoped>
-.xp-ring {
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    border-radius: 50%;
-    position: absolute;
-    margin-top: 2px;
-}
-
 .operator-avatar {
-    width: 100px;
-    height: 100px;
-    background-color: var(--p-gray-50);
+    width: 6rem;
+    height: 6rem;
+    padding: 0.25rem;
+    background-color: var(--p-gray-300);
 }
 
 .level-tag {

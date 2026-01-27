@@ -116,7 +116,7 @@ export const PaymentService = {
   },
   async payment(rowId: string, file: File): Promise<IPayment> {
     try {
-      const urlFormatted = await uploadFile(rowId, file);
+      const urlFormatted = await uploadFile(rowId, file, 'payment-receipt');
 
       return await tables.updateRow<IPayment>({
         databaseId: DATABASE_ID,
@@ -166,7 +166,7 @@ export const PaymentService = {
   },
   async contribute(data: IPayment, file: File): Promise<IPayment> {
     const rowId = ID.unique();
-    const urlFormatted = await uploadFile(rowId, file);
+    const urlFormatted = await uploadFile(rowId, file, 'payment-receipt');
 
     return await tables.createRow({
       databaseId: DATABASE_ID,

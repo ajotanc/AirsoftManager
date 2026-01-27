@@ -1,5 +1,7 @@
 <template>
-  <BadgesList v-model:items="operator.badges" :header="true" />
+  <div class="p-3">
+    <BadgesList v-model:operator="operator" :showActions="true" />
+  </div>
 </template>
 
 <script setup lang="ts">
