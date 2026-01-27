@@ -132,12 +132,12 @@ import Details from "@/components/operators/Details.vue";
 import { ROLES } from "@/constants/airsoft";
 
 import { OperatorService } from "@/services/operator";
-import { useAuthStore } from "@/stores/auth";
 import { getShortName } from "@/functions/utils";
 import Empty from "@/components/Empty.vue";
+import { useOperator } from "@/composables/useOperator";
 
 const toast = useToast();
-const authStore = useAuthStore();
+const { authStore } = useOperator();
 
 const loading = ref(true);
 const operators = ref([]);

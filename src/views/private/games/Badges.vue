@@ -5,9 +5,8 @@
 </template>
 
 <script setup lang="ts">
-import { useAuthStore } from '@/stores/auth';
 import BadgesList from '@/components/gamification/BadgesList.vue';
+import { useOperator } from '@/composables/useOperator';
 
-const { operator } = useAuthStore();
-
+const { operator } = useOperator();
 </script>

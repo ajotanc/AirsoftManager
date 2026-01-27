@@ -84,9 +84,9 @@ import { Skeleton, useToast } from 'primevue';
 import { GoalService, type IGoal } from '@/services/goal';
 import { PaymentService, type IPayment } from '@/services/payment';
 import dayjs from 'dayjs';
-import { useAuthStore } from '@/stores/auth';
+import { useOperator } from '@/composables/useOperator';
 
-const { operator } = useAuthStore();
+const { operator } = useOperator();
 const toast = useToast();
 
 const loading = ref(true);
@@ -175,7 +175,7 @@ const makeContribute = (goal: IGoal) => {
     goal: goal.$id,
     receipt_url: null,
     due_date: now.toISOString(),
-    operator: operator.$id,
+    operator: operator.value.$id,
   } as IPayment;
 
   contributeDialog.value = true;

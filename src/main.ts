@@ -4,7 +4,6 @@ import { createPinia } from "pinia";
 import App from "./App.vue";
 import router from "./router";
 import i18n from "./i18n";
-
 import PrimeVue from "primevue/config";
 import ToastService from "primevue/toastservice";
 import Tooltip from "primevue/tooltip";
@@ -12,6 +11,9 @@ import ConfirmationService from "primevue/confirmationservice";
 import { registerSW } from "virtual:pwa-register";
 import StyleClass from 'primevue/styleclass';
 import Ripple from 'primevue/ripple';
+
+import { useOperator } from "@/composables/useOperator";
+import ExodoPreset from "./theme/exodo-preset";
 
 import "primeicons/primeicons.css";
 import "primeflex/primeflex.css";
@@ -101,10 +103,7 @@ app.use(PrimeVue, {
 app.directive("tooltip", Tooltip);
 app.mount("#app");
 
-import { useAuthStore } from "@/stores/auth";
-import ExodoPreset from "./theme/exodo-preset";
-
-const authStore = useAuthStore();
+const { authStore } = useOperator();
 
 authStore
   .init()

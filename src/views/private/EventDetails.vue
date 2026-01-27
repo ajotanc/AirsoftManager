@@ -62,8 +62,8 @@
             <div class="col-12 md:col-8">
                 <Card class="border-1 border-black-alpha-10 mb-4">
                     <template #content>
-                        <Image v-if="event.thumbnail" :src="event.thumbnail" :alt="event.title" class="overflow-hidden border-round"
-                            imageClass="w-full" preview />
+                        <Image v-if="event.thumbnail" :src="event.thumbnail" :alt="event.title"
+                            class="overflow-hidden border-round" imageClass="w-full" preview />
                         <h2 class="text-green-400">Briefing da Missão</h2>
                         <div class="text-html" v-html="event.description"></div>
                     </template>
@@ -293,7 +293,7 @@
                         <template #option="slotProps">
                             <div class="flex flex-column">
                                 <span class="font-bold">{{ slotProps.option.name }} ({{ slotProps.option.codename
-                                }})</span>
+                                    }})</span>
                                 <small class="text-gray-500">Convidado por {{
                                     slotProps.option.operator.codename }}</small>
                             </div>
@@ -350,7 +350,6 @@ import { QrcodeStream, type DetectedBarcode } from 'vue-qrcode-reader';
 import { Divider, InputMask, InputNumber, InputText, Select, useConfirm } from "primevue";
 import { useToast } from "primevue/usetoast";
 import { atcb_action } from 'add-to-calendar-button';
-import { useAuthStore } from '@/stores/auth';
 import { EventService, type IEvent, type IParticipation, type IVisitorParticipation, type IVisitorParticipationDetail } from '@/services/event';
 import { EVENT_TYPES, TEAM_NAME } from '@/constants/airsoft';
 import { formatDate, playBeep, type IFields } from '@/functions/utils';
@@ -381,11 +380,13 @@ import ButtonShare from '@/components/ButtonShare.vue';
 import { zodResolver } from '@primevue/forms/resolvers/zod';
 import z from 'zod';
 import Empty from '@/components/Empty.vue';
+import { useOperator } from '@/composables/useOperator';
 
 const route = useRoute();
 const toast = useToast();
 const confirm = useConfirm();
-const { operator } = useAuthStore();
+
+const { operator } = useOperator();
 
 const rawEvent = ref<IEvent>({} as IEvent);
 const participants = ref<IParticipation<IOperator>[]>([]);
@@ -398,14 +399,14 @@ const carpools = ref<ICarpool<IVehicle<string>>[]>([]);
 
 const requests = ref<ICarpoolRequest<IOperator, ICarpoolDetail>[]>([]);
 
-const hasCarpools = computed(() => carpools.value.some(carpool => carpool.vehicle.driver === operator.$id));
+const hasCarpools = computed(() => carpools.value.some(carpool => carpool.vehicle.driver === operator.value.$id));
 const isFinished = computed(() => event.value.is_finished);
 
 const carpoolAccepteds = computed(() => requests.value.filter(request => request.status === 'accepted'));
 const carpoolRequests = computed(() => {
     return requests.value.filter(request => {
         if (request.status !== 'pending') return false;
-        return request.carpool.vehicle.driver === operator.$id;
+        return request.carpool.vehicle.driver === operator.value.$id;
     });
 });
 
@@ -728,7 +729,7 @@ const loadServices = async () => {
 
         const [requestsData, vehiclesData, visitorsData] = await Promise.all([
             carpoolIds.length > 0 ? CarpoolRequestService.listByCarpools(carpoolIds) : [],
-            VehicleService.listByOperator(operator.$id),
+            VehicleService.listByOperator(operator.value.$id),
             VisitorService.list()
         ]);
 
@@ -736,7 +737,7 @@ const loadServices = async () => {
         vehicles.value = vehiclesData as IVehicle[];
         visitors.value = visitorsData as IVisitor<IOperator>[];
 
-        isConfirmed.value = participants.value.some(p => p.operator.$id === operator.$id);
+        isConfirmed.value = participants.value.some(p => p.operator.$id === operator.value.$id);
 
     } catch (error) {
         console.error("Erro ao carregar dados da missão:", error);
@@ -754,7 +755,7 @@ const loadServices = async () => {
 const toggleParticipation = async () => {
     try {
         if (isConfirmed.value) {
-            const userParticipation = participants.value.find(p => p.operator.$id === operator.$id);
+            const userParticipation = participants.value.find(p => p.operator.$id === operator.value.$id);
             if (userParticipation?.$id) {
                 await EventService.deleteParticipation(userParticipation.$id);
 
@@ -764,11 +765,11 @@ const toggleParticipation = async () => {
                 toast.add({ severity: 'info', summary: 'Cancelado', detail: 'Sua presença foi removida.', life: 3000 });
             }
         } else {
-            const newParticipation = await EventService.createParticipation(event.value.$id, operator.$id);
+            const newParticipation = await EventService.createParticipation(event.value.$id, operator.value.$id);
 
             participants.value.push({
                 ...newParticipation,
-                operator: operator
+                operator: operator.value
             });
             isConfirmed.value = true;
 
@@ -898,7 +899,7 @@ const requestCarpool = async (carpool: ICarpool<IVehicle<string>>) => {
         const { $id, vehicle, departure_point, departure_time } = carpool;
         const { codename, phone } = getOperator(vehicle.driver) as IOperator;
 
-        const response = await CarpoolRequestService.create($id, operator.$id) as ICarpoolRequest<IOperator, ICarpool<IVehicle>>;
+        const response = await CarpoolRequestService.create($id, operator.value.$id) as ICarpoolRequest<IOperator, ICarpool<IVehicle>>;
 
         requests.value.push({
             ...response,
@@ -942,11 +943,11 @@ const canRequest = (carpool: ICarpool<IVehicle>) => {
 
     if (hasCarpools.value) return false;
 
-    const isOwner = carpool.vehicle.driver === operator.$id;
+    const isOwner = carpool.vehicle.driver === operator.value.$id;
 
     const hasPendingOrAccepted = requests.value.some(r =>
         r.carpool.$id === carpool.$id &&
-        r.requester.$id === operator.$id &&
+        r.requester.$id === operator.value.$id &&
         r.status !== 'rejected'
     );
 

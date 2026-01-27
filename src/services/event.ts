@@ -3,14 +3,14 @@ import {
   tables,
   DATABASE_ID,
   BUCKET_ID,
-  TABLE_OPERATORS,
 } from "@/services/appwrite";
 import { OperatorService, type IOperator } from "@/services/operator";
-import { XP_VALUES, calculateLevel } from "@/constants/airsoft";
+import { XP_VALUES } from "@/constants/airsoft";
 
-import type { IVisitor } from "./visitor";
+import { type IVisitor } from "./visitor";
 import type { ICarpool } from "./carpool";
 import { deleteFile, uploadFile } from "@/functions/utils";
+import { BadgeService } from "./badge";
 
 export const TABLE_EVENTS = "events";
 export const TABLE_PARTICIPATIONS = "participations";
@@ -191,10 +191,7 @@ export const EventService = {
       };
 
       const xpGain = xpMap[event.type] || XP_VALUES.GAME;
-      const operator = (await OperatorService.row(operatorId)) as IOperator;
-
-      const newXp = (operator.xp || 0) + xpGain;
-      const newLevel = calculateLevel(newXp);
+      const operator = await OperatorService.row(operatorId);
 
       const participation = await tables.listRows({
         databaseId: DATABASE_ID,
@@ -214,15 +211,8 @@ export const EventService = {
         });
       }
 
-      return await tables.updateRow({
-        databaseId: DATABASE_ID,
-        tableId: TABLE_OPERATORS,
-        rowId: operatorId,
-        data: {
-          xp: newXp,
-          level: newLevel,
-        },
-      });
+      const opWithXp = await BadgeService.addActivityXp(operator, xpGain);
+      return await BadgeService.syncOperatorBadges(opWithXp);
     } catch (error) {
       console.error("Erro no check-in:", error);
       throw error;
@@ -264,12 +254,28 @@ export const EventService = {
     });
   },
   async confirmVisitorAttendance(participationId: string): Promise<IVisitorParticipation> {
-    return await tables.updateRow({
-      databaseId: DATABASE_ID,
-      tableId: TABLE_VISITOR_PARTICIPATIONS,
-      rowId: participationId,
-      data: { checked_in: true },
-    });
+    try {
+      const updatedParticipation = await tables.updateRow<IVisitorParticipation>({
+        databaseId: DATABASE_ID,
+        tableId: TABLE_VISITOR_PARTICIPATIONS,
+        rowId: participationId,
+        data: { checked_in: true },
+      });
+
+      if (updatedParticipation.visitor) {
+        const visitor = updatedParticipation.visitor as IVisitor<IOperator>;
+        const hostOperator = await OperatorService.row(visitor.operator.$id);
+
+        if (hostOperator) {
+          await BadgeService.addActivityXp(hostOperator, 25);
+        }
+      }
+
+      return updatedParticipation;
+    } catch (error) {
+      console.error("Erro no check-in do visitante:", error);
+      throw error;
+    }
   },
   async deleteVisitorParticipation(participationId: string): Promise<{}> {
     return await tables.deleteRow({

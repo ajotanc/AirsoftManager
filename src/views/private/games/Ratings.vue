@@ -9,8 +9,8 @@
                 <Button icon="pi pi-trash" text rounded severity="danger" @click="confirmDelete(data)" /> </template>
         </AppTable>
 
-        <Dialog v-model:visible="ratingDialog" header="Detalhes do Voto" :modal="true" :style="{ width: '100%', maxWidth: '640px' }"
-            class="m-3">
+        <Dialog v-model:visible="ratingDialog" header="Detalhes do Voto" :modal="true"
+            :style="{ width: '100%', maxWidth: '640px' }" class="m-3">
             <Form ref="form" :resolver="resolver" :initialValues="selectedRating" @submit="saveRating" class="grid"
                 :key="selectedRating.$id || 'new'">
                 <div class="col-12">
@@ -35,7 +35,7 @@
                                             shape="circle" size="small" />
                                         <span>{{availableOperators.find(op => op.$id ===
                                             slotProps.value)?.codename
-                                            }}</span>
+                                        }}</span>
                                     </div>
                                 </template>
                             </Select>
@@ -121,10 +121,10 @@ import { SKILL_ATTRIBUTES } from "@/constants/airsoft";
 import { Rating, useConfirm } from "primevue";
 import { RatingService, type IRating } from "@/services/rating";
 import { OperatorService, type IOperator } from "@/services/operator";
-import { useAuthStore } from "@/stores/auth";
 import { type IFields } from "@/functions/utils";
+import { useOperator } from "@/composables/useOperator";
 
-const { operator } = useAuthStore();
+const { operator } = useOperator();
 
 onMounted(() => {
     loadServices();
@@ -133,7 +133,7 @@ onMounted(() => {
 const loadServices = async () => {
     try {
         const [ratingsData, operatorsData] = await Promise.all([
-            RatingService.getRatingsForVoter(operator.$id),
+            RatingService.getRatingsForVoter(operator.value.$id),
             OperatorService.list()
         ]);
 
@@ -154,7 +154,7 @@ const loadServices = async () => {
         const votedOperatorIds = ratings.value.map((vote) => vote.target.$id);
 
         operators.value = operatorsData.filter((op) => {
-            const isMe = op.$id === operator.$id;
+            const isMe = op.$id === operator.value.$id;
             const alreadyVoted = votedOperatorIds.includes(op.$id);
             return !isMe && !alreadyVoted;
         });
@@ -207,7 +207,7 @@ const saveRating = async ({ valid, values }: any) => {
 
     try {
         const payload = {
-            voter: operator.$id,
+            voter: operator.value.$id,
             target,
             attributes: JSON.stringify(attributes),
         };

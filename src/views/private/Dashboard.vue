@@ -71,19 +71,19 @@
 
 <script setup lang="ts">
 import Card from "primevue/card";
-import { useAuthStore } from "@/stores/auth";
 
 import Level from "@/components/operators/Level.vue";
 import EventList from "@/components/EventList.vue";
 import BirthdayList from "@/components/BirthdayList.vue";
-import GoalList from "@/components/GoalList.vue";
 import { computed, onMounted, ref } from "vue";
 import { PaymentService, type IPayment } from "@/services/payment";
 import AdminBadgeScanner from "@/components/AdminBadgeScanner.vue";
 import OperatorList from "@/components/operators/List.vue";
+import GoalList from "@/router/GoalList.vue";
+import { useOperator } from "@/composables/useOperator";
 
-const { isActiveOperator, isAdmin, operator } = useAuthStore();
-const { $id, arsenal, loadout } = operator;
+const { operator, isActiveOperator, isAdmin } = useOperator();
+const { $id, arsenal, loadout } = operator.value;
 
 const payments = ref<IPayment[]>([]);
 const loading = ref(true);

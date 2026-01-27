@@ -16,8 +16,7 @@
             <p class="m-0 text-900 font-bold text-lg">E-mail verificado com sucesso!</p>
             <p class="m-0 mt-1 text-600">Agora você tem acesso ao sistema do time.</p>
           </div>
-          <Button label="Dashboard" class="w-full mt-2"
-            @click="router.push('/dashboard')" />
+          <Button label="Dashboard" class="w-full mt-2" @click="router.push('/dashboard')" />
         </div>
 
         <div v-if="state === 'error'" class="w-full flex flex-column align-items-center gap-3">
@@ -39,11 +38,11 @@ import { useRoute, useRouter } from 'vue-router';
 import Button from 'primevue/button';
 import ProgressSpinner from 'primevue/progressspinner';
 import { account } from '@/services/appwrite';
-import { useAuthStore } from '@/stores/auth';
+import { useOperator } from '@/composables/useOperator';
 
 const route = useRoute();
 const router = useRouter();
-const authStore = useAuthStore();
+const { authStore } = useOperator();
 
 
 type VerificationState = 'loading' | 'success' | 'error';

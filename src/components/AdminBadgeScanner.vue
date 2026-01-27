@@ -32,13 +32,16 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { BadgeService } from '@/services/badge';
-import { OperatorService } from '@/services/operator';
+import { OperatorService, type IOperator } from '@/services/operator';
 import { useToast } from 'primevue/usetoast';
 import Card from 'primevue/card';
 import Button from 'primevue/button';
 import ProgressBar from 'primevue/progressbar';
 import InlineMessage from 'primevue/inlinemessage';
 import { TEAM_NAME } from '@/constants/airsoft';
+import { useOperator } from '@/composables/useOperator';
+
+const { operator, updateState } = useOperator();
 
 const loading = ref(false);
 const progress = ref(0);
@@ -57,11 +60,15 @@ const startScan = async () => {
     if (!operators.length) return result.value = null;
 
     for (let i = 0; i < operators.length; i++) {
-      const op = operators[i]!;
+      const op = operators[i] as IOperator;
       const updatedOp = await BadgeService.syncOperatorBadges(op);
 
       if (updatedOp.badges?.length !== (op.badges?.length || 0)) {
         updatedCount++;
+      }
+
+      if (updatedOp.$id === operator.value.$id) {
+        await updateState(updatedOp);
       }
 
       progress.value = Math.round(((i + 1) / operators.length) * 100);

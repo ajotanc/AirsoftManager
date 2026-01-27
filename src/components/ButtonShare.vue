@@ -31,13 +31,15 @@ const shareNative = async () => {
 
   const participations = eventData.participations as IParticipation<IOperator>[];
   const operators = participations.map(({ checked_in, operator: { codename } }, i) => {
-    const index = (i + 1);
+    const index = (i + 1).toString().padStart((participations.length.toString().length + 1), '0');
     const name = codename.trim();
 
-    if (checked_in) {
-      return `✅ ${index}. ${name}`;
-    } else if (!checked_in && is_finished) {
-      return `❎ ${index}. ~${name}~`;
+    if (is_finished) {
+      if (checked_in) {
+        return `✅ ${index}. ${name}`;
+      } else {
+        return `❎ ${index}. ~${name}~`;
+      }
     } else {
       return `${index}. ${name}`;
     }
@@ -45,13 +47,15 @@ const shareNative = async () => {
 
   const visitor_participations = eventData.visitor_participations as IVisitorParticipation<IVisitor>[];
   const visitors = visitor_participations.map(({ checked_in, visitor: { codename, team } }, i) => {
-    const index = (i + 1);
+    const index = (i + 1).toString().padStart((visitor_participations.length.toString().length + 1), '0');
     const name = codename.trim();
 
-    if (checked_in) {
-      return `✅ ${index}. ${name} (${team})`;
-    } else if (checked_in && is_finished) {
-      return `❎ ${index}. ~${name} (${team})~`;
+    if (is_finished) {
+      if (checked_in) {
+        return `✅ ${index}. ${name} (${team})`;
+      } else {
+        return `❎ ${index}. ~${name} (${team})~`;
+      }
     } else {
       return `${index}. ${name} (${team})`;
     }

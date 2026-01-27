@@ -310,6 +310,11 @@
                 $field.error.message }}
               </Message>
             </FormField>
+
+            <FormField name="is_donor" v-slot="$field" class="field col-12 md:col-9 flex flex-column gap-1">
+              <label :for="$field.props.name">Doador de sangue?</label>
+              <ToggleSwitch inputId="is_donor" v-model="$field.value" />
+            </FormField>
           </div>
         </Panel>
 
@@ -370,7 +375,6 @@ import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
 import { useToast } from "primevue/usetoast";
 import { zodResolver } from "@primevue/forms/resolvers/zod";
-import { storeToRefs } from "pinia";
 import { z } from "zod";
 import { Form, FormField } from "@primevue/forms";
 import InputText from "primevue/inputtext";
@@ -385,19 +389,19 @@ import Select from "primevue/select";
 import Panel from "primevue/panel";
 import Rating from "primevue/rating";
 
-import { useAuthStore } from "@/stores/auth";
 import {
   isValidIdentity,
   addressByCep,
   formatDate,
   search
 } from "@/functions/utils";
+import { useOperator } from "@/composables/useOperator";
 import { OperatorService, type IOperator } from "@/services/operator";
 
 import { CATEGORIES_OPTIONS, SOURCES, SHIRT_SIZES, BLOOD_TYPES, EXPERIENCES, ALLERGIES, MEDICATIONS, AVAILABILITY_TYPES, PROFESSION_TYPES } from "@/constants/airsoft";
+import { BadgeService } from "@/services/badge";
 
-const authStore = useAuthStore();
-const { operator } = storeToRefs(authStore);
+const { updateState, operator } = useOperator();
 
 const router = useRouter();
 const toast = useToast();
@@ -481,10 +485,9 @@ const handleUpdateProfile = async ({ valid, values }: any) => {
     loading.value = true;
 
     const operatorUpdated = await OperatorService.update(operator.value.$id, values);
+    const opWithBadges = await BadgeService.syncOperatorBadges(operatorUpdated);
 
-    authStore.$patch((state) => {
-      state.operator = { ...state.operator, ...operatorUpdated };
-    });
+    await updateState(opWithBadges);
 
     toast.add({
       severity: "success",
@@ -543,9 +546,7 @@ const handleUpdateAvatar = async (event: Event) => {
     );
 
     if (operator) {
-      authStore.$patch((state) => {
-        state.operator = { ...state.operator, ...operatorUpdated };
-      });
+      await updateState(operatorUpdated);
     }
 
     toast.add({

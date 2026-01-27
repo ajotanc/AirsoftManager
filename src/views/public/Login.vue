@@ -45,7 +45,6 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { useRouter } from "vue-router";
-import { useAuthStore } from "@/stores/auth";
 import { zodResolver } from "@primevue/forms/resolvers/zod";
 import { z } from "zod";
 
@@ -57,9 +56,10 @@ import Message from "primevue/message";
 import FloatLabel from "primevue/floatlabel";
 import { useToast } from "primevue";
 import { TEAM_NAME, TEAM_MOTTO } from "@/constants/airsoft";
+import { useOperator } from "@/composables/useOperator";
 
 const router = useRouter();
-const authStore = useAuthStore();
+const { authStore } = useOperator();
 const toast = useToast();
 
 const loading = ref(false);

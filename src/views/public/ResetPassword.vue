@@ -30,15 +30,15 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { useAuthStore } from '@/stores/auth';
 import { useToast } from 'primevue/usetoast';
 import type { FormSubmitEvent } from '@primevue/forms';
 import { zodResolver } from '@primevue/forms/resolvers/zod';
 import z from 'zod';
+import { useOperator } from '@/composables/useOperator';
 
 const route = useRoute();
 const router = useRouter();
-const authStore = useAuthStore();
+const { authStore } = useOperator();
 const toast = useToast();
 
 const loading = ref(false);

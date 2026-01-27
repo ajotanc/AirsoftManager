@@ -15,12 +15,38 @@ export interface IVisitor<TOp = string | IOperator> extends Models.Row {
 }
 
 export const VisitorService = {
+  async row(rowId: string): Promise<IVisitor> {
+    try {
+      return await tables.getRow<IVisitor>({
+        databaseId: DATABASE_ID,
+        tableId: TABLE_VISITORS,
+        rowId,
+      });
+    } catch (error) {
+      console.error("Erro ao buscar arsenal:", error);
+      return {} as IVisitor;
+    }
+  },
   async list(): Promise<IVisitor<IOperator>[]> {
     try {
       const response = await tables.listRows<IVisitor<IOperator>>({
         databaseId: DATABASE_ID,
         tableId: TABLE_VISITORS,
         queries: [Query.orderAsc("name"), Query.select(["*", "operator.*"])],
+      });
+
+      return response.rows;
+    } catch (error) {
+      console.error("Erro ao listar visitantes:", error);
+      return [];
+    }
+  },
+  async listByOperator(operatorId: string): Promise<IVisitor<IOperator>[]> {
+    try {
+      const response = await tables.listRows<IVisitor<IOperator>>({
+        databaseId: DATABASE_ID,
+        tableId: TABLE_VISITORS,
+        queries: [Query.equal("operator", operatorId)],
       });
 
       return response.rows;

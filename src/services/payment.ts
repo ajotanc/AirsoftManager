@@ -7,6 +7,8 @@ import type { IOperator } from './operator';
 import { CashflowService, type ICashflow } from './cashflow';
 import dayjs from 'dayjs';
 import { GoalService, type IGoal } from './goal';
+import { BadgeService } from './badge';
+import { useOperator } from '@/composables/useOperator';
 
 export const TABLE_PAYMENTS = "payments";
 const key = import.meta.env.VITE_PIX_KEY;
@@ -133,6 +135,8 @@ export const PaymentService = {
     }
   },
   async confirmPayment(rowId: string): Promise<IPayment> {
+    const { updateState } = useOperator();
+
     const payment = await tables.updateRow<IPayment>({
       databaseId: DATABASE_ID,
       tableId: TABLE_PAYMENTS,
@@ -162,6 +166,12 @@ export const PaymentService = {
     } as ICashflow;
 
     await CashflowService.create(data);
+
+    const xpAmount = payment.category === 'goal' ? 100 : 50;
+
+    const updatedOp = await BadgeService.addActivityXp(payment.operator as IOperator, xpAmount);
+    await updateState(updatedOp);
+
     return payment;
   },
   async contribute(data: IPayment, file: File): Promise<IPayment> {

@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from "vue-router";
-import { useAuthStore } from "@/stores/auth";
+import { useOperator } from "@/composables/useOperator";
 
 const router = createRouter({
   history: createWebHistory(),
@@ -137,7 +137,7 @@ const router = createRouter({
 });
 
 router.beforeEach(async (to, _, next) => {
-  const authStore = useAuthStore();
+  const { authStore } = useOperator();
 
   if (authStore.loading) {
     await authStore.init();

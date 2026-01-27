@@ -22,8 +22,23 @@ export const CarpoolService = {
         databaseId: DATABASE_ID,
         tableId: TABLE_CARPOOLS,
         queries: [
-          Query.equal("event", eventId),
+          Query.equal("vehicle", eventId),
           Query.select(["*", "driver.*", "vehicle.*"]), // Hidrata motorista e veículo
+        ],
+      });
+      return response.rows;
+    } catch (error) {
+      console.error("Erro ao listar caronas do evento:", error);
+      return [];
+    }
+  },
+  async listByVehicles(vehicleId: string[]): Promise<ICarpool<IVehicle>[]> {
+    try {
+      const response = await tables.listRows<ICarpool<IVehicle>>({
+        databaseId: DATABASE_ID,
+        tableId: TABLE_CARPOOLS,
+        queries: [
+          Query.equal("vehicle", vehicleId)
         ],
       });
       return response.rows;

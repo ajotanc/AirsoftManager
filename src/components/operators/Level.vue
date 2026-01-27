@@ -3,7 +3,14 @@
         <Avatar :image="operator.avatar" shape="circle" class="operator-avatar shadow-3" />
 
         <div class="flex flex-column">
-            <h2 class="text-2xl font-bold m-0 line-height-2 uppercase">{{ operator.codename }}</h2>
+            <div class="flex align-items-center justify-content-center gap-2">
+                <h2 class="text-2xl font-bold m-0 line-height-2 uppercase">{{ operator.codename }}</h2>
+                <div v-if="operator.prestige > 0"
+                    class="flex align-items-center bg-yellow-500 text-white border-round px-2 py-1 shadow-2">
+                    <i class="ri-vip-crown-fill text-xs"></i>
+                    <span class="text-xs font-bold ml-1">{{ operator.prestige }}</span>
+                </div>
+            </div>
             <div class="flex justify-content-center align-items-center gap-1 text-xs text-gray-500 font-medium mt-1">
                 <span>{{ getSpecialtyLabel(operator.category) }}</span>
                 <span>·</span>
@@ -15,11 +22,11 @@
         </div>
 
         <div class="experience flex flex-column align-items-center gap-1 w-full px-4 text-gray-500">
-            <span class="text-xs">{{ operator.xp }}/{{ EXPERIENCE_PER_LEVEL }} XP</span>
-            <ProgressBar :showValue="false" :value="progressValue" style="height: 4px; width: 100%; max-width: 150px;"
+            <span class="text-xs">{{ operator.xp % 200 }} / {{ EXPERIENCE_PER_LEVEL }} XP</span>
+            <ProgressBar :showValue="false" :value="progressValue" style="height: 6px; width: 100%; max-width: 150px;"
                 :pt="{
-                    root: { style: { backgroundColor: 'var(--p-gray-200)' } },
-                    value: { style: { backgroundColor: 'var(--p-red-600)' } }
+                    root: { style: { backgroundColor: 'var(--p-gray-200)', borderRadius: '10px' } },
+                    value: { style: { backgroundColor: 'var(--p-red-600)', borderRadius: '10px' } }
                 }" />
         </div>
 
@@ -63,7 +70,7 @@
         </template>
 
         <div v-if="qrcode" class="flex flex-column align-items-center">
-            <span class="text-gray-500 uppercase font-bold mb-1" style="font-size: 0.6rem">Registro Tático</span>
+            <span class="text-xs text-gray-500 uppercase font-bold my-1">Registro Tático</span>
             <Qrcode :id="operator.$id" :size="80" />
         </div>
     </div>
@@ -87,8 +94,9 @@ const props = defineProps<{
 }>();
 
 const progressValue = computed(() => {
-    const percentage = (operator.value.xp / EXPERIENCE_PER_LEVEL) * 100;
-    return Math.min(100, Math.max(0, percentage));
+    // Calcula a porcentagem baseada apenas no XP do nível atual (0-200)
+    const currentLevelXp = (operator.value.xp || 0) % EXPERIENCE_PER_LEVEL;
+    return (currentLevelXp / EXPERIENCE_PER_LEVEL) * 100;
 });
 
 const currentRank = computed(() => {

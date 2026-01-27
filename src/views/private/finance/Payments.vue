@@ -33,14 +33,14 @@ import InputText from "primevue/inputtext";
 import Select from "primevue/select";
 import { DatePicker, InputNumber, useConfirm } from "primevue";
 import { PaymentService, type IPayment } from "@/services/payment";
-import { useAuthStore } from "@/stores/auth";
 import { type IFields } from "@/functions/utils";
 import { TRANSACTION_STATUS, TRANSACTION_CATEGORIES } from "@/constants/airsoft";
 import PaymentDialog from "@/components/PaymentDialog.vue";
 import type { IOperator } from "@/services/operator";
 import { useRoute } from "vue-router";
+import { useOperator } from "@/composables/useOperator";
 
-const { operator, isAdmin } = useAuthStore();
+const { operator, isAdmin } = useOperator();
 
 const toast = useToast();
 const confirm = useConfirm();
@@ -55,7 +55,7 @@ const loadServices = async () => {
     if (accessAdmin.value) {
       payments.value = await PaymentService.list();
     } else {
-      payments.value = await PaymentService.listByOperator(operator.$id);
+      payments.value = await PaymentService.listByOperator(operator.value.$id);
     }
   } catch (error) {
     console.error("Erro ao carregar:", error);

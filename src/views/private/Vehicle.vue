@@ -77,10 +77,10 @@ import { z } from 'zod';
 import { zodResolver } from "@primevue/forms/resolvers/zod";
 import { ColorPicker, InputNumber, useConfirm } from "primevue";
 import { VehicleService, type IVehicle } from "@/services/vehicle";
-import { useAuthStore } from "@/stores/auth";
 import { type IFields } from "@/functions/utils";
+import { useOperator } from "../../composables/useOperator";
 
-const { operator } = useAuthStore();
+const { operator } = useOperator();
 
 onMounted(() => {
   loadServices();
@@ -88,7 +88,7 @@ onMounted(() => {
 
 const loadServices = async () => {
   try {
-    vehicles.value = await VehicleService.listByOperator(operator.$id);
+    vehicles.value = await VehicleService.listByOperator(operator.value.$id);
   } catch (error) {
     console.error("Erro ao carregar:", error);
   } finally {
@@ -122,7 +122,7 @@ const saveVehicle = async ({ valid, values }: any) => {
   try {
     const payload = {
       ...values,
-      driver: operator.$id
+      driver: operator.value.$id
     }
 
     const response = await VehicleService.upsert(selectedVehicle.value.$id, payload);

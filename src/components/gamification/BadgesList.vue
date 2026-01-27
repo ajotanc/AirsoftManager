@@ -15,9 +15,9 @@
                 'locked-badge': !isEarned(badge.slug),
                 'featured-badge': isFeatured(badge.slug)
             }" tabindex="0" v-tooltip.bottom.focus="badge.description" :style="{
-                    backgroundColor: isFeatured(badge.slug) ? badge.color + '25' : '',
-                    borderColor: isFeatured(badge.slug) ? badge.color + '60' : ''
-                }">
+                backgroundColor: isFeatured(badge.slug) ? badge.color + '25' : '',
+                borderColor: isFeatured(badge.slug) ? badge.color + '60' : ''
+            }">
             <BadgeIcon :slug="badge.slug" :earned="isEarned(badge.slug)" size="large" />
 
             <span class="badge-label font-bold text-xs text-center uppercase">
@@ -33,17 +33,14 @@
 
 <script setup lang="ts">
 import { ALL_BADGES_DEFINITION } from '@/constants/airsoft';
-import { useAuthStore } from '@/stores/auth';
 import { OperatorService, type IOperator } from '@/services/operator';
 import { useToast } from 'primevue/usetoast';
 import Tag from 'primevue/tag';
 
 const toast = useToast();
-const authStore = useAuthStore();
 
-const operator = defineModel('operator', {
-    type: Object as PropType<IOperator>,
-    default: () => ({} as IOperator),
+const operator = defineModel<IOperator>('operator', {
+    required: true
 });
 
 const props = defineProps({
@@ -76,12 +73,8 @@ const toggleFeatured = async (slug: string) => {
         featured.push(slug);
     }
 
-    try {
-        await OperatorService.update(operator.value.$id, { featured_badges: featured });
-        await authStore.fetchOperator();
-    } catch (e) {
-        toast.add({ severity: 'error', summary: 'Erro', detail: 'Não foi possível salvar sua escolha.', life: 3000 });
-    }
+    operator.value.featured_badges = featured;
+    await OperatorService.update(operator.value.$id, { featured_badges: featured });
 };
 </script>
 

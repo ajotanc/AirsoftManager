@@ -132,13 +132,13 @@
 
 <script setup lang="ts">
 import { ref, computed } from "vue";
-import { useAuthStore } from "@/stores/auth";
 import { useRouter } from "vue-router";
 
 import Avatar from "primevue/avatar";
 import { ROLES, TEAM_NAME } from "@/constants/airsoft";
+import { useOperator } from "@/composables/useOperator";
 
-const authStore = useAuthStore();
+const { authStore } = useOperator();
 const router = useRouter();
 
 const visible = ref(false);

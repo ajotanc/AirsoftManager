@@ -19,10 +19,10 @@ export const EVENT_TYPES = {
 };
 
 export const XP_VALUES = {
-  GAME: 50, // Jogo normal
-  MAINTENANCE: 20, // Manutenção de campo/equipamento
-  PRESENCE: 10, // Reunião ou presença rápida
-  COURSE: 100, // Cursos e treinamentos oficiais
+  GAME: 100, // Jogo normal
+  MAINTENANCE: 200, // Manutenção de campo/equipamento
+  PRESENCE: 25, // Reunião ou presença rápida
+  COURSE: 400, // Cursos e treinamentos oficiais
 };
 
 export const LEVELS = [
@@ -92,11 +92,77 @@ export const LEVELS = [
     label: "O Fantasma",
     description: "A lenda viva do time. Sua presença altera o rumo da missão.",
   },
+  {
+    min: 51,
+    max: 55,
+    label: "Comandante de Campo",
+    description: "Visão tática privilegiada. Líder nato sob fogo cruzado.",
+  },
+  {
+    min: 56,
+    max: 60,
+    label: "Operador Black Ops",
+    description: "Especialista em missões de alto risco onde falhar não é opção.",
+  },
+  {
+    min: 61,
+    max: 65,
+    label: "Sentinela de Ferro",
+    description: "Uma barreira inquebrável. Defende o objetivo com maestria absoluta.",
+  },
+  {
+    min: 66,
+    max: 70,
+    label: "Infiltrador Mestre",
+    description: "Capaz de desmantelar qualquer defesa inimiga por dentro.",
+  },
+  {
+    min: 71,
+    max: 75,
+    label: "Lenda do Asfalto",
+    description: "Experiência forjada em anos de CQB intenso e urbano.",
+  },
+  {
+    min: 76,
+    max: 80,
+    label: "General de Divisão",
+    description: "Sua autoridade e conhecimento são respeitados por todo o comando.",
+  },
+  {
+    min: 81,
+    max: 85,
+    label: "Águia de Rapina",
+    description: "Sempre um passo à frente. Antecipa o inimigo antes do contato.",
+  },
+  {
+    min: 86,
+    max: 90,
+    label: "Titã da Unidade",
+    description: "Uma força da natureza em campo. Temido por qualquer adversário.",
+  },
+  {
+    min: 91,
+    max: 95,
+    label: "Oráculo de Guerra",
+    description: "Mestre em inteligência. Cada tiro é um passo para a vitória certa.",
+  },
+  {
+    min: 96,
+    max: 99,
+    label: "Guardião do Êxodo",
+    description: "O protetor máximo da honra e dos valores do time.",
+  },
+  {
+    min: 100,
+    max: 100,
+    label: "O Mito de Platina",
+    description: "O topo absoluto. Ninguém superou seus feitos. Uma inspiração para todos.",
+  },
 ];
 
 export const calculateLevel = (xp: number) => {
   const level = Math.floor(xp / EXPERIENCE_PER_LEVEL) + 1;
-  return level > 50 ? 50 : level;
+  return level > 100 ? 100 : level;
 };
 
 export const WEAPON_TYPES = {
@@ -516,6 +582,27 @@ export const ALL_BADGES_DEFINITION = [
   { slug: 'armorer_apprentice', label: 'Aprendiz de Armeiro', icon: 'ri-tools-fill', color: '#94a3b8', description: 'Realizou sua primeira manutenção técnica no sistema.' },
   { slug: 'well_maintained', label: 'Arsenal Impecável', icon: 'ri-shield-star-line', color: '#10b981', description: 'Todos os equipamentos do arsenal estão com a revisão em dia.' },
   { slug: 'iron_operator', label: 'Iron Operator', icon: 'ri-robot-fill', color: '#ef4444', description: 'Conquista Lendária: Elite em Rating, Nível e Organização.' },
+  {
+    slug: 'weekend_warrior',
+    label: 'Guerreiro de Fim de Semana',
+    icon: 'ri-calendar-event-line',
+    color: '#10b981',
+    description: 'Operador com disponibilidade total para sábados e domingos.'
+  },
+  {
+    slug: 'specialized_professional',
+    label: 'Especialista Civil',
+    icon: 'ri-briefcase-line',
+    color: '#6366f1',
+    description: 'Perfil profissional preenchido para networking no time.'
+  },
+  {
+    slug: 'blood_type_ready',
+    label: 'Ficha Médica Vital',
+    icon: 'ri-drop-line',
+    color: '#ef4444',
+    description: 'Tipo sanguíneo e contato de emergência devidamente configurados.'
+  }
 ];
 
 export const AVAILABILITY_TYPES = [
