@@ -4,8 +4,8 @@
       <FileUpload mode="basic" @select="onFileSelect" customUpload auto chooseLabel="Trocar Imagem"
         chooseIcon="pi pi-image" />
       <Button severity="danger" icon="pi pi-times" :disabled="!img" @click="img = null" />
-      <Button label="Download" icon="pi pi-instagram" @click="downloadCard" :loading="generatingImage"
-        severity="help" raised />
+      <Button label="Download" icon="pi pi-instagram" @click="downloadCard" :loading="generatingImage" severity="help"
+        raised />
     </div>
 
     <div ref="cardRef" class="card-wrapper text-gray-100">
@@ -58,7 +58,7 @@ import Button from 'primevue/button';
 import RadarStats from '@/components/gamification/RadarStats.vue';
 
 import { RatingService } from '@/services/rating';
-import { SKILL_ATTRIBUTES } from '@/constants/airsoft';
+import { BASE_SCORE, MIN_VOTES_REQUIRED, SKILL_ATTRIBUTES } from '@/constants/airsoft';
 import type { IOperator } from '@/services/operator';
 import type { PropType } from 'vue';
 import { getSpecialtyLabel, getShortName } from '@/functions/utils'
@@ -100,12 +100,9 @@ const calculateAverages = async (targetId: string) => {
   try {
     const { total, rows: ratings } = await RatingService.getRatingsForTarget(targetId);
 
-    if (total === 0) {
-      SKILL_ATTRIBUTES.forEach(attr => {
-        calculatedStats[attr.field] = 0;
-      });
-      return;
-    }
+    // CONFIGURAÇÃO TÁTICA
+    // m = MIN_VOTES_REQUIRED (Peso da prova: quantos votos "médios" ele já começa tendo)
+    // C = BASE_SCORE (Nota neutra: 3.0)
 
     SKILL_ATTRIBUTES.forEach(attr => {
       const fieldName = attr.field;
@@ -115,7 +112,14 @@ const calculateAverages = async (targetId: string) => {
         return acc + (Number(attrs[fieldName]) || 0);
       }, 0);
 
-      calculatedStats[fieldName] = Number((sum / total).toFixed(1));
+      // FÓRMULA DE MÉDIA BAYESIANA:
+      // (Soma dos Votos Reais + (m * Nota Base)) / (Total de Votos Reais + m)
+      // Isso impede que 1 voto "5" vire média 5. Com 1 voto "5", a média será:
+      // (5 + (5 * 3)) / (1 + 5) = 20 / 6 = 3.3
+
+      const weightedAverage = (sum + (MIN_VOTES_REQUIRED * BASE_SCORE)) / (total + MIN_VOTES_REQUIRED);
+
+      calculatedStats[fieldName] = Number(weightedAverage.toFixed(1));
     });
   } catch (error) {
     console.error("Erro ao processar médias dinâmicas:", error);

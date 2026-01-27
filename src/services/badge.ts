@@ -14,7 +14,9 @@ import {
   PMC_EXCEPTIONS,
   SKILL_ATTRIBUTES,
   MIN_COMPLETE_UNIFORMS,
-  EXPERIENCE_PER_LEVEL
+  EXPERIENCE_PER_LEVEL,
+  BASE_SCORE,
+  MIN_VOTES_REQUIRED
 } from "@/constants/airsoft";
 
 dayjs.extend(isSameOrBefore);
@@ -39,18 +41,26 @@ export const BadgeService = {
     const ratings = await RatingService.getRatingsForTarget(operator.$id);
     if (ratings.total > 0) {
       const skillSums: Record<string, number> = {};
+
       ratings.rows.forEach(r => {
         const attr = JSON.parse(r.attributes || '{}');
         Object.keys(attr).forEach(k => skillSums[k] = (skillSums[k] || 0) + attr[k]);
       });
+
       SKILL_ATTRIBUTES.forEach(s => {
-        if ((skillSums[s.field]! / ratings.total) >= 4.5) earned.add(`master_${s.field}`);
+        const sum = skillSums[s.field] || 0;
+
+        const weightedAverage = (sum + (MIN_VOTES_REQUIRED * BASE_SCORE)) / (ratings.total + MIN_VOTES_REQUIRED);
+
+        if (weightedAverage >= 4.5) {
+          earned.add(`master_${s.field}`);
+        }
       });
     }
 
     // 3. ARSENAL & LOADOUT
     const arsenal = operator.arsenal || [];
-    // Ajustado para 3 equipamentos conforme airsoft.ts
+    // Ajustado para 5 equipamentos conforme airsoft.ts
     if (arsenal.length >= 5) earned.add('arsenal_collector');
     if (arsenal.some(a => (a.fps || 0) > 400)) earned.add('high_power_unit');
     if (arsenal.some(a => a.category === 3)) earned.add('certified_sniper');
@@ -63,6 +73,7 @@ export const BadgeService = {
     const loadouts = operator.loadout || [];
     const coreKeys = LOADOUT_ITEMS.filter(i => !i.optional).map(i => i.key);
     const completeSets = loadouts.filter(l => coreKeys.every(k => l[k as keyof typeof l] === true));
+    
     if (completeSets.length >= 1) earned.add('standard_operator');
     if (completeSets.length >= MIN_COMPLETE_UNIFORMS) earned.add('tactical_chameleon');
 

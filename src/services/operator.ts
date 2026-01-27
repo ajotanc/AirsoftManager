@@ -8,7 +8,7 @@ import {
 import { Query, type Models } from "appwrite";
 import type { IArsenal } from "./arsenal";
 import type { ILoadout } from "./loadout";
-import { processImage } from "@/functions/utils";
+import { uploadFile } from "@/functions/utils";
 
 export interface IOperator extends Models.Row {
   name: string;
@@ -133,17 +133,12 @@ export const OperatorService = {
     avatar: string,
     file: File
   ): Promise<IOperator> {
-    const fileId = `avatar-${rowId}`;
 
     if (avatar) {
-      await storage.deleteFile({ bucketId: BUCKET_ID, fileId });
+      await storage.deleteFile({ bucketId: BUCKET_ID, fileId: `avatar-${rowId}` });
     }
 
-    const newFile = await processImage(file);
-    await storage.createFile({ bucketId: BUCKET_ID, fileId, file: newFile });
-
-    const originalUrl = storage.getFileView({ bucketId: BUCKET_ID, fileId });
-    const urlFormatted = `${originalUrl}&v=${Date.now()}`;
+    const urlFormatted = await uploadFile(rowId, file, 'avatar');
 
     return await tables.updateRow<IOperator>({
       databaseId: DATABASE_ID,

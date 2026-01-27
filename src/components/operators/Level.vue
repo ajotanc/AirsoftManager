@@ -5,11 +5,6 @@
         <div class="flex flex-column">
             <div class="flex align-items-center justify-content-center gap-2">
                 <h2 class="text-2xl font-bold m-0 line-height-2 uppercase">{{ operator.codename }}</h2>
-                <div v-if="operator.prestige > 0"
-                    class="flex align-items-center bg-yellow-500 text-white border-round px-2 py-1 shadow-2">
-                    <i class="ri-vip-crown-fill text-xs"></i>
-                    <span class="text-xs font-bold ml-1">{{ operator.prestige }}</span>
-                </div>
             </div>
             <div class="flex justify-content-center align-items-center gap-1 text-xs text-gray-500 font-medium mt-1">
                 <span>{{ getSpecialtyLabel(operator.category) }}</span>
@@ -18,6 +13,11 @@
                 <span>·</span>
                 <i class="ri-trophy-fill text-yellow-500"></i>
                 <span>{{ operator.badges?.length || 0 }}</span>
+                <template v-if="operator.prestige > 0">
+                    <span>·</span>
+                    <i class="ri-vip-crown-fill text-purple-500"></i>
+                    <span>{{ operator.prestige }}</span>
+                </template>
             </div>
         </div>
 

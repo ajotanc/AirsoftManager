@@ -8,6 +8,8 @@ export const DUE_DATE = Number.parseInt(import.meta.env.VITE_DUE_DATE, 10);
 
 export const MIN_COMPLETE_UNIFORMS = 3;
 export const EXPERIENCE_PER_LEVEL = 200;
+export const MIN_VOTES_REQUIRED = 10;
+export const BASE_SCORE = 3.0;
 
 export const EVENT_TYPES = {
   1: "Jogo",
