@@ -21,7 +21,7 @@
 
         <Dialog v-model:visible="eventDialog" header="Detalhes do Evento" :modal="true"
             :style="{ width: '100%', maxWidth: '640px' }" class="m-3">
-            <Form ref="form" :resolver="resolver" :initialValues="selectedEvent" @submit="saveEvent"
+            <Form :resolver="resolver" :initialValues="selectedEvent" @submit="saveEvent"
                 :key="selectedEvent.$id || 'new'" class="grid">
                 <div v-for="field in fields" :key="field.name" :class="`col-12 md:col-${field.col}`">
                     <FormField v-if="field.name === 'description'" :name="field.name" v-slot="$field"
@@ -46,21 +46,22 @@
                     </FormField>
                 </div>
                 <div class="col-12">
-                    <FormField name="thumbnail" v-slot="$field" class="flex flex-column gap-1">
-                        <label for="thumbnail" class="font-bold">Imagem do Evento</label>
-                        <Image :src="(src as string) || (selectedEvent.thumbnail as string)"
-                            imageClass="w-full h-full object-cover my-2" preview />
-                        <FileUpload mode="basic" @select="onFileSelect" accept="image/*" class="w-full"
-                            :class="{ 'p-invalid': $field.invalid }" label="Escolher Imagem" fluid />
-                        <Message v-if="$field.invalid" severity="error" size="small" variant="simple">
-                            {{ $field.error?.message }}
-                        </Message>
-                    </FormField>
+                    <Image v-if="preview || selectedEvent.thumbnail"
+                        :src="(preview ?? selectedEvent.thumbnail ?? undefined) as string | undefined" class="mb-3"
+                        imageClass="w-full" preview />
+                    <FileUpload accept="image/*" :maxFileSize="MAX_FILE_SIZE" fluid chooseLabel="Imagem"
+                        @select="onSelectFile" @remove="onRemoveFile" @clear="onClearFiles" :multiple="false"
+                        :upload-button-props="{ style: { display: 'none' } }">
+                        <template #empty>
+                            <span>Nenhum imagem selecionado.</span>
+                        </template>
+                    </FileUpload>
                 </div>
                 <div class="col-12 pb-0">
                     <div class="flex justify-content-end gap-2">
                         <Button label="Cancelar" outlined @click="eventDialog = false" />
-                        <Button type="submit" label="Salvar" />
+                        <Button type="submit" label="Salvar"
+                            :disabled="!selectedEvent.file && !selectedEvent.thumbnail" />
                     </div>
                 </div>
             </Form>
@@ -123,23 +124,15 @@ const loadServices = async () => {
 const loading = ref(true);
 const events = ref<IEvent[]>([]);
 
-const form = ref();
-
 const toast = useToast();
 const confirm = useConfirm();
 
 const eventDialog = ref(false);
 const selectedEvent = ref({} as IEvent);
 
-const src = ref<string | ArrayBuffer | null>(null);
+const preview = ref<string | ArrayBuffer | null>(null);
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024
-const ACCEPTED_IMAGE_TYPES = [
-    'image/jpeg',
-    'image/jpg',
-    'image/png',
-    'image/webp',
-];
 
 const missionSchema = z.object({
     title: z.string({ error: "Campo obrigatório" }).min(5, { error: "Título muito curto" }),
@@ -156,22 +149,6 @@ const missionSchema = z.object({
     }, {
         message: "A URL deve ser um link válido do Google Maps"
     }),
-    thumbnail: z.any()
-        .refine((file) => file instanceof File, {
-            message: "O comprovante é obrigatório.",
-        })
-        .refine((file) => {
-            if (!(file instanceof File)) return false;
-            return ACCEPTED_IMAGE_TYPES.includes(file.type);
-        }, {
-            message: "São aceitos arquivos JPEG, JPG, PNG e WEBP.",
-        })
-        .refine((file) => {
-            if (!(file instanceof File)) return false;
-            return file.size <= MAX_FILE_SIZE;
-        }, {
-            message: "O tamanho da imagem deve ser menor que 5MB.",
-        }),
 });
 
 const resolver = ref(zodResolver(missionSchema));
@@ -180,7 +157,13 @@ const saveEvent = async ({ valid, values }: any) => {
     if (!valid) return false;
 
     try {
-        const response = await EventService.upsert(selectedEvent.value.$id, values, values.thumbnail) as IEvent;
+        const file = selectedEvent.value.file as File;
+        const payload = {
+            ...values,
+            location_coords: selectedEvent.value.location_coords
+        }
+
+        const response = await EventService.upsert(selectedEvent.value.$id, payload, file) as IEvent;
         const index = events.value.findIndex((item: IEvent) => item.$id === response.$id);
 
         if (index !== -1) {
@@ -245,29 +228,51 @@ const fields: IFields[] = [
         props: { options: RULES }
     },
     { name: 'location', label: 'Nome do Local', component: InputText, col: '12' },
-    { name: 'location_url', label: 'URL Google Maps', component: InputText, col: '12', hidden: true },
+    {
+        name: 'location_url', label: 'URL Google Maps', component: InputText, col: '12', hidden: true,
+        props: {
+            onBlur: async (event: FocusEvent) => {
+                const input = event.target as HTMLInputElement;
+                await getCoordinates(input.value);
+            }
+        }
+    },
 ];
 
+const getCoordinates = async (url: string) => {
+    const response = await fetch(`https://live-interactions.vercel.app/api/v1/airsoft/coordinates?url=${encodeURIComponent(url)}`);
+    const { coords } = await response.json();
 
-const onFileSelect = (event: FileUploadSelectEvent) => {
-    const file = event.files[0];
+    selectedEvent.value.location_coords = coords;
+}
+
+
+const onSelectFile = async (event: FileUploadSelectEvent) => {
+    const file = Array.isArray(event.files) ? event.files[0] : event.files;
 
     if (!file) return;
 
     const reader = new FileReader();
 
     reader.onload = () => {
-        src.value = reader.result;
+        preview.value = reader.result;
     };
 
     reader.readAsDataURL(file);
 
-    selectedEvent.value.thumbnail = file;
-
-    if (form.value) {
-        form.value.setFieldValue("thumbnail", file);
-    }
+    selectedEvent.value.file = file;
 };
+
+const onRemoveFile = () => {
+    preview.value = null;
+    selectedEvent.value.file = null;
+};
+
+const onClearFiles = () => {
+    preview.value = null;
+    selectedEvent.value.file = null;
+};
+
 const confirmDelete = (event: IEvent) => {
     confirm.require({
         message: 'Você tem certeza que deseja excluir este evento?',
@@ -283,7 +288,7 @@ const confirmDelete = (event: IEvent) => {
         },
         accept: async () => {
             try {
-                await EventService.delete(event.$id, event.thumbnail);
+                await EventService.delete(event.$id, event.thumbnail!);
                 events.value = events.value.filter((item: IEvent) => item.$id !== event.$id);
 
                 toast.add({

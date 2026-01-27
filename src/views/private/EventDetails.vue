@@ -62,7 +62,7 @@
             <div class="col-12 md:col-8">
                 <Card class="border-1 border-black-alpha-10 mb-4">
                     <template #content>
-                        <Image :src="event.thumbnail" :alt="event.title" class="overflow-hidden border-round"
+                        <Image v-if="event.thumbnail" :src="event.thumbnail" :alt="event.title" class="overflow-hidden border-round"
                             imageClass="w-full" preview />
                         <h2 class="text-green-400">Briefing da Missão</h2>
                         <div class="text-html" v-html="event.description"></div>
@@ -897,8 +897,6 @@ const requestCarpool = async (carpool: ICarpool<IVehicle<string>>) => {
     try {
         const { $id, vehicle, departure_point, departure_time } = carpool;
         const { codename, phone } = getOperator(vehicle.driver) as IOperator;
-
-        console.log($id);
 
         const response = await CarpoolRequestService.create($id, operator.$id) as ICarpoolRequest<IOperator, ICarpool<IVehicle>>;
 

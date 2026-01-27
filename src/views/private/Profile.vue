@@ -137,13 +137,15 @@
             <FormField name="instagram" v-slot="$field" class="field col-12 md:col-4 flex flex-column gap-1">
               <InputGroup>
                 <InputGroupAddon>
-                  <span>@</span>
+                  <span><i class="pi pi-instagram"></i></span>
                 </InputGroupAddon>
                 <FloatLabel variant="in">
                   <InputText v-model="$field.value" class="w-full" fluid />
-                  <label :for="$field.props.name">Instagram (Opcional)</label>
+                  <label :for="$field.props.name">Instagram</label>
                 </FloatLabel>
               </InputGroup>
+              <Message v-if="$field.invalid" severity="error" size="small" variant="simple">{{ $field.error.message }}
+              </Message>
             </FormField>
 
             <FormField name="shirt_size" v-slot="$field" class="field col-12 md:col-4 flex flex-column gap-1">
@@ -346,7 +348,8 @@
             <FormField name="terms_accepted" v-slot="$field" class="flex flex-column gap-1">
               <div class="flex align-items-center">
                 <Checkbox v-model="$field.value" binary inputId="terms_accepted" />
-                <label :for="$field.props.name" class="ml-2">Li e aceito os termos de serviço e regulamento interno.</label>
+                <label :for="$field.props.name" class="ml-2">Li e aceito os termos de serviço e regulamento
+                  interno.</label>
               </div>
               <Message v-if="$field.invalid" severity="error" size="small" variant="simple">{{ $field.error.message }}
               </Message>
@@ -441,7 +444,8 @@ const operatorSchema = z.object({
   shirt_size: z.string({ error: "Tamanho obrigatório" }),
   terms_accepted: z.boolean({ error: "Aceite os termos obrigatório" }).refine(v => v === true, "Aceite os termos obrigatório"),
   availability: z.string({ error: "Escolha sua disponibilidade" }),
-  profession: z.string({ error: "Escolha sua profissão" })
+  profession: z.string({ error: "Escolha sua profissão" }),
+  instagram: z.string().regex(/^(?!.*\.\.)(?!.*\.$)[^\W][\w.]*$/, "Formato de usuário inválido (ex: exodoairsoft)").nullish().transform((value) => value?.replace('@', '').toLowerCase()),
 }).loose();
 
 const medicalSchema = z.object({

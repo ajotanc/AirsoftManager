@@ -26,7 +26,8 @@ export interface IEvent extends Models.Row {
   location_url: string;
   location_coords?: string;
   description: string;
-  thumbnail?: string;
+  file: File | null;
+  thumbnail: string | null;
   minimum_effective: number;
   rule?: string;
   is_finished: boolean;

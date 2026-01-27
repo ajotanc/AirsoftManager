@@ -73,7 +73,6 @@ const resolver = zodResolver(
     email: z.email({ error: "Email inválido." }),
     password: z
       .string({ error: "A senha é obrigatória." })
-      .min(8, { error: "A senha deve ter no mínimo 8 caracteres." }),
   })
 );
 

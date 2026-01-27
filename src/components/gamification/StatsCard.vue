@@ -97,7 +97,6 @@ const currentTier = computed(() => {
 });
 
 const calculateAverages = async (targetId: string) => {
-  console.log(targetId);
   try {
     const { total, rows: ratings } = await RatingService.getRatingsForTarget(targetId);
 

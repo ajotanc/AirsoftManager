@@ -12,7 +12,8 @@ import {
   LEVELS,
   CATEGORIES,
   PMC_EXCEPTIONS,
-  SKILL_ATTRIBUTES
+  SKILL_ATTRIBUTES,
+  MIN_COMPLETE_UNIFORMS
 } from "@/constants/airsoft";
 
 dayjs.extend(isSameOrBefore);
@@ -47,7 +48,7 @@ export const BadgeService = {
 
     // 3. ARSENAL & LOADOUT
     const arsenal = operator.arsenal || [];
-    if (arsenal.length >= 5) earned.add('arsenal_collector');
+    if (arsenal.length >= 3) earned.add('arsenal_collector');
     if (arsenal.some(a => (a.fps || 0) > 400)) earned.add('high_power_unit');
     if (arsenal.some(a => a.category === 3)) earned.add('certified_sniper');
     if (arsenal.some(a => a.invoice)) earned.add('verified_arsenal');
@@ -60,7 +61,7 @@ export const BadgeService = {
     const coreKeys = LOADOUT_ITEMS.filter(i => !i.optional).map(i => i.key);
     const completeSets = loadouts.filter(l => coreKeys.every(k => l[k as keyof typeof l] === true));
     if (completeSets.length >= 1) earned.add('standard_operator');
-    if (completeSets.length >= 3) earned.add('tactical_chameleon');
+    if (completeSets.length >= MIN_COMPLETE_UNIFORMS) earned.add('tactical_chameleon');
 
     const pmc = loadouts.some(l => l.type_uniform === UNIFORM_IDS.PMC && coreKeys.every(k => PMC_EXCEPTIONS.includes(k) ? true : l[k as keyof typeof l] === true));
     if (pmc) earned.add('pmc_expert');

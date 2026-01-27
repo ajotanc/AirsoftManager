@@ -68,6 +68,9 @@
           </div>
         </template>
       </template>
+      <template #empty>
+        <Empty label="Nenhuma meta encontrado" icon="ri-gift-line" />
+      </template>
     </Carousel>
   </div>
 
