@@ -79,7 +79,7 @@ import { computed, onMounted, ref } from "vue";
 import { PaymentService, type IPayment } from "@/services/payment";
 import AdminBadgeScanner from "@/components/AdminBadgeScanner.vue";
 import OperatorList from "@/components/operators/List.vue";
-import GoalList from "@/router/GoalList.vue";
+import GoalList from "@/components/GoalList.vue";
 import { useOperator } from "@/composables/useOperator";
 
 const { operator, isActiveOperator, isAdmin } = useOperator();

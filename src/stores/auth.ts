@@ -23,7 +23,12 @@ export const useAuthStore = defineStore("auth", {
     hasCompletedSetup: (state) =>
       state.operator && state.operator.role !== "recruit",
     isActiveOperator: (state) => state.operator && state.operator.status,
+    isArmorer: (state) => state.operator && state.operator.role === 'armorer',
+    isEventManagement: (state) => state.operator && ['admin', 'event', 'media', 'administrative'].includes(state.operator.role),
+    isAdministrativeManagement: (state) => state.operator && state.operator.role === 'administrative',
+    isFinancialManagement: (state) => state.operator && state.operator.role === 'financial',
     isAdmin: (state) => state.operator && state.operator.role === "admin",
+    isManager: (state) => state.operator && !["recruit", "operator"].includes(state.operator.role),
   },
 
   actions: {

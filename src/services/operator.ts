@@ -169,12 +169,15 @@ export const OperatorService = {
       return [];
     }
   },
-  async getByInstagram(instagram: string): Promise<IOperator> {
+  async getByUsername(username: string): Promise<IOperator> {
     try {
       const response = await tables.listRows<IOperator>({
         databaseId: DATABASE_ID,
         tableId: TABLE_OPERATORS,
-        queries: [Query.equal("instagram", instagram)],
+        queries: [Query.or([
+          Query.equal("instagram", username),
+          Query.equal("$id", username),
+        ])],
       });
 
       return response.total === 1

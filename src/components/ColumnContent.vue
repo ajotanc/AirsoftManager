@@ -2,7 +2,7 @@
   <Skeleton v-if="loading" width="80%" height="1.2rem" />
 
   <template v-else>
-    <Tag v-if="column.component?.name === 'Select'" :value="displayValue" :severity="severity" />
+    <Tag v-if="['Select', 'MultiSelect'].includes(column.component?.name)" :value="displayValue" :severity="severity" />
     <Rating v-else-if="column.component?.name === 'Rating'" :modelValue="Number(cellValue)" readonly :cancel="false" />
     <ColorPicker v-else-if="column.component?.name === 'ColorPicker'" :modelValue="cellValue"
       style="pointer-events: none;" />
@@ -46,6 +46,7 @@ const severity = computed(() => {
   if (props.column.component?.name === 'Select' && props.column.props?.options) {
     const options = props.column.props.options;
     const option = options.find(({ value }: { value: string }) => String(value) === String(cellValue.value));
+
     return option ? option.severity : undefined;
   }
 
@@ -69,9 +70,21 @@ const displayValue = computed(() => {
     return isNaN(date.getTime()) ? val : date.toLocaleDateString("pt-BR");
   }
 
+  if (props.column.component?.name === 'MultiSelect' && props.column.props?.options) {
+    const options = props.column.props.options;
+    return options
+      .flatMap((opt: { value: string; label: string; }) => val?.includes(opt.value) ? opt.label : [])
+      .join(' · ');
+  }
+
   if (props.column.component?.name === 'Select' && props.column.props?.options) {
     const options = props.column.props.options;
     const option = options.find(({ value }: { value: string }) => String(value) === String(val));
+
+    if (!option) {
+      return val[props.column.props.optionLabel];
+    }
+
     return option ? option.label : val;
   }
 

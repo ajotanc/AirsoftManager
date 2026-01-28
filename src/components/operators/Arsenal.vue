@@ -40,6 +40,8 @@
                 style="text-decoration: none;" />
               <Button v-if="qrcode" icon="pi pi-qrcode" text rounded severity="secondary" v-tooltip.top="'QRCode'"
                 @click="openQrDialog(weapon)" />
+              <Button icon="pi pi-history" text rounded severity="secondary" v-tooltip.top="'Manutenções'"
+                @click="openHistoryMaintenance(weapon)" />
               <Button icon="pi pi-pencil" text rounded severity="info" v-tooltip.top="'Editar'"
                 @click="editWeapon(weapon)" />
               <Button icon="pi pi-trash" text rounded severity="danger" v-tooltip.top="'Excluir'"
@@ -49,7 +51,7 @@
         </Column>
 
         <template #empty>
-          <Empty label="Nenhuma arma cadastrada" icon="ri ri-sword-line" />
+          <Empty label="Nenhuma arma cadastrada" icon="ri-sword-line" />
         </template>
       </DataTable>
     </div>
@@ -152,6 +154,41 @@
         </div>
       </div>
     </Dialog>
+
+    <Dialog v-model:visible="maintenanceDialog" modal header="Histórico de Manutenções"
+      :style="{ width: '100%', maxWidth: '640px' }" class="m-3">
+      <div class="card">
+        <DataTable :value="maintenance" stripedRows tableStyle="min-width: 50rem">
+          <Column header="Data">
+            <template #body="{ data }">
+              {{ dayjs(data.maintenance_at).format('DD/MM/YYYY') }}
+            </template>
+          </Column>
+          <Column header="Status">
+            <template #body="{ data }">
+              <Tag :value="getMaintenanceStatusLabel(data.status)"
+                :severity="data.status === 'completed' ? 'success' : 'secondary'" />
+            </template>
+          </Column>
+          <Column header="Tipo">
+            <template #body="{ data }">
+              <ul v-for="type in data.type" class="list-none m-0 p-0">
+                <li class="text-sm">- {{ getMaintenanceTypeLabel(type) }}</li>
+              </ul>
+            </template>
+          </Column>
+          <Column header="Relatório Técnico">
+            <template #body="{ data }">
+              <span>{{ data.technical_report || 'Nenhum relatório disponível.' }}</span>
+            </template>
+          </Column>
+
+          <template #empty>
+            <Empty label="Nenhuma manutenção encontrada" icon="ri-history-line" />
+          </template>
+        </DataTable>
+      </div>
+    </Dialog>
   </div>
 </template>
 
@@ -163,6 +200,7 @@ import { useToast } from "primevue/usetoast";
 import { FilterMatchMode, PrimeIcons } from '@primevue/core/api';
 import { zodResolver } from "@primevue/forms/resolvers/zod";
 import { z } from "zod";
+import dayjs from "dayjs";
 
 import Column from "primevue/column";
 import Button from "primevue/button";
@@ -178,19 +216,15 @@ import FileUpload, { type FileUploadSelectEvent } from "primevue/fileupload";
 import { WEAPON_TYPES_OPTIONS, CATEGORIES_OPTIONS } from "@/constants/airsoft";
 import { ArsenalService, type IArsenal } from "@/services/arsenal";
 import { InputMask, ToggleSwitch, useConfirm } from "primevue";
-import { formatDate, type IFields } from "@/functions/utils";
+import { formatDate, getMaintenanceStatusLabel, getMaintenanceTypeLabel, type IFields } from "@/functions/utils";
 import ColumnContent from "../ColumnContent.vue";
-
-const invoice = ref();
+import { MaintenanceService, type IMaintenance } from "@/services/maintenance";
+import type { IOperator } from "@/services/operator";
 
 const items = defineModel('items', {
   type: Array as PropType<IArsenal[]>,
   default: () => []
 });
-
-const onSelectedFiles = (event: FileUploadSelectEvent) => {
-  invoice.value = event.files;
-};
 
 const props = defineProps({
   owner: {
@@ -210,6 +244,88 @@ const props = defineProps({
 
 const toast = useToast();
 const confirm = useConfirm();
+
+const weaponDialog = ref(false);
+const maintenanceDialog = ref(false);
+
+const qrDialog = ref(false);
+
+const selectedWeapon = ref({} as IArsenal);
+const maintenance = ref<IMaintenance<IOperator, IArsenal>[]>([]);
+
+const label = ref(null);
+
+const downloading = ref(false);
+const uploading = ref(false);
+
+const invoice = ref();
+
+const filters = ref({
+  'global': { value: '', matchMode: FilterMatchMode.CONTAINS },
+});
+
+const labels = computed(() => {
+  const firstItem = items.value?.[0];
+
+  if (!firstItem) return ['$id'];
+
+  return Object.keys(firstItem)
+    .filter(key => !key.startsWith('$'));
+});
+
+const MAX_SIZE = 5 * 1024 * 1024;
+
+const fields = computed<IFields[]>(() => [
+  {
+    name: "name", label: "Nome", component: InputText, col: '12',
+  },
+  {
+    name: "type", label: "Tipo de Arma", component: Select, col: "6", props: {
+      options: WEAPON_TYPES_OPTIONS, optionLabel: "label", optionValue: "value",
+    },
+    isTag: true
+  },
+  {
+    name: "category", label: "Categoria", component: Select, col: "6", props: {
+      options: CATEGORIES_OPTIONS, optionLabel: "label", optionValue: "value",
+    },
+    isTag: true
+  },
+  { name: "fps", label: "FPS", component: InputNumber, col: '6' },
+  {
+    name: "joule", label: "Joule", component: InputMask, col: '6', props: {
+      mask: "9.99", inputmode: "numeric"
+    }
+  },
+  {
+    name: "maintenance_at", label: "Última Manutenção", component: DatePicker, col: '6',
+    props: {
+      dateFormat: "dd/mm/yy", showIcon: true, showButtonBar: true, iconDisplay: "input", showOnFocus: true
+    }
+  },
+  {
+    name: "is_favorite", label: "Arma Favorita", component: ToggleSwitch, col: '12',
+    isHtml: true,
+    icon: PrimeIcons.STAR_FILL,
+    iconColor: 'yellow',
+  }
+]);
+
+const weaponSchema = z.object({
+  name: z.string("Nome é obrigatório!").min(2, "O nome precisa ter ao menos 2 caractere!"),
+  type: z.number({ error: "Selecione o tipo" }),
+  category: z.number({ error: "Selecione a categoria" }),
+  joule: z.coerce.number({ error: "Informe o Joule" }).gt(0, { error: "Joule deve ser maior que 0.00" }).transform((value) => value && value.toString()),
+  fps: z.number({ error: "Informe o FPS" }).max(550, { error: "FPS deve ser menor ou igual a 550" }).gt(0, { error: "FPS deve ser maior que 0" }),
+  maintenance_at: z.custom().refine((date) => date instanceof Date || typeof date === 'string', "Data obrigatória").transform((date) => date && formatDate(date).toISOString()),
+  is_favorite: z.boolean().nullish(),
+});
+
+const resolver = ref(zodResolver(weaponSchema));
+
+const onSelectedFiles = (event: FileUploadSelectEvent) => {
+  invoice.value = event.files;
+};
 
 const confirmDelete = (weapon: IArsenal) => {
   confirm.require({
@@ -249,78 +365,6 @@ const confirmDelete = (weapon: IArsenal) => {
     },
   });
 };
-
-const MAX_SIZE = 5 * 1024 * 1024;
-
-const fields = computed<IFields[]>(() => [
-  {
-    name: "name", label: "Nome", component: InputText, col: '12',
-  },
-  {
-    name: "type", label: "Tipo de Arma", component: Select, col: "6", props: {
-      options: WEAPON_TYPES_OPTIONS, optionLabel: "label", optionValue: "value",
-    },
-    isTag: true
-  },
-  {
-    name: "category", label: "Categoria", component: Select, col: "6", props: {
-      options: CATEGORIES_OPTIONS, optionLabel: "label", optionValue: "value",
-    },
-    isTag: true
-  },
-  { name: "fps", label: "FPS", component: InputNumber, col: '6' },
-  {
-    name: "joule", label: "Joule", component: InputMask, col: '6', props: {
-      mask: "9.99", inputmode: "numeric"
-    }
-  },
-  {
-    name: "maintained_at", label: "Última Manutenção", component: DatePicker, col: '6',
-    props: {
-      dateFormat: "dd/mm/yy", showIcon: true, showButtonBar: true, iconDisplay: "input", showOnFocus: true
-    }
-  },
-  {
-    name: "is_favorite", label: "Arma Favorita", component: ToggleSwitch, col: '12',
-    isHtml: true,
-    icon: PrimeIcons.STAR_FILL,
-    iconColor: 'yellow',
-  }
-]);
-
-const weaponSchema = z.object({
-  name: z.string("Nome é obrigatório!").min(2, "O nome precisa ter ao menos 2 caractere!"),
-  type: z.number({ error: "Selecione o tipo" }),
-  category: z.number({ error: "Selecione a categoria" }),
-  joule: z.coerce.number({ error: "Informe o Joule" }).gt(0, { error: "Joule deve ser maior que 0.00" }).transform((value) => value && value.toString()),
-  fps: z.number({ error: "Informe o FPS" }).max(550, { error: "FPS deve ser menor ou igual a 550" }).gt(0, { error: "FPS deve ser maior que 0" }),
-  maintained_at: z.custom().refine((date) => date instanceof Date || typeof date === 'string', "Data obrigatória").transform((date) => date && formatDate(date).toISOString()),
-  is_favorite: z.boolean().nullish(),
-});
-
-const resolver = ref(zodResolver(weaponSchema));
-
-const weaponDialog = ref(false);
-const qrDialog = ref(false);
-
-const selectedWeapon = ref({} as IArsenal);
-const label = ref(null);
-
-const downloading = ref(false);
-const uploading = ref(false);
-
-const filters = ref({
-  'global': { value: '', matchMode: FilterMatchMode.CONTAINS },
-});
-
-const labels = computed(() => {
-  const firstItem = items.value?.[0];
-
-  if (!firstItem) return ['$id'];
-
-  return Object.keys(firstItem)
-    .filter(key => !key.startsWith('$'));
-});
 
 const generateUrl = (weaponId: string) => {
   return `${window.location.origin}/verify/weapon/${weaponId}`;
@@ -416,11 +460,10 @@ const saveWeapon = async ({ valid, values }: any) => {
 const editWeapon = (weapon: IArsenal) => {
   selectedWeapon.value = {
     ...weapon,
-    maintained_at: weapon.maintained_at ? new Date(weapon.maintained_at) : null
+    maintenance_at: weapon.maintenance_at ? new Date(weapon.maintenance_at) : null
   };
   weaponDialog.value = true;
 };
-
 
 const uploadInvoice = async () => {
   if (invoice.value.length === 0) return;
@@ -456,4 +499,9 @@ const uploadInvoice = async () => {
     hideDialog();
   }
 }
+
+const openHistoryMaintenance = async (weapon: IArsenal) => {
+  maintenance.value = await MaintenanceService.listByArsenal(weapon.$id);
+  maintenanceDialog.value = true;
+};
 </script>

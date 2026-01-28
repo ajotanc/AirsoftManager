@@ -363,7 +363,7 @@
         </div>
 
         <div class="mt-4">
-          <Button type="submit" label="Salvar" class="w-full md:w-auto" :loading="loading" />
+          <Button type="submit" label="Salvar" :loading="loading" />
         </div>
       </Form>
     </div>
@@ -407,6 +407,8 @@ const router = useRouter();
 const toast = useToast();
 
 const loading = ref(false);
+const loadingAvatar = ref(false);
+
 const form = ref();
 
 const filteredAllergies = ref<string[]>([]);
@@ -537,7 +539,7 @@ const handleUpdateAvatar = async (event: Event) => {
   if (!file) return;
 
   try {
-    loading.value = true;
+    loadingAvatar.value = true;
 
     const operatorUpdated = await OperatorService.changeAvatar(
       operator.value.$id,
@@ -564,8 +566,7 @@ const handleUpdateAvatar = async (event: Event) => {
       life: 3000,
     });
   } finally {
-    loading.value = false;
-    input.value = "";
+    loadingAvatar.value = false;
   }
 };
 

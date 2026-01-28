@@ -22,7 +22,7 @@
 
       <slot name="extra-columns-start"></slot>
 
-      <Column v-for="column in fields" :key="column.name" :header="column.label" :hidden="column.show">
+      <Column v-for="column in fields" :key="column.name" :header="column.label" :hidden="column.hiddenTable">
         <template #body="{ data }">
           <ColumnContent :column="column" :data="data" :loading="loading" />
         </template>
@@ -40,7 +40,7 @@
       </Column>
 
       <template #empty>
-        <Empty :label="`Nenhum(a) ${resourceName} encontrado(a)`" :icon="icon || 'ri ri-wallet-line'" />
+        <Empty :label="`Nenhum(a) ${resourceName} encontrado(a)`" :icon="icon || 'ri-wallet-line'" />
       </template>
     </DataTable>
   </div>

@@ -38,7 +38,7 @@
       </template>
     </template>
     <template #empty>
-      <Empty label="Nenhum aniversariante encontrado para este mês" icon="ri ri-cake-2-line" />
+      <Empty label="Nenhum aniversariante encontrado para este mês" icon="ri-cake-2-line" />
     </template>
   </Carousel>
 </template>
@@ -153,7 +153,7 @@ const dtValue = computed(() => {
   padding: 1rem;
 }
 
-:deep(.p-card-body){
+:deep(.p-card-body) {
   padding: 0;
 }
 

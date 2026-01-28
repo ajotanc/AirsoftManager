@@ -32,9 +32,9 @@
                         </span>
                     </p>
                     <p class="flex flex-column md:flex-row text-gray-500 gap-2">
-                        <span class="flex align-items-center gap-2"><i class="ri ri-user-3-line"></i> <strong>Efetivo
+                        <span class="flex align-items-center gap-2"><i class="ri-user-3-line"></i> <strong>Efetivo
                                 Mínimo:</strong> {{
-                                    event.minimum_effective }} <i class="ri ri-group-3-line"></i> <strong>Efetivo
+                                    event.minimum_effective }} <i class="ri-group-3-line"></i> <strong>Efetivo
                                 Atual:</strong> {{ totalParticipants }}/{{
                                     event.minimum_effective }}</span>
                     </p>
@@ -293,7 +293,7 @@
                         <template #option="slotProps">
                             <div class="flex flex-column">
                                 <span class="font-bold">{{ slotProps.option.name }} ({{ slotProps.option.codename
-                                    }})</span>
+                                }})</span>
                                 <small class="text-gray-500">Convidado por {{
                                     slotProps.option.operator.codename }}</small>
                             </div>

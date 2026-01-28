@@ -51,7 +51,7 @@
                   </div>
 
                   <div class="flex align-items-center text-xs text-gray-500 italic">
-                    <i class="ri ri-calendar-line mr-1"></i>
+                    <i class="ri-calendar-line mr-1"></i>
                     Expira em: {{ dayjs(data.deadline).format('DD/MM/YYYY') }}
                   </div>
                 </div>
@@ -60,7 +60,7 @@
               <template #footer>
                 <Button
                   :label="data.isExpired && !data.isCompleted ? 'Prazo Encerrado' : (data.isCompleted ? 'Meta Batida' : 'Contribuir')"
-                  :icon="data.isExpired && !data.isCompleted ? 'pi pi-calendar-times' : 'ri ri-hand-heart-line'"
+                  :icon="data.isExpired && !data.isCompleted ? 'pi pi-calendar-times' : 'ri-hand-heart-line'"
                   size="small" class="w-full" :severity="data.isExpired ? 'secondary' : 'warn'"
                   :disabled="!data.canContribute" @click="makeContribute(data)" />
               </template>

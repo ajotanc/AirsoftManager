@@ -138,7 +138,7 @@
               </div>
             </li>
           </ul>
-          <Empty v-else label="Nenhuma transação encontrada." icon="ri ri-exchange-funds-line" />
+          <Empty v-else label="Nenhuma transação encontrada." icon="ri-exchange-funds-line" />
         </div>
       </div>
     </div>

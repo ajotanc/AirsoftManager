@@ -94,7 +94,7 @@
         </template>
 
         <template #empty>
-          <Empty label="Nenhum operador encontrado." icon="ri ri-group-line" />
+          <Empty label="Nenhum operador encontrado." icon="ri-group-line" />
         </template>
 
         <template #paginatorstart>
@@ -137,7 +137,7 @@ import Empty from "@/components/Empty.vue";
 import { useOperator } from "@/composables/useOperator";
 
 const toast = useToast();
-const { authStore } = useOperator();
+const { operator, updateState } = useOperator();
 
 const loading = ref(true);
 const operators = ref([]);
@@ -183,7 +183,8 @@ const dtValue = computed(() => {
 });
 
 const handleUpdate = async (event) => {
-  const { newData: { $id, rating, role, status }, index } = event;
+  const { newData } = event;
+  const { $id, rating, role, status } = newData;
 
   try {
     const payload = {
@@ -197,18 +198,20 @@ const handleUpdate = async (event) => {
       payload
     );
 
-    operators.value[index] = operatorUpdated;
+    const index = operators.value.findIndex(op => op.$id === $id);
 
-    if (authStore.operator && authStore.operator.$id === $id) {
-      authStore.$patch((state) => {
-        state.operator = { ...state.operator, ...payload };
-      });
+    if (index !== -1) {
+      operators.value[index] = operatorUpdated;
+    }
+
+    if (operator.value.$id === $id) {
+      await updateState(operatorUpdated);
     }
 
     toast.add({
       severity: "success",
       summary: "Sucesso",
-      detail: "Operador atualizado",
+      detail: "Operador atualizado!",
       life: 3000,
     });
   } catch (error) {

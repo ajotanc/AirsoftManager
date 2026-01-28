@@ -1,6 +1,6 @@
 <template>
     <div class="flex flex-1 flex-column align-items-center text-center gap-2 py-2 overflow-hidden">
-        <Avatar :image="operator.avatar" shape="circle" class="operator-avatar shadow-3" />
+        <Avatar :image="operator.avatar" :icon="!operator.avatar ? 'pi pi-user' : undefined" shape="circle" class="operator-avatar shadow-3" size="xlarge" />
 
         <div class="flex flex-column">
             <div class="flex align-items-center justify-content-center gap-2">

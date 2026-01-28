@@ -231,31 +231,36 @@ const navItems = computed<IMenu[]>(() => [
   {
     label: "Gestão",
     icon: "ri-briefcase-line",
-    visible: authStore.isAdmin,
+    visible: authStore.isManager,
     items: [
       {
         label: "Usuários",
         icon: "ri-group-line",
         route: "/admin/operators",
+        visible: authStore.isAdmin,
       },
       {
         label: "Eventos",
         icon: "ri-calendar-event-line",
         route: "/admin/events",
+        visible: authStore.isEventManagement,
       },
       {
         label: "Aniversariantes",
         icon: "ri-cake-2-line",
         route: "/admin/birthdays",
+        visible: authStore.isManager,
       },
       {
         label: "Visitantes",
         icon: "ri-group-3-line",
         route: "/admin/visitors",
+        visible: authStore.isAdmin || authStore.isAdministrativeManagement,
       },
       {
         label: "Financeiro",
         icon: "ri-bank-line",
+        visible: authStore.isAdmin || authStore.isFinancialManagement,
         items: [
           {
             label: "Pagamentos",
@@ -273,6 +278,18 @@ const navItems = computed<IMenu[]>(() => [
             route: "/admin/finance/cashflow",
           },
         ],
+      },
+      {
+        label: "Armaria",
+        icon: "ri-sword-line",
+        visible: authStore.isAdmin || authStore.isArmorer,
+        items: [
+          {
+            label: "Manutenção",
+            icon: "ri-hammer-line",
+            route: "/admin/armory/maintenance",
+          },
+        ]
       },
     ],
   },

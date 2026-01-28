@@ -6,13 +6,13 @@
             <div class="card">
                 <Tabs value="0">
                     <TabList>
-                        <Tab value="0"><i class="ri ri-function-line"></i></Tab>
-                        <Tab value="1"><i class="ri ri-account-box-line"></i></Tab>
-                        <Tab value="2"><i class="ri ri-trophy-line"></i></Tab>
+                        <Tab value="0"><i class="ri-function-line"></i></Tab>
+                        <Tab value="1"><i class="ri-account-box-line"></i></Tab>
+                        <Tab value="2"><i class="ri-trophy-line"></i></Tab>
                     </TabList>
                     <TabPanels>
                         <TabPanel value="0">
-                            <Empty label="Nenhuma foto encontrada." icon="ri ri-multi-image-line" />
+                            <Empty label="Nenhuma foto encontrada." icon="ri-multi-image-line" />
                         </TabPanel>
                         <TabPanel value="1">
                             <StatsCard v-model:operator="operator" />
@@ -24,7 +24,7 @@
                 </Tabs>
             </div>
         </div>
-        <Empty v-else label="Operador não encontrado." icon="ri ri-user-line" />
+        <Empty v-else label="Operador não encontrado." icon="ri-user-line" />
     </div>
 </template>
 
@@ -42,11 +42,11 @@ const operator = ref<IOperator>({} as IOperator);
 const loading = ref(true);
 
 onMounted(async () => {
-    const instagram = route.params.instagram?.toString().trim();
+    const username = route.params.username?.toString().trim();
 
-    if (!instagram) return;
+    if (!username) return;
 
-    operator.value = await OperatorService.getByInstagram(instagram);
+    operator.value = await OperatorService.getByUsername(username);
     loading.value = false;
 });
 

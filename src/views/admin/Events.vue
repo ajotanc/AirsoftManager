@@ -1,7 +1,6 @@
 <template>
     <div class="card">
-        <AppTable title="Evento(s)" :value="events" :fields="fields" :loading="loading"
-            icon="ri ri-calendar-event-line">
+        <AppTable title="Evento(s)" :value="events" :fields="fields" :loading="loading" icon="ri-calendar-event-line">
             <template #header-actions>
                 <Button label="Nova" icon="pi pi-plus" size="small" @click="newEvent" />
             </template>

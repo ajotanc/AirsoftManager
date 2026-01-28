@@ -20,7 +20,13 @@
               <span>·</span>
               <span>{{ getSpecialtyLabel(operator.category) }}</span>
               <span>·</span>
-              <span class="font-bold" :style="{ color: currentTier.color }">{{ currentTier.label }}</span>
+              <span class="font-bold" :style="{
+                backgroundColor: currentTier.backgroundColor,
+                color: currentTier.color,
+                padding: '3px 4px',
+                borderRadius: '4px'
+              }">{{ currentTier.label
+              }}</span>
             </div>
           </div>
           <div class="flex flex-column align-items-center gap-1">
@@ -58,7 +64,7 @@ import Button from 'primevue/button';
 import RadarStats from '@/components/gamification/RadarStats.vue';
 
 import { RatingService } from '@/services/rating';
-import { BASE_SCORE, MIN_VOTES_REQUIRED, SKILL_ATTRIBUTES } from '@/constants/airsoft';
+import { MIN_VOTES_REQUIRED, SKILL_ATTRIBUTES } from '@/constants/airsoft';
 import type { IOperator } from '@/services/operator';
 import type { PropType } from 'vue';
 import { getSpecialtyLabel, getShortName } from '@/functions/utils'
@@ -101,25 +107,32 @@ const calculateAverages = async (targetId: string) => {
     const { total, rows: ratings } = await RatingService.getRatingsForTarget(targetId);
 
     // CONFIGURAÇÃO TÁTICA
-    // m = MIN_VOTES_REQUIRED (Peso da prova: quantos votos "médios" ele já começa tendo)
-    // C = BASE_SCORE (Nota neutra: 3.0)
+    // m = MIN_VOTES_REQUIRED (Quantos votos são necessários para atingir o potencial máximo da nota)
 
     SKILL_ATTRIBUTES.forEach(attr => {
       const fieldName = attr.field;
+
+      if (total === 0) {
+        calculatedStats[fieldName] = 0;
+        return;
+      }
 
       const sum = ratings.reduce((acc, vote) => {
         const attrs = vote.attributes ? JSON.parse(vote.attributes) : {};
         return acc + (Number(attrs[fieldName]) || 0);
       }, 0);
 
-      // FÓRMULA DE MÉDIA BAYESIANA:
-      // (Soma dos Votos Reais + (m * Nota Base)) / (Total de Votos Reais + m)
-      // Isso impede que 1 voto "5" vire média 5. Com 1 voto "5", a média será:
-      // (5 + (5 * 3)) / (1 + 5) = 20 / 6 = 3.3
+      // 1. Média Real (ex: 1 voto de 5 = média 5.0)
+      const realAverage = sum / total;
 
-      const weightedAverage = (sum + (MIN_VOTES_REQUIRED * BASE_SCORE)) / (total + MIN_VOTES_REQUIRED);
+      // 2. Fator de Confiança (Se tem 1 voto de 10 necessários, o fator é 0.1)
+      const confidenceFactor = Math.min(total / MIN_VOTES_REQUIRED, 1);
 
-      calculatedStats[fieldName] = Number(weightedAverage.toFixed(1));
+      // 3. Resultado Final: Média Real x Confiança
+      // Ex: 1 voto '5' com meta de 10 votos: 5.0 * 0.1 = 0.5 de nota no radar.
+      const finalScore = realAverage * confidenceFactor;
+
+      calculatedStats[fieldName] = Number(finalScore.toFixed(1));
     });
   } catch (error) {
     console.error("Erro ao processar médias dinâmicas:", error);

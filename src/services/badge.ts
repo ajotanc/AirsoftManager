@@ -15,7 +15,6 @@ import {
   SKILL_ATTRIBUTES,
   MIN_COMPLETE_UNIFORMS,
   EXPERIENCE_PER_LEVEL,
-  BASE_SCORE,
   MIN_VOTES_REQUIRED
 } from "@/constants/airsoft";
 
@@ -49,11 +48,16 @@ export const BadgeService = {
 
       SKILL_ATTRIBUTES.forEach(s => {
         const sum = skillSums[s.field] || 0;
+        const total = ratings.total;
 
-        const weightedAverage = (sum + (MIN_VOTES_REQUIRED * BASE_SCORE)) / (ratings.total + MIN_VOTES_REQUIRED);
+        if (total > 0) {
+          const realAverage = sum / total;
+          const confidenceFactor = Math.min(total / MIN_VOTES_REQUIRED, 1);
+          const weightedScore = realAverage * confidenceFactor;
 
-        if (weightedAverage >= 4.5) {
-          earned.add(`master_${s.field}`);
+          if (weightedScore >= 4.5) {
+            earned.add(`master_${s.field}`);
+          }
         }
       });
     }
@@ -65,15 +69,15 @@ export const BadgeService = {
     if (arsenal.some(a => (a.fps || 0) > 400)) earned.add('high_power_unit');
     if (arsenal.some(a => a.category === 3)) earned.add('certified_sniper');
     if (arsenal.some(a => a.invoice)) earned.add('verified_arsenal');
-    if (arsenal.some(a => a.maintained_at)) earned.add('armorer_apprentice');
+    if (arsenal.some(a => a.maintenance_at)) earned.add('armorer_apprentice');
 
     // Nova: Arsenal Impecável (Toda a frota com revisão em dia)
-    if (arsenal.length > 0 && arsenal.every(a => !!a.maintained_at)) earned.add('well_maintained');
+    if (arsenal.length > 0 && arsenal.every(a => !!a.maintenance_at)) earned.add('well_maintained');
 
     const loadouts = operator.loadout || [];
     const coreKeys = LOADOUT_ITEMS.filter(i => !i.optional).map(i => i.key);
     const completeSets = loadouts.filter(l => coreKeys.every(k => l[k as keyof typeof l] === true));
-    
+
     if (completeSets.length >= 1) earned.add('standard_operator');
     if (completeSets.length >= MIN_COMPLETE_UNIFORMS) earned.add('tactical_chameleon');
 

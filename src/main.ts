@@ -20,6 +20,7 @@ import "primeflex/primeflex.css";
 import "./style.css";
 
 import "remixicon/fonts/remixicon.css";
+import '@/assets/rpg-Awesome/css/rpg-awesome.css';
 
 const app = createApp(App);
 const pinia = createPinia();

@@ -70,7 +70,7 @@ const router = createRouter({
           component: () => import("../views/private/games/PlayerCard.vue"),
         },
         {
-          path: "operator/:instagram",
+          path: "operator/:username",
           name: "operator-profile",
           component: () => import("../views/private/Operator.vue"),
         },
@@ -120,6 +120,10 @@ const router = createRouter({
         {
           path: "admin/finance/cashflow",
           component: () => import("../views/admin/finance/Cashflow.vue"),
+        },
+        {
+          path: "admin/armory/maintenance",
+          component: () => import("../views/admin/Maintenance.vue"),
         },
       ],
     },

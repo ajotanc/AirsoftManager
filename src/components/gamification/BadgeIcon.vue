@@ -6,7 +6,7 @@
         }">
         <div v-if="badgeInfo.label" class="badge-mask">
             <div class="badge-circle flex align-items-center justify-content-center" :style="{
-                backgroundColor: earned ? badgeInfo.color + '20' : '#f1f5f9',
+                backgroundColor: earned ? badgeInfo.color + '40' : '#f1f5f9',
                 borderColor: earned ? badgeInfo.color : '#e2e8f0',
             }">
                 <i :class="[earned ? badgeInfo.icon : 'ri-lock-line', size === 'large' ? 'text-2xl' : size === 'small' ? 'text-base' : 'text-xl']"

@@ -24,7 +24,7 @@
                 {{ badge.label }}
             </span>
             <Button v-if="showActions" @click="toggleFeatured(badge.slug)" severity="warn"
-                class="absolute top-0 right-0" :icon="isFeatured(badge.slug) ? 'ri ri-star-fill' : 'ri ri-star-line'"
+                class="absolute top-0 right-0" :icon="isFeatured(badge.slug) ? 'ri-star-fill' : 'ri-star-line'"
                 :disabled="(operator.featured_badges?.length === 5 && !isFeatured(badge.slug) || !isEarned(badge.slug))"
                 text size="small" />
         </div>
@@ -37,6 +37,7 @@ import { OperatorService, type IOperator } from '@/services/operator';
 import { useToast } from 'primevue/usetoast';
 import Tag from 'primevue/tag';
 
+console.log(ALL_BADGES_DEFINITION.map(b => b.slug).join(', '));
 const toast = useToast();
 
 const operator = defineModel<IOperator>('operator', {

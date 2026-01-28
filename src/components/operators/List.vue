@@ -10,8 +10,7 @@
         <template v-else>
           <div class="flex justify-content-center align-items-center">
             <Avatar :image="op.avatar" :icon="!op.avatar ? 'pi pi-user' : undefined" size="xlarge" shape="circle"
-              @click="router.push(`/operator/${op.instagram}`)"
-              :class="['bg-gray-300', { 'pointer-events-none': !op.instagram }]" />
+              @click="router.push(`/operator/${op.instagram || op.$id}`)" class="bg-gray-300 cursor-pointer" />
           </div>
         </template>
       </template>

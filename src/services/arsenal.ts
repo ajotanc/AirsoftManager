@@ -1,14 +1,12 @@
+import { deleteFile, uploadFile } from "@/functions/utils";
 import {
   tables,
   TABLE_ARSENALS,
-  DATABASE_ID,
-  BUCKET_ID,
-  storage,
+  DATABASE_ID
 } from "@/services/appwrite";
-import { ID, Query } from "appwrite";
+import { ID, Query, type Models } from "appwrite";
 
-export interface IArsenal {
-  $id: string;
+export interface IArsenal extends Models.Row {
   name: string;
   type: number | null;
   joule: string | null;
@@ -16,7 +14,7 @@ export interface IArsenal {
   invoice: string | null;
   category: number | null;
   avatar: string | null;
-  maintained_at: Date | string | null;
+  maintenance_at: Date | string | null;
   operator: string;
   is_favorite: boolean | null;
 }
@@ -49,6 +47,23 @@ export const ArsenalService = {
       return [];
     }
   },
+  async listByOperator(operatorId: string): Promise<IArsenal[]> {
+    try {
+      const response = await tables.listRows<IArsenal>({
+        databaseId: DATABASE_ID,
+        tableId: TABLE_ARSENALS,
+        queries: [
+          Query.orderDesc("$createdAt"),
+          Query.equal("operator", operatorId)
+        ],
+      });
+
+      return response.rows;
+    } catch (error) {
+      console.error("Erro ao buscar arsenais:", error);
+      return [];
+    }
+  },
   async create(data: IArsenal, rowId: string) {
     return await tables.createRow({
       databaseId: DATABASE_ID,
@@ -57,7 +72,7 @@ export const ArsenalService = {
       data,
     });
   },
-  async update(rowId: string, data: IArsenal) {
+  async update(rowId: string, data: Partial<IArsenal>) {
     return await tables.updateRow({
       databaseId: DATABASE_ID,
       tableId: TABLE_ARSENALS,
@@ -78,6 +93,8 @@ export const ArsenalService = {
     });
   },
   async delete(rowId: string) {
+    await deleteFile(rowId, 'nfe');
+
     return await tables.deleteRow({
       databaseId: DATABASE_ID,
       tableId: TABLE_ARSENALS,
@@ -85,19 +102,14 @@ export const ArsenalService = {
     });
   },
   async uploadInvoice(rowId: string, file: File) {
-    const fileId = `nfe-${rowId}`;
-
-    await storage.createFile({ bucketId: BUCKET_ID, fileId, file });
-
-    const originalUrl = storage.getFileView({ bucketId: BUCKET_ID, fileId });
-    const invoice = `${originalUrl}&v=${Date.now()}`;
+    const urlFormatted = await uploadFile(rowId, file, 'nfe');
 
     return await tables.updateRow({
       databaseId: DATABASE_ID,
       tableId: TABLE_ARSENALS,
       rowId,
       data: {
-        invoice,
+        invoice: urlFormatted,
       },
     });
   },

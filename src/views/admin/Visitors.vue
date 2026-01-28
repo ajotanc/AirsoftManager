@@ -1,6 +1,6 @@
 <template>
   <div class="card">
-    <AppTable title="Visitante(s)" :value="visitors" :fields="fields" :loading="loading" icon="ri ri-group-3-line">
+    <AppTable title="Visitante(s)" :value="visitors" :fields="fields" :loading="loading" icon="ri-group-3-line">
       <template #header-actions>
         <Button label="Novo" icon="pi pi-plus" size="small" @click="newVisitor" />
       </template>

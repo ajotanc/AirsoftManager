@@ -72,7 +72,7 @@
         </template>
 
         <template #empty>
-          <Empty label="Nenhum uniforme cadastrado" icon="ri ri-t-shirt-line" />
+          <Empty label="Nenhum uniforme cadastrado" icon="ri-t-shirt-line" />
         </template>
       </DataTable>
     </div>

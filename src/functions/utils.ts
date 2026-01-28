@@ -5,7 +5,7 @@ import customParseFormat from 'dayjs/plugin/customParseFormat';
 import beepSound from "@/assets/sounds/beep.mp3";
 import router from "@/router";
 import { BUCKET_ID, storage } from '@/services/appwrite';
-import { CATEGORIES_OPTIONS } from '@/constants/airsoft';
+import { CATEGORIES_OPTIONS, MAINTENANCE_STATUS_TYPES, MAINTENANCE_TYPES } from '@/constants/airsoft';
 
 dayjs.extend(customParseFormat);
 
@@ -19,7 +19,7 @@ export interface IFields {
   isRating?: boolean;
   isHtml?: boolean;
   hidden?: boolean;
-  show?: boolean;
+  hiddenTable?: boolean;
   icon?: string;
   iconColor?: string;
   button?: {
@@ -276,6 +276,14 @@ export const getSpecialtyLabel = (val?: number) => {
 export const getAvailabilityLabel = (val?: string) => {
     const maps: any = { saturday: 'Sábados', sunday: 'Domingos', both: 'Fim de Semana', none: 'Indisponível' };
     return maps[val || 'none'];
+};
+
+export const getMaintenanceStatusLabel = (val?: string) => {
+  return MAINTENANCE_STATUS_TYPES.find(a => a.value === val)?.label || 'Indisponível';
+};
+
+export const getMaintenanceTypeLabel = (val?: string) => {
+  return MAINTENANCE_TYPES.find(a => a.value === val)?.label || 'Indisponível';
 };
 
 export const dateToISOString = (date: Date | string) => dayjs(date, typeof date === 'string' ? 'DD/MM/YYYY' : undefined).toISOString()

@@ -111,15 +111,18 @@ export const RatingService = {
   },
   getTierByScore(score: number): {
     label: string;
+    backgroundColor: string;
     color: string;
-    icon: string;
   } {
+    if(score >= 5.0)
+      return { label: "LENDÁRIO", backgroundColor: "#dc143c", color: '#fff' };
     if (score >= 4.5)
-      return { label: "ELITE", color: "#a855f7", icon: "pi pi-crown" };
+      return { label: "ELITE", backgroundColor: "#7c4dff", color: '#fff' };
     if (score >= 3.5)
-      return { label: "VETERANO", color: "#f59e0b", icon: "pi pi-shield" };
+      return { label: "VETERANO", backgroundColor: "#daa520", color: '#111' };
     if (score >= 2.0)
-      return { label: "OPERACIONAL", color: "#3b82f6", icon: "pi pi-cog" };
-    return { label: "EM TREINAMENTO", color: "#22c55e", icon: "pi pi-user" };
+      return { label: "OPERADOR", backgroundColor: "#081534", color: '#fff' };
+    
+    return { label: "RECRUTA", backgroundColor: "#388E3C", color: '#fff' };
   },
 };
