@@ -17,6 +17,7 @@ import {
   EXPERIENCE_PER_LEVEL,
   MIN_VOTES_REQUIRED
 } from "@/constants/airsoft";
+import { MaintenanceService } from './maintenance';
 
 dayjs.extend(isSameOrBefore);
 
@@ -86,10 +87,11 @@ export const BadgeService = {
 
     // 4. FINANCIAL & LOGISTICS
     // Buscamos veículos e visitantes primeiro
-    const [payments, vehicles, visitors] = await Promise.all([
+    const [payments, vehicles, visitors, maintenances] = await Promise.all([
       PaymentService.listByOperator(operator.$id),
       VehicleService.listByOperator(operator.$id),
-      VisitorService.listByOperator(operator.$id)
+      VisitorService.listByOperator(operator.$id),
+      MaintenanceService.listByOperator(operator.$id)
     ]);
 
     if (payments.length > 0 && !payments.some(p => p.status === 'pending' && dayjs(p.due_date).isBefore(now))) earned.add('active_standing');
@@ -109,6 +111,20 @@ export const BadgeService = {
     // Hospitalidade (Visitantes)
     if (visitors.length > 0) earned.add('hospitality_host');
     if (visitors.length >= 3) earned.add('team_ambassador');
+
+    const maintenanceCompleted = maintenances.filter(m => m.status === 'completed');
+
+    // 1. Mestre da Bancada (Volume)
+    if (maintenanceCompleted.length >= 10) earned.add('bench_master');
+    if (maintenanceCompleted.length >= 25) earned.add('combat_engineer');
+
+    // 2. Especialista em Performance (Tipos)
+    const hasUpgrade = maintenanceCompleted.some(m => Array.isArray(m.type) && m.type.includes('upgrade'));
+    if (hasUpgrade) earned.add('upgrade_expert');
+
+    // 3. Técnico Detalhista (Qualidade do Relato)
+    const hasDetailedReports = maintenanceCompleted.some(m => m.technical_report && m.technical_report.length > 100);
+    if (hasDetailedReports) earned.add('detailed_tech');
 
     // 5. PERSONAL, HEALTH & LEGACY
     if (operator.is_donor) earned.add('blood_donor');

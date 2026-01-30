@@ -229,6 +229,12 @@ const navItems = computed<IMenu[]>(() => [
     ],
   },
   {
+    label: "Cronograma",
+    icon: "ri-calendar-schedule-line",
+    route: "/schedules",
+    visible: authStore.isActiveOperator,
+  },
+  {
     label: "Gestão",
     icon: "ri-briefcase-line",
     visible: authStore.isManager,
@@ -255,6 +261,12 @@ const navItems = computed<IMenu[]>(() => [
         label: "Visitantes",
         icon: "ri-group-3-line",
         route: "/admin/visitors",
+        visible: authStore.isAdmin || authStore.isAdministrativeManagement,
+      },
+      {
+        label: "Cronograma",
+        icon: "ri-calendar-schedule-line",
+        route: "/admin/schedules",
         visible: authStore.isAdmin || authStore.isAdministrativeManagement,
       },
       {

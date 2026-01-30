@@ -21,8 +21,9 @@
       </template>
 
       <slot name="extra-columns-start"></slot>
-
-      <Column v-for="column in fields" :key="column.name" :header="column.label" :hidden="column.hiddenTable">
+      <Column v-for="column in fields" :key="column.name" :header="column.label" :hidden="column.hiddenTable"
+      :style="{ width: column.width || 'auto' }">
+      {{ console.log(column.width) }}
         <template #body="{ data }">
           <ColumnContent :column="column" :data="data" :loading="loading" />
         </template>

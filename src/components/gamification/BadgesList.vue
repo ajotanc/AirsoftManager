@@ -37,7 +37,8 @@ import { OperatorService, type IOperator } from '@/services/operator';
 import { useToast } from 'primevue/usetoast';
 import Tag from 'primevue/tag';
 
-console.log(ALL_BADGES_DEFINITION.map(b => b.slug).join(', '));
+// console.log(ALL_BADGES_DEFINITION.map(b => b.slug).join(', '));
+
 const toast = useToast();
 
 const operator = defineModel<IOperator>('operator', {

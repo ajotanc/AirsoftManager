@@ -1,7 +1,7 @@
 import imageCompression from 'browser-image-compression';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
-
+import { type FormResolverOptions } from '@primevue/forms';
 import beepSound from "@/assets/sounds/beep.mp3";
 import router from "@/router";
 import { BUCKET_ID, storage } from '@/services/appwrite';
@@ -14,6 +14,7 @@ export interface IFields {
   label: string;
   component: any;
   col?: string;
+  width?: string;
   props?: any;
   isTag?: boolean;
   isRating?: boolean;
@@ -30,6 +31,23 @@ export interface IFields {
   };
   [key: string]: any;
 }
+
+export interface FormInstance {
+  setFieldValue: (field: string, value: any) => void;
+  reset: () => void;
+  validate: () => Promise<any>;
+  states: Record<string, any>;
+  getValues: () => Record<string, any>;
+}
+
+export interface FieldChangePayload<T> {
+  name: keyof T;
+  value: any;
+  form: FormInstance;
+  data: T;
+}
+
+export type AppFormResolver = (e: FormResolverOptions) => Promise<Record<string, any>> | Record<string, any> | undefined;
 
 export const isValidIdentity = (cpf: string): boolean => {
   if (typeof cpf !== "string") return false;
@@ -274,8 +292,8 @@ export const getSpecialtyLabel = (val?: number) => {
 };
 
 export const getAvailabilityLabel = (val?: string) => {
-    const maps: any = { saturday: 'Sábados', sunday: 'Domingos', both: 'Fim de Semana', none: 'Indisponível' };
-    return maps[val || 'none'];
+  const maps: any = { saturday: 'Sábados', sunday: 'Domingos', both: 'Fim de Semana', none: 'Indisponível' };
+  return maps[val || 'none'];
 };
 
 export const getMaintenanceStatusLabel = (val?: string) => {
@@ -288,3 +306,32 @@ export const getMaintenanceTypeLabel = (val?: string) => {
 
 export const dateToISOString = (date: Date | string) => dayjs(date, typeof date === 'string' ? 'DD/MM/YYYY' : undefined).toISOString()
 export const formatCurrency = (value: number) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+
+/**
+ * Ordena um array de objetos por uma chave específica.
+ * @param array - O array a ser ordenado.
+ * @param key - A chave do objeto pela qual ordenar.
+ * @param order - 'asc' para ascendente (padrão) ou 'desc' para descendente.
+ */
+export const sortByKey = <T>(array: T[], key: keyof T, order: 'asc' | 'desc' = 'asc'): T[] => {
+  return [...array].sort((a, b) => {
+    const valA = a[key];
+    const valB = b[key];
+
+    // Trata valores nulos ou indefinidos
+    if (valA === valB) return 0;
+    if (valA === null || valA === undefined) return 1;
+    if (valB === null || valB === undefined) return -1;
+
+    let comparison = 0;
+
+    if (typeof valA === 'string' && typeof valB === 'string') {
+      // localeCompare é essencial para nomes com acentos (ex: Álvaro, Êxodo)
+      comparison = valA.localeCompare(valB, 'pt-BR', { sensitivity: 'base' });
+    } else {
+      comparison = valA < valB ? -1 : 1;
+    }
+
+    return order === 'asc' ? comparison : -comparison;
+  });
+};

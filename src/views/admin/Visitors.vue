@@ -118,7 +118,7 @@ const loadServices = async () => {
   try {
     const [visitorsData, operatorsData] = await Promise.all([
       VisitorService.list(),
-      OperatorService.list()
+      OperatorService.listActive()
     ]);
 
     visitors.value = visitorsData;

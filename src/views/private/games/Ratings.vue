@@ -134,7 +134,7 @@ const loadServices = async () => {
     try {
         const [ratingsData, operatorsData] = await Promise.all([
             RatingService.getRatingsForVoter(operator.value.$id),
-            OperatorService.list()
+            OperatorService.listActive()
         ]);
 
         ratings.value = ratingsData.map(vote => {

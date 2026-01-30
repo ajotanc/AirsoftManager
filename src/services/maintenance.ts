@@ -6,8 +6,8 @@ import { ArsenalService, type IArsenal } from "./arsenal";
 export const TABLE_MAINTENANCE = "maintenance";
 
 export interface IMaintenance<TOp = string | IOperator, TAr = string | IArsenal> extends Models.Row {
-  type: string;
-  status: string;
+  type: 'revison' | 'repair' | 'upgrade';
+  status: 'waiting' | 'completed' | 'bench';
   technical_report: string;
   operator: TOp;
   arsenal: TAr;
@@ -68,6 +68,24 @@ export const MaintenanceService = {
       return response.rows;
     } catch (error) {
       console.error("Erro ao listar visitantes:", error);
+      return [];
+    }
+  },
+  async listByOperator(operatorId: string): Promise<IMaintenance<IOperator, IArsenal>[]> {
+    try {
+      const response = await tables.listRows<IMaintenance<IOperator, IArsenal>>({
+        databaseId: DATABASE_ID,
+        tableId: TABLE_MAINTENANCE,
+        queries: [
+          Query.equal("operator", operatorId),
+          Query.orderDesc("maintenance_at"),
+          Query.select(["*", "operator.*", "arsenal.*"])
+        ],
+      });
+
+      return response.rows;
+    } catch (error) {
+      console.error("Erro ao listar manutenções do operador:", error);
       return [];
     }
   },

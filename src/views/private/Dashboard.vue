@@ -33,6 +33,14 @@
     </div>
     <div class="col-12">
       <Card>
+        <template #title>Cronograma</template>
+        <template #content>
+          <ArenaSchedule />
+        </template>
+      </Card>
+    </div>
+    <div class="col-12">
+      <Card>
         <template #title>Operadore(s) ativo(s)</template>
         <template #content>
           <OperatorList />
@@ -81,6 +89,7 @@ import AdminBadgeScanner from "@/components/AdminBadgeScanner.vue";
 import OperatorList from "@/components/operators/List.vue";
 import GoalList from "@/components/GoalList.vue";
 import { useOperator } from "@/composables/useOperator";
+import ArenaSchedule from "@/components/ArenaSchedule.vue";
 
 const { operator, isActiveOperator, isAdmin } = useOperator();
 const { $id, arsenal, loadout } = operator.value;

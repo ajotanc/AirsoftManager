@@ -52,7 +52,7 @@
                   </div>
                 </template>
               </Select>
-              <label for="target">Convite</label>
+              <label for="target">Operador</label>
             </FloatLabel>
             <Message v-if="$field.invalid" severity="error" size="small" variant="simple">
               {{ $field.error?.message }}
@@ -134,7 +134,7 @@ const loadServices = async () => {
   try {
     const [maintenanceData, operatorsData] = await Promise.all([
       MaintenanceService.list(),
-      OperatorService.list()
+      OperatorService.listActive()
     ]);
 
     maintenance.value = maintenanceData;
@@ -258,7 +258,7 @@ const saveMaintenance = async ({ valid, values }: any) => {
     });
   } catch (error: any) {
     console.error("Erro ao salvar:", error);
-    toast.add({ severity: "error", summary: "Erro", detail: "Falha ao registrar o visitante.", life: 3000 });
+    toast.add({ severity: "error", summary: "Erro", detail: "Falha ao registrar o manutenção.", life: 3000 });
   } finally {
     hideDialog();
   }
@@ -266,7 +266,7 @@ const saveMaintenance = async ({ valid, values }: any) => {
 
 const confirmDelete = (data: IMaintenance) => {
   confirm.require({
-    message: 'Você tem certeza que deseja excluir este visitante?',
+    message: 'Você tem certeza que deseja excluir este manutenção?',
     header: "Manutenção",
     rejectProps: {
       label: 'Não',
@@ -304,7 +304,9 @@ const confirmDelete = (data: IMaintenance) => {
 };
 
 const newMaintenance = async () => {
-  selectedMaintenance.value = {} as IMaintenance;
+  selectedMaintenance.value = {
+    status: 'bench'
+  } as IMaintenance;
   maintenanceDialog.value = true;
 };
 

@@ -70,6 +70,10 @@ const router = createRouter({
           component: () => import("../views/private/games/PlayerCard.vue"),
         },
         {
+          path: "/schedules",
+          component: () => import("../views/private/Schedules.vue"),
+        },
+        {
           path: "operator/:username",
           name: "operator-profile",
           component: () => import("../views/private/Operator.vue"),
@@ -108,6 +112,10 @@ const router = createRouter({
         {
           path: "admin/visitors",
           component: () => import("../views/admin/Visitors.vue"),
+        },
+        {
+          path: "admin/schedules",
+          component: () => import("../views/admin/Schedules.vue"),
         },
         {
           path: "admin/finance/payments",

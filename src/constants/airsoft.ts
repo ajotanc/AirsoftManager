@@ -629,7 +629,11 @@ export const ALL_BADGES_DEFINITION = [
   { slug: 'iron_operator', label: 'Iron Operator', icon: 'ri-robot-line', color: '#ef4444', description: 'Conquista Lendária: Elite em Rating, Nível e Organização.' },
   { slug: 'weekend_warrior', label: 'Guerreiro de Fim de Semana', icon: 'ri-calendar-event-line', color: '#10b981', description: 'Operador com disponibilidade total para sábados e domingos.' },
   { slug: 'specialized_professional', label: 'Especialista Civil', icon: 'ri-briefcase-line', color: '#6366f1', description: 'Perfil profissional preenchido para networking no time.' },
-  { slug: 'blood_type_ready', label: 'Ficha Médica Vital', icon: 'ri-heart-pulse-line', color: '#ef4444', description: 'Tipo sanguíneo e contato de emergência devidamente configurados.' }
+  { slug: 'blood_type_ready', label: 'Ficha Médica Vital', icon: 'ri-heart-pulse-line', color: '#ef4444', description: 'Tipo sanguíneo e contato de emergência devidamente configurados.' },
+  { slug: 'bench_master', label: 'Mestre da Bancada', icon: 'ri-hammer-fill', color: '#f59e0b', description: 'Operador com mais de 10 manutenções concluídas no histórico.' },
+  { slug: 'upgrade_expert', label: 'Especialista em Performance', icon: 'ri-rocket-2-line', color: '#8b5cf6', description: 'Realizou manutenções focadas em upgrades e melhoria de desempenho.' },
+  { slug: 'detailed_tech', label: 'Técnico Detalhista', icon: 'ri-file-list-2-line', color: '#3b82f6', description: 'Preenche relatórios técnicos detalhados para o histórico do time.' },
+  { slug: 'combat_engineer', label: 'Engenheiro de Combate', icon: 'ri-settings-5-line', color: '#ef4444', description: 'Possui um histórico vasto de reparos e revisões complexas.' }
 ];
 
 export const AVAILABILITY_TYPES = [
@@ -692,3 +696,14 @@ export const MAINTENANCE_STATUS_TYPES = [
   { label: 'Concluído', value: 'completed' },
   { label: 'Na Bancada', value: 'bench' },
 ]
+
+export const SCHEDULE_TYPES = {
+  training: { label: 'Treino de Arena', severity: 'danger' },
+  maintenance: { label: 'Manutenção de Arena', severity: 'warn' }
+};
+
+export const SCHEDULE_STATUS = {
+  scheduled: { label: 'Agendado', severity: 'secondary' },
+  completed: { label: 'Concluído', severity: 'success' },
+  canceled: { label: 'Cancelado', severity: 'danger' }
+};

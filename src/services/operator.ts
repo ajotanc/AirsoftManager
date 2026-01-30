@@ -101,8 +101,9 @@ export const OperatorService = {
         databaseId: DATABASE_ID,
         tableId: TABLE_OPERATORS,
         queries: [
-          Query.equal("status", true),
           Query.orderAsc("codename"),
+          Query.select(["*", "arsenal.*", "loadout.*"]),
+          Query.equal("status", true),
         ],
       });
 

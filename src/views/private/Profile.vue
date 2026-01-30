@@ -344,6 +344,20 @@
         </Panel>
 
         <div class="grid formgrid">
+          <span>Estatuto e Conduta da equipe <strong>{{ TEAM_NAME }}</strong></span>
+          <ScrollPanel @scroll.capture="handleScroll" class="col-12 border-1 border-gray-400 border-round mt-3 p-3"
+            style="width: 100%; height: 200px">
+            <p class="m-0 line-height-2">
+              Lorem ipsum dolor sit amet consectetur adipisicing elit. Facilis nesciunt a corporis inventore at quasi,
+              fuga, provident ex voluptate harum, accusantium modi laudantium laborum sunt ut aliquam quis soluta
+              recusandae id ipsam itaque quas corrupti? Voluptates fugiat ipsam sapiente quas minima maiores, quibusdam
+              incidunt vitae doloremque neque perferendis libero quasi quis explicabo. Incidunt, labore odio animi
+              ducimus officiis iusto reiciendis velit dolore quis sunt accusantium hic natus ratione odit quos optio,
+              suscipit corrupti pariatur qui voluptas repellat quaerat fugit, eum exercitationem. Nobis, cupiditate
+              numquam quod magnam corporis similique vero veritatis quaerat inventore quo repudiandae ab temporibus
+              delectus labore laboriosam. Unde.
+            </p>
+          </ScrollPanel>
           <div class="col-12 mt-4">
             <FormField name="media_consent" v-slot="$field" class="flex align-items-center mb-3">
               <Checkbox v-model="$field.value" binary inputId="media_consent" />
@@ -352,7 +366,7 @@
 
             <FormField name="terms_accepted" v-slot="$field" class="flex flex-column gap-1">
               <div class="flex align-items-center">
-                <Checkbox v-model="$field.value" binary inputId="terms_accepted" />
+                <Checkbox v-model="$field.value" binary inputId="terms_accepted" :disabled="!canAccept" />
                 <label :for="$field.props.name" class="ml-2">Li e aceito os termos de serviço e regulamento
                   interno.</label>
               </div>
@@ -362,8 +376,8 @@
           </div>
         </div>
 
-        <div class="mt-4">
-          <Button type="submit" label="Salvar" :loading="loading" />
+        <div class="col-12">
+          <Button type="submit" label="Salvar" :loading="loading" :disabled="!canAccept" />
         </div>
       </Form>
     </div>
@@ -398,7 +412,7 @@ import {
 import { useOperator } from "@/composables/useOperator";
 import { OperatorService, type IOperator } from "@/services/operator";
 
-import { CATEGORIES_OPTIONS, SOURCES, SHIRT_SIZES, BLOOD_TYPES, EXPERIENCES, ALLERGIES, MEDICATIONS, AVAILABILITY_TYPES, PROFESSION_TYPES } from "@/constants/airsoft";
+import { CATEGORIES_OPTIONS, SOURCES, SHIRT_SIZES, BLOOD_TYPES, EXPERIENCES, ALLERGIES, MEDICATIONS, AVAILABILITY_TYPES, PROFESSION_TYPES, TEAM_NAME } from "@/constants/airsoft";
 import { BadgeService } from "@/services/badge";
 
 const { updateState, operator } = useOperator();
@@ -408,6 +422,7 @@ const toast = useToast();
 
 const loading = ref(false);
 const loadingAvatar = ref(false);
+const canAccept = ref(false);
 
 const form = ref();
 
@@ -568,6 +583,13 @@ const handleUpdateAvatar = async (event: Event) => {
   } finally {
     loadingAvatar.value = false;
   }
+};
+
+const handleScroll = (event: Event) => {
+  const target = event.target as HTMLElement;
+  const bottomReached = target.scrollTop + target.clientHeight >= target.scrollHeight - 5;
+
+  canAccept.value = bottomReached;
 };
 
 </script>

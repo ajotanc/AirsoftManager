@@ -142,7 +142,7 @@ const saveVehicle = async ({ valid, values }: any) => {
     });
   } catch (error: any) {
     console.error("Erro ao salvar:", error);
-    toast.add({ severity: "error", summary: "Erro", detail: "Falha ao registrar o visitante.", life: 3000 });
+    toast.add({ severity: "error", summary: "Erro", detail: "Falha ao registrar o veículo.", life: 3000 });
   } finally {
     hideDialog();
   }
