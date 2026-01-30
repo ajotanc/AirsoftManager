@@ -1,5 +1,5 @@
 import { Context } from "@netlify/edge-functions";
-import { Client, TablesDB } from "https://deno.land/x/appwrite/mod.ts";
+import { Client, Databases } from "https://deno.land/x/appwrite/mod.ts";
 
 export default async (request: Request, context: Context) => {
   const url = new URL(request.url);
@@ -19,13 +19,13 @@ export default async (request: Request, context: Context) => {
     const client = new Client();
     client.setEndpoint(ENDPOINT!).setProject(PROJECT_ID!);
 
-    const tables = new TablesDB(client);
+    const databases = new Databases(client);
 
-    const event = await tables.getRow({
-      databaseId: DATABASE_ID,
-      tableId: TABLE_ID,
+    const event = await databases.getDocument(
+      DATABASE_ID,
+      TABLE_ID,
       rowId
-    });
+    );
 
     const originalResponse = await context.next();
     const html = await originalResponse.text();
