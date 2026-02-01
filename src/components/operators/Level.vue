@@ -57,12 +57,12 @@
                 </div>
             </div>
 
-            <div class="flex gap-3 mt-1">
-                <a :href="`https://wa.me/+55${operator.phone}?text=Ol%C3%A1%20${operator.codename}%2C%20vim%20atrav%C3%A9s%20do%20aplicativo%20da%20%2A${TEAM_NAME}%2A%2C%20gostaria%20de%20saber%20mais%20sobre%20seus%20servi%C3%A7os%21`"
+            <div v-if="operator.phone || operator.instagram" class="flex gap-3 mt-1">
+                <a v-if="operator.phone" :href="`https://wa.me/+55${operator.phone}?text=Ol%C3%A1%20${operator.codename}%2C%20vim%20atrav%C3%A9s%20do%20aplicativo%20da%20%2A${TEAM_NAME}%2A%2C%20gostaria%20de%20saber%20mais%20sobre%20seus%20servi%C3%A7os%21`"
                     target="_blank" class="no-underline text-green-500 hover:scale-110 transition-transform">
                     <i class="pi pi-whatsapp text-xl"></i>
                 </a>
-                <a :href="`https://instagram.com/${operator.instagram}`" target="_blank"
+                <a v-if="operator.instagram" :href="`https://instagram.com/${operator.instagram}`" target="_blank"
                     class="no-underline text-purple-500 hover:scale-110 transition-transform">
                     <i class="pi pi-instagram text-xl"></i>
                 </a>

@@ -707,3 +707,10 @@ export const SCHEDULE_STATUS = {
   completed: { label: 'Concluído', severity: 'success' },
   canceled: { label: 'Cancelado', severity: 'danger' }
 };
+
+export const VEHICLE_TYPES = {
+  car: { label: 'Carro', severity: undefined },
+  motorcycle: { label: 'Moto', severity: 'secondary' },
+  van: { label: 'VAN', severity: 'danger' },
+  bus: { label: 'Ônibus', severity: 'warn' },
+};

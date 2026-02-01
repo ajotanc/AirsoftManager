@@ -2,9 +2,15 @@
   <div v-if="!isActiveOperator" class="col-12">
     <Card class="border-top-3 border-red-500 text-center">
       <template #content>
-        <i class="pi pi-lock text-4xl text-red-500 mb-3"></i>
-        <h2>Aguardando Aprovação</h2>
-        <p>Aguardando validação do comando.</p>
+        <div class="flex flex-column gap-3">
+          <i class="pi pi-lock text-4xl text-red-500"></i>
+          <h2 class="m-0">Aguardando Aprovação</h2>
+          <div class="flex flex-column gap-1">
+            <span>Aguardando validação do comando.</span>
+            <span>Finalize o seu cadastro, <span class="font-bold cursor-pointer text-red-500"
+                @click="$router.push('/profile')">clique aqui</span>!</span>
+          </div>
+        </div>
       </template>
     </Card>
   </div>

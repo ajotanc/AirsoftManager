@@ -345,8 +345,7 @@
 
         <div class="grid formgrid">
           <span>Estatuto e Conduta da equipe <strong>{{ TEAM_NAME }}</strong></span>
-          <ScrollPanel @scroll.capture="handleScroll" class="col-12 border-1 border-gray-400 border-round mt-3 p-3"
-            style="width: 100%; height: 200px">
+          <ScrollPanel @scroll.capture="handleScroll" class="col-12 border-1 border-gray-400 border-round mt-3 p-3" style="height: 22.5rem;">
             <p class="m-0 line-height-2">
               Lorem ipsum dolor sit amet consectetur adipisicing elit. Facilis nesciunt a corporis inventore at quasi,
               fuga, provident ex voluptate harum, accusantium modi laudantium laborum sunt ut aliquam quis soluta
@@ -357,6 +356,36 @@
               numquam quod magnam corporis similique vero veritatis quaerat inventore quo repudiandae ab temporibus
               delectus labore laboriosam. Unde.
             </p>
+            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Natus sequi, explicabo, omnis sunt ut id
+              blanditiis assumenda cumque libero ipsa eum quibusdam modi reprehenderit fuga perferendis nisi, tempora
+              esse fugit neque soluta voluptas aliquid qui! Ea debitis maxime repellendus perspiciatis explicabo
+              similique excepturi aspernatur minima. Blanditiis voluptas vitae et quas reiciendis corporis, cumque neque
+              libero, accusamus necessitatibus doloremque nihil odio maxime ducimus enim, alias distinctio! Tenetur
+              dolore expedita vero quaerat nihil incidunt qui explicabo consequuntur excepturi rerum obcaecati,
+              accusamus nulla, animi repudiandae quis porro natus sint. Beatae itaque rerum accusantium, impedit quia
+              odio minus. Animi temporibus aliquam rerum, dolore eius necessitatibus distinctio quas soluta hic,
+              expedita provident! Magni perferendis in dolore, ipsa modi architecto reiciendis laudantium mollitia non
+              quos nesciunt quisquam facilis quas aspernatur eum necessitatibus voluptatem voluptatum aliquam
+              asperiores. Perferendis sit magnam odio numquam. Omnis laudantium vitae, iusto quas dolores dolorem
+              deleniti hic. Est sapiente aperiam odit odio doloremque incidunt sint? Nostrum, ab iste quos dolores
+              dignissimos amet, soluta veniam deleniti, inventore provident itaque voluptatibus quae optio perferendis
+              maiores minima dolor cupiditate modi. Perspiciatis quae voluptatibus aspernatur sit facilis sunt, id
+              distinctio ab itaque autem eaque molestiae dolore vel laborum voluptatum? Modi culpa nesciunt ratione
+              adipisci qui aspernatur repudiandae reprehenderit ab, a placeat hic praesentium sed! Cum quidem quas id
+              consequuntur ipsum facilis, omnis incidunt iure ut odio quo consequatur modi possimus enim similique
+              suscipit, non aperiam, repellendus mollitia. Quae rerum quod aperiam molestiae magni, reprehenderit aut
+              voluptas. Quis voluptate hic nulla accusamus libero cupiditate nostrum itaque, ea quidem, dolor
+              reprehenderit eos odio repellat reiciendis nesciunt iusto at totam vel minus deleniti exercitationem unde
+              quod rem. Officia cumque dolor omnis accusantium. Atque repellat eveniet magni, quis officia consectetur,
+              ratione praesentium neque alias minima delectus, eaque maiores sed! Laborum, nisi? Porro nemo laborum
+              error labore sint accusamus voluptate odit. Explicabo nisi doloribus distinctio quia mollitia, omnis,
+              ratione soluta maxime quidem sunt autem recusandae eos cumque repellat sapiente. Ipsum ex earum eum eaque
+              doloribus incidunt eos at? Expedita, dicta quam? Deserunt ex voluptate nam distinctio. Ipsa quis officia
+              sapiente excepturi, hic dolorum nobis rem quibusdam nisi ipsam? Maiores eius quos inventore voluptatem
+              facilis quas consequuntur excepturi, hic tenetur porro, deleniti rem dolor cupiditate. Architecto eius
+              totam et iste magnam illum dicta eaque sint ratione autem nobis aliquam, fugit eos quae, soluta
+              necessitatibus inventore dolore! Impedit magnam ratione accusantium adipisci nostrum nam repellendus in,
+              harum quidem. Pariatur et magnam aut recusandae vitae.</p>
           </ScrollPanel>
           <div class="col-12 mt-4">
             <FormField name="media_consent" v-slot="$field" class="flex align-items-center mb-3">
@@ -366,7 +395,7 @@
 
             <FormField name="terms_accepted" v-slot="$field" class="flex flex-column gap-1">
               <div class="flex align-items-center">
-                <Checkbox v-model="$field.value" binary inputId="terms_accepted" :disabled="!canAccept" />
+                <Checkbox v-model="$field.value" binary inputId="terms_accepted" />
                 <label :for="$field.props.name" class="ml-2">Li e aceito os termos de serviço e regulamento
                   interno.</label>
               </div>

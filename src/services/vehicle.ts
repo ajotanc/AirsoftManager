@@ -4,9 +4,11 @@ import type { IOperator } from "./operator";
 
 export const TABLE_VEHICLES = "vehicles";
 
+export type IVehicleType = 'car' | 'motorcycle' | 'van' | 'bus';
+
 export interface IVehicle<Tv = string | IOperator> extends Models.Row {
   driver: Tv;
-  type: 'car' | 'motorcycle';
+  type: IVehicleType;
   brand: string;
   model: string;
   color?: string;

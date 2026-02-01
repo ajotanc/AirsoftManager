@@ -293,7 +293,7 @@
                         <template #option="slotProps">
                             <div class="flex flex-column">
                                 <span class="font-bold">{{ slotProps.option.name }} ({{ slotProps.option.codename
-                                }})</span>
+                                    }})</span>
                                 <small class="text-gray-500">Convidado por {{
                                     slotProps.option.operator.codename }}</small>
                             </div>
@@ -619,8 +619,8 @@ const editCarpool = async (carpool: ICarpool<IVehicle>) => {
 };
 
 const getVehicleCapacity = (vehicleId: string | IVehicle) => {
-    const vehicle = availableVehicles.value.find(v => v?.$id === vehicleId);
-    return vehicle ? vehicle.total_seats : 300;
+    const vehicle = availableVehicles.value.find(v => v?.$id === vehicleId)!;
+    return vehicle.total_seats;
 };
 // CARPOOLS
 

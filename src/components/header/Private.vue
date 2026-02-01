@@ -11,16 +11,16 @@
       <router-link v-if="item.route && !item.disabled" v-slot="{ href, navigate, isActive }" :to="item.route" custom>
         <a :href="href" v-bind="props.action" @click="navigate" :class="{ 'text-primary font-bold': isActive }"
           class="no-underline">
-          <span :class="item.icon" />
-          <span class="ml-2">{{ item.label }}</span>
+          <i :class="item.icon" />
+          <span>{{ item.label }}</span>
         </a>
       </router-link>
 
       <a v-else v-bind="props.action" :class="{ 'opacity-50 cursor-not-allowed pointer-events-none': item.disabled }"
         class="flex align-items-center no-underline">
-        <span :class="item.icon" />
-        <span class="ml-2">{{ item.label }}</span>
-        <span v-if="hasSubmenu" class="pi pi-angle-down ml-2" />
+        <i :class="item.icon" />
+        <span>{{ item.label }}</span>
+        <span v-if="hasSubmenu" class="pi pi-angle-down" />
       </a>
     </template>
 
@@ -212,31 +212,39 @@ const navItems = computed<IMenu[]>(() => [
     ],
   },
   {
-    label: "Financeiro",
-    icon: "ri-bank-line",
+    label: "Administrativo",
+    icon: "ri-briefcase-line",
     visible: authStore.isActiveOperator,
     items: [
       {
-        label: "Meus Pagamentos",
-        icon: "ri-wallet-line",
-        route: "/finance/payments",
+        label: "Cronograma",
+        icon: "ri-calendar-schedule-line",
+        route: "/schedules",
+        visible: authStore.isActiveOperator,
       },
       {
-        label: "Transparência",
-        icon: "ri-auction-line",
-        route: "/finance/cashflow",
+        label: "Financeiro",
+        icon: "ri-bank-line",
+        visible: authStore.isActiveOperator,
+        items: [
+          {
+            label: "Meus Pagamentos",
+            icon: "ri-wallet-line",
+            route: "/finance/payments",
+          },
+          {
+            label: "Transparência",
+            icon: "ri-auction-line",
+            route: "/finance/cashflow",
+          },
+        ],
       },
-    ],
-  },
-  {
-    label: "Cronograma",
-    icon: "ri-calendar-schedule-line",
-    route: "/schedules",
-    visible: authStore.isActiveOperator,
+
+    ]
   },
   {
     label: "Gestão",
-    icon: "ri-briefcase-line",
+    icon: "ri-briefcase-4-line",
     visible: authStore.isManager,
     items: [
       {

@@ -5,7 +5,7 @@
         chooseIcon="pi pi-image" />
       <Button severity="danger" icon="pi pi-times" :disabled="!img" @click="img = null" />
       <Button label="Download" icon="pi pi-instagram" @click="downloadCard" :loading="generatingImage" severity="help"
-        raised />
+        raised :disabled="!operator.avatar && !img" />
     </div>
 
     <div ref="cardRef" class="card-wrapper text-gray-100">

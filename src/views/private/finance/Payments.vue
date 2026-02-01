@@ -2,6 +2,14 @@
   <div class="card">
     <AppTable title="Pagamento(s)" resourceName="transações" :value="payments" :fields="fields" :loading="loading">
       <template #extra-columns-end>
+        <Column header="Atraso">
+          <template #body="{ data }">
+            <Skeleton v-if="loading" width="100%" height="1rem" />
+            <template v-else>
+              <Tag v-if="invoice(data).overdue" :value="invoice(data).days" severity="danger" />
+            </template>
+          </template>
+        </Column>
         <Column header="Comprovante">
           <template #body="{ data }">
             <Skeleton v-if="loading" width="100%" height="1rem" />
@@ -77,7 +85,7 @@ const accessAdmin = computed(() => {
 })
 
 const fields = computed<IFields[]>(() => [
-  { name: "operator.codename", label: "Operador", component: InputText, col: "6", show: !accessAdmin.value },
+  { name: "operator.codename", label: "Operador", component: InputText, col: "6", hiddenTable: !accessAdmin.value },
   { name: "reference", label: "Referência", component: InputText, col: "6" },
   {
     name: "due_date", label: "Data de Vencimento", component: DatePicker, col: "6", props: {
@@ -144,7 +152,7 @@ const confirmPayment = (payment: IPayment) => {
 
   confirm.require({
     message: 'Você tem certeza que deseja confirmar este pagamento?',
-    header: `${payment.description} · ${operator.codename}`,
+    header: `${payment.description} · ${operator.codename} `,
     rejectProps: {
       label: 'Não',
       severity: 'secondary',
@@ -181,4 +189,16 @@ const confirmPayment = (payment: IPayment) => {
     },
   });
 };
+
+const invoice = (payment: IPayment) => {
+  const today = dayjs();
+  const dueDate = dayjs(payment?.due_date);
+
+  const days = today.diff(dueDate, 'days');
+
+  return {
+    overdue: today.isAfter(dueDate),
+    days: `${days} dia${days > 1 ? 's' : ''}`
+  }
+}
 </script>
