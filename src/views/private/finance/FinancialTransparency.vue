@@ -26,7 +26,7 @@
               </div>
             </div>
             <div class="bg-yellow-200 border-round w-3rem h-3rem flex align-items-center justify-content-center">
-              <i class="pi pi-users text-xl text-yellow-900"></i>
+              <i class="ri-team-line text-xl text-yellow-900"></i>
             </div>
           </div>
 
@@ -49,7 +49,7 @@
               <div class="font-bold text-xl">{{ formatCurrency(totalBalance) }}</div>
             </div>
             <div class="bg-blue-200 border-round w-3rem h-3rem flex align-items-center justify-content-center">
-              <i class="pi pi-wallet text-xl"></i>
+              <i class="ri-wallet-line text-xl"></i>
             </div>
           </div>
           <div class="mt-2 text-sm font-medium">Acumulado em {{ selectedYear }}</div>
@@ -65,7 +65,7 @@
               <div class="font-bold text-xl">+ {{ formatCurrency(totalIncomes) }}</div>
             </div>
             <div class="bg-green-200 border-round w-3rem h-3rem flex align-items-center justify-content-center">
-              <i class="pi pi-arrow-up  text-xl"></i>
+              <i class="ri-arrow-up-line text-xl"></i>
             </div>
           </div>
           <div class="mt-2 text-sm font-bold">
@@ -86,7 +86,7 @@
               <div class="text-red-900 font-bold text-xl">- {{ formatCurrency(totalExpenses) }}</div>
             </div>
             <div class="bg-red-200 border-round w-3rem h-3rem flex align-items-center justify-content-center">
-              <i class="pi pi-arrow-down text-red-900 text-xl"></i>
+              <i class="ri-arrow-down-line text-red-900 text-xl"></i>
             </div>
           </div>
           <div class="mt-2 text-sm font-bold text-red-900">

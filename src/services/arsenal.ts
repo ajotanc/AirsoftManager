@@ -1,9 +1,5 @@
 import { deleteFile, uploadFile } from "@/functions/utils";
-import {
-  tables,
-  TABLE_ARSENALS,
-  DATABASE_ID
-} from "@/services/appwrite";
+import { tables, TABLE_ARSENALS, DATABASE_ID } from "@/services/appwrite";
 import { ID, Query, type Models } from "appwrite";
 
 export interface IArsenal extends Models.Row {
@@ -17,6 +13,7 @@ export interface IArsenal extends Models.Row {
   maintenance_at: Date | string | null;
   operator: string;
   is_favorite: boolean | null;
+  is_secondary: boolean | null;
 }
 
 export const ArsenalService = {
@@ -54,7 +51,7 @@ export const ArsenalService = {
         tableId: TABLE_ARSENALS,
         queries: [
           Query.orderDesc("$createdAt"),
-          Query.equal("operator", operatorId)
+          Query.equal("operator", operatorId),
         ],
       });
 
@@ -93,7 +90,7 @@ export const ArsenalService = {
     });
   },
   async delete(rowId: string) {
-    await deleteFile(rowId, 'nfe');
+    await deleteFile(rowId, "nfe");
 
     return await tables.deleteRow({
       databaseId: DATABASE_ID,
@@ -102,7 +99,7 @@ export const ArsenalService = {
     });
   },
   async uploadInvoice(rowId: string, file: File) {
-    const urlFormatted = await uploadFile(rowId, file, 'nfe');
+    const urlFormatted = await uploadFile(rowId, file, "nfe");
 
     return await tables.updateRow({
       databaseId: DATABASE_ID,

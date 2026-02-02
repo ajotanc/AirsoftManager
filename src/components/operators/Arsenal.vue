@@ -291,23 +291,27 @@ const fields = computed<IFields[]>(() => [
     },
     isTag: true
   },
-  { name: "fps", label: "FPS", component: InputNumber, col: '6' },
+  { name: "fps", label: "FPS", component: InputNumber, col: '4' },
   {
-    name: "joule", label: "Joule", component: InputMask, col: '6', props: {
+    name: "joule", label: "Joule", component: InputMask, col: '4', props: {
       mask: "9.99", inputmode: "numeric"
     }
   },
   {
-    name: "maintenance_at", label: "Última Manutenção", component: DatePicker, col: '6',
+    name: "maintenance_at", label: "Última Manutenção", component: DatePicker, col: '4',
     props: {
       dateFormat: "dd/mm/yy", showIcon: true, showButtonBar: true, iconDisplay: "input", showOnFocus: true
     }
   },
   {
-    name: "is_favorite", label: "Arma Favorita", component: ToggleSwitch, col: '12',
+    name: "is_favorite", label: "Arma Favorita", component: ToggleSwitch, col: '6',
     isHtml: true,
     icon: PrimeIcons.STAR_FILL,
     iconColor: 'yellow',
+  },
+  {
+    name: "is_secondary", label: "Arma Secundária", component: ToggleSwitch, col: '6',
+    isHtml: true,
   }
 ]);
 
