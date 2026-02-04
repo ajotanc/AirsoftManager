@@ -70,6 +70,10 @@ const router = createRouter({
           component: () => import("../views/private/games/PlayerCard.vue"),
         },
         {
+          path: "game/card",
+          component: () => import("../views/private/games/Card.vue"),
+        },
+        {
           path: "/schedules",
           component: () => import("../views/private/Schedules.vue"),
         },

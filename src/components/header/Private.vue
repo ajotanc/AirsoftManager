@@ -205,6 +205,11 @@ const navItems = computed<IMenu[]>(() => [
         route: "/game/ratings",
       },
       {
+        label: "Carteira",
+        icon: "ri-id-card-line",
+        route: "/game/card",
+      },
+      {
         label: "Player Card",
         icon: "ri-shield-user-line",
         route: "/game/player-card",
