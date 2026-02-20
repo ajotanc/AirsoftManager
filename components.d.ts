@@ -11,10 +11,6 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
-    Accordion: typeof import('primevue/accordion')['default']
-    AccordionContent: typeof import('primevue/accordioncontent')['default']
-    AccordionHeader: typeof import('primevue/accordionheader')['default']
-    AccordionPanel: typeof import('primevue/accordionpanel')['default']
     AdminBadgeScanner: typeof import('./src/components/AdminBadgeScanner.vue')['default']
     AppFormDialog: typeof import('./src/components/AppFormDialog.vue')['default']
     AppTable: typeof import('./src/components/AppTable.vue')['default']
@@ -36,7 +32,6 @@ declare module 'vue' {
     ConfirmDialog: typeof import('primevue/confirmdialog')['default']
     DatePicker: typeof import('primevue/datepicker')['default']
     Details: typeof import('./src/components/operators/Details.vue')['default']
-    Dialog: typeof import('primevue/dialog')['default']
     Divider: typeof import('primevue/divider')['default']
     Drawer: typeof import('primevue/drawer')['default']
     Empty: typeof import('./src/components/Empty.vue')['default']
@@ -61,7 +56,6 @@ declare module 'vue' {
     Menubar: typeof import('primevue/menubar')['default']
     Message: typeof import('primevue/message')['default']
     OperatorSkeleton: typeof import('./src/components/skeleton/OperatorSkeleton.vue')['default']
-    Panel: typeof import('primevue/panel')['default']
     Password: typeof import('primevue/password')['default']
     PaymentDialog: typeof import('./src/components/PaymentDialog.vue')['default']
     Private: typeof import('./src/components/header/Private.vue')['default']

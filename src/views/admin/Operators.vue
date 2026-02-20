@@ -170,6 +170,8 @@ onMounted(() => {
 const loadServices = async () => {
   try {
     operators.value = await OperatorService.list();
+
+    console.log(operators.value.map(op => op.name).join('\n'))
   } catch (error) {
     console.error("Erro ao carregar serviços:", error);
     toast.add({ severity: 'error', summary: 'Erro', detail: 'Falha ao carregar dados.' });

@@ -102,6 +102,11 @@ const router = createRouter({
             import("../views/private/finance/FinancialTransparency.vue"),
         },
         {
+          path: "/verify/operator/:id",
+          name: "verify-operator",
+          component: () => import("../views/public/VerifyOperator.vue"),
+        },
+        {
           path: "admin/operators",
           component: () => import("../views/admin/Operators.vue"),
         },

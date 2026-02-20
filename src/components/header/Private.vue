@@ -208,6 +208,7 @@ const navItems = computed<IMenu[]>(() => [
         label: "Carteira",
         icon: "ri-id-card-line",
         route: "/game/card",
+        visible: authStore.isManager,
       },
       {
         label: "Player Card",

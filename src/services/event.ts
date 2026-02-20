@@ -90,7 +90,7 @@ export const EventService = {
             "visitor_participations.*",
             "visitor_participations.visitor.*"
           ]),
-          Query.orderDesc("date")
+          Query.orderAsc("date")
         ],
       });
       return response.rows;

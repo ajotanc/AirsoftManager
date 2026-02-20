@@ -87,7 +87,7 @@
                 <Card class="bg-blue-900 border-1 border-white-alpha-10 mb-4">
                     <span class="text-green-500">Controle de Operação</span>
                     <template #content>
-                        <div v-if="operator.role === 'admin'" class="buttons flex flex-column gap-2 mb-3">
+                        <div v-if="isAdmin || isAdministrativeManagement" class="buttons flex flex-column gap-2 mb-3">
                             <Button v-if="canFinalize" label="Finalizar" icon="pi pi-check" severity="secondary"
                                 class="w-full" @click="finalizeEvent" :disabled="isFinished" />
                             <Button label="Check-in QR Code" icon="pi pi-qrcode" class="w-full" severity="success"
@@ -293,7 +293,7 @@
                         <template #option="slotProps">
                             <div class="flex flex-column">
                                 <span class="font-bold">{{ slotProps.option.name }} ({{ slotProps.option.codename
-                                    }})</span>
+                                }})</span>
                                 <small class="text-gray-500">Convidado por {{
                                     slotProps.option.operator.codename }}</small>
                             </div>
@@ -386,7 +386,7 @@ const route = useRoute();
 const toast = useToast();
 const confirm = useConfirm();
 
-const { operator } = useOperator();
+const { operator, isAdmin, authStore: { isAdministrativeManagement } } = useOperator();
 
 const rawEvent = ref<IEvent>({} as IEvent);
 const participants = ref<IParticipation<IOperator>[]>([]);

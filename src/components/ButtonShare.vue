@@ -31,7 +31,7 @@ const shareNative = async () => {
 
   const participations = eventData.participations as IParticipation<IOperator>[];
   const operators = participations.map(({ checked_in, operator: { codename } }, i) => {
-    const index = (i + 1).toString().padStart((participations.length.toString().length + 1), '0');
+    const index = (i + 1).toString().padStart((participations.length.toString().length), '0');
     const name = codename.trim();
 
     if (is_finished) {
@@ -47,7 +47,7 @@ const shareNative = async () => {
 
   const visitor_participations = eventData.visitor_participations as IVisitorParticipation<IVisitor>[];
   const visitors = visitor_participations.map(({ checked_in, visitor: { codename, team } }, i) => {
-    const index = (i + 1).toString().padStart((visitor_participations.length.toString().length + 1), '0');
+    const index = (i + 1).toString().padStart((visitor_participations.length.toString().length), '0');
     const name = codename.trim();
 
     if (is_finished) {
