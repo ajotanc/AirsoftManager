@@ -1,5 +1,5 @@
 <template>
-  <Card class="mt-4 border-round shadow-2">
+  <Card>
     <template #title>
       <div class="flex align-items-center gap-2 text-primary">
         <i class="ri-radar-line text-2xl"></i>

@@ -10,6 +10,7 @@
     "generate-pwa-assets": "pwa-assets-generator --preset minimal-2023 public/exd.webp"
   },
   "dependencies": {
+    "@brazilian-utils/brazilian-utils": "^2.0.0",
     "@netlify/edge-functions": "^3.0.3",
     "@primevue/forms": "^4.5.3",
     "@primevue/themes": "^4.5.3",

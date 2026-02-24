@@ -55,6 +55,17 @@
     </div>
     <div v-if="isAdmin" class="col-12">
       <AdminBadgeScanner />
+      <Card class="mt-2">
+        <template #title>
+          <div class="flex align-items-center gap-2 text-primary">
+            <i class="ri-id-card-line text-2xl"></i>
+            <span>Verificar Operador</span>
+          </div>
+        </template>
+        <template #content>
+          <Button label="QR Code" icon="pi pi-qrcode" class="camera-switch p-button-outlined mt-2" @click="openScannerDialog = true" />
+        </template>
+      </Card>
     </div>
     <div class="col-12">
       <Card>
@@ -81,6 +92,9 @@
       </Card>
     </div>
   </div>
+
+  <AppScanner v-model:visible="openScannerDialog" @detect="onDetect" header="QR Code" />
+
 </template>
 
 <script setup lang="ts">
@@ -96,12 +110,16 @@ import OperatorList from "@/components/operators/List.vue";
 import GoalList from "@/components/GoalList.vue";
 import { useOperator } from "@/composables/useOperator";
 import ArenaSchedule from "@/components/ArenaSchedule.vue";
+import router from "@/router";
+import AppScanner from "@/components/AppScanner.vue";
 
 const { operator, isActiveOperator, isAdmin } = useOperator();
 const { $id, arsenal, loadout } = operator.value;
 
 const payments = ref<IPayment[]>([]);
 const loading = ref(true);
+
+const openScannerDialog = ref(false);
 
 onMounted(loadServices);
 
@@ -118,4 +136,10 @@ async function loadServices() {
 }
 
 const openPayments = computed(() => payments.value.filter(p => p.status === 'created'));
+
+
+function onDetect(operatorId?: string) {
+  router.push(`/verify/operator/${operatorId}`);
+};
+
 </script>

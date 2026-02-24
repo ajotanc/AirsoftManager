@@ -30,17 +30,17 @@
 
         <Column expander style="width: 5rem" />
         <Column header="Avatar">
-          <template #body="{ data: { avatar } }">
+          <template #body="{ data: { $id, avatar } }">
             <Skeleton v-if="loading" width="100%" height="1rem" />
             <template v-else>
               <Avatar :image="avatar" :icon="!avatar ? 'pi pi-user' : undefined" class="mr-2" size="xlarge"
-                shape="circle" />
+                shape="circle" @click="$router.push(`/verify/operator/${$id}`)" />
             </template>
           </template>
         </Column>
 
         <Column header="Codinome">
-          <template #body="{ data: { name, codename } }">
+          <template #body="{ data: { $id, name, codename } }">
             <Skeleton v-if="loading" width="100%" height="1rem" />
             <template v-else>
               <div class="flex flex-column">
@@ -87,7 +87,7 @@
           </template>
         </Column>
 
-        <Column :rowEditor="true" bodyStyle="text-align: right;"></Column>
+        <Column :rowEditor="true" bodyStyle="text-align: right;" />
 
         <template #expansion="{ data: operator }">
           <Details :operator="operator" />

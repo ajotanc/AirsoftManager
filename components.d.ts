@@ -13,6 +13,7 @@ declare module 'vue' {
   export interface GlobalComponents {
     AdminBadgeScanner: typeof import('./src/components/AdminBadgeScanner.vue')['default']
     AppFormDialog: typeof import('./src/components/AppFormDialog.vue')['default']
+    AppScanner: typeof import('./src/components/AppScanner.vue')['default']
     AppTable: typeof import('./src/components/AppTable.vue')['default']
     ArenaSchedule: typeof import('./src/components/ArenaSchedule.vue')['default']
     Arsenal: typeof import('./src/components/operators/Arsenal.vue')['default']
@@ -26,6 +27,7 @@ declare module 'vue' {
     ButtonShare: typeof import('./src/components/ButtonShare.vue')['default']
     Card: typeof import('primevue/card')['default']
     Carousel: typeof import('primevue/carousel')['default']
+    Chip: typeof import('primevue/chip')['default']
     ColorPicker: typeof import('primevue/colorpicker')['default']
     Column: typeof import('primevue/column')['default']
     ColumnContent: typeof import('./src/components/ColumnContent.vue')['default']
