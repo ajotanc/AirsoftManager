@@ -2,7 +2,7 @@
   <div class="w-full flex flex-column align-items-center">
     <div v-if="buttons" class="flex gap-2 mb-3">
       <FileUpload mode="basic" @select="onFileSelect" customUpload auto chooseLabel="Trocar Imagem"
-        chooseIcon="pi pi-image" />
+        chooseIcon="pi pi-image" accept="image/*" />
       <Button severity="danger" icon="pi pi-times" :disabled="!img" @click="img = null" />
       <Button label="Download" icon="pi pi-instagram" @click="downloadCard" :loading="generatingImage" severity="help"
         raised :disabled="!operator.avatar && !img" />
