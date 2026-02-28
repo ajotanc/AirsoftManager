@@ -82,7 +82,7 @@ const displayValue = computed(() => {
     const option = options.find(({ value }: { value: string }) => String(value) === String(val));
 
     if (!option) {
-      return val[props.column.props.optionLabel];
+      return val[props.column.props.optionLabel] || val;
     }
 
     return option ? option.label : val;
