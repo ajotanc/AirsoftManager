@@ -1,4 +1,4 @@
-import { tables, DATABASE_ID } from "@/services/appwrite";
+import { tables, permissions, DATABASE_ID } from "@/services/appwrite";
 import { ID, Query, type Models } from "appwrite";
 import type { IOperator } from "./operator";
 import type { ICarpool } from "./carpool";
@@ -27,6 +27,7 @@ export const CarpoolRequestService = {
         requester,
         status: 'pending'
       },
+      permissions
     });
   },
   async listByCarpools(carpoolIds: string[]): Promise<ICarpoolRequest<IOperator, ICarpool<IVehicle>>[]> {
@@ -47,6 +48,7 @@ export const CarpoolRequestService = {
       tableId: TABLE_CARPOOL_REQUESTS,
       rowId,
       data: { status },
+      permissions
     });
   }
 };

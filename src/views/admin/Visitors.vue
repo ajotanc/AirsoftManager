@@ -14,81 +14,8 @@
       </template>
     </AppTable>
 
-    <Dialog v-model:visible="visitorDialog" header="Visitante" :modal="true"
-      :style="{ width: '100%', maxWidth: '640px' }" class="m-3">
-      <Form ref="form" :resolver="resolver" :initialValues="selectedVisitor" @submit="saveVisitor" class="grid"
-        :key="selectedVisitor.$id || 'new'">
-        <div class="col-12">
-          <FormField name="operator" v-slot="$field" class="flex flex-column gap-1">
-            <FloatLabel variant="in">
-              <Select id="operator" v-model="$field.value" :options="availableOperators" optionLabel="codename"
-                optionValue="$id" class="w-full" :class="{ 'p-invalid': $field.invalid }" fluid>
-                <template #option="slotProps">
-                  <div class="flex align-items-center gap-2">
-                    <Avatar :image="slotProps.option.avatar" :icon="!slotProps.option.avatar ? 'pi pi-user' : undefined"
-                      shape="circle" size="small" />
-                    <span>{{ slotProps.option.codename }}</span>
-                  </div>
-                </template>
-
-                <template #value="slotProps">
-                  <div v-if="slotProps.value" class="flex align-items-center gap-2">
-                    <Avatar :image="availableOperators.find(op => op.$id === slotProps.value)?.avatar" shape="circle"
-                      size="small" />
-                    <span>{{availableOperators.find(op => op.$id ===
-                      slotProps.value)?.codename
-                    }}</span>
-                  </div>
-                </template>
-              </Select>
-              <label for="target">Convite</label>
-            </FloatLabel>
-            <Message v-if="$field.invalid" severity="error" size="small" variant="simple">
-              {{ $field.error?.message }}
-            </Message>
-          </FormField>
-        </div>
-        <template v-for="{ name, label, component, col, hidden, props } in fields" :key="name">
-          <div :class="`col-12 md:col-${col}`" v-if="!hidden">
-            <FormField v-if="component.name === 'ColorPicker'" :name="name" v-slot="$field" class="flex gap-1">
-              <div class="flex flex-column align-items-center gap-2">
-                <label class="font-bold" :for="name">{{ label }}</label>
-                <component :is="component" :id="name" v-bind="props" :name="name" v-model="$field.value" fluid />
-              </div>
-              <Message v-if="$field.invalid" severity="error" size="small" variant="simple">
-                {{ $field.error?.message }}
-              </Message>
-            </FormField>
-            <FormField v-else-if="component.name === 'ToggleSwitch'" :name="name" v-slot="$field" class="flex gap-1">
-              <div class="flex align-items-center gap-2">
-                <component :is="component" :id="name" v-bind="props" :name="name" v-model="$field.value" fluid />
-                <label class="font-bold" :for="name">{{ label }}</label>
-              </div>
-              <Message v-if="$field.invalid" severity="error" size="small" variant="simple">
-                {{ $field.error?.message }}
-              </Message>
-            </FormField>
-            <FormField v-else :name="name" v-slot="$field" class="flex flex-column gap-1">
-              <FloatLabel variant="in">
-                <component :is="component" :id="name" v-bind="props" v-model="$field.value" class="w-full"
-                  :class="{ 'p-invalid': $field.invalid }" fluid />
-                <label :for="name">{{ label }}</label>
-              </FloatLabel>
-
-              <Message v-if="$field.invalid" severity="error" size="small" variant="simple">
-                {{ $field.error?.message }}
-              </Message>
-            </FormField>
-          </div>
-        </template>
-        <div class="col-12 pb-0">
-          <div class="flex justify-content-end gap-2">
-            <Button label="Cancelar" outlined @click="visitorDialog = false" />
-            <Button type="submit" label="Salvar" />
-          </div>
-        </div>
-      </Form>
-    </Dialog>
+    <AppFormDialog v-model:visible="visitorDialog" :header="selectedVisitor.$id ? 'Editar Visitante' : 'Novo Visitante'"
+      :fields="fields" :initialValues="selectedVisitor" :resolver="resolver" @submit="saveVisitor" />
   </div>
 </template>
 
@@ -96,12 +23,8 @@
 import { ref, onMounted, computed } from "vue";
 import { useToast } from "primevue/usetoast";
 import Button from "primevue/button";
-import Dialog from "primevue/dialog";
-import FloatLabel from "primevue/floatlabel";
 import InputText from "primevue/inputtext";
 import Select from "primevue/select";
-import Message from "primevue/message";
-import { Form } from '@primevue/forms';
 import { z } from 'zod';
 import { zodResolver } from "@primevue/forms/resolvers/zod";
 import { InputMask, useConfirm } from "primevue";
@@ -150,19 +73,45 @@ const visitorSchema = z.object({
   team: z.string({ error: "Selecione a sua equipe" })
 });
 
+const fields = computed<IFields[]>(() => [
+  {
+    name: "operator",
+    label: "Quem Convidou?",
+    component: Select,
+    col: '12',
+    props: {
+      options: operators.value,
+      optionLabel: "codename",
+      optionValue: "$id",
+      filter: true,
+    }
+  },
+  { name: "name", label: "Nome do Visitante", component: InputText, col: '12' },
+  { name: "codename", label: "Codinome", component: InputText, col: '6' },
+  {
+    name: "phone",
+    label: "Telefone / Whatsapp",
+    button: {
+      severity: "success",
+      icon: "pi pi-whatsapp",
+      callback: ({ phone }: IVisitor) => {
+        window.open(`https://wa.me/55${phone}`, '_blank');
+      }
+    },
+    component: InputMask, col: '6', props: { mask: '(99) 99999-9999' }
+  },
+  {
+    name: "team", label: "Equipe", component: Select, col: "12", props: {
+      options: TEAMS,
+      filter: true,
+    },
+    isTag: true
+  },
+]);
+
 const resolver = ref(zodResolver(visitorSchema));
 
-const availableOperators = computed(() => {
-  if (selectedVisitor.value.$id) {
-    return [selectedVisitor.value.selected] as IOperator[];
-  }
-
-  return operators.value;
-});
-
-const saveVisitor = async ({ valid, values }: any) => {
-  if (!valid) return false;
-
+const saveVisitor = async (values: IVisitor) => {
   try {
     const response = await VisitorService.upsert(selectedVisitor.value.$id, values);
     const index = visitors.value.findIndex((item: IVisitor) => item.$id === response.$id);
@@ -186,30 +135,6 @@ const saveVisitor = async ({ valid, values }: any) => {
     hideDialog();
   }
 };
-
-const fields = computed<IFields[]>(() => [
-  { name: "name", label: "Nome do Visitante", component: InputText, col: '12' },
-  { name: "codename", label: "Codinome", component: InputText, col: '6' },
-  {
-    name: "phone",
-    label: "Telefone / Whatsapp",
-    button: {
-      severity: "success",
-      icon: "pi pi-whatsapp",
-      callback: ({ phone }: IVisitor) => {
-        window.open(`https://wa.me/55${phone}`, '_blank');
-      }
-    },
-    component: InputMask, col: '6', props: { mask: '(99) 99999-9999' }
-  },
-  {
-    name: "team", label: "Equipe", component: Select, col: "12", props: {
-      options: TEAMS,
-      filter: true,
-    },
-    isTag: true
-  },
-]);
 
 const confirmDelete = (visitor: IVisitor) => {
   confirm.require({

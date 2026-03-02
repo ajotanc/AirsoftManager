@@ -1,4 +1,4 @@
-import { tables, DATABASE_ID } from "@/services/appwrite";
+import { tables, permissions, DATABASE_ID } from "@/services/appwrite";
 import { ID, Query, type Models } from "appwrite";
 import type { IVehicle } from "./vehicle";
 
@@ -53,6 +53,7 @@ export const CarpoolService = {
       tableId: TABLE_CARPOOLS,
       rowId: ID.unique(),
       data: data as ICarpool,
+      permissions
     });
   },
   async upsert(
@@ -67,6 +68,7 @@ export const CarpoolService = {
         tableId: TABLE_CARPOOLS,
         rowId: id,
         data,
+        permissions
       });
     } catch (error) {
       console.error("Erro no upsert:", error);
@@ -86,6 +88,7 @@ export const CarpoolService = {
       tableId: TABLE_CARPOOLS,
       rowId: requestId,
       data: { available_seats },
+      permissions
     });
   }
 };

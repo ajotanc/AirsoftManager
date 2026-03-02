@@ -54,6 +54,18 @@ const toast = useToast();
 const confirm = useConfirm();
 const route = useRoute();
 
+const payments = ref<IPayment[]>([]);
+const pixData = ref({ payload: '', base64: '' });
+
+const loading = ref(true);
+
+const paymentDialog = ref(false);
+const selectedPayment = ref<IPayment>({} as IPayment);
+
+const accessAdmin = computed(() => {
+  return isAdmin && route.path.includes('admin');
+})
+
 onMounted(() => {
   loadServices();
 });
@@ -72,17 +84,6 @@ const loadServices = async () => {
   }
 };
 
-const payments = ref<IPayment[]>([]);
-const pixData = ref({ payload: '', base64: '' });
-
-const loading = ref(true);
-
-const paymentDialog = ref(false);
-const selectedPayment = ref<IPayment>({} as IPayment);
-
-const accessAdmin = computed(() => {
-  return isAdmin && route.path.includes('admin');
-})
 
 const fields = computed<IFields[]>(() => [
   { name: "operator.codename", label: "Operador", component: InputText, col: "6", hiddenTable: !accessAdmin.value },
@@ -191,6 +192,13 @@ const confirmPayment = (payment: IPayment) => {
 };
 
 const invoice = (payment: IPayment) => {
+
+  if(payment.status === 'paid') {
+    return {
+      overdue: false,
+      days: 0
+    }
+  }
   const today = dayjs();
   const dueDate = dayjs(payment?.due_date);
 

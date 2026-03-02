@@ -1,6 +1,7 @@
 import { ID, Query, type Models } from "appwrite";
 import {
   tables,
+  permissions,
   DATABASE_ID,
   BUCKET_ID,
 } from "@/services/appwrite";
@@ -105,6 +106,7 @@ export const EventService = {
       tableId: TABLE_EVENTS,
       rowId: ID.unique(),
       data,
+      permissions
     });
   },
   async update(rowId: string, data: Partial<IEvent>): Promise<IEvent> {
@@ -113,6 +115,7 @@ export const EventService = {
       tableId: TABLE_EVENTS,
       rowId,
       data,
+      permissions
     });
   },
   async upsert(
@@ -208,6 +211,7 @@ export const EventService = {
           tableId: TABLE_PARTICIPATIONS,
           rowId: participation.rows[0].$id,
           data: { checked_in: true },
+          permissions
         });
       }
 
@@ -232,6 +236,7 @@ export const EventService = {
         status: true,
         checked_in: false,
       },
+      permissions
     });
   },
   async deleteParticipation(participationId: string): Promise<{}> {
@@ -251,6 +256,7 @@ export const EventService = {
         visitor: visitorId,
         checked_in: false,
       },
+      permissions
     });
   },
   async confirmVisitorAttendance(participationId: string): Promise<IVisitorParticipation> {
@@ -260,6 +266,7 @@ export const EventService = {
         tableId: TABLE_VISITOR_PARTICIPATIONS,
         rowId: participationId,
         data: { checked_in: true },
+        permissions
       });
 
       if (updatedParticipation.visitor) {
@@ -298,6 +305,7 @@ export const EventService = {
       tableId: TABLE_EVENTS,
       rowId,
       data: { is_finished: true },
+      permissions
     });
   },
 }

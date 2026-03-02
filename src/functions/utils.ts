@@ -335,3 +335,21 @@ export const sortByKey = <T>(array: T[], key: keyof T, order: 'asc' | 'desc' = '
     return order === 'asc' ? comparison : -comparison;
   });
 };
+
+export const cleanHtml = (html: string) => {
+  if (!html) return "";
+
+  return html
+    .replace(/<br\s*\/?>|<\/(p|div|li|h[1-6])>/gi, "\n")
+    .replace(/<[^>]+>/g, "")
+    .replace(/&nbsp;/g, " ")
+    .replace(/\n\s*\n/g, "\n")
+    .trim();
+};
+
+export const limitWords = (text: string, limit: number) => {
+  const words = text?.split(/\s+/) ?? [];
+  if (words.length <= limit) return text;
+
+  return `${words.slice(0, limit).join(" ")}...`;
+};

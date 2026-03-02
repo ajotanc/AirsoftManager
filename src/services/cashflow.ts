@@ -1,5 +1,5 @@
 import { ID, Query, type Models } from "appwrite";
-import { tables, DATABASE_ID } from "@/services/appwrite";
+import { tables, permissions, DATABASE_ID } from "@/services/appwrite";
 import { deleteFile, uploadFile } from "@/functions/utils";
 import dayjs from "dayjs";
 
@@ -29,6 +29,7 @@ export const CashflowService = {
         queries: [
           Query.orderAsc("date"),
           Query.equal("reference", reference),
+          Query.limit(1000),
         ],
       });
 
@@ -48,6 +49,7 @@ export const CashflowService = {
         queries: [
           Query.orderAsc("date"),
           Query.endsWith("reference", referenceYear),
+          Query.limit(1000),
         ],
       });
 
@@ -63,6 +65,7 @@ export const CashflowService = {
       tableId: TABLE_CASHFLOW,
       rowId: ID.unique(),
       data,
+      permissions
     });
   },
   async upsert(
@@ -79,7 +82,7 @@ export const CashflowService = {
           await deleteFile(id);
         }
 
-        data.receipt_url = await uploadFile(id, file, 'cashflow-receipt');
+        data.receipt_url = await uploadFile(id, file, 'receipt');
       }
 
       const date = dayjs(data.date);
@@ -93,6 +96,7 @@ export const CashflowService = {
           ...data,
           reference
         },
+        permissions
       });
     } catch (error) {
       console.error("Erro no upsert:", error);

@@ -86,6 +86,7 @@ export const OperatorService = {
         queries: [
           Query.select(["*", "arsenal.*", "loadout.*"]),
           Query.orderAsc("codename"),
+          Query.limit(1000),
         ],
       });
 
@@ -104,6 +105,7 @@ export const OperatorService = {
           Query.orderAsc("codename"),
           Query.select(["*", "arsenal.*", "loadout.*"]),
           Query.equal("status", true),
+          Query.limit(1000),
         ],
       });
 

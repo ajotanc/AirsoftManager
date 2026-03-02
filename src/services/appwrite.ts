@@ -1,4 +1,4 @@
-import { Client, Account, TablesDB, Storage } from "appwrite";
+import { Client, Account, TablesDB, Storage, Permission, Role } from "appwrite";
 
 export const PROJECT_ID = import.meta.env.VITE_APPWRITE_PROJECT_ID;
 export const DATABASE_ID = import.meta.env.VITE_APPWRITE_DATABASE_ID;
@@ -18,5 +18,11 @@ client
 export const account = new Account(client);
 export const tables = new TablesDB(client);
 export const storage = new Storage(client);
+
+export const permissions = [
+  Permission.read(Role.users()),
+  Permission.update(Role.users()),
+  Permission.delete(Role.users())
+];
 
 export default client;

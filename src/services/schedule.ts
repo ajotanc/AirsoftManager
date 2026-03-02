@@ -1,5 +1,5 @@
 import { ID, Query, type Models } from "appwrite";
-import { tables, DATABASE_ID } from "@/services/appwrite";
+import { tables, permissions, DATABASE_ID } from "@/services/appwrite";
 import type { IOperator } from "./operator";
 
 export const TABLE_SCHEDULES = "schedules";
@@ -70,6 +70,7 @@ export const ScheduleService = {
       tableId: TABLE_SCHEDULES,
       rowId: ID.unique(),
       data,
+      permissions
     });
   },
   async update(rowId: string, data: Partial<ISchedule>): Promise<ISchedule> {
@@ -78,6 +79,7 @@ export const ScheduleService = {
       tableId: TABLE_SCHEDULES,
       rowId,
       data,
+      permissions
     });
   },
   async upsert(
@@ -112,7 +114,8 @@ export const ScheduleService = {
       data: {
         ...data,
         status: 'completed'
-      }
+      },
+      permissions
     });
   }
 };

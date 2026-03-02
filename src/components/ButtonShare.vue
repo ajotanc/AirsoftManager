@@ -4,7 +4,7 @@
 
 <script setup lang="ts">
 import { EVENT_TYPES, TEAM_NAME } from '@/constants/airsoft';
-import { formatDate } from '@/functions/utils';
+import { cleanHtml, formatDate, limitWords, removerHTML } from '@/functions/utils';
 import type { IEvent, IParticipation, IVisitorParticipation } from '@/services/event';
 import type { IOperator } from '@/services/operator';
 import type { IVisitor } from '@/services/visitor';
@@ -24,7 +24,7 @@ const toast = useToast();
 
 const shareNative = async () => {
   const baseUrl = window.location.origin;
-  const { $id, location, location_url, date, type, minimum_effective, startTime, endTime, thumbnail, rule, is_finished, ...eventData } = event;
+  const { $id, description, location, location_url, date, type, minimum_effective, startTime, endTime, thumbnail, rule, is_finished, ...eventData } = event;
   const url = `${baseUrl}/events/${$id}?t=${Date.now()}`;
 
   const title = eventData.title.toUpperCase();
@@ -62,9 +62,10 @@ const shareNative = async () => {
   }).join('\n');
 
   const effective = participations.length + visitor_participations.length;
+  const newDescription = limitWords(cleanHtml(description), 50);
 
   const header = `*${title}*\n-------------------------------------------------`;
-  const checkin = `🔗 *Briefing / Check-in:*\n${url}\n\n*Aperte no link acima e confirme a sua presença!*`;
+  const checkin = `🔗 *Briefing / Check-in:*\n${newDescription}\n\n${url}\n*Aperte no link acima e confirme a sua presença!*`;
   const info = `-------------------------------------------------\n⚠️ *Tipo:* ${EVENT_TYPES[type as keyof typeof EVENT_TYPES]}\n⚠️ *Efetivo Mínimo:* ${minimum_effective}\n⚠️ *Efetivo Atual:* ${effective}/${minimum_effective}`;
   const eventRule = rule ? `⚠️ *Regra:* ${rule}` : null;
   const required = `-------------------------------------------------\n📢 *Obrigatório:*\n- Pano vermelho\n- 4 ataduras / torniquetes\n- Óculos de proteção\n- Apito`;

@@ -1,5 +1,5 @@
 import { ID, Query, type Models } from "appwrite";
-import { tables, DATABASE_ID } from "@/services/appwrite";
+import { tables, permissions, DATABASE_ID } from "@/services/appwrite";
 import type { IOperator } from "./operator";
 
 export const TABLE_VISITORS = "visitors"; // Crie esta coleção no Appwrite
@@ -75,6 +75,7 @@ export const VisitorService = {
         tableId: TABLE_VISITORS,
         rowId: id,
         data,
+        permissions
       });
     } catch (error) {
       console.error("Erro no upsert:", error);

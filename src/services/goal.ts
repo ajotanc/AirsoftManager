@@ -1,5 +1,5 @@
 import { ID, Query, type Models } from "appwrite";
-import { tables, DATABASE_ID } from "@/services/appwrite";
+import { tables, permissions, DATABASE_ID } from "@/services/appwrite";
 import { deleteFile, uploadFile } from "@/functions/utils";
 
 export const TABLE_GOALS = "goals";
@@ -35,6 +35,7 @@ export const GoalService = {
       tableId: TABLE_GOALS,
       rowId: ID.unique(),
       data,
+      permissions
     });
   },
   async update(rowId: string, data: Partial<IGoal>): Promise<IGoal> {
@@ -43,6 +44,7 @@ export const GoalService = {
       tableId: TABLE_GOALS,
       rowId,
       data,
+      permissions
     });
   },
   async upsert(
@@ -67,6 +69,7 @@ export const GoalService = {
         tableId: TABLE_GOALS,
         rowId: id,
         data,
+        permissions
       });
     } catch (error) {
       console.error("Erro no upsert:", error);

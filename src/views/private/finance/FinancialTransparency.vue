@@ -178,6 +178,7 @@ const payments = ref<IPayment[]>([]);
 const loading = ref(true);
 const cashflowDialog = ref(false);
 const selectedYear = ref(dayjs().year());
+const currentMonth = dayjs().format('MM/YYYY');
 const years = ref([2024, 2025, 2026]);
 
 onMounted(loadServices);
@@ -208,11 +209,8 @@ const fields = ref([
 ]);
 
 const currentMonthName = computed(() => dayjs().format('MMMM').toUpperCase());
-const totalActiveOperators = computed(() => payments.value.filter(p => p.category === 'monthly_fee').length);
-const paidOperatorsCount = computed(() => {
-  const currentMonth = dayjs().format('MM/YYYY');
-  return cashflows.value.filter(c => c.category === 'monthly_fee' && dayjs(c.date).format('MM/YYYY') === currentMonth).length;
-});
+const totalActiveOperators = computed(() => payments.value.filter(p => p.category === 'monthly_fee' && p.reference === currentMonth).length);
+const paidOperatorsCount = computed(() => cashflows.value.filter(c => c.category === 'monthly_fee' && c.reference === currentMonth).length);
 const percentage = computed(() => totalActiveOperators.value ? Math.round((paidOperatorsCount.value / totalActiveOperators.value) * 100) : 0);
 
 const categoryMap = computed(() => Object.fromEntries(TRANSACTION_CATEGORIES.map(c => [c.value, c.label])));

@@ -128,7 +128,6 @@
                                     <div v-if="visitorParticipants.length > 0"
                                         v-for="{ $id, visitor, checked_in } in visitorParticipants" :key="$id"
                                         class="flex align-items-center gap-3 mb-3">
-                                        <Avatar :label="visitor.name[0]" shape="circle" size="small" />
                                         <div class="flex flex-column">
                                             <span class="font-bold"
                                                 :class="{ 'text-green-600': checked_in, 'text-red-400': event.is_finished && !checked_in }">{{
@@ -273,7 +272,7 @@
                         <template #option="slotProps">
                             <div class="flex flex-column">
                                 <span class="font-bold">{{ slotProps.option.name }} ({{ slotProps.option.codename
-                                    }})</span>
+                                }})</span>
                                 <small class="text-gray-500">Convidado por {{
                                     slotProps.option.operator.codename }}</small>
                             </div>
