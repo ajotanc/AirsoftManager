@@ -13,10 +13,11 @@
                     </div>
                 </div>
                 <div class="col-12">
-                    <div class="flex justify-content-between align-items-center">
+                    <div class="flex align-items-center gap-2">
                         <Tag :value="EVENT_TYPES[event.type as keyof typeof EVENT_TYPES] || 'Padrão'"
                             :severity="severityEvent(event.type)" />
-                        <div class="flex flex-column align-items-end justify-content-end">
+                        <Tag :value="event.rule || 'Padrão'" :severity="severityEvent(event.type)" />
+                        <div class="flex flex-column align-items-end justify-content-end ml-auto">
                             <span class="text-3xl font-bold text-primary-500">{{ checkinsCount }}</span>
                             <span class="text-xs text-gray-500 uppercase font-bold ">Check-ins</span>
                         </div>

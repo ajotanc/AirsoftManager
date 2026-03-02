@@ -1,8 +1,9 @@
 <template>
-  <Dialog v-model:visible="visible" :header="header" :modal="true" class="w-full md:w-30rem custom-scanner-dialog"
-    @hide="onClose">
-    <div class="relative border-round overflow-hidden scanner-viewport">
-      <QrcodeStream class="overflow-hidden" @detect="onDetectInternal" @init="onInit" :track="paintOutline"
+  <Dialog v-model:visible="visible" :header="header" :modal="true"
+    :style="{ width: '100%', maxWidth: '384px', overflow: 'hidden' }" class="m-3"
+    :contentStyle="{ padding: '0', display: 'flex', flexDirection: 'column' }" @hide="onClose">
+    <div class="relative scanner-viewport">
+      <QrcodeStream class="qrcode-stream-wrapper" @detect="onDetectInternal" @init="onInit" :track="paintOutline"
         :constraints="{ facingMode }">
         <div class="scanner-overlay">
           <div class="scanner-frame"></div>
@@ -93,6 +94,8 @@ function onClose() {
   flex-direction: column;
   height: 100vh;
   height: 100dvh;
+  overflow: hidden;
+  /* border-radius: var(--p-dialog-border-radius); */
 }
 
 .scanner-overlay {
@@ -108,6 +111,11 @@ function onClose() {
   position: relative;
 }
 
+.qrcode-stream-wrapper {
+  width: 100%;
+  height: 100%;
+}
+
 .scanner-frame {
   position: absolute;
   top: 50%;
@@ -116,8 +124,8 @@ function onClose() {
   width: 260px;
   height: 260px;
   border: 0.5rem solid;
-  border-image: linear-gradient(to bottom right, var(--p-blue-500), var(--p-red-500), var(--p-yellow-500), var(--p-yellow-500), var(--p-red-500), var(--p-blue-500)) 1;
-  box-shadow: 0 0 0 100vmax rgba(0, 0, 0, 0.4);
+  border-image: linear-gradient(to bottom left, var(--p-blue-500), var(--p-red-500), var(--p-yellow-500), var(--p-yellow-500), var(--p-red-500), var(--p-blue-500)) 1;
+  box-shadow: 0 0 0 100vmax rgba(0, 0, 0, 0.6);
   pointer-events: none;
   z-index: 2;
 }
@@ -126,7 +134,7 @@ function onClose() {
   text-align: center;
   color: white;
   z-index: 2;
-  padding: 0 2rem;
+  padding: 0 1rem;
   font-weight: 500;
 }
 
