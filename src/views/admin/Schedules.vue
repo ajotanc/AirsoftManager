@@ -173,8 +173,6 @@ const handleOperatorsChange = (selectedIds: string[], form: FormInstance) => {
   if (currentLeaderId && !selectedIds.includes(currentLeaderId)) {
     form.setFieldValue('leader', null);
     selectedSchedule.value.leader = null;
-
-    console.log("Líder removido pois saiu da lista de operadores.");
   }
 };
 </script>

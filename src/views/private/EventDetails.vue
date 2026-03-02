@@ -211,7 +211,7 @@
                                                 </div>
                                             </div>
                                             <div v-if="!isFinished" class="buttons flex align-items-center gap-1">
-                                                <Button v-if="!canRequest(carpool)" icon="pi pi-plus" severity="warn"
+                                                <Button v-if="canRequest(carpool)" icon="pi pi-plus" severity="warn"
                                                     rounded @click="requestCarpool(carpool)" size="small"
                                                     v-tooltip.top="'Solicitar Carona'"
                                                     :disabled="carpool.available_seats === 0" />
@@ -480,6 +480,8 @@ const availableVehicles = computed(() => {
     return vehicles.value.filter(v => !alreadyVehicles.includes(v.$id));
 });
 
+
+
 const carpoolsWithRequests = computed(() => {
     return new Set(
         requests.value
@@ -593,6 +595,8 @@ const editCarpool = async (carpool: ICarpool<IVehicle>) => {
 };
 
 const getVehicleCapacity = (vehicleId: string | IVehicle) => {
+    if (!vehicleId) return null;
+
     const vehicle = availableVehicles.value.find(v => v?.$id === vehicleId)!;
     return vehicle.total_seats;
 };
@@ -890,7 +894,6 @@ const handleUpdateStatus = async (request: ICarpoolRequest<IOperator, ICarpool<I
 };
 
 const canRequest = (carpool: ICarpool<IVehicle>) => {
-
     if (hasCarpools.value) return false;
 
     const isOwner = carpool.vehicle.driver === operator.value.$id;
