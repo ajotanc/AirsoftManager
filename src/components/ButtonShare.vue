@@ -4,7 +4,7 @@
 
 <script setup lang="ts">
 import { EVENT_TYPES, TEAM_NAME } from '@/constants/airsoft';
-import { cleanHtml, formatDate, limitWords, removerHTML } from '@/functions/utils';
+import { cleanHtml, formatDate, limitWords } from '@/functions/utils';
 import type { IEvent, IParticipation, IVisitorParticipation } from '@/services/event';
 import type { IOperator } from '@/services/operator';
 import type { IVisitor } from '@/services/visitor';
