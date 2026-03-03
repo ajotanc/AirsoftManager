@@ -24,21 +24,25 @@
                     </div>
                 </div>
                 <div class="col-12">
-                    <p class="flex flex-column md:flex-row text-gray-500 gap-2">
+                    <div class="flex flex-column md:flex-row text-gray-500 gap-2">
                         <span class="flex align-items-center gap-2"><i class="pi pi-calendar"></i> {{
                             formatDate(event.date).toLocaleDateString('pt-BR') }} - {{
                                 event.startTime }} às {{ event.endTime }}</span>
                         <span v-if="isConfirmed" class="flex align-items-center gap-2 text-green-400 font-bold">
                             <i class=" pi pi-check-circle text-green-400"></i>Presença Confirmada
                         </span>
-                    </p>
-                    <p class="flex flex-column md:flex-row text-gray-500 gap-2">
+                    </div>
+                    <div class="flex flex-column md:flex-row text-gray-500 gap-2 pt-2">
                         <span class="flex align-items-center gap-2"><i class="ri-user-3-line"></i> <strong>Efetivo
                                 Mínimo:</strong> {{
                                     event.minimum_effective }} <i class="ri-group-3-line"></i> <strong>Efetivo
                                 Atual:</strong> {{ totalParticipants }}/{{
-                                    event.minimum_effective }}</span>
-                    </p>
+                                    event.minimum_effective }}
+                        </span>
+                    </div>
+                </div>
+                <div v-if="isFinished" class="col-12">
+                    <Rating :modelValue="averageFeedback" :stars="5" readonly />
                 </div>
                 <div class="col-12">
                     <div class="flex flex-column md:flex-row gap-2">
@@ -283,7 +287,7 @@
                             <span class="py-2 text-sm">{{ feedback.comment }}</span>
                             <div class="flex align-items-center justify-content-between">
                                 <div class="flex align-items-center gap-2 text-xs">
-                                    <Rating :modelValue="feedback.stars" :stars="5" readonly />
+                                    <Rating :modelValue="feedback.stars" :stars="5" readonly class="feedback" />
                                     <span>·</span>
                                     <span>{{ dayjs(feedback.$updatedAt).format('DD/MM/YYYY') }}</span>
                                     <div v-if="feedback.operator.$id === operator.$id" class="flex gap-1">
@@ -295,9 +299,12 @@
                                 </div>
                                 <div class="flex align-items-center gap-1">
                                     <span class="text-xs">{{ feedback.likes.length }}</span>
-                                    <span class="pi text-xs text-red-500 cursor-pointer"
-                                        :class="{ 'pi-heart': !hasLike, 'pi-heart-fill': hasLike }"
-                                        @click="handleToggleLike(feedback)" />
+                                    <span
+                                        class="pi text-xs text-red-500 cursor-pointer transition-transform active:scale-150"
+                                        :class="{
+                                            'pi-heart-fill': feedback.likes?.includes(operator.$id),
+                                            'pi-heart': !feedback.likes?.includes(operator.$id)
+                                        }" @click="handleToggleLike(feedback)" />
                                 </div>
                             </div>
                         </div>
@@ -434,7 +441,12 @@ const requests = ref<ICarpoolRequest<IOperator, ICarpoolDetail>[]>([]);
 const selectedFeedback = ref<IFeedback>({} as IFeedback);
 const feedbacks = ref<IFeedback<IOperator, string>[]>([]);
 
-const hasLike = computed(() => feedbacks.value.some(feedback => feedback.likes.includes(operator.value.$id)));
+const averageFeedback = computed(() => {
+    if (feedbacks.value.length === 0) return 0;
+    const sum = feedbacks.value.reduce((acc, curr) => acc + curr.stars, 0);
+    return Number((sum / feedbacks.value.length).toFixed(1));
+});
+
 const hasRating = computed(() => feedbacks.value.some(feedback => feedback.operator.$id === operator.value.$id));
 
 const hasCarpools = computed(() => carpools.value.some(carpool => carpool.vehicle.driver === operator.value.$id));
@@ -1090,7 +1102,7 @@ const getOperatorName = (id: string) => operatorsMap.value.get(id)?.codename || 
 </script>
 
 <style scoped>
-:deep(.p-rating-icon) {
+:deep(.feedback .p-rating-icon) {
     width: 0.8rem;
     height: 0.8rem;
     font-size: 0.8rem;
