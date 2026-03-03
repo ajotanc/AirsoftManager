@@ -6,12 +6,18 @@
       <template v-for="field in fields" :key="field.name">
         <div :class="`col-12 md:col-${field.col || 12}`" v-if="!field.hidden">
           <FormField :name="field.name" v-slot="$field" class="flex flex-column gap-1">
-            <FloatLabel v-if="!['ToggleSwitch', 'ColorPicker'].includes(field.component.name)" variant="in">
+            <FloatLabel v-if="!['ToggleSwitch', 'ColorPicker', 'Rating'].includes(field.component.name)" variant="in">
               <component :is="field.component" v-bind="field.props" v-model="$field.value" class="w-full"
                 :class="{ 'p-invalid': $field.invalid }" fluid
                 @update:model-value="(val: any) => onFieldChange(field.name as keyof T, val)" />
               <label :for="field.name">{{ field.label }}</label>
             </FloatLabel>
+
+            <template v-else-if="field.component.name === 'Rating'" :name="field.name" class="flex flex-column gap-1">
+              <label :for="field.name" class="font-bold">{{ field.label }}</label>
+              <component :is="field.component" :id="field.name" v-bind="field.props" v-model="$field.value"
+                class="w-full" :class="{ 'p-invalid': $field.invalid }" fluid />
+            </template>
 
             <template v-else>
               <div class="flex align-items-center gap-2">

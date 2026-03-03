@@ -12,6 +12,7 @@ import { type IVisitor } from "./visitor";
 import type { ICarpool } from "./carpool";
 import { deleteFile, uploadFile } from "@/functions/utils";
 import { BadgeService } from "./badge";
+import type { IFeedback } from "./feedback";
 
 export const TABLE_EVENTS = "events";
 export const TABLE_PARTICIPATIONS = "participations";
@@ -35,6 +36,7 @@ export interface IEvent extends Models.Row {
   participations?: IParticipation[];
   visitor_participations?: IVisitorParticipation[];
   carpools?: ICarpool[];
+  feedbacks?: IFeedback[];
 }
 
 export interface IParticipation<TOp = string | IOperator>
@@ -70,6 +72,8 @@ export const EventService = {
             "visitor_participations.visitor.*",
             "carpools.*",
             "carpools.vehicle.*",
+            "feedbacks.*",
+            "feedbacks.operator.*",
           ]),
         ],
       });

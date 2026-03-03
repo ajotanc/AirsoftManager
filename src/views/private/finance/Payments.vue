@@ -25,6 +25,8 @@
           :disabled="data.status !== 'pending'" severity="success" v-tooltip.top="'Confirmar Pagamento'" />
         <Button v-if="operator.$id === data.operator.$id" icon="pi pi-dollar" rounded @click="makePayment(data)"
           :disabled="data.status !== 'created'" v-tooltip.top="'Efetuar Pagamento'" />
+        <Button v-if="accessAdmin" icon="pi pi-trash" rounded @click="deletePayment(data)"
+          :disabled="data.status === 'paid'" severity="danger" v-tooltip.top="'Excluir Pagamento'" />
       </template>
     </AppTable>
 
@@ -191,9 +193,49 @@ const confirmPayment = (payment: IPayment) => {
   });
 };
 
+const deletePayment = (payment: IPayment) => {
+  const operator = payment.operator as IOperator;
+
+  confirm.require({
+    message: 'Você tem certeza que deseja excluir este pagamento?',
+    header: `${payment.description} · ${operator.codename} `,
+    rejectProps: {
+      label: 'Não',
+      severity: 'secondary',
+      outlined: true
+    },
+    acceptProps: {
+      label: 'Sim',
+      severity: 'danger'
+    },
+    accept: async () => {
+      try {
+        await PaymentService.delete(payment.$id);
+        payments.value = payments.value.filter((item: IPayment) => item.$id !== payment.$id);
+
+        toast.add({
+          severity: "success",
+          summary: "Sucesso",
+          detail: "Pagamento excluído com sucesso!",
+          life: 3000,
+        });
+      } catch (error: any) {
+        console.error("Erro ao enviar formulário:", error);
+
+        toast.add({
+          severity: "error",
+          summary: "Erro",
+          detail: error.message || "Falha ao excluir os dados. Tente novamente.",
+          life: 4000,
+        });
+      }
+    },
+  });
+};
+
 const invoice = (payment: IPayment) => {
 
-  if(payment.status === 'paid') {
+  if (payment.status === 'paid') {
     return {
       overdue: false,
       days: 0

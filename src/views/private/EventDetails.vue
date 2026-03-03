@@ -54,6 +54,8 @@
                             <ButtonShare :event="event" icon="pi pi-copy" outlined v-tooltip.top="'Copiar Missão'" />
                             <ButtonShare :event="event" :share="true" icon="pi pi-share-alt" outlined
                                 v-tooltip.top="'Compartilhar'" />
+                            <Button v-if="isFinished" label="Feedback" icon="pi pi-star" severity="warn"
+                                @click="addFeedback" :disabled="hasRating" />
                         </div>
                     </div>
                 </div>
@@ -260,6 +262,52 @@
                     </template>
                 </Card>
             </div>
+            <div v-if="isFinished" class="col-12 md:col-8 mt-2">
+                <Card class="bg-blue-900 border-1 border-white-alpha-10">
+                    <template #content>
+                        <h4 class="text-sm uppercase text-gray-500 border-bottom-1 border-white-alpha-10 mt-0 pb-2">
+                            Feedbacks ({{ feedbacks.length }})
+                        </h4>
+                        <div v-if="feedbacks.length > 0" v-for="feedback in feedbacks" :key="feedback.$id"
+                            class="flex flex-column gap-2 bg-gray-100 p-3 text-gray-700"
+                            :class="{ 'mb-3': feedbacks.length > 1 }">
+                            <div class="flex gap-2">
+                                <Avatar :image="feedback.operator.avatar"
+                                    :icon="!feedback.operator.avatar ? 'pi pi-user' : undefined" shape="circle" />
+                                <div class="flex flex-column">
+                                    <span class="text-sm font-bold uppercase">{{ getShortName(feedback.operator.name)
+                                        }}</span>
+                                    <span class="text-xs uppercase">{{ feedback.operator.codename }}</span>
+                                </div>
+                            </div>
+                            <span class="py-2 text-sm">{{ feedback.comment }}</span>
+                            <div class="flex align-items-center justify-content-between">
+                                <div class="flex align-items-center gap-2 text-xs">
+                                    <Rating :modelValue="feedback.stars" :stars="5" readonly />
+                                    <span>·</span>
+                                    <span>{{ dayjs(feedback.$updatedAt).format('DD/MM/YYYY') }}</span>
+                                    <div v-if="feedback.operator.$id === operator.$id" class="flex gap-1">
+                                        <span class="pi pi-pencil text-xs cursor-pointer"
+                                            @click="editFeedback(feedback)"></span>
+                                        <span class="pi pi-trash text-xs text-red-500 cursor-pointer"
+                                            @click="deleteFeedback(feedback)"></span>
+                                    </div>
+                                </div>
+                                <div class="flex align-items-center gap-1">
+                                    <span class="text-xs">{{ feedback.likes.length }}</span>
+                                    <span class="pi text-xs text-red-500 cursor-pointer"
+                                        :class="{ 'pi-heart': !hasLike, 'pi-heart-fill': hasLike }"
+                                        @click="handleToggleLike(feedback)" />
+                                </div>
+                            </div>
+                        </div>
+                        <div v-else
+                            class="flex flex-column gap-2 bg-gray-100 p-3 text-gray-700">
+                            <Empty label="Nenhum feedback para esta missão." icon="pi pi-star" />
+                        </div>
+                    </template>
+                </Card>
+            </div>
         </div>
 
         <AppScanner v-model:visible="openScannerDialog" @detect="onDetect" header="Check-in de Operador" />
@@ -273,7 +321,7 @@
                         <template #option="slotProps">
                             <div class="flex flex-column">
                                 <span class="font-bold">{{ slotProps.option.name }} ({{ slotProps.option.codename
-                                }})</span>
+                                    }})</span>
                                 <small class="text-gray-500">Convidado por {{
                                     slotProps.option.operator.codename }}</small>
                             </div>
@@ -288,7 +336,7 @@
         </Dialog>
 
         <Dialog v-model:visible="openCarpoolDialog" :style="{ width: '512px' }" header="Veículo" :modal="true">
-            <Form :resolver="resolver" :initialValues="selectedCarpool" @submit="saveCarpool" class="grid"
+            <Form :resolver="resolverCarpool" :initialValues="selectedCarpool" @submit="saveCarpool" class="grid"
                 :key="selectedCarpool.$id || 'new'">
                 <div v-for="{ name, label, component, col, props } in carpoolFields" :key="name" :class="`col-${col}`">
                     <FormField v-if="['ToggleSwitch', 'ColorPicker'].includes(component.name)" :name="name"
@@ -320,20 +368,25 @@
                 </div>
             </Form>
         </Dialog>
+
+        <AppFormDialog v-model:visible="openFeedbackDialog" :initialValues="selectedFeedback"
+            :resolver="resolverFeedback" :fields="eventRatingFields" header="Avaliar Missão" @submit="saveFeedback"
+            submitLabel="Avaliar" />
     </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
 import { useRoute } from 'vue-router';
-import { Divider, InputMask, InputNumber, InputText, Select, useConfirm } from "primevue";
+import { Divider, InputMask, InputNumber, InputText, Rating, Select, Textarea, useConfirm } from "primevue";
+import dayjs from 'dayjs';
 import { useToast } from "primevue/usetoast";
 import { atcb_action } from 'add-to-calendar-button';
 import { EventService, type IEvent, type IParticipation, type IVisitorParticipation, type IVisitorParticipationDetail } from '@/services/event';
 import { EVENT_TYPES, TEAM_NAME } from '@/constants/airsoft';
 import { formatDate, playBeep, type IFields } from '@/functions/utils';
 import type { ATCBActionEventConfig } from 'add-to-calendar-button';
-import { severityEvent } from '@/functions/utils'
+import { severityEvent, getShortName } from '@/functions/utils'
 
 import Card from 'primevue/card';
 import Button from 'primevue/button';
@@ -360,6 +413,8 @@ import z from 'zod';
 import Empty from '@/components/Empty.vue';
 import { useOperator } from '@/composables/useOperator';
 import AppScanner from '@/components/AppScanner.vue';
+import { FeedbackService, type IFeedback } from '@/services/feedback';
+import AppFormDialog from '@/components/AppFormDialog.vue';
 
 const route = useRoute();
 const toast = useToast();
@@ -377,6 +432,12 @@ const selectedVisitors = ref<IVisitor<IOperator>[]>([]);
 const carpools = ref<ICarpool<IVehicle<string>>[]>([]);
 
 const requests = ref<ICarpoolRequest<IOperator, ICarpoolDetail>[]>([]);
+
+const selectedFeedback = ref<IFeedback>({} as IFeedback);
+const feedbacks = ref<IFeedback<IOperator, string>[]>([]);
+
+const hasLike = computed(() => feedbacks.value.some(feedback => feedback.likes.includes(operator.value.$id)));
+const hasRating = computed(() => feedbacks.value.some(feedback => feedback.operator.$id === operator.value.$id));
 
 const hasCarpools = computed(() => carpools.value.some(carpool => carpool.vehicle.driver === operator.value.$id));
 const isFinished = computed(() => event.value.is_finished);
@@ -433,6 +494,7 @@ const isConfirmed = ref(false);
 const openScannerDialog = ref(false);
 const openVisitorDialog = ref(false);
 const openCarpoolDialog = ref(false);
+const openFeedbackDialog = ref(false);
 
 // CARPOOLS
 const selectedCarpool = ref<ICarpool>({} as ICarpool);
@@ -469,7 +531,19 @@ const carpoolSchema = z.object({
     available_seats: z.number({ error: "Vagas disponíveis obrigtaório" }).min(1, "Mínimo 1 vaga")
 })
 
-const resolver = ref(zodResolver(carpoolSchema));
+const resolverCarpool = ref(zodResolver(carpoolSchema));
+
+const eventRatingSchema = z.object({
+    stars: z.number({ error: "Nota obrigatória" }),
+    comment: z.string({ error: "Comentário obrigatório" }).nullish().optional()
+});
+
+const eventRatingFields = computed<IFields[]>(() => [
+    { name: "stars", label: "Nota", component: Rating, col: "6" },
+    { name: "comment", label: "Comentário", component: Textarea, col: "12", props: { rows: 5 } },
+]);
+
+const resolverFeedback = ref(zodResolver(eventRatingSchema));
 
 const availableVehicles = computed(() => {
     if (selectedCarpool.value.$id) {
@@ -479,8 +553,6 @@ const availableVehicles = computed(() => {
     const alreadyVehicles = carpools.value.map(p => p.vehicle.$id);
     return vehicles.value.filter(v => !alreadyVehicles.includes(v.$id));
 });
-
-
 
 const carpoolsWithRequests = computed(() => {
     return new Set(
@@ -691,8 +763,9 @@ const loadServices = async () => {
         vehicles.value = vehiclesData as IVehicle[];
         visitors.value = visitorsData as IVisitor<IOperator>[];
 
-        isConfirmed.value = participants.value.some(p => p.operator.$id === operator.value.$id);
+        feedbacks.value = eventDetails.feedbacks as IFeedback<IOperator, string>[] || [];
 
+        isConfirmed.value = participants.value.some(p => p.operator.$id === operator.value.$id);
     } catch (error) {
         console.error("Erro ao carregar dados da missão:", error);
         toast.add({
@@ -919,7 +992,109 @@ const finalizeEvent = async () => {
     }
 };
 
+const addFeedback = async () => {
+    selectedFeedback.value = {} as IFeedback;
+    openFeedbackDialog.value = true;
+};
+
+const editFeedback = async (eventRating: IFeedback<IOperator, string>) => {
+    selectedFeedback.value = eventRating;
+    openFeedbackDialog.value = true;
+};
+
+const deleteFeedback = (eventRating: IFeedback) => {
+    confirm.require({
+        message: 'Você tem certeza que deseja excluir este feedback?',
+        header: "Excluir feedback",
+        rejectProps: {
+            label: 'Não',
+            severity: 'secondary',
+            outlined: true
+        },
+        acceptProps: {
+            label: 'Sim',
+            severity: 'danger'
+        },
+        accept: async () => {
+            try {
+                await FeedbackService.delete(eventRating.$id);
+                feedbacks.value = feedbacks.value.filter((item: IFeedback) => item.$id !== eventRating.$id);
+
+                toast.add({
+                    severity: "success",
+                    summary: "Sucesso",
+                    detail: "Feedback excluída com sucesso!",
+                    life: 3000,
+                });
+            } catch (error: any) {
+                console.error("Erro ao enviar formulário:", error);
+
+                toast.add({
+                    severity: "error",
+                    summary: "Erro",
+                    detail: error.message || "Falha ao excluir os dados. Tente novamente.",
+                    life: 4000,
+                });
+            }
+        },
+    });
+};
+
+const handleToggleLike = async (feedback: IFeedback<IOperator, string>) => {
+    try {
+        const operatorId = operator.value.$id;
+
+        const updatedRating = await FeedbackService.toggleLike(
+            feedback.$id,
+            operatorId,
+            feedback.likes || []
+        );
+
+        feedback.likes = updatedRating.likes;
+    } catch (error) {
+        toast.add({ severity: 'error', summary: 'Erro', detail: 'Não foi possível curtir.' });
+    }
+};
+
+const saveFeedback = async (values: IFeedback) => {
+    try {
+        const payload = {
+            ...values,
+            operator: operator.value.$id,
+            event: event.value.$id,
+        }
+
+        const eventRating = await FeedbackService.upsert(selectedFeedback.value.$id, payload) as IFeedback<IOperator, string>;
+        const index = feedbacks.value.findIndex((item) => item.$id === eventRating.$id);
+
+        if (index !== -1) {
+            feedbacks.value[index] = eventRating;
+        } else {
+            feedbacks.value.push(eventRating);
+        }
+
+        toast.add({
+            severity: "success",
+            summary: "Sucesso!",
+            detail: "Feedback salvo com sucesso!",
+            life: 3000,
+        });
+    } catch (error: any) {
+        console.error("Erro ao salvar:", error);
+        toast.add({ severity: "error", summary: "Erro", detail: "Falha ao registrar o feedback.", life: 3000 });
+    } finally {
+        openFeedbackDialog.value = false;
+    }
+};
 
 const getOperator = (id: string) => operatorsMap.value.get(id);
 const getOperatorName = (id: string) => operatorsMap.value.get(id)?.codename || 'Desconhecido';
 </script>
+
+<style scoped>
+:deep(.p-rating-icon) {
+    width: 0.8rem;
+    height: 0.8rem;
+    font-size: 0.8rem;
+}
+</style>

@@ -27,7 +27,7 @@ export const CashflowService = {
         databaseId: DATABASE_ID,
         tableId: TABLE_CASHFLOW,
         queries: [
-          Query.orderAsc("date"),
+          Query.orderDesc("date"),
           Query.equal("reference", reference),
           Query.limit(1000),
         ],
@@ -47,7 +47,7 @@ export const CashflowService = {
         databaseId: DATABASE_ID,
         tableId: TABLE_CASHFLOW,
         queries: [
-          Query.orderAsc("date"),
+          Query.orderDesc("date"),
           Query.endsWith("reference", referenceYear),
           Query.limit(1000),
         ],
