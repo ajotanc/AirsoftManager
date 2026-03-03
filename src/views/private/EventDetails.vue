@@ -66,7 +66,7 @@
                 <Card class="border-1 border-black-alpha-10 mb-4">
                     <template #content>
                         <Image v-if="event.thumbnail" :src="event.thumbnail" :alt="event.title"
-                            class="overflow-hidden border-round" imageClass="w-full" preview />
+                            class="overflow-hidden border-round w-full" imageClass="w-full" preview />
                         <h2 class="text-green-400">Briefing da Missão</h2>
                         <div class="text-html" v-html="event.description"></div>
                     </template>
