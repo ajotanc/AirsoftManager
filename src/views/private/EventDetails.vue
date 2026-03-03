@@ -276,7 +276,7 @@
                                     :icon="!feedback.operator.avatar ? 'pi pi-user' : undefined" shape="circle" />
                                 <div class="flex flex-column">
                                     <span class="text-sm font-bold uppercase">{{ getShortName(feedback.operator.name)
-                                        }}</span>
+                                    }}</span>
                                     <span class="text-xs uppercase">{{ feedback.operator.codename }}</span>
                                 </div>
                             </div>
@@ -301,8 +301,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div v-else
-                            class="flex flex-column gap-2 bg-gray-100 p-3 text-gray-700">
+                        <div v-else class="flex flex-column gap-2 bg-gray-100 p-3 text-gray-700">
                             <Empty label="Nenhum feedback para esta missão." icon="pi pi-star" />
                         </div>
                     </template>
@@ -321,7 +320,7 @@
                         <template #option="slotProps">
                             <div class="flex flex-column">
                                 <span class="font-bold">{{ slotProps.option.name }} ({{ slotProps.option.codename
-                                    }})</span>
+                                }})</span>
                                 <small class="text-gray-500">Convidado por {{
                                     slotProps.option.operator.codename }}</small>
                             </div>
@@ -370,8 +369,7 @@
         </Dialog>
 
         <AppFormDialog v-model:visible="openFeedbackDialog" :initialValues="selectedFeedback"
-            :resolver="resolverFeedback" :fields="eventRatingFields" header="Avaliar Missão" @submit="saveFeedback"
-            submitLabel="Avaliar" />
+            :resolver="resolverFeedback" :fields="eventRatingFields" header="Feedback" @submit="saveFeedback" />
     </div>
 </template>
 
