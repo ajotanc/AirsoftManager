@@ -13,7 +13,7 @@
             <Card class="h-full border-1 border-white-alpha-10 overflow-hidden shadow-3">
               <template #header>
                 <div class="relative">
-                  <div class="absolute top-0 right-0 m-2 z-1 flex gap-2">
+                  <div class="absolute top-0 right-0 m-2 flex gap-2">
                     <Tag v-if="data.isExpired" value="Finalizado" severity="danger" class="shadow-4" />
                     <Tag :value="`${calculatePercent(data)}%`" severity="warn" class="shadow-3" />
                   </div>
