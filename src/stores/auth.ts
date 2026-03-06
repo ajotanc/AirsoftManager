@@ -4,6 +4,7 @@ import { defineStore } from "pinia";
 import { account } from "@/services/appwrite";
 import { ID, type Models } from "appwrite";
 import {
+  operatorSchema,
   OperatorService,
   type IOperator,
   type IOperatorDraft,
@@ -20,9 +21,27 @@ export const useAuthStore = defineStore("auth", {
 
   getters: {
     isAuthenticated: (state) => !!state.user,
-    hasCompletedSetup: (state) =>
-      state.operator && state.operator.role !== "recruit",
-    isActiveOperator: (state) => state.operator && state.operator.status,
+    isProfileComplete: (state): boolean => {
+      if (!state.operator?.$id) return false;
+      return operatorSchema.safeParse(state.operator).success;
+    },
+    isRecruit: (state) => state.operator?.role === "recruit",
+    hasArsenal: (state) => (state.operator?.arsenal?.length ?? 0) > 0,
+    hasLoadout: (state) => (state.operator?.loadout?.length ?? 0) > 0,
+    isActiveOperator: (state) => state.operator && state.operator.status === true,
+    canAccessFinance(_state): boolean {
+      return this.isActiveOperator || (!this.isRecruit && !this.isActiveOperator);
+    },
+    canAccessGear(state): boolean {
+      const profileDone = this.isProfileComplete;
+      return !!state.operator.status || (state.operator.role === 'recruit' && profileDone);
+    },
+    isArsenalLocked(): boolean {
+      return !this.isProfileComplete;
+    },
+    isLoadoutLocked(): boolean {
+      return !this.isProfileComplete || !this.hasArsenal;
+    },
     isArmorer: (state) => state.operator && state.operator.role === 'armorer',
     isEventManagement: (state) => state.operator && ['admin', 'event', 'media', 'administrative'].includes(state.operator.role),
     isAdministrativeManagement: (state) => state.operator && state.operator.role === 'administrative',

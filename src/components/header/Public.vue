@@ -10,7 +10,7 @@
       <template #end>
         <div class="flex flex-column md:flex-row gap-2">
           <Button label="Entrar" outlined @click="router.push('/login')" />
-          <Button label="Alistar-se" @click="router.push('/register')" />
+          <Button label="Alistar-se" v-if="checkRegistrationPeriod()" @click="router.push('/register')" />
         </div>
       </template>
     </Menubar>
@@ -18,12 +18,12 @@
 </template>
 
 <script setup lang="ts">
-import { useRouter } from "vue-router";
 import Menubar from "primevue/menubar";
 import Button from "primevue/button";
 import { TEAM_NAME } from "@/constants/airsoft";
 
-const router = useRouter();
+import router from '@/router';
+import { checkRegistrationPeriod } from "@/functions/utils";
 
 const items = [
   { label: "A Equipe", icon: "pi pi-users", command: () => router.push("/") },

@@ -3,7 +3,7 @@ import { ID, Query, type Models } from "appwrite";
 import { tables, permissions, DATABASE_ID } from "@/services/appwrite";
 import { TEAM_NAME } from '@/constants/airsoft';
 import { uploadFile } from '@/functions/utils';
-import type { IOperator } from './operator';
+import { OperatorService, type IOperator } from './operator';
 import { CashflowService, type ICashflow } from './cashflow';
 import dayjs from 'dayjs';
 import { GoalService, type IGoal } from './goal';
@@ -173,11 +173,16 @@ export const PaymentService = {
     await CashflowService.create(data);
 
     const xpAmount = payment.category === 'goal' ? 100 : 50;
+    const payingOperator = payment.operator as IOperator;
 
-    const updatedOp = await BadgeService.addActivityXp(payment.operator as IOperator, xpAmount);
+    const updatedOp = await BadgeService.addActivityXp(payingOperator, xpAmount);
 
     if (operator.value.$id === updatedOp.$id) {
       await updateState(updatedOp);
+    }
+
+    if (payment.category === 'enrollment') {
+      await OperatorService.activate(payingOperator.$id);
     }
 
     return payment;

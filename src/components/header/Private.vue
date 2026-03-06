@@ -1,9 +1,8 @@
 <template>
-  <Menubar :model="navItems"
-    class="hidden sticky top-0 z-1 md:flex border-none border-bottom-1 surface-border border-noround px-4 py-2">
+  <Menubar :model="navItems" class="hidden sticky top-0 z-1 md:flex border-none shadow-2 px-3 py-2">
     <template #start>
       <div class="flex align-items-center gap-2 mr-4 cursor-pointer" @click="router.push('/dashboard')">
-        <img src="/exd.webp" :alt="TEAM_NAME" class="h-3rem">
+        <img src="/exd.webp" :alt="TEAM_NAME" class="h-4rem">
       </div>
     </template>
 
@@ -15,8 +14,8 @@
           <i class="ri-external-link-line ml-auto opacity-50" />
         </a>
 
-        <router-link v-else v-slot="{ href, navigate, isActive }" :to="item.route" custom>
-          <a :href="href" v-bind="props.action" @click="navigate" :class="{ 'text-primary font-bold': isActive }"
+        <router-link v-else :to="item.route" v-slot="{ href, navigate, isActive }" custom>
+          <a :href="href" v-bind="props.action" @click="navigate" :class="{ 'text-blue-500 font-bold': isActive }"
             class="no-underline">
             <i :class="item.icon" />
             <span>{{ item.label }}</span>
@@ -28,7 +27,7 @@
         class="flex align-items-center no-underline">
         <i :class="item.icon" />
         <span>{{ item.label }}</span>
-        <span v-if="hasSubmenu" class="pi pi-angle-down ml-2" />
+        <span v-if="hasSubmenu" class="pi pi-angle-down ml-auto" />
       </a>
     </template>
 
@@ -53,7 +52,7 @@
 
   <Drawer v-model:visible="visible" header="Menu" :closable="true" :block-scroll="true">
     <template #container="{ closeCallback }">
-      <div class="flex flex-column h-full">
+      <div class="flex flex-column h-full pt-4">
         <div class="flex align-items-center justify-content-between p-3 shrink-0">
           <span class="inline-flex align-items-center">
             <img src="/exd.webp" :alt="TEAM_NAME" class="h-3rem">
@@ -62,7 +61,7 @@
           <Button type="button" @click="closeCallback" icon="pi pi-times" rounded text severity="secondary"></Button>
         </div>
 
-        <div class="overflow-y-auto">
+        <div class="overflow-y-auto mt-2">
           <ul class="list-none p-3 m-0">
             <li v-for="item in navItems" :key="item.label">
               <template v-if="item.visible !== false">
@@ -106,7 +105,6 @@
                           </a>
                         </router-link>
                       </template>
-
                       <div v-else-if="sub.items" class="mt-2">
                         <span class="text-xs font-semibold text-400 uppercase pl-4 block mb-1">
                           {{ sub.label }}
@@ -132,11 +130,6 @@
                           </li>
                         </ul>
                       </div>
-
-                      <div v-else class="flex align-items-center p-2 pl-4 opacity-50 cursor-not-allowed">
-                        <i :class="[sub.icon, 'mr-3']"></i>
-                        <span>{{ sub.label }}</span>
-                      </div>
                     </li>
                   </ul>
                 </div>
@@ -145,7 +138,7 @@
           </ul>
         </div>
 
-        <div class="mt-auto border-top-1 surface-border" v-if="authStore.operator">
+        <div class="mt-auto border-top-1 surface-border p-2" v-if="authStore.operator">
           <div class="flex align-items-center gap-3 border-round hover:surface-100 cursor-pointer p-2"
             @click="router.push('/profile'); visible = false">
             <Avatar :image="authStore.operator.avatar" shape="circle" size="large" />
@@ -168,10 +161,12 @@ import { ROLES, TEAM_NAME } from "@/constants/airsoft";
 import { useOperator } from "@/composables/useOperator";
 
 const { authStore } = useOperator();
-const router = useRouter();
+import router from '@/router';
 
 const visible = ref(false);
 const userMenu = ref();
+
+const { value: disabled } = computed(() => !authStore.isActiveOperator);
 
 const handleLogout = async () => {
   await authStore.logout();
@@ -202,36 +197,48 @@ const navItems = computed<IMenu[]>(() => [
   {
     label: "Equipamentos",
     icon: "ri-suitcase-2-line",
-    visible: authStore.isActiveOperator,
     items: [
-      { label: "Arsenal", icon: "ri-sword-line", route: "/arsenal" },
-      { label: "Loadout", icon: "ri-t-shirt-2-line", route: "/loadout" },
-      { label: "Veiculos", icon: "ri-car-line", route: "/vehicles" },
+      {
+        label: "Arsenal",
+        icon: "ri-sword-line",
+        route: "/arsenal",
+        disabled: authStore.isArsenalLocked
+      },
+      {
+        label: "Loadout",
+        icon: "ri-t-shirt-2-line",
+        route: "/loadout",
+        disabled: authStore.isLoadoutLocked
+      },
+      {
+        label: "Veiculos",
+        icon: "ri-car-line",
+        route: "/vehicles",
+        disabled
+      },
     ],
   },
   {
     label: "Games",
     icon: "ri-gamepad-line",
-    visible: authStore.isActiveOperator,
     items: [
-      { label: "Conquistas", icon: "ri-medal-line", route: "/game/badges" },
-      { label: "Ratings", icon: "ri-bookmark-3-line", route: "/game/ratings" },
-      { label: "Carteira", icon: "ri-id-card-line", route: "/game/card", visible: authStore.isManager },
-      { label: "Player Card", icon: "ri-shield-user-line", route: "/game/player-card" },
+      { label: "Conquistas", icon: "ri-medal-line", route: "/game/badges", disabled },
+      { label: "Ratings", icon: "ri-bookmark-3-line", route: "/game/ratings", disabled },
+      { label: "Carteira", icon: "ri-id-card-line", route: "/game/card", disabled },
+      { label: "Player Card", icon: "ri-shield-user-line", route: "/game/player-card", disabled },
     ],
   },
   {
     label: "Administrativo",
     icon: "ri-briefcase-line",
-    visible: authStore.isActiveOperator,
     items: [
-      { label: "Cronograma", icon: "ri-calendar-schedule-line", route: "/schedules" },
+      { label: "Cronograma", icon: "ri-calendar-schedule-line", route: "/schedules", disabled },
       {
         label: "Financeiro",
         icon: "ri-bank-line",
         items: [
-          { label: "Meus Pagamentos", icon: "ri-wallet-line", route: "/finance/payments" },
-          { label: "Transparência", icon: "ri-auction-line", route: "/finance/cashflow" },
+          { label: "Meus Pagamentos", icon: "ri-wallet-line", route: "/finance/payments", disabled: !authStore.canAccessFinance },
+          { label: "Transparência", icon: "ri-auction-line", route: "/finance/cashflow", disabled },
         ],
       },
     ]
@@ -239,13 +246,8 @@ const navItems = computed<IMenu[]>(() => [
   {
     label: "Ajuda",
     icon: "ri-question-line",
-    visible: authStore.isActiveOperator,
     items: [
-      {
-        label: "Código de Conduta",
-        icon: "ri-file-pdf-2-line",
-        route: "https://docs.google.com/document/d/1xHYJ2ykv0pmuz9YVpoaHdn_Yw8j2y0exFLa204OKyRU/preview",
-      },
+      { label: "Código de Conduta", icon: "ri-file-pdf-2-line", route: "https://docs.google.com/document/d/1xHYJ2ykv0pmuz9YVpoaHdn_Yw8j2y0exFLa204OKyRU/preview" },
       {
         label: "Manuais",
         icon: "ri-booklet-line",
@@ -304,9 +306,18 @@ const isExternal = (url?: string) => url?.startsWith('http');
 </script>
 
 <style scoped>
-/* Ajustes opcionais para ícones do Menubar */
+/* Aumenta o afastamento do submenu (Desktop) */
+:deep(.p-menubar-submenu) {
+  margin-top: 15px !important;
+  /* Aumentado para 15px */
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  border: 1px solid var(--surface-border);
+}
+
+/* Garante que o item ativo tenha um respiro visual */
 :deep(.p-menubar-item-link) {
-  display: flex;
-  align-items: center;
+  border-radius: 8px;
+  margin: 0 2px;
 }
 </style>

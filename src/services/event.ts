@@ -136,7 +136,7 @@ export const EventService = {
           await deleteFile(id);
         }
 
-        data.thumbnail = await uploadFile(id, file, 'event-thumbnail');
+        data.thumbnail = await uploadFile(id, file, 'thumbnail');
       }
 
       if (isUpdate) {

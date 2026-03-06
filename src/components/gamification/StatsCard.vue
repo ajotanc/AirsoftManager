@@ -49,7 +49,7 @@
         </div>
       </div>
       <div class="avatar-wrapper">
-        <img :src="(img as string) || operator.avatar" :alt="operator.codename" class="avatar" />
+        <img :src="(img as string) || operator.avatar || '/operator-default.webp'" :alt="operator.codename" class="avatar" />
       </div>
     </div>
   </div>

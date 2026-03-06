@@ -91,7 +91,7 @@ onMounted(async () => {
 
 const loadServices = async () => {
   try {
-    allBirthdays.value = await OperatorService.listBirthdays() as IOperator[];
+    allBirthdays.value = await OperatorService.listBirthdays();
   } catch (error) {
     console.error("Erro ao carregar serviços:", error);
     toast.add({ severity: 'error', summary: 'Erro', detail: 'Falha ao carregar dados.' });

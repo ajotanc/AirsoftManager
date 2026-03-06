@@ -62,7 +62,7 @@ const shareNative = async () => {
   }).join('\n');
 
   const effective = participations.length + visitor_participations.length;
-  const newDescription = limitWords(cleanHtml(description), 50);
+  const newDescription = limitWords(cleanHtml(description), 60);
 
   const header = `*${title}*\n-------------------------------------------------`;
   const checkin = `🔗 *Briefing / Check-in:*\n${newDescription}\n\n${url}\n*Aperte no link acima e confirme a sua presença!*`;

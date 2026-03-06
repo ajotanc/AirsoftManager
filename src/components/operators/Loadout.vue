@@ -219,7 +219,11 @@ const confirmDelete = (uniform: ILoadout) => {
     accept: async () => {
       try {
         await LoadoutService.delete(uniform.$id);
-        items.value = items.value.filter((item: ILoadout) => item.$id !== uniform.$id);
+
+        const index = items.value.findIndex((item: ILoadout) => item.$id === uniform.$id);
+        if (index !== -1) {
+          items.value.splice(index, 1);
+        }
 
         toast.add({
           severity: "success",

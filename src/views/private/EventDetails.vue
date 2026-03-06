@@ -220,7 +220,7 @@
                                                 <Button v-if="canRequest(carpool)" icon="pi pi-plus" severity="warn"
                                                     rounded @click="requestCarpool(carpool)" size="small"
                                                     v-tooltip.top="'Solicitar Carona'"
-                                                    :disabled="carpool.available_seats === 0" />
+                                                    :disabled="carpool.available_seats === 0 || !isConfirmed" />
                                                 <template v-if="carpool.vehicle.driver === operator.$id">
                                                     <Button icon="pi pi-pencil" size="small" rounded
                                                         @click="editCarpool(carpool)" v-tooltip.top="'Editar'" />
@@ -235,12 +235,16 @@
                                 </TabPanel>
                                 <TabPanel :value="1">
                                     <div v-if="carpoolAccepteds.length > 0"
-                                        v-for="({ $id, requester, carpool: { vehicle } }, index) in carpoolAccepteds"
-                                        :key="$id" class="flex text-gray-700 align-items-center gap-3 mb-3">
-                                        <span class="text-sm font-bold">{{ index + 1 }}. <strong>{{
-                                            getOperatorName(vehicle.driver) }}</strong> aceitou a solicitação de
-                                            <strong>{{ requester.codename }}</strong> no veículo {{ vehicle.model }} ({{
-                                                vehicle.color }})</span>
+                                        v-for="({ $id, requester, carpool: { vehicle } }, _index) in carpoolAccepteds"
+                                        :key="$id" class="flex text-gray-700 align-items-center gap-1 mb-1">
+                                        <span class="text-sm"><strong>{{ getOperatorName(vehicle.driver) }}</strong>
+                                            aceitou a
+                                            solicitação de
+                                            <strong>{{ requester.codename }}</strong> no veículo {{ vehicle.model
+                                            }}</span>
+                                        <div v-if="vehicle.color" class="border-1 border-circle"
+                                            :style="{ backgroundColor: `#${vehicle.color}`, width: '1rem', aspectRatio: '1' }">
+                                        </div>
                                     </div>
                                     <Empty v-else label="Nenhuma carona solicitada foi aceita."
                                         icon="pi pi-list-check" />

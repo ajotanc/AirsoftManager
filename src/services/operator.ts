@@ -5,10 +5,13 @@ import {
   BUCKET_ID,
   storage,
 } from "@/services/appwrite";
+import dayjs from "dayjs";
+import { isValidCpf } from '@brazilian-utils/brazilian-utils';
 import { Query, type Models } from "appwrite";
 import type { IArsenal } from "./arsenal";
 import type { ILoadout } from "./loadout";
-import { uploadFile } from "@/functions/utils";
+import { formatDate, uploadFile } from "@/functions/utils";
+import z from "zod";
 
 export interface IOperator extends Models.Row {
   name: string;
@@ -63,6 +66,34 @@ export interface IOperator extends Models.Row {
 export type IOperatorDraft = Omit<IOperator, keyof Models.Row> & {
   $id: string;
 };
+
+export const operatorSchema = z.object({
+  name: z.string({ error: "Nome completo obrigatório" }).min(1, "Nome completo obrigatório"),
+  codename: z.string({ error: "Codinome obrigatório" }).min(1, "Codinome obrigatório"),
+  identity: z.string({ error: "CPF obrigatório" })
+    .refine(isValidCpf, "CPF inválido")
+    .transform((v) => v.replace(/\D/g, "")),
+  general_registration: z.string({ error: "RG obrigatório" })
+    .transform((v) => v.replace(/\D/g, "")),
+  birth_date: z.custom().refine((date) => date instanceof Date || typeof date === 'string', "Data obrigatória").transform((date) => date && formatDate(date).toISOString()),
+  blood_type: z.string({ error: "Tipo sanguíneo obrigatório" }),
+  mother_name: z.string({ error: "Nome da mãe obrigatório" }),
+  phone: z.string({ error: "Telefone obrigatório" }).transform((v) => v.replace(/\D/g, "")),
+  cep: z.string({ error: "CEP obrigatório" }).transform((v) => v.replace(/\D/g, "")),
+  address: z.string({ error: "Endereço obrigatório" }),
+  address_number: z.string({ error: "Número obrigatório" }),
+  neighborhood: z.string({ error: "Bairro obrigatório" }),
+  city: z.string({ error: "Cidade obrigatória" }),
+  state: z.string({ error: "Estado obrigatório" }),
+  emergency_contact: z.string({ error: "Nome do Contato obrigatório" }),
+  emergency_contact_phone: z.string({ error: "Telefone do Contato obrigatório" }).transform((v) => v.replace(/\D/g, "")),
+  category: z.number({ error: "Categoria obrigatória" }),
+  shirt_size: z.string({ error: "Tamanho obrigatório" }),
+  terms_accepted: z.boolean({ error: "Aceite os termos obrigatório" }).refine(v => v === true, "Aceite os termos obrigatório"),
+  availability: z.string({ error: "Escolha sua disponibilidade" }),
+  // profession: z.string({ error: "Escolha sua profissão" }),
+  instagram: z.string().regex(/^(?!.*\.\.)(?!.*\.$)[^\W][\w.]*$/, "Formato de usuário inválido (ex: exodoairsoft)").nullish().transform((value) => value?.replace('@', '').toLowerCase()),
+}).loose();
 
 export const OperatorService = {
   async row(rowId: string): Promise<IOperator> {
@@ -152,23 +183,49 @@ export const OperatorService = {
       },
     });
   },
-  async listBirthdays(): Promise<IOperator[]> {
+  async listBirthdays(includeNextMonth: boolean = false): Promise<IOperator[]> {
     try {
       const response = await tables.listRows<IOperator>({
         databaseId: DATABASE_ID,
         tableId: TABLE_OPERATORS,
-        queries: [Query.equal("status", true), Query.orderDesc("birth_date")],
+        queries: [
+          Query.equal("status", true),
+          Query.limit(1000)
+        ],
       });
 
-      const currentMonth = new Date().getMonth();
+      const now = dayjs();
+      const currentMonth = now.month(); // 0 a 11
+      const nextMonth = now.add(1, 'month').month();
 
-      return response.rows.filter((operator) => {
+      const filtered = response.rows.filter((operator) => {
         if (!operator.birth_date) return false;
-        const birthMonth = new Date(operator.birth_date).getMonth();
+
+        const birthDate = dayjs(operator.birth_date);
+        const birthMonth = birthDate.month();
+
+        if (includeNextMonth) {
+          return birthMonth === currentMonth || birthMonth === nextMonth;
+        }
+
         return birthMonth === currentMonth;
       });
+
+      // Ordenar por dia do mês para facilitar a visualização no mural/lista
+      return filtered.sort((a, b) => {
+        const dayA = dayjs(a.birth_date).date();
+        const dayB = dayjs(b.birth_date).date();
+
+        // Se incluir o próximo mês, precisamos ordenar primeiro pelo mês, depois pelo dia
+        const monthA = dayjs(a.birth_date).month();
+        const monthB = dayjs(b.birth_date).month();
+
+        if (monthA !== monthB) return monthA - monthB;
+        return dayA - dayB;
+      });
+
     } catch (error) {
-      console.error("Erro ao buscar usuários:", error);
+      console.error("Erro ao buscar aniversariantes:", error);
       return [];
     }
   },
@@ -190,5 +247,16 @@ export const OperatorService = {
       console.error("Erro ao buscar usuário:", error);
       return {} as IOperator;
     }
+  },
+  async activate(rowId: string): Promise<IOperator> {
+    return await tables.updateRow({
+      databaseId: DATABASE_ID,
+      tableId: TABLE_OPERATORS,
+      rowId,
+      data: {
+        status: true,
+        role: "operator",
+      },
+    });
   },
 };

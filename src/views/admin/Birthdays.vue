@@ -25,7 +25,7 @@ onMounted(() => {
 
 const loadServices = async () => {
     try {
-        operators.value = await OperatorService.listBirthdays();
+        operators.value = await OperatorService.listBirthdays(true);
     } catch (error) {
         console.error("Erro ao carregar:", error);
     } finally {

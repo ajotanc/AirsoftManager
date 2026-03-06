@@ -89,8 +89,10 @@ export const ArsenalService = {
       data,
     });
   },
-  async delete(rowId: string) {
-    await deleteFile(rowId, "nfe");
+  async delete(rowId: string, invoiceUrl: string | null) {
+    if (invoiceUrl) {
+      await deleteFile(rowId, "nfe");
+    }
 
     return await tables.deleteRow({
       databaseId: DATABASE_ID,

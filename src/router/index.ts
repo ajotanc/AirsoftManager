@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
 import { useOperator } from "@/composables/useOperator";
+import { checkRegistrationPeriod } from "@/functions/utils";
 
 const router = createRouter({
   history: createWebHistory(),
@@ -164,26 +165,48 @@ router.beforeEach(async (to, _, next) => {
     await authStore.init();
   }
 
-  const { user, isAuthenticated, hasCompletedSetup, isActiveOperator } =
-    authStore;
+  const {
+    user,
+    isAuthenticated,
+    isProfileComplete,
+    isActiveOperator,
+    isRecruit,
+    hasArsenal,
+    hasLoadout
+  } = authStore;
 
+  // 1. Trava de Período de Registro
+  if (to.path === '/register' && !checkRegistrationPeriod()) {
+    return next("/");
+  }
+
+  // 2. Proteção Geral (Auth e E-mail)
   if (to.meta.requiresAuth) {
-    if (!user) {
-      return next("/login");
-    }
-
+    if (!user) return next("/login");
     if (!user.emailVerification && to.path !== "/awaiting-verification") {
       return next("/awaiting-verification");
     }
   }
 
+  // 3. Redirecionamento de Logados
   if (isAuthenticated && ["/login", "/register", "/"].includes(to.path)) {
     return next("/dashboard");
   }
 
-  if (isAuthenticated) {
-    if (!hasCompletedSetup && isActiveOperator && to.path !== "/profile") {
-      return next("/profile");
+  // 4. FLUXO OBRIGATÓRIO DE CADASTRO
+  if (isAuthenticated && to.meta.requiresAuth) {
+
+    // CASO 1: QUALQUER ROLE DIFERENTE DE RECRUIT + STATUS TRUE (Operador Ativo)
+    if (isRecruit || (!isRecruit && isActiveOperator)) {
+      if (!isProfileComplete && to.path !== "/profile") return next("/profile");
+
+      if (isProfileComplete && !hasArsenal && to.path !== "/arsenal") {
+        return next("/arsenal");
+      }
+
+      if (isProfileComplete && hasArsenal && !hasLoadout && to.path !== "/loadout") {
+        return next("/loadout");
+      }
     }
   }
 

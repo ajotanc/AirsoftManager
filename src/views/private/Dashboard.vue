@@ -63,7 +63,8 @@
           </div>
         </template>
         <template #content>
-          <Button label="QR Code" icon="pi pi-qrcode" class="camera-switch p-button-outlined mt-2" @click="openScannerDialog = true" />
+          <Button label="QR Code" icon="pi pi-qrcode" class="camera-switch p-button-outlined mt-2"
+            @click="openScannerDialog = true" />
         </template>
       </Card>
     </div>

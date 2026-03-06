@@ -321,7 +321,7 @@ const weaponSchema = z.object({
   category: z.number({ error: "Selecione a categoria" }),
   joule: z.coerce.number({ error: "Informe o Joule" }).gt(0, { error: "Joule deve ser maior que 0.00" }).transform((value) => value && value.toString()),
   fps: z.number({ error: "Informe o FPS" }).max(550, { error: "FPS deve ser menor ou igual a 550" }).gt(0, { error: "FPS deve ser maior que 0" }),
-  maintenance_at: z.custom().refine((date) => date instanceof Date || typeof date === 'string', "Data obrigatória").transform((date) => date && formatDate(date).toISOString()),
+  maintenance_at: z.custom().refine((date) => date instanceof Date || typeof date === 'string', "Data obrigatória").transform((date) => date && formatDate(date).toISOString()).nullish().optional(),
   is_favorite: z.boolean().nullish(),
 });
 
@@ -346,8 +346,12 @@ const confirmDelete = (weapon: IArsenal) => {
     },
     accept: async () => {
       try {
-        await ArsenalService.delete(weapon.$id);
-        items.value = items.value.filter((item: IArsenal) => item.$id !== weapon.$id);
+        await ArsenalService.delete(weapon.$id, weapon.invoice);
+
+        const index = items.value.findIndex((item: IArsenal) => item.$id === weapon.$id);
+        if (index !== -1) {
+          items.value.splice(index, 1);
+        }
 
         toast.add({
           severity: "success",

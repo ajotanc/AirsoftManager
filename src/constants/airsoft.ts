@@ -178,6 +178,7 @@ export const WEAPON_TYPES = {
   2: "Spring",
   3: "GBB/GBBR",
   4: "HPA",
+  5: "AEP (Pistola Elétrica)",
 };
 
 export const WEAPON_TYPES_OPTIONS = Object.entries(WEAPON_TYPES).map(

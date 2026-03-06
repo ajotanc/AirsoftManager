@@ -61,7 +61,7 @@ export const GoalService = {
           await deleteFile(id);
         }
 
-        data.image_url = await uploadFile(id, file, 'goal-image');
+        data.image_url = await uploadFile(id, file, 'goal');
       }
 
       return await tables.upsertRow({

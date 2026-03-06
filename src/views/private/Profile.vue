@@ -1,7 +1,7 @@
 <template>
   <div class="flex align-items-center justify-content-center min-h-screen surface-ground px-2 py-2">
     <div class="surface-card p-4 shadow-2 border-round w-full lg:w-12">
-      <div class="flex justify-content-between align-items-start">
+      <div class="flex justify-content-between align-items-start mb-3">
         <div class="avatar-wrapper cursor-pointer" @click="triggerFileInput">
           <Avatar :image="operator.avatar" :icon="!operator.avatar ? 'pi pi-user' : undefined"
             class="text-xl bg-gray-200" size="xlarge" shape="circle" :style="loading ? 'opacity: 0.5' : ''" />
@@ -21,10 +21,9 @@
         </div>
       </div>
 
-      <div class="text-center mb-5">
-        <div class="text-900 text-3xl font-medium mb-3">Ficha de Cadastro</div>
-        <span class="text-600 font-medium">Preencha seus dados completos</span>
-      </div>
+      <Message v-if="!authStore.isProfileComplete" severity="error" class="mb-3" closable>
+        <strong>Complete seu perfil para acessar todas as funcionalidades do sistema.</strong>
+      </Message>
 
       <Form ref="form" v-slot="$form" :resolver="resolver" :initialValues="initialValues" @submit="handleUpdateProfile"
         class="flex flex-column gap-3" v-asterisk="operatorSchema">
@@ -124,6 +123,8 @@
                   class="w-full" fluid />
                 <label :for="$field.props.name">Categoria</label>
               </FloatLabel>
+              <Message v-if="$field.invalid" severity="error" size="small" variant="simple">{{ $field.error.message }}
+              </Message>
             </FormField>
 
             <FormField name="experience" v-slot="$field" class="field col-12 md:col-4 flex flex-column gap-1">
@@ -345,47 +346,57 @@
 
         <div class="grid formgrid">
           <span>Estatuto e Conduta da equipe <strong>{{ TEAM_NAME }}</strong></span>
-          <ScrollPanel @scroll.capture="handleScroll" class="col-12 border-1 border-gray-400 border-round mt-3 p-3" style="height: 22.5rem;">
-            <p class="m-0 line-height-2">
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Facilis nesciunt a corporis inventore at quasi,
-              fuga, provident ex voluptate harum, accusantium modi laudantium laborum sunt ut aliquam quis soluta
-              recusandae id ipsam itaque quas corrupti? Voluptates fugiat ipsam sapiente quas minima maiores, quibusdam
-              incidunt vitae doloremque neque perferendis libero quasi quis explicabo. Incidunt, labore odio animi
-              ducimus officiis iusto reiciendis velit dolore quis sunt accusantium hic natus ratione odit quos optio,
-              suscipit corrupti pariatur qui voluptas repellat quaerat fugit, eum exercitationem. Nobis, cupiditate
-              numquam quod magnam corporis similique vero veritatis quaerat inventore quo repudiandae ab temporibus
-              delectus labore laboriosam. Unde.
+          <ScrollPanel @scroll.capture="handleScroll" class="col-12 border-1 border-gray-400 border-round mt-3 p-3"
+            style="height: 15rem;">
+            <p class="m-0 line-height-2 font-bold">
+              TERMO DE CIÊNCIA E ACEITE – ESTATUTO INTEGRAL E CÓDIGO DE CONDUTA
             </p>
-            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Natus sequi, explicabo, omnis sunt ut id
-              blanditiis assumenda cumque libero ipsa eum quibusdam modi reprehenderit fuga perferendis nisi, tempora
-              esse fugit neque soluta voluptas aliquid qui! Ea debitis maxime repellendus perspiciatis explicabo
-              similique excepturi aspernatur minima. Blanditiis voluptas vitae et quas reiciendis corporis, cumque neque
-              libero, accusamus necessitatibus doloremque nihil odio maxime ducimus enim, alias distinctio! Tenetur
-              dolore expedita vero quaerat nihil incidunt qui explicabo consequuntur excepturi rerum obcaecati,
-              accusamus nulla, animi repudiandae quis porro natus sint. Beatae itaque rerum accusantium, impedit quia
-              odio minus. Animi temporibus aliquam rerum, dolore eius necessitatibus distinctio quas soluta hic,
-              expedita provident! Magni perferendis in dolore, ipsa modi architecto reiciendis laudantium mollitia non
-              quos nesciunt quisquam facilis quas aspernatur eum necessitatibus voluptatem voluptatum aliquam
-              asperiores. Perferendis sit magnam odio numquam. Omnis laudantium vitae, iusto quas dolores dolorem
-              deleniti hic. Est sapiente aperiam odit odio doloremque incidunt sint? Nostrum, ab iste quos dolores
-              dignissimos amet, soluta veniam deleniti, inventore provident itaque voluptatibus quae optio perferendis
-              maiores minima dolor cupiditate modi. Perspiciatis quae voluptatibus aspernatur sit facilis sunt, id
-              distinctio ab itaque autem eaque molestiae dolore vel laborum voluptatum? Modi culpa nesciunt ratione
-              adipisci qui aspernatur repudiandae reprehenderit ab, a placeat hic praesentium sed! Cum quidem quas id
-              consequuntur ipsum facilis, omnis incidunt iure ut odio quo consequatur modi possimus enim similique
-              suscipit, non aperiam, repellendus mollitia. Quae rerum quod aperiam molestiae magni, reprehenderit aut
-              voluptas. Quis voluptate hic nulla accusamus libero cupiditate nostrum itaque, ea quidem, dolor
-              reprehenderit eos odio repellat reiciendis nesciunt iusto at totam vel minus deleniti exercitationem unde
-              quod rem. Officia cumque dolor omnis accusantium. Atque repellat eveniet magni, quis officia consectetur,
-              ratione praesentium neque alias minima delectus, eaque maiores sed! Laborum, nisi? Porro nemo laborum
-              error labore sint accusamus voluptate odit. Explicabo nisi doloribus distinctio quia mollitia, omnis,
-              ratione soluta maxime quidem sunt autem recusandae eos cumque repellat sapiente. Ipsum ex earum eum eaque
-              doloribus incidunt eos at? Expedita, dicta quam? Deserunt ex voluptate nam distinctio. Ipsa quis officia
-              sapiente excepturi, hic dolorum nobis rem quibusdam nisi ipsam? Maiores eius quos inventore voluptatem
-              facilis quas consequuntur excepturi, hic tenetur porro, deleniti rem dolor cupiditate. Architecto eius
-              totam et iste magnam illum dicta eaque sint ratione autem nobis aliquam, fugit eos quae, soluta
-              necessitatibus inventore dolore! Impedit magnam ratione accusantium adipisci nostrum nam repellendus in,
-              harum quidem. Pariatur et magnam aut recusandae vitae.</p>
+            <p class="line-height-2">
+              Ao prosseguir, declaro que li, compreendo e aceito integralmente os termos estabelecidos no Estatuto
+              Integral e Código de Conduta do Êxodo Airsoft, comprometendo-me a seguir as diretrizes abaixo descritas:
+            </p>
+            <p class="line-height-2">
+              <strong>IDENTIDADE E COMPROMISSO:</strong> Compreendo que o uso do Patch da unidade é um privilégio que
+              implica na
+              aceitação total deste estatuto. Comprometo-me a zelar pela imagem da equipe, agindo com honra e respeito
+              em qualquer evento, treino ou operação.
+
+            </p>
+            <p class="line-height-2"> <strong>SEGURANÇA E PROTEÇÃO:</strong> Declaro ciência de que a segurança é o
+              pilar inegociável. É
+              terminantemente proibida
+              a retirada da proteção ocular em "Zona Quente". Reconheço que o descumprimento de normas de segurança
+              básica ou conduta de risco facultará à liderança a minha expulsão imediata da atividade ou da unidade.
+            </p>
+            <p class="line-height-2">
+              <strong>LEGALIDADE DO EQUIPAMENTO:</strong> Certifico que meu equipamento de airsoft (AEG/GBB) está em
+              conformidade com a
+              legislação vigente, possuindo obrigatoriamente a ponta laranja ou vermelha e a devida nota fiscal de
+              compra. Assumo total responsabilidade pelo transporte e porte do equipamento conforme as normas do
+              Exército Brasileiro.
+            </p>
+            <p class="line-height-2">
+              <strong>DOUTRINA E FAIR PLAY:</strong> Aceito os pilares de União, Lealdade e Respeito. Comprometo-me com
+              a honestidade nas
+              eliminações, combatendo o "Highlanderismo" (não marcar o acerto). Entendo que o Airsoft é um jogo de honra
+              e que minha conduta reflete em todo o grupo.
+            </p>
+            <p class="line-height-2">
+              <strong>REGIME DISCIPLINAR:</strong> Estou ciente de que qualquer desvio de conduta, ato de insubordinação
+              ou comportamento
+              antidesportivo me sujeitará ao conselho disciplinar da unidade, podendo resultar em advertência, suspensão
+              ou exclusão definitiva, sem prejuízo de responsabilidades civis.
+            </p>
+            <p class="line-height-2">
+              <strong>CONFIDENCIALIDADE:</strong> Comprometo-me a manter sigilo sobre táticas, comunicações internas e
+              estratégias da
+              Unidade Êxodo, respeitando a hierarquia e a organização estabelecida pela liderança.
+            </p>
+            <p class="line-height-2">
+              Declaro ser maior de idade (ou possuir autorização legal) e estar em pleno gozo de minhas capacidades
+              físicas e mentais para a prática do esporte, isentando a Unidade Êxodo de responsabilidade por incidentes
+              decorrentes do descumprimento destas normas.
+            </p>
           </ScrollPanel>
           <div class="col-12 mt-4">
             <FormField name="media_consent" v-slot="$field" class="flex align-items-center mb-3">
@@ -433,18 +444,16 @@ import Panel from "primevue/panel";
 import Rating from "primevue/rating";
 
 import {
-  isValidIdentity,
   addressByCep,
-  formatDate,
   search
 } from "@/functions/utils";
 import { useOperator } from "@/composables/useOperator";
-import { OperatorService, type IOperator } from "@/services/operator";
+import { operatorSchema, OperatorService, type IOperator } from "@/services/operator";
 
 import { CATEGORIES_OPTIONS, SOURCES, SHIRT_SIZES, BLOOD_TYPES, EXPERIENCES, ALLERGIES, MEDICATIONS, AVAILABILITY_TYPES, PROFESSION_TYPES, TEAM_NAME } from "@/constants/airsoft";
 import { BadgeService } from "@/services/badge";
 
-const { updateState, operator } = useOperator();
+const { updateState, operator, authStore } = useOperator();
 
 const router = useRouter();
 const toast = useToast();
@@ -470,33 +479,6 @@ const initialValues = computed(() => {
     birth_date: op.birth_date ? new Date(op.birth_date).toLocaleDateString("pt-BR") : null,
   };
 });
-
-const operatorSchema = z.object({
-  name: z.string({ error: "Nome completo obrigatório" }).min(1, "Nome completo obrigatório"),
-  codename: z.string({ error: "Codinome obrigatório" }).min(1, "Codinome obrigatório"),
-  identity: z.string({ error: "CPF obrigatório" })
-    .refine(isValidIdentity, "CPF inválido")
-    .transform((v) => v.replace(/\D/g, "")),
-  general_registration: z.string({ error: "RG obrigatório" })
-    .transform((v) => v.replace(/\D/g, "")),
-  birth_date: z.custom().refine((date) => date instanceof Date || typeof date === 'string', "Data obrigatória").transform((date) => date && formatDate(date).toISOString()),
-  blood_type: z.string({ error: "Tipo sanguíneo obrigatório" }),
-  mother_name: z.string({ error: "Nome da mãe obrigatório" }),
-  phone: z.string({ error: "Telefone obrigatório" }).transform((v) => v.replace(/\D/g, "")),
-  cep: z.string({ error: "CEP obrigatório" }).transform((v) => v.replace(/\D/g, "")),
-  address: z.string({ error: "Endereço obrigatório" }),
-  address_number: z.string({ error: "Número obrigatório" }),
-  neighborhood: z.string({ error: "Bairro obrigatório" }),
-  city: z.string({ error: "Cidade obrigatória" }),
-  state: z.string({ error: "Estado obrigatório" }),
-  emergency_contact: z.string({ error: "Nome do Contato obrigatório" }),
-  emergency_contact_phone: z.string({ error: "Telefone do Contato obrigatório" }).transform((v) => v.replace(/\D/g, "")),
-  shirt_size: z.string({ error: "Tamanho obrigatório" }),
-  terms_accepted: z.boolean({ error: "Aceite os termos obrigatório" }).refine(v => v === true, "Aceite os termos obrigatório"),
-  availability: z.string({ error: "Escolha sua disponibilidade" }),
-  profession: z.string({ error: "Escolha sua profissão" }),
-  instagram: z.string().regex(/^(?!.*\.\.)(?!.*\.$)[^\W][\w.]*$/, "Formato de usuário inválido (ex: exodoairsoft)").nullish().transform((value) => value?.replace('@', '').toLowerCase()),
-}).loose();
 
 const medicalSchema = z.object({
   health_plan: z.boolean().nullish(),

@@ -49,29 +49,6 @@ export interface FieldChangePayload<T> {
 
 export type AppFormResolver = (e: FormResolverOptions) => Promise<Record<string, any>> | Record<string, any> | undefined;
 
-export const isValidIdentity = (cpf: string): boolean => {
-  if (typeof cpf !== "string") return false;
-
-  cpf = cpf.replace(/[\s.-]*/gim, "");
-
-  if (cpf.length !== 11 || !!cpf.match(/(\d)\1{10}/)) return false;
-
-  const cpfDigits: number[] = cpf.split("").map((el) => +el);
-
-  const rest = (count: number): number => {
-    return (
-      ((cpfDigits
-        .slice(0, count - 1)
-        .reduce((soma, el, index) => soma + el * (count - index), 0) *
-        10) %
-        11) %
-      10
-    );
-  };
-
-  return rest(10) === cpfDigits[9] && rest(11) === cpfDigits[10];
-};
-
 export interface ViaCepResponse {
   cep: string;
   logradouro: string;
@@ -351,5 +328,17 @@ export const limitWords = (text: string, limit: number) => {
   const words = text?.split(/\s+/) ?? [];
   if (words.length <= limit) return text;
 
-  return `${words.slice(0, limit).join(" ")}...`;
+  return `${words.slice(0, limit).join(" ")} (Ler mais...)`;
+};
+
+export const checkRegistrationPeriod = () => {
+  const startDateStr = import.meta.env.VITE_REGISTRATION_START_DATE;
+
+  if (!startDateStr) return false;
+
+  const now = dayjs();
+  const startDate = dayjs(startDateStr);
+  const endDate = startDate.add(20, 'day');
+
+  return now.isAfter(startDate) && now.isBefore(endDate);
 };
