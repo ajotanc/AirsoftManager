@@ -93,7 +93,7 @@ const shareNative = async () => {
       const file = new File([blob], `${Date.now()}-thumbnail.webp`, { type: 'image/webp' });
 
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        return await navigator.share({ files: [file], title, text: text.concat('\n@todos') });
+        return await navigator.share({ files: [file], title, text });
       }
     } catch (e) {
       if ((e as Error).name !== 'AbortError') console.error("Erro no share de arquivo:", e);
