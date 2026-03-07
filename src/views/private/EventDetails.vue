@@ -1112,7 +1112,7 @@ const saveFeedback = async (values: IFeedback) => {
     }
 };
 
-const handleExport = () => {
+const handleExport = async () => {
     const dataToExport = participants.value.map(p => {
         const { name, birth_date, identity, blood_type, phone, emergency_contact, emergency_contact_phone, allergies, medication_details } = getOperator(p.operator.$id)!;
 
@@ -1120,16 +1120,25 @@ const handleExport = () => {
             "Nome Completo": name.trim(),
             "Data de Nascimento": dayjs(birth_date).format('DD/MM/YYYY'),
             "CPF": formatCPF(identity!),
-            "Telefone": formatPhone(phone!, { mask: 'auto' }),
+            "Telefone": phone && formatPhone(phone, { mask: 'auto' }),
             "Contato Emergência": emergency_contact?.trim(),
-            "Contato Emergência - Telefone": formatPhone(emergency_contact_phone!, { mask: 'auto' }),
+            "Contato Emergência - Telefone": emergency_contact_phone && formatPhone(emergency_contact_phone, { mask: 'auto' }),
             "Tipo Sanguíneo": blood_type,
             "Alergias": allergies?.join(', ') || null,
             "Medicação Contínua": medication_details?.join(', ') || null,
         }
     });
 
-    export2Excel(`${dayjs().unix()}-${event.value.$id}-FICHA-MÉDICA`, dataToExport, "Ficha Médica");
+    const summary = "Ficha Médica";
+
+    await export2Excel(`${dayjs().unix()}-${event.value.$id}-FICHA-MÉDICA`, dataToExport, summary);
+
+    toast.add({
+        severity: 'success',
+        summary,
+        detail: 'Exportação concluída! Verifique seu download.',
+        life: 3000
+    });
 };
 
 // const handleExport = () => {
