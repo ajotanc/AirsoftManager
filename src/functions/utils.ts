@@ -1,5 +1,7 @@
 import imageCompression from 'browser-image-compression';
 import dayjs from 'dayjs';
+import ExcelJS from 'exceljs';
+import { saveAs } from 'file-saver';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import { type FormResolverOptions } from '@primevue/forms';
 import beepSound from "@/assets/sounds/beep.mp3";
@@ -341,4 +343,63 @@ export const checkRegistrationPeriod = () => {
   const endDate = startDate.add(20, 'day');
 
   return now.isAfter(startDate) && now.isBefore(endDate);
+};
+
+export const export2CSV = (filename: string, rows: any[], headers: string[], separator: string = ";") => {
+  if (!rows || !rows.length) return;
+
+  const csvContent = [
+    headers.join(separator),
+    ...rows.map(row =>
+      Object.values(row)
+        .map(value => `"${String(value ?? "").replace(/"/g, '""')}"`)
+        .join(separator)
+    )
+  ].join("\n");
+
+  const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" });
+  const link = document.createElement("a");
+
+  if (link.download !== undefined) {
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", `${filename}.csv`);
+    link.style.visibility = "hidden";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+};
+
+export const export2Excel = async (filename: string, data: any[], sheetName: string = 'Principal') => {
+  const workbook = new ExcelJS.Workbook();
+  const worksheet = workbook.addWorksheet(sheetName);
+
+  const columns = Object.keys(data[0]).map(key => ({
+    header: key,
+    key,
+  }));
+
+  worksheet.columns = columns;
+  worksheet.addRows(data);
+
+  worksheet.columns.forEach(column => {
+    let maxLength = 0;
+    column.eachCell!({ includeEmpty: true }, (cell) => {
+      const columnLength = cell.value ? cell.value.toString().length : 10;
+      if (columnLength > maxLength) {
+        maxLength = columnLength;
+      }
+    });
+    column.width = maxLength < 12 ? 12 : maxLength + 2;
+  });
+
+  const headerRow = worksheet.getRow(1);
+  headerRow.font = { size: 12, bold: true };
+  headerRow.alignment = { vertical: 'middle', horizontal: 'left' };
+
+  const buffer = await workbook.xlsx.writeBuffer();
+  const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+
+  saveAs(blob, `${filename}.xlsx`);
 };

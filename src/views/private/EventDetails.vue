@@ -160,6 +160,15 @@
                                 </TabPanel>
                             </TabPanels>
                         </Tabs>
+                        <div v-if="isAdmin || isAdministrativeManagement" class="actions">
+                            <h4 class="text-sm uppercase text-gray-500 border-bottom-1 border-white-alpha-10 mt-3 pb-2">
+                                Acesso Rápido
+                            </h4>
+                            <div class="buttons">
+                                <Button label="Ficha Médica" icon="ri-health-book-line" severity="danger"
+                                    @click="handleExport" />
+                            </div>
+                        </div>
                     </template>
                 </Card>
                 <Card class="bg-blue-900 border-1 border-white-alpha-10">
@@ -180,7 +189,7 @@
                             <TabPanels>
                                 <TabPanel :value="0">
                                     <div v-if="carpools.length > 0" v-for="carpool in carpools" :key="carpool.$id"
-                                        class="flex flex-column text-gray-700">
+                                        class="flex flex-column">
                                         <div class="flex justify-content-between align-items-center">
                                             <div class="flex flex-column gap-2">
                                                 <div class="flex align-items-center gap-2">
@@ -195,7 +204,7 @@
                                                         {{ carpool.vehicle.model }}
                                                     </span>
                                                     <i v-if="carpool.vehicle.color" class="border-1 border-circle"
-                                                        :style="{ backgroundColor: `#${carpool.vehicle.color}`, width: '1rem', aspectRatio: '1' }"></i>
+                                                        :style="{ backgroundColor: `#${carpool.vehicle.color}`, width: '0.9rem', height: '0.9rem' }"></i>
                                                 </div>
                                                 <div class="flex align-items-center gap-2 text-sm">
                                                     <i class="pi pi-users text-sm"></i>
@@ -236,14 +245,15 @@
                                 <TabPanel :value="1">
                                     <div v-if="carpoolAccepteds.length > 0"
                                         v-for="({ $id, requester, carpool: { vehicle } }, _index) in carpoolAccepteds"
-                                        :key="$id" class="flex text-gray-700 align-items-center gap-1 mb-1">
-                                        <span class="text-sm"><strong>{{ getOperatorName(vehicle.driver) }}</strong>
-                                            aceitou a
-                                            solicitação de
-                                            <strong>{{ requester.codename }}</strong> no veículo {{ vehicle.model
-                                            }}</span>
-                                        <div v-if="vehicle.color" class="border-1 border-circle"
-                                            :style="{ backgroundColor: `#${vehicle.color}`, width: '1rem', aspectRatio: '1' }">
+                                        :key="$id" class="flex align-items-center text-sm mb-1">
+                                        <div class="w-full">
+                                            <strong>{{ getOperatorName(vehicle.driver) }}</strong> aceitou a
+                                            solicitação de <strong>{{
+                                                requester.codename }}</strong> no veículo {{ vehicle.model
+                                                }}
+                                        </div>
+                                        <div v-if="vehicle.color" class="border-1 border-circle ml-auto"
+                                            :style="{ backgroundColor: `#${vehicle.color}`, width: '0.9rem', height: '0.9rem' }">
                                         </div>
                                     </div>
                                     <Empty v-else label="Nenhuma carona solicitada foi aceita."
@@ -284,7 +294,7 @@
                                     :icon="!feedback.operator.avatar ? 'pi pi-user' : undefined" shape="circle" />
                                 <div class="flex flex-column">
                                     <span class="text-sm font-bold uppercase">{{ getShortName(feedback.operator.name)
-                                    }}</span>
+                                        }}</span>
                                     <span class="text-xs uppercase">{{ feedback.operator.codename }}</span>
                                 </div>
                             </div>
@@ -331,7 +341,7 @@
                         <template #option="slotProps">
                             <div class="flex flex-column">
                                 <span class="font-bold">{{ slotProps.option.name }} ({{ slotProps.option.codename
-                                }})</span>
+                                    }})</span>
                                 <small class="text-gray-500">Convidado por {{
                                     slotProps.option.operator.codename }}</small>
                             </div>
@@ -393,7 +403,7 @@ import { useToast } from "primevue/usetoast";
 import { atcb_action } from 'add-to-calendar-button';
 import { EventService, type IEvent, type IParticipation, type IVisitorParticipation, type IVisitorParticipationDetail } from '@/services/event';
 import { EVENT_TYPES, TEAM_NAME } from '@/constants/airsoft';
-import { formatDate, playBeep, type IFields } from '@/functions/utils';
+import { export2Excel, formatDate, playBeep, type IFields } from '@/functions/utils';
 import type { ATCBActionEventConfig } from 'add-to-calendar-button';
 import { severityEvent, getShortName } from '@/functions/utils'
 
@@ -424,6 +434,7 @@ import { useOperator } from '@/composables/useOperator';
 import AppScanner from '@/components/AppScanner.vue';
 import { FeedbackService, type IFeedback } from '@/services/feedback';
 import AppFormDialog from '@/components/AppFormDialog.vue';
+import { formatCPF, formatPhone } from '@brazilian-utils/brazilian-utils';
 
 const route = useRoute();
 const toast = useToast();
@@ -1101,14 +1112,66 @@ const saveFeedback = async (values: IFeedback) => {
     }
 };
 
+const handleExport = () => {
+    const dataToExport = participants.value.map(p => {
+        const { name, birth_date, identity, blood_type, phone, emergency_contact, emergency_contact_phone, allergies, medication_details } = getOperator(p.operator.$id)!;
+
+        return {
+            "Nome Completo": name.trim(),
+            "Data de Nascimento": dayjs(birth_date).format('DD/MM/YYYY'),
+            "CPF": formatCPF(identity!),
+            "Telefone": formatPhone(phone!, { mask: 'auto' }),
+            "Contato Emergência": emergency_contact?.trim(),
+            "Contato Emergência - Telefone": formatPhone(emergency_contact_phone!, { mask: 'auto' }),
+            "Tipo Sanguíneo": blood_type,
+            "Alergias": allergies?.join(', ') || null,
+            "Medicação Contínua": medication_details?.join(', ') || null,
+        }
+    });
+
+    export2Excel(`${dayjs().unix()}-${event.value.$id}-FICHA-MÉDICA`, dataToExport, "Ficha Médica");
+};
+
+// const handleExport = () => {
+//     const headers = [
+//         "Nome Completo",
+//         "Data de Nascimento",
+//         "CPF",
+//         "Telefone",
+//         "Contato de Emergência",
+//         "Contato de Emergência - Telefone",
+//         "Tipo Sanguíneo",
+//         "Alergias",
+//         "Medicação Contínua"
+//     ];
+
+//     const dataToExport = participants.value.map(p => {
+//         const { name, birth_date, identity, blood_type, phone, emergency_contact, emergency_contact_phone, allergies, medication_details } = getOperator(p.operator.$id)!;
+
+//         return {
+//             name,
+//             birth_date: dayjs(birth_date).format('DD/MM/YYYY'),
+//             identity: formatCPF(identity!),
+//             phone: formatPhone(phone!, { mask: 'auto' }),
+//             emergency_contact: emergency_contact?.trim(),
+//             emergency_contact_phone: formatPhone(emergency_contact_phone!, { mask: 'auto' }),
+//             blood_type,
+//             allergies: allergies?.join(', ') || null,
+//             medication_details: medication_details?.join(', ') || null,
+//         };
+//     });
+
+//     export2CSV("lista_participantes", dataToExport, headers);
+// };
+
 const getOperator = (id: string) => operatorsMap.value.get(id);
 const getOperatorName = (id: string) => operatorsMap.value.get(id)?.codename || 'Desconhecido';
 </script>
 
 <style scoped>
 :deep(.feedback .p-rating-icon) {
-    width: 0.8rem;
-    height: 0.8rem;
-    font-size: 0.8rem;
+    width: 0.9rem;
+    height: 0.9rem;
+    font-size: 0.9rem;
 }
 </style>
