@@ -8,7 +8,7 @@ export const TABLE_CASHFLOW = "cashflow";
 export interface ICashflow extends Models.Row {
   description: string;
   amount: number;
-  type: 'income' | 'expense';
+  type: "income" | "expense";
   category: string;
   date: Date | string | null;
   reference: string;
@@ -65,13 +65,13 @@ export const CashflowService = {
       tableId: TABLE_CASHFLOW,
       rowId: ID.unique(),
       data,
-      permissions
+      permissions,
     });
   },
   async upsert(
     rowId: string | undefined,
     data: ICashflow,
-    file?: File
+    file?: File,
   ): Promise<ICashflow> {
     try {
       const isUpdate = !!rowId;
@@ -79,10 +79,10 @@ export const CashflowService = {
 
       if (file instanceof File) {
         if (isUpdate) {
-          await deleteFile(id);
+          await deleteFile(id, "receipt");
         }
 
-        data.receipt_url = await uploadFile(id, file, 'receipt');
+        data.receipt_url = await uploadFile(id, file, "receipt");
       }
 
       const date = dayjs(data.date);
@@ -94,9 +94,9 @@ export const CashflowService = {
         rowId: id,
         data: {
           ...data,
-          reference
+          reference,
         },
-        permissions
+        permissions,
       });
     } catch (error) {
       console.error("Erro no upsert:", error);

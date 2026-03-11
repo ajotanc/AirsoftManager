@@ -159,7 +159,8 @@ const saveEvent = async ({ valid, values }: any) => {
         const file = selectedEvent.value.file as File;
         const payload = {
             ...values,
-            location_coords: selectedEvent.value.location_coords
+            location_coords: selectedEvent.value.location_coords,
+            reference: dayjs(values.date).format("MM/YYYY"),
         }
 
         const response = await EventService.upsert(selectedEvent.value.$id, payload, file) as IEvent;

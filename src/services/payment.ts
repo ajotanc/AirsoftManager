@@ -1,14 +1,14 @@
-import { QrCodePix } from 'qrcode-pix';
+import { QrCodePix } from "qrcode-pix";
 import { ID, Query, type Models } from "appwrite";
 import { tables, permissions, DATABASE_ID } from "@/services/appwrite";
-import { TEAM_NAME } from '@/constants/airsoft';
-import { uploadFile } from '@/functions/utils';
-import { OperatorService, type IOperator } from './operator';
-import { CashflowService, type ICashflow } from './cashflow';
-import dayjs from 'dayjs';
-import { GoalService, type IGoal } from './goal';
-import { BadgeService } from './badge';
-import { useOperator } from '@/composables/useOperator';
+import { TEAM_NAME } from "@/constants/airsoft";
+import { deleteFile, uploadFile } from "@/functions/utils";
+import { OperatorService, type IOperator } from "./operator";
+import { CashflowService, type ICashflow } from "./cashflow";
+import dayjs from "dayjs";
+import { GoalService, type IGoal } from "./goal";
+import { BadgeService } from "./badge";
+import { useOperator } from "@/composables/useOperator";
 
 export const TABLE_PAYMENTS = "payments";
 const key = import.meta.env.VITE_PIX_KEY;
@@ -16,7 +16,7 @@ const key = import.meta.env.VITE_PIX_KEY;
 export interface IPayment extends Models.Row {
   description: string;
   amount: number;
-  status: 'created' | 'pending' | 'overdue' | 'paid';
+  status: "created" | "pending" | "overdue" | "paid";
   category: string;
   reference: string;
   receipt_url: string | null;
@@ -75,12 +75,12 @@ export const PaymentService = {
       tableId: TABLE_PAYMENTS,
       rowId: ID.unique(),
       data,
-      permissions
+      permissions,
     });
   },
   async upsert(
     rowId: string | undefined,
-    data: Partial<IPayment>
+    data: Partial<IPayment>,
   ): Promise<IPayment> {
     try {
       const id = rowId || ID.unique();
@@ -90,7 +90,7 @@ export const PaymentService = {
         tableId: TABLE_PAYMENTS,
         rowId: id,
         data,
-        permissions
+        permissions,
       });
     } catch (error) {
       console.error("Erro no upsert:", error);
@@ -98,18 +98,24 @@ export const PaymentService = {
     }
   },
   async delete(rowId: string): Promise<{}> {
+    await deleteFile(rowId, "payment");
+
     return await tables.deleteRow({
       databaseId: DATABASE_ID,
       tableId: TABLE_PAYMENTS,
       rowId,
     });
   },
-  async generatePix(value: number, message: string, transactionId: string): Promise<{ payload: string; base64: string }> {
+  async generatePix(
+    value: number,
+    message: string,
+    transactionId: string,
+  ): Promise<{ payload: string; base64: string }> {
     const qrCodePix = QrCodePix({
-      version: '01',
+      version: "01",
       key,
       name: TEAM_NAME,
-      city: 'SALVADOR',
+      city: "SALVADOR",
       transactionId,
       message,
       value,
@@ -122,7 +128,7 @@ export const PaymentService = {
   },
   async payment(rowId: string, file: File): Promise<IPayment> {
     try {
-      const urlFormatted = await uploadFile(rowId, file, 'payment');
+      const urlFormatted = await uploadFile(rowId, file, "payment");
 
       return await tables.updateRow<IPayment>({
         databaseId: DATABASE_ID,
@@ -130,9 +136,9 @@ export const PaymentService = {
         rowId,
         data: {
           receipt_url: urlFormatted,
-          status: 'pending'
+          status: "pending",
         },
-        permissions
+        permissions,
       });
     } catch (error) {
       console.error("Erro no upsert:", error);
@@ -147,14 +153,16 @@ export const PaymentService = {
       tableId: TABLE_PAYMENTS,
       rowId,
       data: {
-        status: 'paid'
+        status: "paid",
       },
-      permissions
+      permissions,
     });
 
     if (payment.goal) {
       const goal = payment.goal as IGoal;
-      await GoalService.update(goal.$id, { current_amount: (goal.current_amount + payment.amount) });
+      await GoalService.update(goal.$id, {
+        current_amount: goal.current_amount + payment.amount,
+      });
     }
 
     const date = dayjs();
@@ -162,7 +170,7 @@ export const PaymentService = {
     const data = {
       description: payment.description,
       amount: payment.amount,
-      type: 'income',
+      type: "income",
       category: payment.category,
       reference: payment.reference,
       date: date.toISOString(),
@@ -172,16 +180,19 @@ export const PaymentService = {
 
     await CashflowService.create(data);
 
-    const xpAmount = payment.category === 'goal' ? 100 : 50;
+    const xpAmount = payment.category === "goal" ? 100 : 50;
     const payingOperator = payment.operator as IOperator;
 
-    const updatedOp = await BadgeService.addActivityXp(payingOperator, xpAmount);
+    const updatedOp = await BadgeService.addActivityXp(
+      payingOperator,
+      xpAmount,
+    );
 
     if (operator.value.$id === updatedOp.$id) {
       await updateState(updatedOp);
     }
 
-    if (payment.category === 'enrollment') {
+    if (payment.category === "enrollment") {
       await OperatorService.activate(payingOperator.$id);
     }
 
@@ -189,7 +200,7 @@ export const PaymentService = {
   },
   async contribute(data: IPayment, file: File): Promise<IPayment> {
     const rowId = ID.unique();
-    const urlFormatted = await uploadFile(rowId, file, 'payment');
+    const urlFormatted = await uploadFile(rowId, file, "payment");
 
     return await tables.createRow({
       databaseId: DATABASE_ID,
@@ -199,7 +210,7 @@ export const PaymentService = {
         ...data,
         receipt_url: urlFormatted,
       },
-      permissions
+      permissions,
     });
   },
 };

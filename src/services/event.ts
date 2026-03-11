@@ -22,6 +22,7 @@ export interface IEvent extends Models.Row {
   title: string;
   type: number | string;
   date: Date | string | null;
+  reference: string;
   startTime: string;
   endTime: string;
   location: string;
@@ -39,8 +40,7 @@ export interface IEvent extends Models.Row {
   feedbacks?: IFeedback[];
 }
 
-export interface IParticipation<TOp = string | IOperator>
-  extends Models.Row {
+export interface IParticipation<TOp = string | IOperator> extends Models.Row {
   event: string;
   operator: TOp;
   status: boolean;
@@ -54,7 +54,9 @@ export interface IVisitorParticipation<TOv = string | IVisitor>
   checked_in: boolean;
 }
 
-export type IVisitorParticipationDetail = IVisitorParticipation<IVisitor<string>>;
+export type IVisitorParticipationDetail = IVisitorParticipation<
+  IVisitor<string>
+>;
 
 export const EventService = {
   async row(rowId: string): Promise<IEvent> {
@@ -84,6 +86,8 @@ export const EventService = {
   },
   async list(): Promise<IEvent[]> {
     try {
+      const reference = dayjs().format("MM/YYYY");
+
       const response = await tables.listRows<IEvent>({
         databaseId: DATABASE_ID,
         tableId: TABLE_EVENTS,
@@ -93,9 +97,14 @@ export const EventService = {
             "participations.*",
             "participations.operator.*",
             "visitor_participations.*",
-            "visitor_participations.visitor.*"
+            "visitor_participations.visitor.*",
           ]),
-          Query.orderAsc("date")
+          Query.orderAsc("date"),
+          Query.limit(1000),
+          Query.or([
+            Query.equal("reference", reference),
+            Query.isNull("reference"),
+          ]),
         ],
       });
       return response.rows;
@@ -110,7 +119,7 @@ export const EventService = {
       tableId: TABLE_EVENTS,
       rowId: ID.unique(),
       data,
-      permissions
+      permissions,
     });
   },
   async update(rowId: string, data: Partial<IEvent>): Promise<IEvent> {
@@ -119,13 +128,13 @@ export const EventService = {
       tableId: TABLE_EVENTS,
       rowId,
       data,
-      permissions
+      permissions,
     });
   },
   async upsert(
     rowId: string | undefined,
     data: IEvent | Partial<IEvent>,
-    file?: File
+    file?: File,
   ): Promise<IEvent> {
     try {
       const isUpdate = !!rowId;
@@ -133,10 +142,10 @@ export const EventService = {
 
       if (file instanceof File) {
         if (isUpdate) {
-          await deleteFile(id);
+          await deleteFile(id, "thumbnail");
         }
 
-        data.thumbnail = await uploadFile(id, file, 'thumbnail');
+        data.thumbnail = await uploadFile(id, file, "thumbnail");
       }
 
       if (isUpdate) {
@@ -181,7 +190,7 @@ export const EventService = {
   },
   async confirmAttendance(
     rowId: string,
-    operatorId: string
+    operatorId: string,
   ): Promise<IOperator> {
     try {
       const event = await tables.getRow({
@@ -215,7 +224,7 @@ export const EventService = {
           tableId: TABLE_PARTICIPATIONS,
           rowId: participation.rows[0].$id,
           data: { checked_in: true },
-          permissions
+          permissions,
         });
       }
 
@@ -228,7 +237,7 @@ export const EventService = {
   },
   async createParticipation(
     rowId: string,
-    operatorId: string
+    operatorId: string,
   ): Promise<IParticipation> {
     return await tables.createRow({
       databaseId: DATABASE_ID,
@@ -240,7 +249,7 @@ export const EventService = {
         status: true,
         checked_in: false,
       },
-      permissions
+      permissions,
     });
   },
   async deleteParticipation(participationId: string): Promise<{}> {
@@ -250,7 +259,10 @@ export const EventService = {
       rowId: participationId,
     });
   },
-  async addVisitorToEvent(eventId: string, visitorId: string): Promise<IVisitorParticipation> {
+  async addVisitorToEvent(
+    eventId: string,
+    visitorId: string,
+  ): Promise<IVisitorParticipation> {
     return await tables.createRow({
       databaseId: DATABASE_ID,
       tableId: TABLE_VISITOR_PARTICIPATIONS,
@@ -260,18 +272,21 @@ export const EventService = {
         visitor: visitorId,
         checked_in: false,
       },
-      permissions
+      permissions,
     });
   },
-  async confirmVisitorAttendance(participationId: string): Promise<IVisitorParticipation> {
+  async confirmVisitorAttendance(
+    participationId: string,
+  ): Promise<IVisitorParticipation> {
     try {
-      const updatedParticipation = await tables.updateRow<IVisitorParticipation>({
-        databaseId: DATABASE_ID,
-        tableId: TABLE_VISITOR_PARTICIPATIONS,
-        rowId: participationId,
-        data: { checked_in: true },
-        permissions
-      });
+      const updatedParticipation =
+        await tables.updateRow<IVisitorParticipation>({
+          databaseId: DATABASE_ID,
+          tableId: TABLE_VISITOR_PARTICIPATIONS,
+          rowId: participationId,
+          data: { checked_in: true },
+          permissions,
+        });
 
       if (updatedParticipation.visitor) {
         const visitor = updatedParticipation.visitor as IVisitor<IOperator>;
@@ -295,11 +310,16 @@ export const EventService = {
       rowId: participationId,
     });
   },
-  async listVisitorParticipations(eventId: string): Promise<IVisitorParticipation[]> {
+  async listVisitorParticipations(
+    eventId: string,
+  ): Promise<IVisitorParticipation[]> {
     const response = await tables.listRows<IVisitorParticipation>({
       databaseId: DATABASE_ID,
       tableId: TABLE_VISITOR_PARTICIPATIONS,
-      queries: [Query.equal("event", eventId), Query.select(["*", "visitor.*", "visitor.operator.*"])]
+      queries: [
+        Query.equal("event", eventId),
+        Query.select(["*", "visitor.*", "visitor.operator.*"]),
+      ],
     });
     return response.rows;
   },
@@ -309,7 +329,7 @@ export const EventService = {
       tableId: TABLE_EVENTS,
       rowId,
       data: { is_finished: true },
-      permissions
+      permissions,
     });
   },
-}
+};

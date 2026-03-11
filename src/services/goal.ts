@@ -35,7 +35,7 @@ export const GoalService = {
       tableId: TABLE_GOALS,
       rowId: ID.unique(),
       data,
-      permissions
+      permissions,
     });
   },
   async update(rowId: string, data: Partial<IGoal>): Promise<IGoal> {
@@ -44,13 +44,13 @@ export const GoalService = {
       tableId: TABLE_GOALS,
       rowId,
       data,
-      permissions
+      permissions,
     });
   },
   async upsert(
     rowId: string | undefined,
     data: IGoal,
-    file?: File
+    file?: File,
   ): Promise<IGoal> {
     try {
       const isUpdate = !!rowId;
@@ -58,10 +58,10 @@ export const GoalService = {
 
       if (file instanceof File) {
         if (isUpdate) {
-          await deleteFile(id);
+          await deleteFile(id, "goal");
         }
 
-        data.image_url = await uploadFile(id, file, 'goal');
+        data.image_url = await uploadFile(id, file, "goal");
       }
 
       return await tables.upsertRow({
@@ -69,7 +69,7 @@ export const GoalService = {
         tableId: TABLE_GOALS,
         rowId: id,
         data,
-        permissions
+        permissions,
       });
     } catch (error) {
       console.error("Erro no upsert:", error);

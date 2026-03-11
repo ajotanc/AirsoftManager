@@ -1,16 +1,10 @@
-import {
-  tables,
-  TABLE_OPERATORS,
-  DATABASE_ID,
-  BUCKET_ID,
-  storage,
-} from "@/services/appwrite";
+import { tables, TABLE_OPERATORS, DATABASE_ID } from "@/services/appwrite";
 import dayjs from "dayjs";
-import { isValidCpf } from '@brazilian-utils/brazilian-utils';
+import { isValidCpf } from "@brazilian-utils/brazilian-utils";
 import { Query, type Models } from "appwrite";
 import type { IArsenal } from "./arsenal";
 import type { ILoadout } from "./loadout";
-import { formatDate, uploadFile } from "@/functions/utils";
+import { deleteFile, formatDate, uploadFile } from "@/functions/utils";
 import z from "zod";
 
 export interface IOperator extends Models.Row {
@@ -67,33 +61,62 @@ export type IOperatorDraft = Omit<IOperator, keyof Models.Row> & {
   $id: string;
 };
 
-export const operatorSchema = z.object({
-  name: z.string({ error: "Nome completo obrigatório" }).min(1, "Nome completo obrigatório"),
-  codename: z.string({ error: "Codinome obrigatório" }).min(1, "Codinome obrigatório"),
-  identity: z.string({ error: "CPF obrigatório" })
-    .refine(isValidCpf, "CPF inválido")
-    .transform((v) => v.replace(/\D/g, "")),
-  general_registration: z.string({ error: "RG obrigatório" })
-    .transform((v) => v.replace(/\D/g, "")),
-  birth_date: z.custom().refine((date) => date instanceof Date || typeof date === 'string', "Data obrigatória").transform((date) => date && formatDate(date).toISOString()),
-  blood_type: z.string({ error: "Tipo sanguíneo obrigatório" }),
-  mother_name: z.string({ error: "Nome da mãe obrigatório" }),
-  phone: z.string({ error: "Telefone obrigatório" }).transform((v) => v.replace(/\D/g, "")),
-  cep: z.string({ error: "CEP obrigatório" }).transform((v) => v.replace(/\D/g, "")),
-  address: z.string({ error: "Endereço obrigatório" }),
-  address_number: z.string({ error: "Número obrigatório" }),
-  neighborhood: z.string({ error: "Bairro obrigatório" }),
-  city: z.string({ error: "Cidade obrigatória" }),
-  state: z.string({ error: "Estado obrigatório" }),
-  emergency_contact: z.string({ error: "Nome do Contato obrigatório" }),
-  emergency_contact_phone: z.string({ error: "Telefone do Contato obrigatório" }).transform((v) => v.replace(/\D/g, "")),
-  category: z.number({ error: "Categoria obrigatória" }),
-  shirt_size: z.string({ error: "Tamanho obrigatório" }),
-  terms_accepted: z.boolean({ error: "Aceite os termos obrigatório" }).refine(v => v === true, "Aceite os termos obrigatório"),
-  availability: z.string({ error: "Escolha sua disponibilidade" }),
-  // profession: z.string({ error: "Escolha sua profissão" }),
-  instagram: z.string().regex(/^(?!.*\.\.)(?!.*\.$)[^\W][\w.]*$/, "Formato de usuário inválido (ex: exodoairsoft)").nullish().transform((value) => value?.replace('@', '').toLowerCase()),
-}).loose();
+export const operatorSchema = z
+  .object({
+    name: z
+      .string({ error: "Nome completo obrigatório" })
+      .min(1, "Nome completo obrigatório"),
+    codename: z
+      .string({ error: "Codinome obrigatório" })
+      .min(1, "Codinome obrigatório"),
+    identity: z
+      .string({ error: "CPF obrigatório" })
+      .refine(isValidCpf, "CPF inválido")
+      .transform((v) => v.replace(/\D/g, "")),
+    general_registration: z
+      .string({ error: "RG obrigatório" })
+      .transform((v) => v.replace(/\D/g, "")),
+    birth_date: z
+      .custom()
+      .refine(
+        (date) => date instanceof Date || typeof date === "string",
+        "Data obrigatória",
+      )
+      .transform((date) => date && formatDate(date).toISOString()),
+    blood_type: z.string({ error: "Tipo sanguíneo obrigatório" }),
+    mother_name: z.string({ error: "Nome da mãe obrigatório" }),
+    phone: z
+      .string({ error: "Telefone obrigatório" })
+      .transform((v) => v.replace(/\D/g, "")),
+    cep: z
+      .string({ error: "CEP obrigatório" })
+      .transform((v) => v.replace(/\D/g, "")),
+    address: z.string({ error: "Endereço obrigatório" }),
+    address_number: z.string({ error: "Número obrigatório" }),
+    neighborhood: z.string({ error: "Bairro obrigatório" }),
+    city: z.string({ error: "Cidade obrigatória" }),
+    state: z.string({ error: "Estado obrigatório" }),
+    emergency_contact: z.string({ error: "Nome do Contato obrigatório" }),
+    emergency_contact_phone: z
+      .string({ error: "Telefone do Contato obrigatório" })
+      .transform((v) => v.replace(/\D/g, "")),
+    category: z.number({ error: "Categoria obrigatória" }),
+    shirt_size: z.string({ error: "Tamanho obrigatório" }),
+    terms_accepted: z
+      .boolean({ error: "Aceite os termos obrigatório" })
+      .refine((v) => v === true, "Aceite os termos obrigatório"),
+    availability: z.string({ error: "Escolha sua disponibilidade" }),
+    // profession: z.string({ error: "Escolha sua profissão" }),
+    instagram: z
+      .string()
+      .regex(
+        /^(?!.*\.\.)(?!.*\.$)[^\W][\w.]*$/,
+        "Formato de usuário inválido (ex: exodoairsoft)",
+      )
+      .nullish()
+      .transform((value) => value?.replace("@", "").toLowerCase()),
+  })
+  .loose();
 
 export const OperatorService = {
   async row(rowId: string): Promise<IOperator> {
@@ -165,14 +188,13 @@ export const OperatorService = {
   async changeAvatar(
     rowId: string,
     avatar: string,
-    file: File
+    file: File,
   ): Promise<IOperator> {
-
     if (avatar) {
-      await storage.deleteFile({ bucketId: BUCKET_ID, fileId: `avatar-${rowId}` });
+      await deleteFile(rowId, "avatar");
     }
 
-    const urlFormatted = await uploadFile(rowId, file, 'avatar');
+    const urlFormatted = await uploadFile(rowId, file, "avatar");
 
     return await tables.updateRow<IOperator>({
       databaseId: DATABASE_ID,
@@ -188,15 +210,12 @@ export const OperatorService = {
       const response = await tables.listRows<IOperator>({
         databaseId: DATABASE_ID,
         tableId: TABLE_OPERATORS,
-        queries: [
-          Query.equal("status", true),
-          Query.limit(1000)
-        ],
+        queries: [Query.equal("status", true), Query.limit(1000)],
       });
 
       const now = dayjs();
       const currentMonth = now.month(); // 0 a 11
-      const nextMonth = now.add(1, 'month').month();
+      const nextMonth = now.add(1, "month").month();
 
       const filtered = response.rows.filter((operator) => {
         if (!operator.birth_date) return false;
@@ -223,7 +242,6 @@ export const OperatorService = {
         if (monthA !== monthB) return monthA - monthB;
         return dayA - dayB;
       });
-
     } catch (error) {
       console.error("Erro ao buscar aniversariantes:", error);
       return [];
@@ -234,10 +252,12 @@ export const OperatorService = {
       const response = await tables.listRows<IOperator>({
         databaseId: DATABASE_ID,
         tableId: TABLE_OPERATORS,
-        queries: [Query.or([
-          Query.equal("instagram", username),
-          Query.equal("$id", username),
-        ])],
+        queries: [
+          Query.or([
+            Query.equal("instagram", username),
+            Query.equal("$id", username),
+          ]),
+        ],
       });
 
       return response.total === 1

@@ -1,10 +1,10 @@
 import { fileURLToPath, URL } from "node:url";
 import { defineConfig, loadEnv } from "vite";
-import AutoImport from 'unplugin-auto-import/vite';
+import AutoImport from "unplugin-auto-import/vite";
 import vue from "@vitejs/plugin-vue";
 import Components from "unplugin-vue-components/vite";
 import { PrimeVueResolver } from "@primevue/auto-import-resolver";
-import { nodePolyfills } from 'vite-plugin-node-polyfills'
+import { nodePolyfills } from "vite-plugin-node-polyfills";
 import { VitePWA } from "vite-plugin-pwa";
 
 export default defineConfig(({ mode }) => {
@@ -15,14 +15,14 @@ export default defineConfig(({ mode }) => {
       vue(),
       AutoImport({
         imports: [
-          'vue',
-          'vue-router',
-          'pinia',
+          "vue",
+          "vue-router",
+          "pinia",
           {
-            'dayjs': [['default', 'dayjs']]
-          }
+            dayjs: [["default", "dayjs"]],
+          },
         ],
-        dts: 'src/auto-imports.d.ts',
+        dts: "src/auto-imports.d.ts",
       }),
       nodePolyfills({
         globals: {
@@ -76,10 +76,11 @@ export default defineConfig(({ mode }) => {
           clientsClaim: true,
           maximumFileSizeToCacheInBytes: 4000000,
           globPatterns: ["**/*.{js,css,html,ico,png,svg,webp}"],
-          globIgnores: ['**/remixicon-*.svg'],
+          globIgnores: ["**/remixicon-*.svg"],
           runtimeCaching: [
             {
-              urlPattern: /^https:\/\/cloud\.appwrite\.io\/v1\/storage\/buckets\/.*\/files\/.*\/view/,
+              urlPattern:
+                /^https:\/\/cloud\.appwrite\.io\/v1\/storage\/buckets\/.*\/files\/.*\/view/,
               handler: "CacheFirst",
               options: {
                 cacheName: "appwrite-images-cache",
@@ -101,8 +102,8 @@ export default defineConfig(({ mode }) => {
       }),
     ],
     define: {
-      'process.env': {},
-      global: 'window',
+      "process.env": {},
+      global: "window",
     },
     resolve: {
       alias: {
@@ -111,7 +112,21 @@ export default defineConfig(({ mode }) => {
     },
     build: {
       chunkSizeWarningLimit: 2000,
-
+      rollupOptions: {
+        output: {
+          manualChunks(id) {
+            if (id.includes("exceljs") || id.includes("xlsx")) {
+              return "excel-vendor";
+            }
+            if (id.includes("primevue")) {
+              return "primevue-vendor";
+            }
+            if (id.includes("node_modules")) {
+              return "vendor";
+            }
+          },
+        },
+      },
     },
   };
 });
