@@ -22,7 +22,7 @@
             <div>
               <span class="block font-bold mb-2">Saúde Operacional</span>
               <div class="font-bold text-xl">
-                {{ paidOperatorsCount }} / {{ totalActiveOperators }} <span class="text-sm font-normal">pagantes</span>
+                {{ paidOperatorsCount }}/{{ totalActiveOperators }} <span class="text-sm font-normal">pagantes</span>
               </div>
             </div>
             <div class="bg-yellow-200 border-round w-3rem h-3rem flex align-items-center justify-content-center">

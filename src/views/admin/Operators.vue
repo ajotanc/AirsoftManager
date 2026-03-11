@@ -2,9 +2,8 @@
   <div class="card">
     <div class="surface-card shadow-2 border-round overflow-hidden">
 
-      <DataTable ref="dt" :value="dtValue" paginator :rows="5" stripedRows v-model:filters="filters"
-        :globalFilterFields="labels" v-model:editingRows="editingRows" editMode="row" dataKey="$id"
-        @row-edit-save="handleUpdate"
+      <DataTable :value="dtValue" paginator :rows="5" stripedRows v-model:filters="filters" :globalFilterFields="labels"
+        v-model:editingRows="editingRows" editMode="row" dataKey="$id" @row-edit-save="handleUpdate"
         paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
         :rowsPerPageOptions="[5, 10, 25]"
         currentPageReportTemplate="Exibindo {first} a {last} de {totalRecords} operadore(s)"
@@ -40,7 +39,7 @@
         </Column>
 
         <Column header="Codinome">
-          <template #body="{ data: { $id, name, codename } }">
+          <template #body="{ data: { name, codename } }">
             <Skeleton v-if="loading" width="100%" height="1rem" />
             <template v-else>
               <div class="flex flex-column">
@@ -111,13 +110,13 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, computed, onMounted } from "vue";
 import { FilterMatchMode } from '@primevue/core/api';
 import { useToast } from "primevue/usetoast";
 
 import Tag from "primevue/tag";
-import DataTable from "primevue/datatable";
+import DataTable, { type DataTableRowEditSaveEvent } from "primevue/datatable";
 import Column from "primevue/column";
 import Rating from "primevue/rating";
 import Button from "primevue/button";
@@ -131,8 +130,8 @@ import InputText from 'primevue/inputtext';
 import Details from "@/components/operators/Details.vue";
 import { ROLES } from "@/constants/airsoft";
 
-import { OperatorService } from "@/services/operator";
-import { getShortName } from "@/functions/utils";
+import { type IOperator, OperatorService } from "@/services/operator";
+import { export2Excel, getShortName } from "@/functions/utils";
 import Empty from "@/components/Empty.vue";
 import { useOperator } from "@/composables/useOperator";
 
@@ -140,9 +139,8 @@ const toast = useToast();
 const { operator, updateState } = useOperator();
 
 const loading = ref(true);
-const operators = ref([]);
+const operators = ref<IOperator[]>([]);
 const expandedRows = ref({});
-const dt = ref();
 const editingRows = ref([]);
 
 const exportFilename = computed(() => {
@@ -182,7 +180,7 @@ const dtValue = computed(() => {
   return loading.value ? new Array(5).fill({}) : operators.value;
 });
 
-const handleUpdate = async (event) => {
+const handleUpdate = async (event: DataTableRowEditSaveEvent<any>) => {
   const { newData } = event;
   const { $id, rating, role, status } = newData;
 
@@ -226,7 +224,14 @@ const handleUpdate = async (event) => {
   }
 };
 
-const exportData = () => {
-  dt.value.exportCSV();
+const exportData = async () => {
+  if (!operators.value.length) {
+    toast.add({ severity: 'warn', summary: 'Aviso', detail: 'Não há dados para exportar.' });
+    return;
+  }
+
+  await export2Excel(exportFilename.value, operators.value, 'Operadores');
+
+  toast.add({ severity: 'success', summary: 'Sucesso', detail: 'Planilha Excel gerada!', life: 3000 });
 };
 </script>
