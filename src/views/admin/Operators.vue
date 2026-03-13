@@ -28,7 +28,7 @@
         </template>
 
         <Column expander style="width: 5rem" />
-        <Column header="Avatar">
+        <Column style="width: 5rem">
           <template #body="{ data: { $id, avatar } }">
             <Skeleton v-if="loading" width="100%" height="1rem" />
             <template v-else>
@@ -45,6 +45,24 @@
               <div class="flex flex-column">
                 <span class="font-bold">{{ getShortName(name) }}</span>
                 <small>{{ codename }}</small>
+              </div>
+            </template>
+          </template>
+        </Column>
+
+        <Column field="info.isComplete" header="Perfil" sortable style="width: 10rem">
+          <template #body="{ data }">
+            <Skeleton v-if="loading" width="100%" height="1rem" />
+            <template v-else>
+              <div class="flex gap-2">
+                <span
+                  :class="['text-xl', 'ri-user-follow-line', data.info.isProfileComplete ? 'text-green-500' : 'text-red-500']"
+                  v-tooltip.top="'Perfil'" />
+                <span :class="['text-xl', 'ri-sword-line', data.info.hasArsenal ? 'text-green-500' : 'text-red-500']"
+                  v-tooltip.top="'Arsenal'" />
+                <span
+                  :class="['text-xl', 'ri-t-shirt-2-line', data.info.hasLoadout ? 'text-green-500' : 'text-red-500']"
+                  v-tooltip.top="'Loadout'" />
               </div>
             </template>
           </template>
@@ -130,7 +148,7 @@ import InputText from 'primevue/inputtext';
 import Details from "@/components/operators/Details.vue";
 import { ROLES } from "@/constants/airsoft";
 
-import { type IOperator, OperatorService } from "@/services/operator";
+import { type IOperator, operatorSchema, OperatorService } from "@/services/operator";
 import { export2Excel, getShortName } from "@/functions/utils";
 import Empty from "@/components/Empty.vue";
 import { useOperator } from "@/composables/useOperator";
@@ -167,7 +185,16 @@ onMounted(() => {
 
 const loadServices = async () => {
   try {
-    operators.value = await OperatorService.list();
+    const response = await OperatorService.list();
+
+    operators.value = response.map(op => {
+      const info = checkOperator(op);
+
+      return {
+        ...op,
+        info
+      };
+    });
   } catch (error) {
     console.error("Erro ao carregar serviços:", error);
     toast.add({ severity: 'error', summary: 'Erro', detail: 'Falha ao carregar dados.' });
@@ -234,4 +261,20 @@ const exportData = async () => {
 
   toast.add({ severity: 'success', summary: 'Sucesso', detail: 'Planilha Excel gerada!', life: 3000 });
 };
+
+const checkOperator = (operator: IOperator) => {
+  const isProfileComplete = operatorSchema.safeParse(operator).success;
+  const hasArsenal = operator.arsenal.length > 0;
+  const hasLoadout = operator.loadout.length > 0;
+
+  const isComplete = isProfileComplete && hasArsenal && hasLoadout;
+
+  return {
+    isComplete,
+    isProfileComplete,
+    hasArsenal,
+    hasLoadout
+  }
+};
+
 </script>

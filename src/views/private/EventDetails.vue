@@ -50,7 +50,7 @@
                             <Button v-if="isConfirmed" label="Cancelar Presença" icon="pi pi-times" severity="error"
                                 @click="toggleParticipation" />
                             <Button v-else label="Confirmar Presença" icon="pi pi-plus-circle" severity="primary"
-                                @click="toggleParticipation" />
+                                @click="toggleParticipation" :disabled="deadlineInfo.isOver" />
                             <Button v-if="isConfirmed" label="Adicionar à Agenda" icon="pi pi-calendar-plus"
                                 severity="help" @click="handleCalendarDynamic" />
                         </div>
@@ -61,6 +61,11 @@
                             <Button v-if="isFinished" label="Feedback" icon="pi pi-star" severity="warn"
                                 @click="addFeedback" :disabled="hasRating" />
                         </div>
+                        <Message v-if="deadlineInfo.isOver" severity="error" closable>
+                            <strong>Inscrições Encerradas:</strong> O limite para confirmação de efetivo foi até
+                            <span class="font-bold">{{ deadlineInfo.formatted }}</span>.
+                            A lista de operação já está consolidada.
+                        </Message>
                     </div>
                 </div>
             </div>
@@ -294,7 +299,7 @@
                                     :icon="!feedback.operator.avatar ? 'pi pi-user' : undefined" shape="circle" />
                                 <div class="flex flex-column">
                                     <span class="text-sm font-bold uppercase">{{ getShortName(feedback.operator.name)
-                                        }}</span>
+                                    }}</span>
                                     <span class="text-xs uppercase">{{ feedback.operator.codename }}</span>
                                 </div>
                             </div>
@@ -341,7 +346,7 @@
                         <template #option="slotProps">
                             <div class="flex flex-column">
                                 <span class="font-bold">{{ slotProps.option.name }} ({{ slotProps.option.codename
-                                    }})</span>
+                                }})</span>
                                 <small class="text-gray-500">Convidado por {{
                                     slotProps.option.operator.codename }}</small>
                             </div>
@@ -402,7 +407,7 @@ import dayjs from 'dayjs';
 import { useToast } from "primevue/usetoast";
 import { atcb_action } from 'add-to-calendar-button';
 import { EventService, type IEvent, type IParticipation, type IVisitorParticipation, type IVisitorParticipationDetail } from '@/services/event';
-import { EVENT_TYPES, TEAM_NAME } from '@/constants/airsoft';
+import { DEADLINE_HOUR, EVENT_TYPES, TEAM_NAME } from '@/constants/airsoft';
 import { export2Excel, formatDate, playBeep, type IFields } from '@/functions/utils';
 import type { ATCBActionEventConfig } from 'add-to-calendar-button';
 import { severityEvent, getShortName } from '@/functions/utils'
@@ -1172,6 +1177,20 @@ const handleExport = async () => {
 
 //     export2CSV("lista_participantes", dataToExport, headers);
 // };
+
+const deadlineInfo = computed(() => {
+    if (!event.value?.date) {
+        return { isOver: false, formatted: '' };
+    }
+
+    const eventDate = dayjs(event.value.date);
+    const deadline = eventDate.subtract(1, 'day').hour(DEADLINE_HOUR).minute(0).second(0);
+
+    return {
+        isOver: dayjs().isAfter(deadline) || isFinished.value,
+        formatted: deadline.format('DD/MM [às] HH:mm')
+    };
+});
 
 const getOperator = (id: string) => operatorsMap.value.get(id);
 const getOperatorName = (id: string) => operatorsMap.value.get(id)?.codename || 'Desconhecido';
