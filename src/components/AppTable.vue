@@ -84,35 +84,40 @@ const filters = ref({
 
 const getSearchableString = (item: T, fields: IFields[]) => {
   return fields.map(field => {
+    // 1. Pegar o valor bruto (trata caminhos como 'operator.codename')
     const val = field.name.split('.').reduce((obj, key) => obj?.[key], item);
 
-    if (!val) return "";
+    if (val === null || val === undefined) return "";
 
-    if (field.component?.name === 'Select' && field.props?.options) {
-      const option = field.props.options.find((opt: any) => String(opt.value) === String(val));
-      return option ? option.label : val;
+    // 2. Lógica para Select e MultiSelect (Respeitando labels dinâmicos)
+    if (['Select', 'MultiSelect'].includes(field.component?.name) && field.props?.options) {
+      const options = field.props.options;
+      const optValueKey = field.props.optionValue || 'value';
+      const optLabelKey = field.props.optionLabel || 'label';
+
+      // Se for um Select simples
+      const option = options.find((opt: any) => String(opt[optValueKey]) === String(val));
+      if (option) return option[optLabelKey];
+
+      // Fallback: Se o valor for o próprio objeto (comum em relacionamentos como Operador)
+      if (typeof val === 'object') {
+        return val[optLabelKey] || "";
+      }
     }
 
+    // 3. Lógica para Moeda (Garante que "R$ 50,00" seja pesquisável como "50,00")
     if (field.component?.name === 'InputNumber' && field.props?.mode === 'currency') {
       const formatted = new Intl.NumberFormat('pt-BR', {
         style: 'currency',
         currency: 'BRL',
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-      }).format(Math.abs(Number(val)));
-
-      return formatted.replace(/[\u00A0\u202F]/g, ' ');
+        minimumFractionDigits: 2
+      }).format(Number(val));
+      return formatted.replace(/[\u00A0\u202F]/g, ' '); // Remove espaços inquebráveis do Intl
     }
 
+    // 4. Lógica para Data
     if (field.component?.name === 'DatePicker') {
       return dayjs(val as any).format('DD/MM/YYYY');
-    }
-
-    if (field.component?.name === 'InputMask' && field.props?.mask) {
-      const mask = field.props.mask;
-      const cleanValue = String(val).replace(/\D/g, "");
-      let i = 0;
-      return mask.replace(/9/g, () => cleanValue[i++] || "");
     }
 
     return val;

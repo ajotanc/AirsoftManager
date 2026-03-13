@@ -97,13 +97,16 @@ export const PaymentService = {
       throw error;
     }
   },
-  async delete(rowId: string): Promise<{}> {
-    await deleteFile(rowId, "payment");
+  async delete(payment: IPayment): Promise<{}> {
+
+    if (payment.receipt_url) {
+      await deleteFile(payment.$id, "payment");
+    }
 
     return await tables.deleteRow({
       databaseId: DATABASE_ID,
       tableId: TABLE_PAYMENTS,
-      rowId,
+      rowId: payment.$id,
     });
   },
   async generatePix(
@@ -146,8 +149,6 @@ export const PaymentService = {
     }
   },
   async confirmPayment(rowId: string): Promise<IPayment> {
-    const { operator, updateState } = useOperator();
-
     const payment = await tables.updateRow<IPayment>({
       databaseId: DATABASE_ID,
       tableId: TABLE_PAYMENTS,
@@ -157,6 +158,12 @@ export const PaymentService = {
       },
       permissions,
     });
+
+    await this.cashflow(payment);
+    return payment;
+  },
+  async cashflow(payment: IPayment): Promise<ICashflow> {
+    const { operator, updateState } = useOperator();
 
     if (payment.goal) {
       const goal = payment.goal as IGoal;
@@ -178,7 +185,7 @@ export const PaymentService = {
       payment: payment.$id,
     } as ICashflow;
 
-    await CashflowService.create(data);
+    const response = await CashflowService.create(data);
 
     const xpAmount = payment.category === "goal" ? 100 : 50;
     const payingOperator = payment.operator as IOperator;
@@ -196,7 +203,7 @@ export const PaymentService = {
       await OperatorService.activate(payingOperator.$id);
     }
 
-    return payment;
+    return response;
   },
   async contribute(data: IPayment, file: File): Promise<IPayment> {
     const rowId = ID.unique();
@@ -212,5 +219,20 @@ export const PaymentService = {
       },
       permissions,
     });
+  },
+  async transaction(data: IPayment): Promise<IPayment> {
+    const payment = await tables.createRow<IPayment>({
+      databaseId: DATABASE_ID,
+      tableId: TABLE_PAYMENTS,
+      rowId: ID.unique(),
+      data,
+      permissions,
+    });
+
+    if (payment.status === 'paid') {
+      await this.cashflow(payment);
+    }
+
+    return payment;
   },
 };

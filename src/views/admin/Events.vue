@@ -159,7 +159,7 @@ const saveEvent = async ({ valid, values }: any) => {
         const file = selectedEvent.value.file as File;
         const payload = {
             ...values,
-            location_coords: selectedEvent.value.location_coords,
+            location_coords: await getCoordinates(values.location_url),
             reference: dayjs(values.date).format("MM/YYYY"),
         }
 
@@ -230,20 +230,13 @@ const fields: IFields[] = [
     { name: 'location', label: 'Nome do Local', component: InputText, col: '12' },
     {
         name: 'location_url', label: 'URL Google Maps', component: InputText, col: '12', hidden: true,
-        props: {
-            onBlur: async (event: FocusEvent) => {
-                const input = event.target as HTMLInputElement;
-                await getCoordinates(input.value);
-            }
-        }
     },
 ];
 
 const getCoordinates = async (url: string) => {
     const response = await fetch(`https://live-interactions.vercel.app/api/v1/airsoft/coordinates?url=${encodeURIComponent(url)}`);
     const { coords } = await response.json();
-
-    selectedEvent.value.location_coords = coords;
+    return coords;
 }
 
 

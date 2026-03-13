@@ -1,6 +1,9 @@
 <template>
   <div class="card">
     <AppTable title="Pagamento(s)" resourceName="transações" :value="payments" :fields="fields" :loading="loading">
+      <template v-if="accessAdmin" #header-actions>
+        <Button label="Nova" icon="pi pi-plus" size="small" @click="newTransaction" />
+      </template>
       <template #extra-columns-end>
         <Column header="Atraso">
           <template #body="{ data }">
@@ -32,6 +35,10 @@
 
     <PaymentDialog v-model:visible="paymentDialog" :payment="selectedPayment" :pixData="pixData"
       @submit="savePayment" />
+
+    <AppFormDialog v-model:visible="transactionDialog"
+      :header="selectedPayment.$id ? 'Editar Transação' : 'Nova Transação'" :fields="fields"
+      :initialValues="selectedPayment" :resolver="resolver" @submit="saveTransaction" @field-change="onFieldChange" />
   </div>
 </template>
 
@@ -43,12 +50,16 @@ import InputText from "primevue/inputtext";
 import Select from "primevue/select";
 import { DatePicker, InputNumber, useConfirm } from "primevue";
 import { PaymentService, type IPayment } from "@/services/payment";
-import { type IFields } from "@/functions/utils";
+import { dateToISOString, type FieldChangePayload, type IFields } from "@/functions/utils";
 import { TRANSACTION_STATUS, TRANSACTION_CATEGORIES } from "@/constants/airsoft";
 import PaymentDialog from "@/components/PaymentDialog.vue";
-import type { IOperator } from "@/services/operator";
+import { OperatorService, type IOperator } from "@/services/operator";
 import { useRoute } from "vue-router";
 import { useOperator } from "@/composables/useOperator";
+import z from "zod";
+import { zodResolver } from "@primevue/forms/resolvers/zod";
+import AppFormDialog from "@/components/AppFormDialog.vue";
+import { GoalService, type IGoal } from "@/services/goal";
 
 const { operator, isAdmin } = useOperator();
 
@@ -59,9 +70,13 @@ const route = useRoute();
 const payments = ref<IPayment[]>([]);
 const pixData = ref({ payload: '', base64: '' });
 
+const operators = ref<IOperator[]>([]);
+const goals = ref<IGoal[]>([]);
+
 const loading = ref(true);
 
 const paymentDialog = ref(false);
+const transactionDialog = ref(false);
 const selectedPayment = ref<IPayment>({} as IPayment);
 
 const accessAdmin = computed(() => {
@@ -79,19 +94,40 @@ const loadServices = async () => {
     } else {
       payments.value = await PaymentService.listByOperator(operator.value.$id);
     }
+
+    operators.value = await OperatorService.listActive();
+    goals.value = await GoalService.list();
   } catch (error) {
-    console.error("Erro ao carregar:", error);
+    console.error("Erro ao carregar serviços:", error);
+    toast.add({ severity: 'error', summary: 'Erro', detail: 'Falha ao carregar dados.' });
   } finally {
     loading.value = false;
   }
 };
 
-
 const fields = computed<IFields[]>(() => [
-  { name: "operator.codename", label: "Operador", component: InputText, col: "6", hiddenTable: !accessAdmin.value },
-  { name: "reference", label: "Referência", component: InputText, col: "6" },
   {
-    name: "due_date", label: "Data de Vencimento", component: DatePicker, col: "6", props: {
+    name: "operator",
+    label: "Operador",
+    component: Select,
+    col: '12',
+    props: {
+      options: operators.value,
+      optionLabel: "codename",
+      optionValue: "$id",
+      filter: true,
+    },
+    hiddenTable: !accessAdmin.value
+  },
+  { name: "description", label: "Descrição", component: InputText, col: "12" },
+  {
+    name: "amount", label: "Valor", component: InputNumber, col: "6", props: {
+      mode: 'currency', currency: 'BRL', locale: 'pt-BR',
+      minFractionDigits: 2
+    }
+  },
+  {
+    name: "due_date", label: "Data de vencimento", component: DatePicker, col: "6", props: {
       showButtonBar: true,
       manualInput: false,
       showIcon: true,
@@ -100,24 +136,66 @@ const fields = computed<IFields[]>(() => [
       variant: 'filled'
     }
   },
-  { name: "description", label: "Descrição", component: InputText, col: "6" },
   {
-    name: "category", label: "Categoria", component: Select, col: "12", props: {
-      options: TRANSACTION_CATEGORIES, optionLabel: "label", optionValue: "value",
+    name: "category", label: "Categoria", component: Select, col: "6", props: {
+      options: TRANSACTION_CATEGORIES,
+      optionLabel: "label",
+      optionValue: "value",
     },
   },
   {
-    name: "status", label: "Status", component: Select, col: "12", props: {
-      options: TRANSACTION_STATUS, optionLabel: "label", optionValue: "value",
+    name: "status", label: "Status", component: Select, col: "6", props: {
+      options: TRANSACTION_STATUS,
+      optionLabel: "label",
+      optionValue: "value",
+      readonly: true
     },
   },
   {
-    name: "amount", label: "Valor", component: InputNumber, col: "6", props: {
-      mode: 'currency', currency: 'BRL', locale: 'pt-BR',
-      minFractionDigits: 2
+    name: "goal",
+    label: "Meta Relacionada",
+    component: Select,
+    col: "12",
+    hidden: selectedPayment.value.category !== 'goal',
+    hiddenTable: true,
+    props: {
+      options: goals.value,
+      optionLabel: "title",
+      optionValue: "$id",
     }
   },
 ]);
+
+const transactionSchema = z.object({
+  operator: z.string({ error: "Operador obrigatório" }),
+  description: z.string({ error: "Descrição obrigatória" }),
+  amount: z.number({ error: "Valor obrigatório" }),
+  status: z.string({ error: "Status obrigatório" }),
+  due_date: z.custom().refine((date) => date instanceof Date || typeof date === 'string', "Data obrigatória").transform((date) => dateToISOString(date as Date | string)),
+});
+
+const goalSchema = z.object({
+  category: z.string({ error: "Categoria obrigatória" }),
+  goal: z.string().nullish().optional(),
+}).superRefine((data, ctx) => {
+  if (data.category === 'goal' && !data.goal) {
+    ctx.addIssue({
+      code: 'custom',
+      message: "Selecione a meta para esta transação",
+      path: ['goal'],
+    });
+  }
+});
+
+const resolver = zodResolver(transactionSchema.and(goalSchema));
+
+const onFieldChange = (payload: FieldChangePayload<IPayment>) => {
+  const { name, value } = payload;
+  selectedPayment.value = {
+    ...selectedPayment.value,
+    [name]: value
+  };
+};
 
 const makePayment = async (payment: IPayment) => {
   selectedPayment.value = payment;
@@ -210,7 +288,7 @@ const deletePayment = (payment: IPayment) => {
     },
     accept: async () => {
       try {
-        await PaymentService.delete(payment.$id);
+        await PaymentService.delete(payment);
         payments.value = payments.value.filter((item: IPayment) => item.$id !== payment.$id);
 
         toast.add({
@@ -233,6 +311,45 @@ const deletePayment = (payment: IPayment) => {
   });
 };
 
+const newTransaction = () => {
+  selectedPayment.value = {
+    status: "pending",
+    due_date: dayjs().format('DD/MM/YYYY')
+  } as IPayment;
+  transactionDialog.value = true;
+};
+
+const saveTransaction = async (values: IPayment) => {
+  try {
+    const payload = {
+      ...values,
+      reference: dayjs().format('MM/YYYY')
+    }
+
+    const response = await PaymentService.transaction(payload);
+    const index = payments.value.findIndex((item) => item.$id === response.$id);
+
+    if (index !== -1) {
+      payments.value[index] = response;
+    } else {
+      payments.value.push(response);
+    }
+
+    toast.add({
+      severity: "success",
+      summary: "Sucesso!",
+      detail: "Pagamento cadastrado com sucesso.",
+      life: 3000,
+    });
+  } catch (error: any) {
+    console.error("Erro ao salvar:", error);
+    toast.add({ severity: "error", summary: "Erro", detail: "Falha ao registrar o pagamento.", life: 3000 });
+  } finally {
+    selectedPayment.value = {} as IPayment;
+    transactionDialog.value = false;
+  }
+}
+
 const invoice = (payment: IPayment) => {
 
   if (payment.status === 'paid') {
@@ -247,7 +364,7 @@ const invoice = (payment: IPayment) => {
   const days = today.diff(dueDate, 'days');
 
   return {
-    overdue: today.isAfter(dueDate),
+    overdue: today.isAfter(dueDate) && days > 0,
     days: `${days} dia${days > 1 ? 's' : ''}`
   }
 }
