@@ -190,8 +190,12 @@ const saveCashflow = async ({ valid, values }: any) => {
 
   try {
     const file = selectedCashflow.value.file as File;
+    const payload = {
+      ...values,
+      receipt_url: selectedCashflow.value.receipt_url,
+    }
 
-    const response = await CashflowService.upsert(selectedCashflow.value.$id, values, file);
+    const response = await CashflowService.upsert(selectedCashflow.value.$id, payload, file);
     const index = cashflows.value.findIndex((item: ICashflow) => item.$id === response.$id);
 
     if (index !== -1) {

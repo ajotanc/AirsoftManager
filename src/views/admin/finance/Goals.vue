@@ -177,8 +177,12 @@ const saveGoal = async ({ valid, values }: any) => {
 
   try {
     const file = selectedGoal.value.file as File;
+    const payload = {
+      ...values,
+      image_url: selectedGoal.value.image_url,
+    }
 
-    const response = await GoalService.upsert(selectedGoal.value.$id, values, file);
+    const response = await GoalService.upsert(selectedGoal.value.$id, payload, file);
     const index = goals.value.findIndex((item: IGoal) => item.$id === response.$id);
 
     if (index !== -1) {
