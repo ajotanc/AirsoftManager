@@ -113,11 +113,11 @@ export const EventService = {
       return [];
     }
   },
-  async create(data: IEvent): Promise<IEvent> {
+  async create(rowId: string, data: IEvent): Promise<IEvent> {
     return await tables.createRow({
       databaseId: DATABASE_ID,
       tableId: TABLE_EVENTS,
-      rowId: ID.unique(),
+      rowId,
       data,
       permissions,
     });
@@ -152,7 +152,7 @@ export const EventService = {
         return await this.update(id, data as Partial<IEvent>);
       }
 
-      return await this.create(data as IEvent);
+      return await this.create(id, data as IEvent);
     } catch (error) {
       console.error("Erro no upsert:", error);
       throw error;
