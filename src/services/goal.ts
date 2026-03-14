@@ -76,13 +76,15 @@ export const GoalService = {
       throw error;
     }
   },
-  async delete(rowId: string): Promise<{}> {
-    await deleteFile(rowId);
+  async delete(goal: IGoal): Promise<{}> {
+    if (goal.image_url) {
+      await deleteFile(goal.$id, "goal");
+    }
 
     return await tables.deleteRow({
       databaseId: DATABASE_ID,
       tableId: TABLE_GOALS,
-      rowId,
+      rowId: goal.$id,
     });
   },
 };

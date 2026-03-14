@@ -216,7 +216,7 @@ const confirmDelete = (goal: IGoal) => {
     },
     accept: async () => {
       try {
-        await GoalService.delete(goal.$id);
+        await GoalService.delete(goal);
         goals.value = goals.value.filter((item: IGoal) => item.$id !== goal.$id);
 
         toast.add({

@@ -115,12 +115,17 @@
         </template>
 
         <template #paginatorstart>
-          <Button icon="pi pi-refresh" rounded raised @click="loadServices" size="small" v-tooltip.top="'Atualizar'" />
+          <Button icon="ri-reset-right-line" rounded @click="loadServices" size="small" v-tooltip.top="'Atualizar'" />
         </template>
 
         <template #paginatorend>
-          <Button type="button" icon="pi pi-download" rounded raised size="small" v-tooltip.top="'Exportar'"
-            @click="exportData" />
+          <div class="flex gap-2">
+            <Button type="button" icon="ri-download-2-line" rounded size="small" v-tooltip.top="'Exportar'"
+              @click="exportData" />
+            <Button type="button" icon="ri-health-book-line" severity="danger" rounded size="small"
+              v-tooltip.top="'Ficha Médica'" @click="exportHealth" /> <Button type="button" icon="ri-t-shirt-2-line"
+              rounded size="small" v-tooltip.top="'Tamanhos de Camisa'" @click="exportShirtSize" />
+          </div>
         </template>
 
       </DataTable>
@@ -152,6 +157,7 @@ import { type IOperator, operatorSchema, OperatorService } from "@/services/oper
 import { export2Excel, getShortName } from "@/functions/utils";
 import Empty from "@/components/Empty.vue";
 import { useOperator } from "@/composables/useOperator";
+import { formatCPF, formatPhone } from "@brazilian-utils/brazilian-utils";
 
 const toast = useToast();
 const { operator, updateState } = useOperator();
@@ -275,6 +281,54 @@ const checkOperator = (operator: IOperator) => {
     hasArsenal,
     hasLoadout
   }
+};
+
+const exportShirtSize = async () => {
+  const dataToExport = operators.value.map(p => {
+    return {
+      "Nome Completo": p.name.trim(),
+      "Codinome": p.codename,
+      "Tamanho de Camisa": p.shirt_size
+    }
+  });
+
+  const summary = "Tamanhos de Camisa";
+
+  await export2Excel(`${dayjs().unix()}-TAMANHOS-DE-CAMISA`, dataToExport, summary);
+
+  toast.add({
+    severity: 'success',
+    summary,
+    detail: 'Exportação concluída! Verifique seu download.',
+    life: 3000
+  });
+};
+
+const exportHealth = async () => {
+  const dataToExport = operators.value.map(p => {
+    return {
+      "Nome Completo": p.name.trim(),
+      "Data de Nascimento": dayjs(p.birth_date).format('DD/MM/YYYY'),
+      "CPF": p.identity && formatCPF(p.identity!),
+      "Telefone": p.phone && formatPhone(p.phone, { mask: 'auto' }),
+      "Contato Emergência": p.emergency_contact?.trim(),
+      "Contato Emergência - Telefone": p.emergency_contact_phone && formatPhone(p.emergency_contact_phone, { mask: 'auto' }),
+      "Tipo Sanguíneo": p.blood_type,
+      "Alergias": p.allergies?.join(', ') || null,
+      "Medicação Contínua": p.medication_details?.join(', ') || null,
+    }
+  });
+
+  const summary = "Ficha Médica";
+
+  await export2Excel(`${dayjs().unix()}-FICHA-MÉDICA`, dataToExport, summary);
+
+  toast.add({
+    severity: 'success',
+    summary,
+    detail: 'Exportação concluída! Verifique seu download.',
+    life: 3000
+  });
 };
 
 </script>

@@ -264,7 +264,7 @@ const navItems = computed<IMenu[]>(() => [
     icon: "ri-briefcase-4-line",
     visible: authStore.isManager,
     items: [
-      { label: "Operadores", icon: "ri-group-line", route: "/admin/operators", visible: authStore.isAdmin },
+      { label: "Operadores", icon: "ri-group-line", route: "/admin/operators", visible: authStore.isManager },
       { label: "Eventos", icon: "ri-calendar-event-line", route: "/admin/events", visible: authStore.isEventManagement },
       { label: "Aniversariantes", icon: "ri-cake-2-line", route: "/admin/birthdays" },
       { label: "Visitantes", icon: "ri-group-3-line", route: "/admin/visitors", visible: authStore.isAdmin || authStore.isAdministrativeManagement },

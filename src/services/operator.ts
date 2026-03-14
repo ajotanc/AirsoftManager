@@ -186,20 +186,19 @@ export const OperatorService = {
     });
   },
   async changeAvatar(
-    rowId: string,
-    avatar: string,
+    operator: IOperator,
     file: File,
   ): Promise<IOperator> {
-    if (avatar) {
-      await deleteFile(rowId, "avatar");
+    if (operator.avatar) {
+      await deleteFile(operator.$id, "avatar");
     }
 
-    const urlFormatted = await uploadFile(rowId, file, "avatar");
+    const urlFormatted = await uploadFile(operator.$id, file, "avatar");
 
     return await tables.updateRow<IOperator>({
       databaseId: DATABASE_ID,
       tableId: TABLE_OPERATORS,
-      rowId,
+      rowId: operator.$id,
       data: {
         avatar: urlFormatted,
       },

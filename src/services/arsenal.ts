@@ -89,15 +89,15 @@ export const ArsenalService = {
       data,
     });
   },
-  async delete(rowId: string, invoiceUrl: string | null) {
-    if (invoiceUrl) {
-      await deleteFile(rowId, "nfe");
+  async delete(arsenal: IArsenal) {
+    if (arsenal.invoice) {
+      await deleteFile(arsenal.$id, "nfe");
     }
 
     return await tables.deleteRow({
       databaseId: DATABASE_ID,
       tableId: TABLE_ARSENALS,
-      rowId,
+      rowId: arsenal.$id,
     });
   },
   async uploadInvoice(rowId: string, file: File) {

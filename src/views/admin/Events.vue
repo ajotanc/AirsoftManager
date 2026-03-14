@@ -281,7 +281,7 @@ const confirmDelete = (event: IEvent) => {
         },
         accept: async () => {
             try {
-                await EventService.delete(event.$id, event.thumbnail!);
+                await EventService.delete(event);
                 events.value = events.value.filter((item: IEvent) => item.$id !== event.$id);
 
                 toast.add({

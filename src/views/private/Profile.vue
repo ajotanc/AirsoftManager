@@ -568,8 +568,7 @@ const handleUpdateAvatar = async (event: Event) => {
     loadingAvatar.value = true;
 
     const operatorUpdated = await OperatorService.changeAvatar(
-      operator.value.$id,
-      operator.value.avatar,
+      operator.value,
       file
     );
 

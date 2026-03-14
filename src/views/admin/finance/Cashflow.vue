@@ -229,7 +229,7 @@ const confirmDelete = (cashflow: ICashflow) => {
     },
     accept: async () => {
       try {
-        await CashflowService.delete(cashflow.$id);
+        await CashflowService.delete(cashflow);
         cashflows.value = cashflows.value.filter((item: ICashflow) => item.$id !== cashflow.$id);
 
         toast.add({

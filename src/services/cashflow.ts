@@ -103,13 +103,15 @@ export const CashflowService = {
       throw error;
     }
   },
-  async delete(rowId: string): Promise<{}> {
-    await deleteFile(rowId);
+  async delete(cashflow: ICashflow): Promise<{}> {
+    if (cashflow.receipt_url) {
+      await deleteFile(cashflow.$id, "receipt");
+    }
 
     return await tables.deleteRow({
       databaseId: DATABASE_ID,
       tableId: TABLE_CASHFLOW,
-      rowId,
+      rowId: cashflow.$id,
     });
   },
 };

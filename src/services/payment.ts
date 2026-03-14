@@ -98,7 +98,6 @@ export const PaymentService = {
     }
   },
   async delete(payment: IPayment): Promise<{}> {
-
     if (payment.receipt_url) {
       await deleteFile(payment.$id, "payment");
     }

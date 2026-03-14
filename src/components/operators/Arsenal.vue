@@ -346,7 +346,7 @@ const confirmDelete = (weapon: IArsenal) => {
     },
     accept: async () => {
       try {
-        await ArsenalService.delete(weapon.$id, weapon.invoice);
+        await ArsenalService.delete(weapon);
 
         const index = items.value.findIndex((item: IArsenal) => item.$id === weapon.$id);
         if (index !== -1) {

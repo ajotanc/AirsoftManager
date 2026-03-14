@@ -158,15 +158,15 @@ export const EventService = {
       throw error;
     }
   },
-  async delete(rowId: string, thumbnail?: string): Promise<{}> {
-    if (thumbnail && thumbnail.includes(BUCKET_ID)) {
-      await deleteFile(rowId);
+  async delete(event: IEvent): Promise<{}> {
+    if (event.thumbnail && event.thumbnail.includes(BUCKET_ID)) {
+      await deleteFile(event.$id, "thumbnail");
     }
 
     return await tables.deleteRow({
       databaseId: DATABASE_ID,
       tableId: TABLE_EVENTS,
-      rowId,
+      rowId: event.$id,
     });
   },
   async listFromDate(startDate: string): Promise<IEvent[]> {

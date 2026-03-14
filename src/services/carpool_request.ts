@@ -16,7 +16,6 @@ export interface ICarpoolRequest<
 }
 
 export const CarpoolRequestService = {
-  // Outro operador solicita a vaga
   async create(carpool: string, requester: string): Promise<ICarpoolRequest> {
     return await tables.createRow<ICarpoolRequest>({
       databaseId: DATABASE_ID,

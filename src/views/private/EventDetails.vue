@@ -61,7 +61,7 @@
                             <Button v-if="isFinished" label="Feedback" icon="pi pi-star" severity="warn"
                                 @click="addFeedback" :disabled="hasRating" />
                         </div>
-                        <Message v-if="deadlineInfo.isOver" severity="error" closable>
+                        <Message v-if="deadlineInfo.isOver && !isFinished" severity="error" closable>
                             <strong>Inscrições Encerradas:</strong> O limite para confirmação de efetivo foi até
                             <span class="font-bold">{{ deadlineInfo.formatted }}</span>.
                             A lista de operação já está consolidada.
@@ -171,7 +171,7 @@
                             </h4>
                             <div class="buttons">
                                 <Button label="Ficha Médica" icon="ri-health-book-line" severity="danger"
-                                    @click="handleExport" />
+                                    @click="exportHealth" />
                             </div>
                         </div>
                     </template>
@@ -1117,7 +1117,7 @@ const saveFeedback = async (values: IFeedback) => {
     }
 };
 
-const handleExport = async () => {
+const exportHealth = async () => {
     const dataToExport = participants.value.map(p => {
         const { name, birth_date, identity, blood_type, phone, emergency_contact, emergency_contact_phone, allergies, medication_details } = getOperator(p.operator.$id)!;
 
@@ -1146,7 +1146,7 @@ const handleExport = async () => {
     });
 };
 
-// const handleExport = () => {
+// const exportHealth = () => {
 //     const headers = [
 //         "Nome Completo",
 //         "Data de Nascimento",
