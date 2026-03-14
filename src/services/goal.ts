@@ -57,7 +57,7 @@ export const GoalService = {
       const id = rowId || ID.unique();
 
       if (file instanceof File) {
-        if (isUpdate) {
+        if (isUpdate && data.image_url) {
           await deleteFile(id, "goal");
         }
 

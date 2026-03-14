@@ -141,7 +141,7 @@ export const EventService = {
       const id = rowId || ID.unique();
 
       if (file instanceof File) {
-        if (isUpdate) {
+        if (isUpdate && data.thumbnail) {
           await deleteFile(id, "thumbnail");
         }
 

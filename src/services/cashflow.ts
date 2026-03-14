@@ -78,7 +78,7 @@ export const CashflowService = {
       const id = rowId || ID.unique();
 
       if (file instanceof File) {
-        if (isUpdate) {
+        if (isUpdate && data.receipt_url) {
           await deleteFile(id, "receipt");
         }
 
