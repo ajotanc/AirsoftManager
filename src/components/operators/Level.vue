@@ -1,6 +1,7 @@
 <template>
     <div class="flex flex-1 flex-column align-items-center text-center gap-2 py-2 overflow-hidden">
-        <Avatar :image="operator.avatar" :icon="!operator.avatar ? 'pi pi-user' : undefined" shape="circle" class="operator-avatar shadow-3" size="xlarge" />
+        <Avatar :image="operator.avatar" :icon="!operator.avatar ? 'pi pi-user' : undefined" shape="circle"
+            class="operator-avatar shadow-3" size="xlarge" />
 
         <div class="flex flex-column">
             <div class="flex align-items-center justify-content-center gap-2">
@@ -45,20 +46,23 @@
         </div>
 
         <template v-if="detail">
-            <div v-if="operator.profession || operator.availability" class="flex gap-4 text-xs w-full px-3">
-                <div v-if="operator.profession" class="w-6 flex flex-column text-right">
+            <div v-if="operator.profession || operator.availability"
+                class="flex justify-content-center gap-4 text-xs w-full px-3">
+                <div v-if="operator.profession" class="w-6 flex flex-column"
+                    :class="{ 'text-right': operator.availability }">
                     <span class="text-gray-500 uppercase font-bold" style="font-size: 0.6rem">Profissão</span>
                     <span class="text-gray-700 font-bold">{{ operator.profession }}</span>
                 </div>
-                <Divider layout="vertical" class="m-0" />
-                <div v-if="operator.availability" class="w-6 flex flex-column text-left">
+                <Divider v-if="operator.profession && operator.availability" layout="vertical" class="m-0" />
+                <div v-if="operator.availability" class="w-6 flex flex-column" :class="{ 'text-left': operator.profession }">
                     <span class="text-gray-500 uppercase font-bold" style="font-size: 0.6rem">Disponibilidade</span>
                     <span class="text-gray-700 font-bold">{{ getAvailabilityLabel(operator.availability) }}</span>
                 </div>
             </div>
 
             <div v-if="operator.phone || operator.instagram" class="flex gap-3 mt-1">
-                <a v-if="operator.phone" :href="`https://wa.me/+55${operator.phone}?text=Ol%C3%A1%20${operator.codename}%2C%20vim%20atrav%C3%A9s%20do%20aplicativo%20da%20%2A${TEAM_NAME}%2A%2C%20gostaria%20de%20saber%20mais%20sobre%20seus%20servi%C3%A7os%21`"
+                <a v-if="operator.phone"
+                    :href="`https://wa.me/+55${operator.phone}?text=Ol%C3%A1%20${operator.codename}%2C%20vim%20atrav%C3%A9s%20do%20aplicativo%20da%20%2A${TEAM_NAME}%2A%2C%20gostaria%20de%20saber%20mais%20sobre%20seus%20servi%C3%A7os%21`"
                     target="_blank" class="no-underline text-green-500 hover:scale-110 transition-transform">
                     <i class="pi pi-whatsapp text-xl"></i>
                 </a>

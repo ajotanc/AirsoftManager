@@ -2,7 +2,7 @@
   <div class="card">
     <AppTable title="Veículo(s)" :value="vehicles" :fields="vehicleFields" :loading="loading" icon="ri-car-line">
       <template #header-actions>
-        <Button label="Nova" icon="pi pi-plus" size="small" @click="newVehicle" />
+        <Button label="Novo" icon="pi pi-plus" size="small" @click="newVehicle" />
       </template>
 
       <template #actions="{ data }">

@@ -27,7 +27,7 @@
         <Button v-if="accessAdmin" icon="pi pi-check" rounded @click="confirmPayment(data)"
           :disabled="data.status !== 'pending'" severity="success" v-tooltip.top="'Confirmar Pagamento'" />
         <Button v-if="operator.$id === data.operator.$id" icon="pi pi-dollar" rounded @click="makePayment(data)"
-          :disabled="data.status !== 'created'" v-tooltip.top="'Efetuar Pagamento'" />
+          :disabled="!['created', 'overdue'].includes(data.status)" v-tooltip.top="'Efetuar Pagamento'" />
         <Button v-if="accessAdmin" icon="pi pi-trash" rounded @click="deletePayment(data)"
           :disabled="data.status === 'paid'" severity="danger" v-tooltip.top="'Excluir Pagamento'" />
       </template>
@@ -273,6 +273,15 @@ const confirmPayment = (payment: IPayment) => {
 
 const deletePayment = (payment: IPayment) => {
   const operator = payment.operator as IOperator;
+
+  if (payment.status === 'paid') {
+    return toast.add({
+      severity: "error",
+      summary: "Erro",
+      detail: "Você não pode excluir um pagamento já pago.",
+      life: 3000,
+    })
+  }
 
   confirm.require({
     message: 'Você tem certeza que deseja excluir este pagamento?',
