@@ -99,34 +99,29 @@
                 <div class="gap-3" style="display: grid; grid-template-columns: repeat(3, 1fr);">
                   <div v-for="(item, index) in GRID_LAYOUT" :key="index">
                     <div v-if="['rating', 'patch'].includes(item)"
-                      class="flex justify-content-center align-items-center border-solid text-gray-700 border-gray-600 border-1 border-round-lg bg-black-alpha-20 overflow-hidden"
-                      style="width: 80px; height: 80px;">
-                      <Image preview v-if="isStandard" :src="getImageUrl(item)" :alt="item"
-                        imageClass="w-full h-full p-2 transition-all transition-duration-500" style="scale: 1.1;" />
+                      class="flex justify-content-center align-items-center border-solid text-gray-700 border-gray-600 border-1 border-round-lg bg-black-alpha-20 overflow-hidden square">
+                      <Image preview v-if="isStandard" :src="getImage(item)" :alt="item"
+                        imageClass="p-2 transition-all transition-duration-500 square" style="scale: 1.1;" />
                       <i v-else class="pi pi-minus-circle"></i>
                     </div>
 
                     <div v-else-if="isException(item, selectedUniform.type_uniform)"
-                      class="flex justify-content-center align-items-center border-solid text-gray-700 border-gray-600 border-1 border-round-lg bg-black-alpha-20 overflow-hidden"
-                      style="width: 80px; height: 80px;">
+                      class="flex justify-content-center align-items-center border-solid text-gray-700 border-gray-600 border-1 border-round-lg bg-black-alpha-20 overflow-hidden square">
                       <i class="pi pi-minus-circle"></i>
                     </div>
 
                     <div v-else
-                      class="flex border-solid border-1 border-round-lg bg-black-alpha-20 transition-all transition-duration-500 cursor-pointer"
+                      class="flex border-solid border-1 border-round-lg bg-black-alpha-20 transition-all transition-duration-500 cursor-pointer square"
                       :class="[
                         isEquipped(item)
                           ? 'border-orange-200'
                           : 'border-gray-600 hover:border-orange-400'
-                      ]" style="width: 80px; height: 80px" @click="
-                        toggleItem(item)">
-
-                      <Image :src="getImageUrl(item)" :alt="item" class="flex overflow-hidden"
-                        :imageClass="['p-2 transition-all transition-duration-500 transition-ease-in-out', isEquipped(item) ? 'opacity-100' : 'opacity-70']"
+                      ]" @click="toggleItem(item)">
+                      <Image :src="getImage(item)" :alt="item" class="flex overflow-hidden"
+                        :imageClass="['p-2 transition-all transition-duration-500 transition-ease-in-out square', isEquipped(item) ? 'opacity-100' : 'opacity-70']"
                         :imageStyle="{
                           filter: isEquipped(item) ? 'none' : 'grayscale(100%)',
                           scale: isEquipped(item) ? '1.1' : '1',
-                          objectFit: 'cover'
                         }" />
                     </div>
                   </div>
@@ -150,12 +145,17 @@
   width: 100%;
   height: 100%;
   position: absolute;
-  background: url("../../assets/background.webp") center center / cover no-repeat;
+  background: url("/images/loadouts/background.webp") center center / cover no-repeat;
   mask-image: linear-gradient(to bottom, black 50%, transparent 100%);
   z-index: -1;
   opacity: 0.8;
   top: 0;
   left: 0
+}
+
+.square {
+  width: 80px;
+  height: 80px;
 }
 </style>
 
@@ -177,7 +177,6 @@ import Select from "primevue/select";
 import { TEAM_NAME, UNIFORMS, UNIFORMS_OPTIONS, LOADOUT_ITEMS, UNIFORM_IDS, PMC_EXCEPTIONS } from "@/constants/airsoft";
 import { LoadoutService, type ILoadout } from "@/services/loadout";
 import { useConfirm } from "primevue";
-import { getAssetUrl } from "@/functions/utils";
 
 const items = defineModel('items', {
   type: Array as PropType<ILoadout[]>,
@@ -367,18 +366,18 @@ const toggleItem = (key: string) => {
   (selectedUniform.value as any)[currentKey] = !selectedUniform.value[currentKey];
 };
 
-const getImageUrl = (itemKey: string) => {
+const getImage = (itemKey: string) => {
   let fileName = itemKey;
 
   if (CAMO_DEPENDENT_ITEMS.includes(itemKey)) {
     fileName = `${itemKey}_${selectedUniform.value.type_uniform}`;
   }
 
-  return getAssetUrl(`${fileName}.webp`);
+  return `/images/loadouts/${fileName}.webp`;
 };
 
 const getTypeUniform = () => {
-  return getAssetUrl(`type_uniform_${selectedUniform.value.type_uniform}.webp`);
+  return `/images/loadouts/type_uniform_${selectedUniform.value.type_uniform}.webp`;
 };
 
 const currentCompleteCount = computed(() => {

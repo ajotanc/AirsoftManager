@@ -222,7 +222,7 @@ export const UNIFORMS_OPTIONS = Object.entries(UNIFORMS).map(
   }),
 );
 
-export const PMC_EXCEPTIONS = ["helmet", "ski_mask", "headset"];
+export const PMC_EXCEPTIONS = ["helmet", "ski_mask"];
 
 export const ROLES = [
   { label: "Administrador", value: "admin" },

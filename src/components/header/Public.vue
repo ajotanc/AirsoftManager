@@ -3,7 +3,7 @@
     <Menubar :model="items" class="border-none border-bottom-1 surface-border border-noround p-3 surface-overlay">
       <template #start>
         <div class="flex align-items-center gap-2 mr-4 cursor-pointer" @click="router.push('/')">
-          <img src="/exd.webp" :alt="TEAM_NAME" class="h-4rem">
+          <img src="/images/exd.webp" :alt="TEAM_NAME" class="h-4rem">
         </div>
       </template>
 

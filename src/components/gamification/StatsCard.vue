@@ -30,7 +30,7 @@
             </div>
           </div>
           <div class="flex flex-column align-items-center gap-1">
-            <img src="/exd.webp" :alt="TEAM_NAME" class="w-5rem" />
+            <img src="/images/exd.webp" :alt="TEAM_NAME" class="w-5rem" />
             <Rating v-model="operator.rating" readonly />
           </div>
         </div>
@@ -49,7 +49,8 @@
         </div>
       </div>
       <div class="avatar-wrapper">
-        <img :src="(img as string) || operator.avatar || '/operator-default.webp'" :alt="operator.codename" class="avatar" />
+        <img :src="(img as string) || operator.avatar || '/images/operator-default.webp'" :alt="operator.codename"
+          class="avatar" />
       </div>
     </div>
   </div>

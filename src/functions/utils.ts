@@ -10,8 +10,6 @@ import router from "@/router";
 import { BUCKET_ID, storage } from '@/services/appwrite';
 import { CATEGORIES_OPTIONS, MAINTENANCE_STATUS_TYPES, MAINTENANCE_TYPES } from '@/constants/airsoft';
 
-import beepSound from "@/assets/sounds/beep.mp3";
-
 dayjs.extend(customParseFormat);
 
 export interface IFields {
@@ -115,29 +113,8 @@ export const formatDate = (date: any): Date => {
   return isNaN(parsed.getTime()) ? new Date() : parsed;
 };
 
-const assetsMap = import.meta.glob("@/assets/*.{png,jpg,jpeg,svg,webp}", {
-  eager: true,
-  import: "default",
-}) as Record<string, string>;
-
-export const getAssetUrl = (filename: string) => {
-  const path = `/src/assets/${filename}`;
-
-  return assetsMap[path];
-};
-
-export const extractCoordsFromUrl = (url: string) => {
-  // Regex para capturar lat e long de links do Google Maps
-  const regex = /@(-?\d+\.\d+),(-?\d+\.\d+)/;
-  const match = url.match(regex);
-  if (match) {
-    return { lat: match[1], lng: match[2] };
-  }
-  return null;
-};
-
 export const playBeep = () => {
-  const audio = new Audio(beepSound);
+  const audio = new Audio("/sounds/beep.mp3");
   audio.volume = 0.5;
   audio.play().catch((e) => console.error("Erro ao reproduzir som:", e));
 };

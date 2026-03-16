@@ -2,7 +2,7 @@
   <div class="flex align-items-center justify-content-center flex-1 surface-ground p-3">
     <div class="surface-card p-4 shadow-2 border-round w-full lg:w-4">
       <div class="text-center mb-3">
-        <img src="/exd.webp" alt="Êxodo Airsoft" class="w-6rem h-6rem" />
+        <img src="/images/exd.webp" alt="Êxodo Airsoft" class="w-6rem h-6rem" />
         <div class="text-900 text-3xl font-bold uppercase">{{ TEAM_NAME }}</div>
         <blockquote class="text-sm font-italic m-0" :cite="TEAM_NAME">"{{ TEAM_MOTTO }}"</blockquote>
       </div>

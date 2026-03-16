@@ -48,7 +48,7 @@
                   <span class="label text-yellow-500">Nº FBDA</span>
                   <span class="value">{{ operator.number_fdba || 'N/A' }}</span>
                 </div>
-                <img src="/fbda.webp" alt="FBDA" class="w-3rem">
+                <img src="/images/fbda.webp" alt="FBDA" class="w-3rem">
               </div>
             </div>
           </div>
@@ -147,7 +147,7 @@ const styleDownloadCard = computed(() => ({
   background-color: var(--p-gray-200);
 
   /* ADICIONE ISSO AQUI: */
-  background-image: url('/exd.webp');
+  background-image: url('/images/exd.webp');
   background-repeat: no-repeat;
   background-size: contain;
   background-blend-mode: overlay;

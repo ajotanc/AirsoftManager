@@ -42,27 +42,30 @@
 
       <div class="col-12 md:col-3">
         <div
-          class="card shadow-2 p-3 border-round h-full flex flex-column justify-content-between bg-blue-100 border-left-3 border-blue-900 text-blue-900">
+          class="card shadow-2 p-3 border-round h-full flex flex-column justify-content-between bg-blue-100 border-left-3 border-blue-900 text-blue-900 relative">
           <div class="flex align-items-center justify-content-between">
             <div>
               <span class="block font-bold mb-2 opacity-90">Saldo em Caixa</span>
-              <div class="font-bold text-xl">{{ formatCurrency(totalBalance) }}</div>
+              <div class="font-bold text-xl">{{ visibility.balance ? formatCurrency(totalBalance) : 'R$ •••••' }}</div>
             </div>
             <div class="bg-blue-200 border-round w-3rem h-3rem flex align-items-center justify-content-center">
               <i class="ri-wallet-line text-xl"></i>
             </div>
           </div>
           <div class="mt-2 text-sm font-medium">Acumulado em {{ selectedYear }}</div>
+          <i :class="['absolute right-0 bottom-0 m-3', visibility.balance ? 'ri-eye-off-line' : 'ri-eye-line']"
+            @click="toggleVisibility('balance')"></i>
         </div>
       </div>
 
       <div class="col-12 md:col-3">
         <div
-          class="card shadow-2 p-3 border-round h-full flex flex-column justify-content-between  bg-green-100 border-left-3 border-green-900 text-green-900">
+          class="card shadow-2 p-3 border-round h-full flex flex-column justify-content-between  bg-green-100 border-left-3 border-green-900 text-green-900 relative">
           <div class="flex align-items-center justify-content-between">
             <div>
               <span class="block font-bold mb-2">Total Entradas</span>
-              <div class="font-bold text-xl">+ {{ formatCurrency(totalIncomes) }}</div>
+              <div class="font-bold text-xl">+ {{ visibility.income ? formatCurrency(totalIncomes) : 'R$ •••••' }}
+              </div>
             </div>
             <div class="bg-green-200 border-round w-3rem h-3rem flex align-items-center justify-content-center">
               <i class="ri-arrow-up-line text-xl"></i>
@@ -74,16 +77,19 @@
             </span>
             <span class="ml-1 font-normal">vs mês anterior</span>
           </div>
+          <i :class="['absolute right-0 bottom-0 m-3', visibility.income ? 'ri-eye-off-line' : 'ri-eye-line']"
+            @click="toggleVisibility('income')"></i>
         </div>
       </div>
 
       <div class="col-12 md:col-3">
         <div
-          class="card shadow-2 p-3 border-round h-full flex flex-column justify-content-between bg-red-100 border-left-3 border-red-900">
+          class="card shadow-2 p-3 border-round h-full flex flex-column justify-content-between bg-red-100 border-left-3 border-red-900 relative">
           <div class="flex align-items-center justify-content-between">
             <div>
               <span class="block text-red-900 font-bold mb-2">Total Saídas</span>
-              <div class="text-red-900 font-bold text-xl">- {{ formatCurrency(totalExpenses) }}</div>
+              <div class="text-red-900 font-bold text-xl">- {{ visibility.expense ? formatCurrency(totalExpenses) :
+                'R$ •••••' }}</div>
             </div>
             <div class="bg-red-200 border-round w-3rem h-3rem flex align-items-center justify-content-center">
               <i class="ri-arrow-down-line text-red-900 text-xl"></i>
@@ -96,6 +102,8 @@
             </span>
             <span class="ml-1 font-normal">vs mês anterior</span>
           </div>
+          <i :class="['absolute right-0 bottom-0 m-3', visibility.expense ? 'ri-eye-off-line' : 'ri-eye-line']"
+            @click="toggleVisibility('expense')"></i>
         </div>
       </div>
 
@@ -134,7 +142,8 @@
                 </div>
               </div>
               <div :class="['font-bold text-lg', flow.type === 'income' ? 'text-green-600' : 'text-red-600']">
-                {{ flow.type === 'income' ? '+' : '-' }} {{ formatCurrency(Math.abs(flow.amount)) }}
+                {{ flow.type === 'income' ? '+' : '-' }} {{ visibility[flow.type] ?
+                  formatCurrency(Math.abs(flow.amount)) : 'R$ •••••' }}
               </div>
             </li>
           </ul>
@@ -180,6 +189,16 @@ const cashflowDialog = ref(false);
 const selectedYear = ref(dayjs().year());
 const currentMonth = dayjs().format('MM/YYYY');
 const years = ref([2024, 2025, 2026]);
+
+const visibility = ref({
+  balance: true,
+  income: true,
+  expense: true
+});
+
+const toggleVisibility = (key: keyof typeof visibility.value) => {
+  visibility.value[key] = !visibility.value[key];
+};
 
 onMounted(loadServices);
 
@@ -262,9 +281,9 @@ const barData = computed(() => ({
 }));
 
 const pieData = computed(() => {
-  const expenses = cashflows.value.filter(c => c.type === 'expense' && dayjs(c.date).year() === selectedYear.value);
-  const cats = [...new Set(expenses.map(c => c.category))];
-  const data = cats.map(cat => expenses.filter(e => e.category === cat).reduce((a, b) => a + Math.abs(Number(b.amount)), 0));
+  const expense = cashflows.value.filter(c => c.type === 'expense' && dayjs(c.date).year() === selectedYear.value);
+  const cats = [...new Set(expense.map(c => c.category))];
+  const data = cats.map(cat => expense.filter(e => e.category === cat).reduce((a, b) => a + Math.abs(Number(b.amount)), 0));
   return {
     labels: cats.map(c => categoryMap.value[c] || c),
     datasets: [{ data, backgroundColor: ['#8095B5', '#99C19B', '#E7C67F', '#A384E6', '#E595A4'] }]

@@ -2,7 +2,7 @@
   <div class="flex align-items-center justify-content-center flex-1 surface-ground p-3">
     <div class="surface-card p-4 shadow-2 border-round w-full lg:w-4">
       <div class="flex flex-column align-items-center gap-3 text-center">
-        <img src="/exd.webp" alt="Êxodo Airsoft" class="w-6rem h-6rem" />
+        <img src="/images/exd.webp" alt="Êxodo Airsoft" class="w-6rem h-6rem" />
         <h2 class="text-900 font-bold m-0">Verificação de E-mail</h2>
 
         <div v-if="state === 'loading'" class="w-full flex flex-column align-items-center gap-3">
