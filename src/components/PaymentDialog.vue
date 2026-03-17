@@ -5,20 +5,17 @@
     <div class="grid">
       <div v-if="payment?.category === 'goal'" class="col-12">
         <IftaLabel>
-          <InputNumber v-model="localAmount" mode="currency" currency="BRL" locale="pt-BR" :min="1" @blur="onAmountBlur"
-            fluid />
+          <InputNumber v-model="localAmount" mode="currency" currency="BRL" locale="pt-BR" :min="1" fluid />
           <label>Quanto deseja contribuir?</label>
         </IftaLabel>
-        <Message v-if="loading" severity="secondary" size="small" variant="simple" class="mt-1">
-          <i class="pi pi-spin pi-spinner mr-2"></i> Atualizando QR Code...
-        </Message>
       </div>
 
       <div class="col-12 flex flex-column align-items-center gap-3">
         <div v-if="loading"
-          class="w-full flex align-items-center justify-content-center border-1 border-round border-blue-300"
-          style="height: 300px">
-          <Skeleton width="100%" height="100%" />
+          class="flex justify-content-center align-items-center w-full border-1 border-round border-blue-300 relative"
+          style="height: 326px">
+          <Skeleton width="276px" height="276px" border-radius="0" />
+          <span class="absolute"><i class="ri-loop-right-line icon-spinner"></i> Atualizando QR Code...</span>
         </div>
         <img v-else :src="localPixData.base64" alt="QR Code Pix" class="w-full border-1 border-round border-blue-300" />
 
@@ -51,7 +48,7 @@
 import { ref, watch } from 'vue';
 import {
   Dialog, Button, InputText, InputNumber, InputGroup, InputGroupAddon,
-  FileUpload, Divider, Message, IftaLabel, useToast, Skeleton
+  FileUpload, Divider, IftaLabel, useToast, Skeleton
 } from 'primevue';
 import type { FileUploadUploaderEvent } from 'primevue/fileupload';
 import { PaymentService, type IPayment } from '@/services/payment';
@@ -70,6 +67,8 @@ const MAX_FILE_SIZE = 2 * 1024 * 1024;
 const localAmount = ref<number>(0);
 const loading = ref(false);
 const localPixData = ref({ payload: '', base64: '' });
+
+let debounceTimer: ReturnType<typeof setTimeout>;
 
 const fetchPixData = async (amount: number) => {
   if (!props.payment) return;
@@ -96,11 +95,16 @@ watch(() => props.visible, async (isOpen) => {
   }
 });
 
-const onAmountBlur = async () => {
-  if (localAmount.value > 0) {
-    await fetchPixData(localAmount.value);
-  }
-};
+watch(localAmount, (newValue, oldValue) => {
+  if (newValue === oldValue || newValue <= 0) return;
+
+  loading.value = true;
+  clearTimeout(debounceTimer);
+
+  debounceTimer = setTimeout(async () => {
+    await fetchPixData(newValue);
+  }, 800);
+});
 
 const copyPix = () => {
   navigator.clipboard.writeText(localPixData.value.payload);

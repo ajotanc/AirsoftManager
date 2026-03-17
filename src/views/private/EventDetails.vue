@@ -7,6 +7,8 @@
                     <div
                         class="flex flex-column justify-content-between align-items-start md:flex-row md:align-items-center gap-2">
                         <h1 class="text-4xl font-bold uppercase m-0">
+                            <i
+                                :class="['text-4xl', event.is_finished ? 'ri-checkbox-fill text-green-400' : 'ri-checkbox-indeterminate-fill text-red-600']"></i>
                             {{ event.title }}
                         </h1>
                         <Tag v-if="event.is_finished" value="Finalizado" icon="pi pi-check-circle" severity="warn" />

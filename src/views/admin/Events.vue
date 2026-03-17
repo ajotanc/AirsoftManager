@@ -195,6 +195,17 @@ const saveEvent = async ({ valid, values }: any) => {
 const fields: IFields[] = [
     { name: 'title', label: 'Nome da Missão', component: InputText, col: '12', width: '25%' },
     {
+        name: 'is_finished', label: 'Finalizado', component: Select, col: '12', props: {
+            options: [
+                { label: 'Sim', value: true, severity: 'success' },
+                { label: 'Não', value: false, severity: 'danger'},
+            ],
+            optionLabel: 'label',
+            optionValue: 'value'
+        },
+        hidden: true
+    },
+    {
         name: 'description', label: 'Briefing da Missão', component: Editor, col: '12', props: {
             rows: 5,
             cols: 30,

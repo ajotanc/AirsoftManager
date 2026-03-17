@@ -31,7 +31,7 @@
 
                             <template #title>
                                 <div class="text-lg font-bold text-gold-500 line-clamp-1">
-                                    {{ event.title }}
+                                    <i :class="['text-xl', event.is_finished ? 'ri-checkbox-fill text-green-400': 'ri-checkbox-indeterminate-fill text-red-600']"></i> {{ event.title }}
                                 </div>
                             </template>
 
@@ -39,7 +39,7 @@
                                 <div class="flex flex-column gap-1 text-sm text-gray-400">
                                     <span><i class="pi pi-map-marker mr-1 text-xs"></i>{{ event.location }}</span>
                                     <span><i class="pi pi-calendar mr-1 text-xs text-gray-400"></i>{{
-                                        formatDate(event.date).toLocaleDateString('pt-BR') }}</span>
+                                        dayjs(event.date).format('DD/MM/YYYY') }}</span>
                                 </div>
                             </template>
                             <template #footer>
@@ -62,7 +62,8 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
 import { EVENT_TYPES } from '@/constants/airsoft';
-import { formatDate, severityEvent, goToEvent } from '@/functions/utils';
+import dayjs from 'dayjs';
+import { severityEvent, goToEvent } from '@/functions/utils';
 import { Skeleton, useToast } from 'primevue';
 import { EventService, type IEvent } from '@/services/event';
 

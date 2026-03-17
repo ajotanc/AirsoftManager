@@ -30,7 +30,7 @@
         <Column expander style="width: 5rem" />
         <Column style="width: 5rem">
           <template #body="{ data: { $id, avatar } }">
-            <Skeleton v-if="loading" width="100%" height="1rem" />
+            <Skeleton v-if="isLoading" width="100%" height="1rem" />
             <template v-else>
               <Avatar :image="avatar" :icon="!avatar ? 'pi pi-user' : undefined" class="mr-2" size="xlarge"
                 shape="circle" @click="$router.push(`/verify/operator/${$id}`)" />
@@ -40,7 +40,7 @@
 
         <Column header="Codinome">
           <template #body="{ data: { name, codename } }">
-            <Skeleton v-if="loading" width="100%" height="1rem" />
+            <Skeleton v-if="isLoading" width="100%" height="1rem" />
             <template v-else>
               <div class="flex flex-column">
                 <span class="font-bold">{{ getShortName(name) }}</span>
@@ -52,7 +52,7 @@
 
         <Column field="info.isComplete" header="Perfil" sortable style="width: 10rem">
           <template #body="{ data }">
-            <Skeleton v-if="loading" width="100%" height="1rem" />
+            <Skeleton v-if="isLoading" width="100%" height="1rem" />
             <template v-else>
               <div class="flex gap-2">
                 <span
@@ -70,7 +70,7 @@
 
         <Column header="Graduação">
           <template #body="{ data }">
-            <Skeleton v-if="loading" width="100%" height="1rem" />
+            <Skeleton v-if="isLoading" width="100%" height="1rem" />
             <template v-else>
               <Rating v-model="data.rating" :readonly="true" />
             </template>
@@ -82,7 +82,7 @@
 
         <Column header="Cargo">
           <template #body="{ data }">
-            <Skeleton v-if="loading" width="100%" height="1rem" />
+            <Skeleton v-if="isLoading" width="100%" height="1rem" />
             <template v-else>
               <Tag :value="ROLES.find((item) => item.value === data.role)?.label" :severity="'contrast'" />
             </template>
@@ -94,7 +94,7 @@
 
         <Column header="Situação">
           <template #body="{ data }">
-            <Skeleton v-if="loading" width="100%" height="1rem" />
+            <Skeleton v-if="isLoading" width="100%" height="1rem" />
             <template v-else>
               <Tag :value="data.status ? 'Ativo' : 'Inativo'" :severity="data.status ? 'success' : 'danger'" />
             </template>
@@ -115,7 +115,8 @@
         </template>
 
         <template #paginatorstart>
-          <Button icon="ri-reset-right-line" rounded @click="loadServices" size="small" v-tooltip.top="'Atualizar'" />
+          <Button icon="ri-reset-right-line" rounded @click="() => refetch()" size="small"
+            v-tooltip.top="'Atualizar'" />
         </template>
 
         <template #paginatorend>
@@ -123,8 +124,9 @@
             <Button type="button" icon="ri-download-2-line" rounded size="small" v-tooltip.top="'Exportar'"
               @click="exportData" />
             <Button type="button" icon="ri-health-book-line" severity="danger" rounded size="small"
-              v-tooltip.top="'Ficha Médica'" @click="exportHealth" /> <Button type="button" icon="ri-t-shirt-2-line"
-              rounded size="small" v-tooltip.top="'Tamanhos de Camisa'" @click="exportShirtSize" />
+              v-tooltip.top="'Ficha Médica'" @click="exportHealth" />
+            <Button type="button" icon="ri-t-shirt-2-line" rounded size="small" v-tooltip.top="'Tamanhos de Camisa'"
+              @click="exportShirtSize" />
           </div>
         </template>
 
@@ -134,9 +136,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from "vue";
+import { ref, computed } from "vue";
 import { FilterMatchMode } from '@primevue/core/api';
 import { useToast } from "primevue/usetoast";
+import { useQuery, useQueryClient } from "@tanstack/vue-query";
+import dayjs from "dayjs";
 
 import Tag from "primevue/tag";
 import DataTable, { type DataTableRowEditSaveEvent } from "primevue/datatable";
@@ -149,6 +153,7 @@ import ToggleSwitch from "primevue/toggleswitch";
 import IconField from 'primevue/iconfield';
 import InputIcon from 'primevue/inputicon';
 import InputText from 'primevue/inputtext';
+import Skeleton from "primevue/skeleton";
 
 import Details from "@/components/operators/Details.vue";
 import { ROLES } from "@/constants/airsoft";
@@ -160,16 +165,44 @@ import { useOperator } from "@/composables/useOperator";
 import { formatCPF, formatPhone } from "@brazilian-utils/brazilian-utils";
 
 const toast = useToast();
+const queryClient = useQueryClient();
 const { operator, updateState } = useOperator();
 
-const loading = ref(true);
-const operators = ref<IOperator[]>([]);
+const checkOperator = (op: IOperator) => {
+  const isProfileComplete = operatorSchema.safeParse(op).success;
+  const hasArsenal = op.arsenal && op.arsenal.length > 0;
+  const hasLoadout = op.loadout && op.loadout.length > 0;
+
+  return {
+    isComplete: isProfileComplete && hasArsenal && hasLoadout,
+    isProfileComplete,
+    hasArsenal,
+    hasLoadout
+  };
+};
+
+const {
+  data: operators,
+  isLoading,
+  // isError,
+  refetch
+} = useQuery({
+  queryKey: ['operators', 'list'],
+  queryFn: async () => {
+    const response = await OperatorService.list();
+
+    return response.map(op => ({
+      ...op,
+      info: checkOperator(op)
+    }));
+  },
+});
+
 const expandedRows = ref({});
 const editingRows = ref([]);
 
 const exportFilename = computed(() => {
-  const date = Date.now();
-  return `${date}_LISTA_OPERADORES`;
+  return `${Date.now()}_LISTA_OPERADORES`;
 });
 
 const filters = ref({
@@ -185,32 +218,8 @@ const labels = computed(() => {
     .filter(key => !key.startsWith('$'));
 });
 
-onMounted(() => {
-  loadServices();
-});
-
-const loadServices = async () => {
-  try {
-    const response = await OperatorService.list();
-
-    operators.value = response.map(op => {
-      const info = checkOperator(op);
-
-      return {
-        ...op,
-        info
-      };
-    });
-  } catch (error) {
-    console.error("Erro ao carregar serviços:", error);
-    toast.add({ severity: 'error', summary: 'Erro', detail: 'Falha ao carregar dados.' });
-  } finally {
-    loading.value = false;
-  }
-};
-
 const dtValue = computed(() => {
-  return loading.value ? new Array(5).fill({}) : operators.value;
+  return isLoading.value ? new Array(5).fill({}) : (operators.value || []);
 });
 
 const handleUpdate = async (event: DataTableRowEditSaveEvent<any>) => {
@@ -218,73 +227,45 @@ const handleUpdate = async (event: DataTableRowEditSaveEvent<any>) => {
   const { $id, rating, role, status } = newData;
 
   try {
-    const payload = {
-      rating,
-      role,
-      status
+    const payload = { rating, role, status };
+
+    const operatorUpdated = await OperatorService.update($id, payload);
+
+    const updatedWithInfo = {
+      ...operatorUpdated,
+      info: checkOperator(operatorUpdated)
     };
 
-    const operatorUpdated = await OperatorService.update(
-      $id,
-      payload
-    );
-
-    const index = operators.value.findIndex(op => op.$id === $id);
-
-    if (index !== -1) {
-      operators.value[index] = operatorUpdated;
-    }
+    // Atualiza o cache local em vez de gastar requisições extra
+    queryClient.setQueryData(['operators', 'list'], (oldData: any) => {
+      if (!oldData) return [];
+      return oldData.map((op: any) => op.$id === $id ? updatedWithInfo : op);
+    });
 
     if (operator.value.$id === $id) {
       await updateState(operatorUpdated);
     }
 
-    toast.add({
-      severity: "success",
-      summary: "Sucesso",
-      detail: "Operador atualizado!",
-      life: 3000,
-    });
+    toast.add({ severity: "success", summary: "Sucesso", detail: "Operador atualizado com sucesso!", life: 3000 });
   } catch (error) {
-    loadServices();
-    console.error("Falha ao salvar", error);
-    toast.add({
-      severity: "error",
-      summary: "Erro",
-      detail: "Não foi possível salvar",
-      life: 3000,
-    });
+    console.error("Falha ao guardar", error);
+    toast.add({ severity: "error", summary: "Erro", detail: "Não foi possível guardar as alterações.", life: 3000 });
   }
 };
 
 const exportData = async () => {
-  if (!operators.value.length) {
-    toast.add({ severity: 'warn', summary: 'Aviso', detail: 'Não há dados para exportar.' });
+  const data = operators.value || [];
+  if (!data.length) {
+    toast.add({ severity: 'warn', summary: 'Aviso', detail: 'Não existem dados para exportar.' });
     return;
   }
-
-  await export2Excel(exportFilename.value, operators.value, 'Operadores');
-
-  toast.add({ severity: 'success', summary: 'Sucesso', detail: 'Planilha Excel gerada!', life: 3000 });
-};
-
-const checkOperator = (operator: IOperator) => {
-  const isProfileComplete = operatorSchema.safeParse(operator).success;
-  const hasArsenal = operator.arsenal.length > 0;
-  const hasLoadout = operator.loadout.length > 0;
-
-  const isComplete = isProfileComplete && hasArsenal && hasLoadout;
-
-  return {
-    isComplete,
-    isProfileComplete,
-    hasArsenal,
-    hasLoadout
-  }
+  await export2Excel(exportFilename.value, data, 'Operadores');
+  toast.add({ severity: 'success', summary: 'Sucesso', detail: 'Ficheiro Excel gerado!', life: 3000 });
 };
 
 const exportShirtSize = async () => {
-  const dataToExport = operators.value.map(p => {
+  const data = operators.value || [];
+  const dataToExport = data.map(p => {
     return {
       "Nome Completo": p.name.trim(),
       "Codinome": p.codename,
@@ -293,19 +274,13 @@ const exportShirtSize = async () => {
   });
 
   const summary = "Tamanhos de Camisa";
-
   await export2Excel(`${dayjs().unix()}-TAMANHOS-DE-CAMISA`, dataToExport, summary);
-
-  toast.add({
-    severity: 'success',
-    summary,
-    detail: 'Exportação concluída! Verifique seu download.',
-    life: 3000
-  });
+  toast.add({ severity: 'success', summary, detail: 'Exportação concluída! Verifica a tua pasta de transferências.', life: 3000 });
 };
 
 const exportHealth = async () => {
-  const dataToExport = operators.value.map(p => {
+  const data = operators.value || [];
+  const dataToExport = data.map(p => {
     return {
       "Nome Completo": p.name.trim(),
       "Data de Nascimento": dayjs(p.birth_date).format('DD/MM/YYYY'),
@@ -320,15 +295,7 @@ const exportHealth = async () => {
   });
 
   const summary = "Ficha Médica";
-
   await export2Excel(`${dayjs().unix()}-FICHA-MÉDICA`, dataToExport, summary);
-
-  toast.add({
-    severity: 'success',
-    summary,
-    detail: 'Exportação concluída! Verifique seu download.',
-    life: 3000
-  });
+  toast.add({ severity: 'success', summary, detail: 'Exportação concluída! Verifica a tua pasta de transferências.', life: 3000 });
 };
-
 </script>

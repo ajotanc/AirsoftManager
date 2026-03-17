@@ -99,48 +99,46 @@
 </template>
 
 <script setup lang="ts">
+import { computed, ref } from "vue";
+import { useQuery } from "@tanstack/vue-query";
+import router from "@/router";
+
 import Card from "primevue/card";
+import Button from "primevue/button";
 
 import Level from "@/components/operators/Level.vue";
 import EventList from "@/components/EventList.vue";
 import BirthdayList from "@/components/BirthdayList.vue";
-import { computed, onMounted, ref } from "vue";
-import { PaymentService, type IPayment } from "@/services/payment";
 import AdminBadgeScanner from "@/components/AdminBadgeScanner.vue";
 import OperatorList from "@/components/operators/List.vue";
 import GoalList from "@/components/GoalList.vue";
-import { useOperator } from "@/composables/useOperator";
 import ArenaSchedule from "@/components/ArenaSchedule.vue";
-import router from "@/router";
 import AppScanner from "@/components/AppScanner.vue";
+
+import { PaymentService, type IPayment } from "@/services/payment";
+import { useOperator } from "@/composables/useOperator";
 
 const { operator, isActiveOperator, isAdmin } = useOperator();
 const { $id, arsenal, loadout } = operator.value;
 
-const payments = ref<IPayment[]>([]);
-const loading = ref(true);
-
 const openScannerDialog = ref(false);
 
-onMounted(loadServices);
+const {
+  data: payments,
+  // isLoading 
+} = useQuery({
+  queryKey: ['payments', 'operator', $id],
+  queryFn: () => PaymentService.listByOperator($id),
+});
 
-async function loadServices() {
-  loading.value = true;
-
-  try {
-    payments.value = await PaymentService.listByOperator($id)
-  } catch (e) {
-    console.error(e);
-  } finally {
-    loading.value = false;
-  }
-}
-
-const openPayments = computed(() => payments.value.filter(p => p.status === 'created'));
-
+const openPayments = computed(() => {
+  if (!payments.value) return [];
+  return payments.value.filter((p: IPayment) => p.status === 'created');
+});
 
 function onDetect(operatorId?: string) {
-  router.push(`/verify/operator/${operatorId}`);
+  if (operatorId) {
+    router.push(`/verify/operator/${operatorId}`);
+  }
 };
-
 </script>

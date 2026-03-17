@@ -14,6 +14,7 @@
     "@netlify/edge-functions": "^3.0.3",
     "@primevue/forms": "^4.5.3",
     "@primevue/themes": "^4.5.3",
+    "@tanstack/vue-query": "^5.92.9",
     "add-to-calendar-button": "^2.13.4",
     "appwrite": "^21.5.0",
     "browser-image-compression": "^2.0.2",

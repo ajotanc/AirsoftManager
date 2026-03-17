@@ -209,7 +209,10 @@ export const OperatorService = {
       const response = await tables.listRows<IOperator>({
         databaseId: DATABASE_ID,
         tableId: TABLE_OPERATORS,
-        queries: [Query.equal("status", true), Query.limit(1000)],
+        queries: [
+          Query.equal("status", true),
+          Query.limit(1000)
+        ],
       });
 
       const now = dayjs();

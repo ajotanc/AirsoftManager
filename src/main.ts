@@ -1,5 +1,6 @@
 import { createApp } from "vue";
 import { createPinia } from "pinia";
+import { VueQueryPlugin, type VueQueryPluginOptions } from "@tanstack/vue-query";
 
 import App from "./App.vue";
 import router from "./router";
@@ -150,3 +151,18 @@ app.directive('asterisk', {
     });
   }
 });
+
+const vueQueryOptions: VueQueryPluginOptions = {
+  queryClientConfig: {
+    defaultOptions: {
+      queries: {
+        staleTime: 1000 * 60 * 5, // Os dados ficam "frescos" por 5 minutos (não bate na API)
+        gcTime: 1000 * 60 * 15,   // Mantém no cache (lixo) por 15 minutos
+        refetchOnWindowFocus: false, // Evita requisição ao focar na aba do navegador
+        retry: 1, // Se der erro na rede (comum no mato no Airsoft), tenta só mais 1 vez
+      },
+    },
+  },
+};
+
+app.use(VueQueryPlugin, vueQueryOptions);
