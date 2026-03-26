@@ -5,16 +5,15 @@
                 <Button label="Nova" icon="pi pi-plus" size="small" @click="newEvent" />
             </template>
             <template #actions="{ data }">
-                <ButtonShare :event="data" icon="pi pi-copy" text rounded severity="warn"
+                <Button icon="pi pi-pencil" rounded severity="info" v-tooltip.top="'Editar'" @click="editEvent(data)"
+                    :disabled="data.is_finished" />
+                <Button icon="pi pi-link" @click="goToEvent(data.$id)" rounded v-tooltip.top="'Detalhes'" />
+                <ButtonShare :event="data" icon="pi pi-copy" rounded severity="warn"
                     v-tooltip.top="'Copiar Conteúdo'" />
-                <ButtonShare :event="data" icon="pi pi-share-alt" text rounded severity="help"
+                <ButtonShare :event="data" icon="pi pi-share-alt" rounded severity="help"
                     v-tooltip.top="'Compartilhar'" />
-                <Button icon="pi pi-link" @click="goToEvent(data.$id)" text rounded v-tooltip.top="'Detalhes'">
-                </Button>
-                <Button icon="pi pi-pencil" text rounded severity="info" v-tooltip.top="'Editar'"
-                    @click="editEvent(data)" />
-                <Button icon="pi pi-trash" text rounded severity="danger" v-tooltip.top="'Excluir'"
-                    @click="confirmDelete(data)" />
+                <Button icon="pi pi-trash" rounded severity="danger" v-tooltip.top="'Excluir'"
+                    @click="confirmDelete(data)" :disabled="data.is_finished" />
             </template>
         </AppTable>
 
@@ -198,7 +197,7 @@ const fields: IFields[] = [
         name: 'is_finished', label: 'Finalizado', component: Select, col: '12', props: {
             options: [
                 { label: 'Sim', value: true, severity: 'success' },
-                { label: 'Não', value: false, severity: 'danger'},
+                { label: 'Não', value: false, severity: 'danger' },
             ],
             optionLabel: 'label',
             optionValue: 'value'

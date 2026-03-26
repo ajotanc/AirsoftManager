@@ -48,26 +48,27 @@
                 </div>
                 <div class="col-12">
                     <div class="flex flex-column md:flex-row gap-2">
-                        <div v-if="!isFinished" class="flex flex-column md:flex-row gap-2">
+                        <template v-if="!isFinished">
                             <Button v-if="isConfirmed" label="Cancelar Presença" icon="pi pi-times" severity="error"
-                                @click="toggleParticipation" />
+                                @click="toggleParticipation" class="w-auto" />
                             <Button v-else label="Confirmar Presença" icon="pi pi-plus-circle" severity="primary"
-                                @click="toggleParticipation" :disabled="deadlineInfo.isOver" />
+                                @click="toggleParticipation" :disabled="deadlineInfo.isOver" class="w-auto" />
                             <Button v-if="isConfirmed" label="Adicionar à Agenda" icon="pi pi-calendar-plus"
-                                severity="help" @click="handleCalendarDynamic" />
-                        </div>
-                        <div class="flex gap-2">
+                                severity="help" @click="handleCalendarDynamic" class="w-auto" />
+                        </template>
+                        <div class="flex flex-row gap-2">
                             <ButtonShare :event="event" icon="pi pi-copy" outlined v-tooltip.top="'Copiar Missão'" />
                             <ButtonShare :event="event" :share="true" icon="pi pi-share-alt" outlined
                                 v-tooltip.top="'Compartilhar'" />
-                            <Button v-if="isFinished" label="Feedback" icon="pi pi-star" severity="warn"
-                                @click="addFeedback" :disabled="hasRating" />
                         </div>
-                        <Message v-if="deadlineInfo.isOver && !isFinished" severity="error" closable>
-                            <strong>Inscrições Encerradas:</strong> O limite para confirmação de efetivo foi até
-                            <span class="font-bold">{{ deadlineInfo.formatted }}</span>.
-                            A lista de operação já está consolidada.
-                        </Message>
+                        <Button v-if="isFinished" label="Feedback" icon="pi pi-star" severity="warn"
+                            @click="addFeedback" :disabled="hasRating" class="w-auto" />
+                        <div v-if="deadlineInfo.isOver && !isFinished"
+                            class="flex gap-2 align-items-center p-2 md:py-0 md:px-3 border-1 border-red-300 bg-red-100 text-red-800 border-round text-sm">
+                            <span><strong>Inscrições Encerradas:</strong> O limite para confirmação de efetivo foi até
+                                <span class="font-bold">{{ deadlineInfo.formatted }}</span>. A lista de operação já está
+                                consolidada.</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -301,7 +302,7 @@
                                     :icon="!feedback.operator.avatar ? 'pi pi-user' : undefined" shape="circle" />
                                 <div class="flex flex-column">
                                     <span class="text-sm font-bold uppercase">{{ getShortName(feedback.operator.name)
-                                    }}</span>
+                                        }}</span>
                                     <span class="text-xs uppercase">{{ feedback.operator.codename }}</span>
                                 </div>
                             </div>
@@ -348,7 +349,7 @@
                         <template #option="slotProps">
                             <div class="flex flex-column">
                                 <span class="font-bold">{{ slotProps.option.name }} ({{ slotProps.option.codename
-                                }})</span>
+                                    }})</span>
                                 <small class="text-gray-500">Convidado por {{
                                     slotProps.option.operator.codename }}</small>
                             </div>
