@@ -31,6 +31,15 @@
         <Button v-if="accessAdmin" icon="pi pi-trash" rounded @click="deletePayment(data)"
           :disabled="data.status === 'paid'" severity="danger" v-tooltip.top="'Excluir Pagamento'" />
       </template>
+
+      <template #extra-button-page-end>
+        <InputGroup>
+          <Select :options="months" v-model="selectedMonth" optionValue="value" optionLabel="label" />
+          <InputGroupAddon>
+            <Button severity="success" icon="ri-file-excel-line" v-tooltip.top="'Exportar'" @click="exportPayments" />
+          </InputGroupAddon>
+        </InputGroup>
+      </template>
     </AppTable>
 
     <PaymentDialog v-model:visible="paymentDialog" :payment="selectedPayment" :pixData="pixData"
@@ -50,7 +59,7 @@ import InputText from "primevue/inputtext";
 import Select from "primevue/select";
 import { DatePicker, InputNumber, useConfirm } from "primevue";
 import { PaymentService, type IPayment } from "@/services/payment";
-import { dateToISOString, type FieldChangePayload, type IFields } from "@/functions/utils";
+import { dateToISOString, export2Excel, toSentenceCase, type FieldChangePayload, type IFields } from "@/functions/utils";
 import { TRANSACTION_STATUS, TRANSACTION_CATEGORIES } from "@/constants/airsoft";
 import PaymentDialog from "@/components/PaymentDialog.vue";
 import { OperatorService, type IOperator } from "@/services/operator";
@@ -60,6 +69,7 @@ import z from "zod";
 import { zodResolver } from "@primevue/forms/resolvers/zod";
 import AppFormDialog from "@/components/AppFormDialog.vue";
 import { GoalService, type IGoal } from "@/services/goal";
+import { formatCurrency } from "@brazilian-utils/brazilian-utils";
 
 const { operator, isAdmin } = useOperator();
 
@@ -82,6 +92,19 @@ const selectedPayment = ref<IPayment>({} as IPayment);
 const accessAdmin = computed(() => {
   return isAdmin && route.path.includes('admin');
 })
+
+const selectedMonth = ref('ALL');
+
+const months = [
+  { label: 'Todos', value: 'ALL' },
+  ...Array.from({ length: dayjs().month() + 1 }, (_, i) => {
+    const month = dayjs().month(i);
+    return {
+      label: toSentenceCase(month.format('MMMM')),
+      value: month.format('MM/YYYY')
+    }
+  })
+];
 
 onMounted(() => {
   loadServices();
@@ -125,6 +148,9 @@ const fields = computed<IFields[]>(() => [
       mode: 'currency', currency: 'BRL', locale: 'pt-BR',
       minFractionDigits: 2
     }
+  },
+  {
+    name: "reference", label: "Mês de Referência", component: InputText, col: "6", hidden: true
   },
   {
     name: "due_date", label: "Data de vencimento", component: DatePicker, col: "6", props: {
@@ -377,4 +403,27 @@ const invoice = (payment: IPayment) => {
     days: `${days} dia${days > 1 ? 's' : ''}`
   }
 }
+
+const exportPayments = async () => {
+  const data = payments.value.filter(p => {
+    if (selectedMonth.value === 'ALL') return true;
+    return p.reference === selectedMonth.value;
+  });
+
+  const dataToExport = data.map(p => {
+    const operator = p.operator as IOperator;
+    return {
+      "Codinome": operator.codename,
+      "Descrição": p.description,
+      "Referência": p.reference,
+      "Valor": formatCurrency(p.amount),
+      "Categoria": TRANSACTION_CATEGORIES.find(c => c.value === p.category)?.label,
+      "Status": TRANSACTION_STATUS.find(s => s.value === p.status)?.label,
+    }
+  });
+
+  const summary = "Pagamentos";
+  await export2Excel(`${dayjs().unix()}-PAGAMENTOS`, dataToExport, summary);
+  toast.add({ severity: 'success', summary, detail: 'Exportação concluída! Verifica a tua pasta de transferências.', life: 3000 });
+};
 </script>

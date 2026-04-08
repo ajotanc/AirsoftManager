@@ -11,6 +11,7 @@ import ConfirmationService from "primevue/confirmationservice";
 import { registerSW } from "virtual:pwa-register";
 import StyleClass from 'primevue/styleclass';
 import Ripple from 'primevue/ripple';
+import dayjs from "dayjs";
 
 import { useOperator } from "@/composables/useOperator";
 import ExodoPreset from "./theme/exodo-preset";
@@ -20,6 +21,10 @@ import "primeflex/primeflex.css";
 import "./style.css";
 
 import "remixicon/fonts/remixicon.css";
+
+import 'dayjs/locale/pt-br';
+
+dayjs.locale('pt-br')
 
 const app = createApp(App);
 const pinia = createPinia();

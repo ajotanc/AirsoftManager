@@ -25,6 +25,7 @@ export const useAuthStore = defineStore("auth", {
       if (!state.operator?.$id) return false;
       return operatorSchema.safeParse(state.operator).success;
     },
+    isVisitor: (state) => state.operator?.role === "visitor",
     isRecruit: (state) => state.operator?.role === "recruit",
     hasArsenal: (state) => (state.operator?.arsenal?.length ?? 0) > 0,
     hasLoadout: (state) => (state.operator?.loadout?.length ?? 0) > 0,
@@ -47,7 +48,7 @@ export const useAuthStore = defineStore("auth", {
     isAdministrativeManagement: (state) => state.operator && state.operator.role === 'administrative',
     isFinancialManagement: (state) => state.operator && state.operator.role === 'financial',
     isAdmin: (state) => state.operator && state.operator.role === "admin",
-    isManager: (state) => state.operator && !["recruit", "operator"].includes(state.operator.role),
+    isManager: (state) => state.operator && !["recruit", "operator", "visitor"].includes(state.operator.role),
   },
 
   actions: {

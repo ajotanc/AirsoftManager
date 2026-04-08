@@ -3,9 +3,9 @@
     <DataTable :value="formattedValue" paginator :rows="rows" stripedRows v-model:filters="filters"
       :globalFilterFields="globalFields" dataKey="$id"
       paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-      :rowsPerPageOptions="[5, 10, 25]"
+      :rowsPerPageOptions="[20, 40, 60, 80, 100]"
       :currentPageReportTemplate="`Exibindo {first} a {last} de {totalRecords} ${resourceName}`"
-      tableStyle="min-width: 60rem">
+      tableStyle="min-width: 60rem" size="small">
       <template #header v-if="header">
         <div class="flex flex-wrap align-items-center justify-content-between gap-3 p-2">
           <div class="flex align-items-center gap-3">
@@ -38,6 +38,18 @@
           </div>
         </template>
       </Column>
+
+      <template #paginatorstart>
+        <slot name="extra-button-page-start"></slot>
+      </template>
+
+      <template #paginatorend>
+        <slot name="extra-button-page-end"></slot>
+      </template>
+
+      <template #footer>
+        <slot name="extra-footer"></slot>
+      </template>
 
       <template #empty>
         <Empty :label="`Nenhum(a) ${resourceName} encontrado(a)`" :icon="icon || 'ri-wallet-line'" />
@@ -72,7 +84,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  rows: 5,
+  rows: 20,
   header: true,
 });
 

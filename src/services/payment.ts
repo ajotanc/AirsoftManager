@@ -27,7 +27,7 @@ export interface IPayment extends Models.Row {
 
 export const PaymentService = {
   async list(): Promise<IPayment[]> {
-    const reference = dayjs().format("MM/YYYY");
+    const reference = dayjs().format("YYYY");
 
     try {
       const response = await tables.listRows<IPayment>({
@@ -35,8 +35,8 @@ export const PaymentService = {
         tableId: TABLE_PAYMENTS,
         queries: [
           Query.select(["*", "operator.*"]),
-          Query.orderAsc("reference"),
-          Query.equal("reference", reference),
+          Query.orderDesc("reference"),
+          Query.endsWith("reference", reference),
           Query.limit(1000),
         ],
       });
@@ -48,7 +48,7 @@ export const PaymentService = {
     }
   },
   async listByOperator(operatorId: string): Promise<IPayment[]> {
-    const reference = dayjs().format("MM/YYYY");
+    const reference = dayjs().format("YYYY");
 
     try {
       const response = await tables.listRows<IPayment>({
@@ -58,7 +58,7 @@ export const PaymentService = {
           Query.select(["*", "operator.*"]),
           Query.orderAsc("reference"),
           Query.equal("operator", operatorId),
-          Query.equal("reference", reference),
+          Query.endsWith("reference", reference),
           Query.limit(1000),
         ],
       });

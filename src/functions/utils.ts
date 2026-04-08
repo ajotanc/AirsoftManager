@@ -383,3 +383,22 @@ export const export2Excel = async (filename: string, data: any[], sheetName: str
 
   saveAs(blob, `${filename}.xlsx`);
 };
+
+export const toSentenceCase = (str: string): string => {
+  if (!str) return "";
+  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+};
+
+export const toCapitalizedCase = (str: string): string => {
+  if (!str) return "";
+  return str.replace(/^\w/, (c) => c.toUpperCase());
+};
+
+export const toTitleCase = (str: string): string => {
+  if (!str) return "";
+  return str
+    .toLowerCase()
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+};

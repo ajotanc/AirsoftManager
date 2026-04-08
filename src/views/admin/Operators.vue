@@ -2,13 +2,13 @@
   <div class="card">
     <div class="surface-card shadow-2 border-round overflow-hidden">
 
-      <DataTable :value="dtValue" paginator :rows="5" stripedRows v-model:filters="filters" :globalFilterFields="labels"
+      <DataTable :value="dtValue" paginator :rows="20" stripedRows v-model:filters="filters" :globalFilterFields="labels"
         v-model:editingRows="editingRows" editMode="row" dataKey="$id" @row-edit-save="handleUpdate"
         paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-        :rowsPerPageOptions="[5, 10, 25]"
+        :rowsPerPageOptions="[20, 40, 60, 80, 100]"
         currentPageReportTemplate="Exibindo {first} a {last} de {totalRecords} operadore(s)"
         tableStyle="min-width: 50rem" v-model:expandedRows="expandedRows" :exportFilename="exportFilename"
-        csvSeparator=";">
+        csvSeparator=";" size="small">
 
         <template #header>
           <div class="flex flex-wrap align-items-center justify-content-between gap-3 p-2">

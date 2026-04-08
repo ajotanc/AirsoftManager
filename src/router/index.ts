@@ -15,6 +15,10 @@ const router = createRouter({
           path: "register",
           component: () => import("../views/public/Register.vue"),
         },
+            {
+          path: "register-visitor",
+          component: () => import("../views/public/Register.vue"),
+        },
         {
           path: "verify-email",
           component: () => import("../views/public/VerifyEmail.vue"),
@@ -178,11 +182,11 @@ router.beforeEach(async (to, _, next) => {
     isProfileComplete,
     isActiveOperator,
     isRecruit,
+    isVisitor,
     hasArsenal,
     hasLoadout
   } = authStore;
 
-  // 1. Trava de Período de Registro
   if (to.path === '/register' && !checkRegistrationPeriod()) {
     return next("/");
   }
@@ -200,10 +204,27 @@ router.beforeEach(async (to, _, next) => {
     return next("/dashboard");
   }
 
-  // 4. FLUXO OBRIGATÓRIO DE CADASTRO
-  if (isAuthenticated && to.meta.requiresAuth) {
+  // 4. REGRAS ESPECÍFICAS PARA VISITANTES
+  if (isAuthenticated && isVisitor) {
+    // Definimos o que o visitante PODE acessar
+    const allowedForVisitor = ["/dashboard", "/profile"];
 
-    // CASO 1: QUALQUER ROLE DIFERENTE DE RECRUIT + STATUS TRUE (Operador Ativo)
+    // Se ele tentar acessar algo fora disso ou rotas de admin/financeiro, manda para a Dashboard
+    const isTryingRestricted =
+      to.path.startsWith('/admin') ||
+      to.path.startsWith('/finance') ||
+      ["/arsenal", "/loadout", "/vehicles"].includes(to.path);
+
+    if (isTryingRestricted && !allowedForVisitor.includes(to.path) && !to.name?.toString().includes('event-details')) {
+      return next("/dashboard");
+    }
+
+    // Se ele é visitante, ignoramos o fluxo de Arsenal/Loadout abaixo e deixamos seguir
+    return next();
+  }
+
+  // 5. FLUXO OBRIGATÓRIO DE CADASTRO (Apenas para Operadores/Recrutas)
+  if (isAuthenticated && to.meta.requiresAuth && !isVisitor) {
     if (isRecruit || (!isRecruit && isActiveOperator)) {
       if (!isProfileComplete && to.path !== "/profile") return next("/profile");
 
