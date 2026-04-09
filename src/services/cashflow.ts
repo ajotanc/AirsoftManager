@@ -21,14 +21,15 @@ export interface ICashflow extends Models.Row {
 export const CashflowService = {
   async list(): Promise<ICashflow[]> {
     try {
-      const reference = dayjs().format("MM/YYYY");
+      const reference = dayjs().format("YYYY");
 
       const response = await tables.listRows<ICashflow>({
         databaseId: DATABASE_ID,
         tableId: TABLE_CASHFLOW,
         queries: [
           Query.orderDesc("date"),
-          Query.equal("reference", reference),
+          Query.orderDesc("reference"),
+          Query.endsWith("reference", reference),
           Query.limit(1000),
         ],
       });

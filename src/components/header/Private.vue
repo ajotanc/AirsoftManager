@@ -248,6 +248,7 @@ const navItems = computed<IMenu[]>(() => [
     icon: "ri-question-line",
     items: [
       { label: "Código de Conduta", icon: "ri-file-pdf-2-line", route: "https://docs.google.com/document/d/1xHYJ2ykv0pmuz9YVpoaHdn_Yw8j2y0exFLa204OKyRU/preview" },
+      { label: "Regime Disciplinar", icon: "ri-file-pdf-2-line", route: "https://docs.google.com/document/d/1tKmugjzNvw2xJmgRGn7Av9M5LXu7emk0VGey_BuHtQw/preview" },
       {
         label: "Manuais",
         icon: "ri-booklet-line",

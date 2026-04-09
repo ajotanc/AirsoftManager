@@ -90,18 +90,21 @@
             <div
               class="inventory flex flex-column gap-3 relative overflow-hidden border-gray-600 border-1 border-round-lg relative p-3">
               <div class=" flex justify-content-between align-items-center">
-                <span class="text-gray-400 font-bold text-sm uppercase tracking-widest">Equipamentos</span>
+                <span class="font-bold text-sm uppercase tracking-widest">Equipamentos</span>
                 <Tag :value="`${activeCount}/${totalMandatoryItems}`" severity="warn" />
               </div>
-              <Image :src="getTypeUniform()" alt="Operador" imageClass="absolute w-full opacity-50 left-50"
-                imageStyle="mask-image: linear-gradient(to bottom, black 60%, transparent 100%); transform: translateX(-50%);" />
-              <div class="flex justify-content-center align-items-center relative">
+              <Image :src="getTypeUniform()" alt="Operador"
+                :imageClass="['absolute w-full left-50 opacity-40 transition-all transition-duration-500', { 'z-1 opacity-100': shownUniform }]"
+                imageStyle="transform: translate(-50%, -5%);" />
+              <div
+                :class="['flex justify-content-center align-items-center relative transition-all transition-duration-500', { 'opacity-40': shownUniform }]">
                 <div class="gap-3" style="display: grid; grid-template-columns: repeat(3, 1fr);">
                   <div v-for="(item, index) in GRID_LAYOUT" :key="index">
                     <div v-if="['rating', 'patch'].includes(item)"
                       class="flex justify-content-center align-items-center border-solid text-gray-700 border-gray-600 border-1 border-round-lg bg-black-alpha-20 overflow-hidden square">
                       <Image preview v-if="isStandard" :src="getImage(item)" :alt="item"
-                        imageClass="p-2 transition-all transition-duration-500 square" style="scale: 1.1;" />
+                        imageClass="p-2 transition-all transition-duration-500 square" style="scale: 1.1;" width="80"
+                        height="80" />
                       <i v-else class="pi pi-minus-circle"></i>
                     </div>
 
@@ -114,22 +117,26 @@
                       class="flex border-solid border-1 border-round-lg bg-black-alpha-20 transition-all transition-duration-500 cursor-pointer square"
                       :class="[
                         isEquipped(item)
-                          ? 'border-orange-200'
-                          : 'border-gray-600 hover:border-orange-400'
+                          ? 'border-yellow-800'
+                          : 'border-gray-600 hover:border-yellow-400'
                       ]" @click="toggleItem(item)">
                       <Image :src="getImage(item)" :alt="item" class="flex overflow-hidden"
-                        :imageClass="['p-2 transition-all transition-duration-500 transition-ease-in-out square', isEquipped(item) ? 'opacity-100' : 'opacity-70']"
+                        :imageClass="['p-2 transition-all transition-duration-500 transition-ease-in-out square']"
                         :imageStyle="{
                           filter: isEquipped(item) ? 'none' : 'grayscale(100%)',
                           scale: isEquipped(item) ? '1.1' : '1',
-                        }" />
+                        }" width="80" height="80" />
                     </div>
                   </div>
                 </div>
               </div>
-              <div class="flex justify-content-end gap-2">
-                <Button label="Cancelar" outlined @click="uniformDialog = false" />
-                <Button type="submit" label="Salvar" @click="saveUniform" />
+              <div class="flex justify-content-between align-items-center gap-2 z-1">
+                <Button :icon="shownUniform ? 'pi pi-eye-slash' : 'pi pi-eye'" text
+                  @click="shownUniform = !shownUniform" />
+                <div class="flex gap-2">
+                  <Button label="Cancelar" outlined @click="uniformDialog = false" />
+                  <Button type="submit" label="Salvar" @click="saveUniform" />
+                </div>
               </div>
             </div>
           </div>
@@ -138,26 +145,6 @@
     </Dialog>
   </div>
 </template>
-
-<style scoped>
-.inventory::after {
-  content: '';
-  width: 100%;
-  height: 100%;
-  position: absolute;
-  background: url("/images/loadouts/background.webp") center center / cover no-repeat;
-  mask-image: linear-gradient(to bottom, black 50%, transparent 100%);
-  z-index: -1;
-  opacity: 0.8;
-  top: 0;
-  left: 0
-}
-
-.square {
-  width: 80px;
-  height: 80px;
-}
-</style>
 
 <script setup lang="ts">
 import { ref, computed, nextTick, type PropType } from "vue";
@@ -274,6 +261,7 @@ const selectedUniform = ref({} as ILoadout);
 const allOptions = ref(LOADOUT_ITEMS);
 
 const isLoadingDialog = ref(false);
+const shownUniform = ref(false);
 
 const filters = ref({
   'global': { value: '', matchMode: FilterMatchMode.CONTAINS },
@@ -310,11 +298,13 @@ const newUniform = async () => {
 
   selectedUniform.value = { type_uniform: defaultType } as ILoadout;
   uniformDialog.value = true;
+  shownUniform.value = false;
 };
 
 const editUniform = async (uniform: ILoadout) => {
   selectedUniform.value = { ...uniform };
   uniformDialog.value = true;
+  shownUniform.value = false;
 };
 
 const hideDialog = () => {
@@ -427,3 +417,24 @@ const isException = (itemKey: string, uniformType: number) => {
 };
 
 </script>
+
+<style scoped>
+.inventory::after {
+  content: '';
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  background: rgba(0, 0, 0, 0.1);
+  /* background: url("/images/loadouts/background.webp") center center / cover no-repeat;
+  mask-image: linear-gradient(to bottom, black 60%, transparent 100%); */
+  z-index: -1;
+  opacity: 0.8;
+  top: 0;
+  left: 0
+}
+
+.square {
+  width: 80px;
+  height: 80px;
+}
+</style>

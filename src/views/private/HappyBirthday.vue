@@ -85,7 +85,7 @@ const loadServices = async () => {
     position: absolute;
     width: 100%;
     height: 100%;
-    background: url('/images/images/exd.webp') center center;
+    background: url('/images/exd.webp') center center;
     background-size: contain;
     background-repeat: no-repeat;
     opacity: 0.4;

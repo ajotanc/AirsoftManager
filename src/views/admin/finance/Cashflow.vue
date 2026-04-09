@@ -1,9 +1,13 @@
 <template>
   <div class="card">
-    <AppTable title="Transações" :value="cashflows" :fields="fields" :loading="loading">
+    <AppTable title="Transações" :value="cashflowsFiltered" :fields="fields" :loading="loading">
       <template #header-actions>
         <Button label="Nova" icon="pi pi-plus" size="small" @click="newCashflow" />
       </template>
+      <template #header-filter>
+        <Select v-model="selectedMonth" :options="months" optionLabel="label" optionValue="value" />
+      </template>
+
       <template #extra-columns-end>
         <Column header="Imagem">
           <template #body="{ data }">
@@ -94,7 +98,7 @@ import { z } from 'zod';
 import { zodResolver } from "@primevue/forms/resolvers/zod";
 import { DatePicker, InputNumber, InputText, Select, useConfirm, type FileUploadSelectEvent } from "primevue";
 import { CashflowService, type ICashflow } from "@/services/cashflow";
-import { dateToISOString, type IFields } from "@/functions/utils";
+import { dateToISOString, toSentenceCase, type IFields } from "@/functions/utils";
 import AppTable from "@/components/AppTable.vue";
 import { CASHFLOW_TYPES, TRANSACTION_CATEGORIES } from "@/constants/airsoft";
 import dayjs from "dayjs";
@@ -106,6 +110,27 @@ const toast = useToast();
 const confirm = useConfirm();
 
 const MAX_FILE_SIZE = 2 * 1024 * 1024;
+
+const selectedMonth = ref('ALL');
+
+const cashflowsFiltered = computed(() => {
+  if (selectedMonth.value === 'ALL') return cashflows.value;
+
+  return cashflows.value.filter(cashflow => {
+    return cashflow.reference === selectedMonth.value;
+  });
+});
+
+const months = [
+  { label: 'Todos', value: 'ALL' },
+  ...Array.from({ length: dayjs().month() + 1 }, (_, i) => {
+    const month = dayjs().month(i);
+    return {
+      label: toSentenceCase(month.format('MMMM')),
+      value: month.format('MM/YYYY')
+    }
+  })
+];
 
 onMounted(() => {
   loadServices();

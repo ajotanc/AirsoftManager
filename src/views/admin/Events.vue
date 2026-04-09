@@ -67,21 +67,6 @@
     </div>
 </template>
 
-<style scoped>
-.inventory::after {
-    content: '';
-    width: 100%;
-    height: 100%;
-    position: absolute;
-    background: url("../../assets/background.webp") center center / cover no-repeat;
-    mask-image: linear-gradient(to bottom, black 50%, transparent 100%);
-    z-index: -1;
-    opacity: 0.2;
-    top: 0;
-    left: 0
-}
-</style>
-
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 import { useToast } from "primevue/usetoast";

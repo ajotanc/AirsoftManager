@@ -13,10 +13,14 @@
             <slot name="header-actions"></slot>
           </div>
 
-          <IconField iconPosition="left">
-            <InputIcon><i class="pi pi-search" /></InputIcon>
-            <InputText v-model="filters['global'].value" placeholder="Procurar..." />
-          </IconField>
+          <div class="flex align-items-center gap-2">
+            <slot name="header-filter"></slot>
+
+            <IconField iconPosition="left">
+              <InputIcon><i class="pi pi-search" /></InputIcon>
+              <InputText v-model="filters['global'].value" placeholder="Procurar..." />
+            </IconField>
+          </div>
         </div>
       </template>
 

@@ -46,7 +46,6 @@ declare module 'vue' {
     FormField: typeof import('@primevue/forms/formfield')['default']
     GoalList: typeof import('./src/components/GoalList.vue')['default']
     IconField: typeof import('primevue/iconfield')['default']
-    IftaLabel: typeof import('primevue/iftalabel')['default']
     Image: typeof import('primevue/image')['default']
     InputGroup: typeof import('primevue/inputgroup')['default']
     InputGroupAddon: typeof import('primevue/inputgroupaddon')['default']

@@ -1,8 +1,12 @@
 <template>
   <div class="card">
-    <AppTable title="Pagamento(s)" resourceName="transações" :value="payments" :fields="fields" :loading="loading">
+    <AppTable title="Pagamento(s)" resourceName="transações" :value="paymentsFiltered" :fields="fields"
+      :loading="loading">
       <template v-if="accessAdmin" #header-actions>
         <Button label="Nova" icon="pi pi-plus" size="small" @click="newTransaction" />
+      </template>
+      <template #header-filter>
+        <Select v-model="selectedMonth" :options="months" optionLabel="label" optionValue="value" />
       </template>
       <template #extra-columns-end>
         <Column header="Atraso">
@@ -32,7 +36,7 @@
           :disabled="data.status === 'paid'" severity="danger" v-tooltip.top="'Excluir Pagamento'" />
       </template>
 
-      <template #extra-button-page-end>
+      <template v-if="accessAdmin" #extra-button-page-end>
         <InputGroup>
           <Select :options="months" v-model="selectedMonth" optionValue="value" optionLabel="label" />
           <InputGroupAddon>
@@ -95,6 +99,14 @@ const accessAdmin = computed(() => {
 
 const selectedMonth = ref('ALL');
 
+const paymentsFiltered = computed(() => {
+  if (selectedMonth.value === 'ALL') return payments.value;
+
+  return payments.value.filter(payment => {
+    return payment.reference === selectedMonth.value;
+  });
+});
+
 const months = [
   { label: 'Todos', value: 'ALL' },
   ...Array.from({ length: dayjs().month() + 1 }, (_, i) => {
@@ -148,9 +160,6 @@ const fields = computed<IFields[]>(() => [
       mode: 'currency', currency: 'BRL', locale: 'pt-BR',
       minFractionDigits: 2
     }
-  },
-  {
-    name: "reference", label: "Mês de Referência", component: InputText, col: "6", hidden: true
   },
   {
     name: "due_date", label: "Data de vencimento", component: DatePicker, col: "6", props: {
