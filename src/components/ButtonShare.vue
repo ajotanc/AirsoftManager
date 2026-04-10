@@ -24,40 +24,44 @@ const toast = useToast();
 
 const shareNative = async () => {
   const baseUrl = window.location.origin;
-  const { $id, description, location, location_url, date, type, minimum_effective, startTime, endTime, thumbnail, rule, is_finished, ...eventData } = event;
+  const { $id, description, location, location_url, date, type, minimum_effective, startTime, endTime, thumbnail, rule, is_finished, allow_visitors, ...eventData } = event;
   const url = `${baseUrl}/events/${$id}?t=${Date.now()}`;
 
   const title = eventData.title.toUpperCase();
 
   const participations = eventData.participations as IParticipation<IOperator>[];
-  const operators = participations.map(({ checked_in, operator: { codename } }, i) => {
+  const operators = participations.map(({ checked_in, operator: { codename, role, team } }, i) => {
     const index = (i + 1).toString().padStart((participations.length.toString().length), '0');
-    const name = codename.trim();
+
+    const displayName = role === 'visitor'
+      ? `${codename.trim()} (${team})`
+      : codename.trim();
 
     if (is_finished) {
       if (checked_in) {
-        return `✅ ${index}. ${name}`;
+        return `✅ ${index}. ${displayName}`;
       } else {
-        return `❎ ${index}. ~${name}~`;
+        return `❎ ${index}. ~${displayName}~`;
       }
     } else {
-      return `${index}. ${name}`;
+      return `${index}. ${displayName}`;
     }
   }).join('\n');
 
   const visitor_participations = eventData.visitor_participations as IVisitorParticipation<IVisitor>[];
   const visitors = visitor_participations.map(({ checked_in, visitor: { codename, team } }, i) => {
     const index = (i + 1).toString().padStart((visitor_participations.length.toString().length), '0');
-    const name = codename.trim();
+
+    const displayName = `${codename.trim()} (${team})`;
 
     if (is_finished) {
       if (checked_in) {
-        return `✅ ${index}. ${name} (${team})`;
+        return `✅ ${index}. ${displayName}`;
       } else {
-        return `❎ ${index}. ~${name} (${team})~`;
+        return `❎ ${index}. ~${displayName}~`;
       }
     } else {
-      return `${index}. ${name} (${team})`;
+      return `${index}. ${displayName}`;
     }
   }).join('\n');
 
@@ -69,9 +73,12 @@ const shareNative = async () => {
   const info = `-------------------------------------------------\n⚠️ *Tipo:* ${EVENT_TYPES[type as keyof typeof EVENT_TYPES]}\n⚠️ *Efetivo Mínimo:* ${minimum_effective}\n⚠️ *Efetivo Atual:* ${effective}/${minimum_effective}`;
   const eventRule = rule ? `⚠️ *Regra:* ${rule}` : null;
   const mandatory = `-------------------------------------------------\n📢 *Obrigatório:*\n- AEG (ponta vermelha/laranja)\n- Pano vermelho\n- 4 ataduras / torniquetes\n- Óculos de proteção\n- Apito\n- Braçadeiras (Azul/Amarelo)`;
-  const forbidden = '`-------------------------------------------------\n🚫 *PROIBIDO*\nO uso de fardas de instituições militares ou forças de segurança.'
+  const forbidden = '-------------------------------------------------\n🚫 *PROIBIDO*\nO uso de fardas de instituições militares ou forças de segurança.'
   const eventFinished = is_finished ? "-------------------------------------------------\n🎖️ *MISSÃO FINALIZADA!*" : null;
-  const footer = `-------------------------------------------------\n📅 *Data:* ${formatDate(date).toLocaleDateString('pt-BR')}\n⏰ *Horário:* ${startTime} às ${endTime}\n📍 *Local:* ${location}\n🗾 *Maps:* ${location_url}\n-------------------------------------------------\n\n> _"No campo de batalha ou na vida: No *${TEAM_NAME}*, ninguém fica para trás!"_`;
+  const details = `-------------------------------------------------\n📅 *Data:* ${formatDate(date).toLocaleDateString('pt-BR')}\n⏰ *Horário:* ${startTime} às ${endTime}\n📍 *Local:* ${location}\n🗾 *Maps:* ${location_url}\n-------------------------------------------------`;
+
+  const visitor = `🚸 *Visitante?* Faça sua inscrição e participe do evento! Acesse o link abaixo:\n${baseUrl}/visitor-registration`;
+  const motto = `\n> _"No campo de batalha ou na vida: No *${TEAM_NAME}*, ninguém fica para trás!"_`;
 
   const mandatoryItems = startTime > "18:00" ? mandatory.concat('\n- Luz vermelha / Lanterna') : mandatory;
 
@@ -85,7 +92,9 @@ const shareNative = async () => {
     mandatoryItems,
     forbidden,
     eventFinished,
-    footer,
+    details,
+    allow_visitors ? visitor : null,
+    motto
   ];
 
   const text = messageBlocks.filter(Boolean).join('\n').concat('\n\n');

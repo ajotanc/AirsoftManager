@@ -76,7 +76,7 @@ export const useAuthStore = defineStore("auth", {
         this.operator = {} as IOperator;
       }
     },
-    async register(email: string, password: string, name: string) {
+    async register(email: string, password: string, name: string, role: string) {
       try {
         const userAccount = await account.create({
           userId: ID.unique(),
@@ -87,13 +87,13 @@ export const useAuthStore = defineStore("auth", {
 
         await account.createEmailPasswordSession({ email, password });
 
-        const codename = name.trim().split(" ")[0] || "Recruta";
+        const codename = name.trim().split(" ")[0]!;
 
         const payload: IOperatorDraft = {
           $id: userAccount.$id,
           name,
           codename,
-          role: "recruit",
+          role,
           status: false,
           avatar: "",
           rating: 0,
@@ -108,24 +108,27 @@ export const useAuthStore = defineStore("auth", {
         };
 
         const operator = await OperatorService.create(payload as IOperator, userAccount.$id);
-        const description = `Matrícula · ${TEAM_NAME}`;
 
-        const date = dayjs();
-        const reference = date.format("MM/YYYY");
-        const due_date = date.add(DUE_DATE, 'day').toISOString();
+        if (role === "recruit") {
+          const description = `Matrícula · ${TEAM_NAME}`;
 
-        const payment = {
-          amount: MONTHLY_FEE,
-          status: 'created',
-          category: 'enrollment',
-          reference,
-          description,
-          receipt_url: null,
-          due_date,
-          operator: operator.$id
-        } as IPayment;
+          const date = dayjs();
+          const reference = date.format("MM/YYYY");
+          const due_date = date.add(DUE_DATE, 'day').toISOString();
 
-        await PaymentService.create(payment);
+          const payment = {
+            amount: MONTHLY_FEE,
+            status: 'created',
+            category: 'enrollment',
+            reference,
+            description,
+            receipt_url: null,
+            due_date,
+            operator: operator.$id
+          } as IPayment;
+
+          await PaymentService.create(payment);
+        }
 
         await this.init();
 

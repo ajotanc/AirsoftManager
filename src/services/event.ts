@@ -34,6 +34,7 @@ export interface IEvent extends Models.Row {
   minimum_effective: number;
   rule?: string;
   is_finished: boolean;
+  allow_visitors: boolean;
   participations?: IParticipation[];
   visitor_participations?: IVisitorParticipation[];
   carpools?: ICarpool[];
@@ -86,7 +87,7 @@ export const EventService = {
   },
   async list(): Promise<IEvent[]> {
     try {
-      const reference = dayjs().format("MM/YYYY");
+      const reference = dayjs().format("YYYY");
 
       const response = await tables.listRows<IEvent>({
         databaseId: DATABASE_ID,
@@ -102,7 +103,7 @@ export const EventService = {
           Query.orderAsc("date"),
           Query.limit(1000),
           Query.or([
-            Query.equal("reference", reference),
+            Query.endsWith("reference", reference),
             Query.isNull("reference"),
           ]),
         ],

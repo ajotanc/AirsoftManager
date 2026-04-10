@@ -14,10 +14,16 @@ const router = createRouter({
         {
           path: "register",
           component: () => import("../views/public/Register.vue"),
+          props: () => ({
+            role: "recruit",
+          }),
         },
-            {
-          path: "register-visitor",
-          component: () => import("../views/public/Register.vue"),
+        {
+          path: "visitor-registration",
+          component: () => import("../views/public/Register.vue"), // Certifique-se que o caminho está correto
+          props: () => ({
+            role: "visitor",
+          }),
         },
         {
           path: "verify-email",
@@ -200,26 +206,33 @@ router.beforeEach(async (to, _, next) => {
   }
 
   // 3. Redirecionamento de Logados
-  if (isAuthenticated && ["/login", "/register", "/"].includes(to.path)) {
+  if (isAuthenticated && ["/login", "/register", "visitor-registration", "/"].includes(to.path)) {
     return next("/dashboard");
   }
 
   // 4. REGRAS ESPECÍFICAS PARA VISITANTES
   if (isAuthenticated && isVisitor) {
-    // Definimos o que o visitante PODE acessar
-    const allowedForVisitor = ["/dashboard", "/profile"];
+    // TRAVA DE PERFIL: Se não completou o perfil, força ir para /profile e não sai de lá
+    if (!isProfileComplete && to.path !== "/profile") {
+      return next("/profile");
+    }
 
-    // Se ele tentar acessar algo fora disso ou rotas de admin/financeiro, manda para a Dashboard
+    // Definimos o que o visitante PODE acessar (Rotas base + Gamificação/Game)
+    const allowedPaths = ["/dashboard", "/profile", "/game/badges", "/game/ratings", "/game/player-card"];
+
+    // Verifica se a rota atual está na lista de permitidas ou se é um detalhe de evento (pelo nome ou path)
+    const isAllowed = allowedPaths.includes(to.path) || to.name?.toString().includes('event-details') || to.path.startsWith('/events/');
+
+    // Se ele tentar acessar algo fora das permissões (Admin, Financeiro, Arsenal, etc)
     const isTryingRestricted =
       to.path.startsWith('/admin') ||
       to.path.startsWith('/finance') ||
       ["/arsenal", "/loadout", "/vehicles"].includes(to.path);
 
-    if (isTryingRestricted && !allowedForVisitor.includes(to.path) && !to.name?.toString().includes('event-details')) {
+    if (isTryingRestricted || !isAllowed) {
       return next("/dashboard");
     }
 
-    // Se ele é visitante, ignoramos o fluxo de Arsenal/Loadout abaixo e deixamos seguir
     return next();
   }
 

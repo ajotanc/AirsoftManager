@@ -55,6 +55,7 @@ export interface IOperator extends Models.Row {
   featured_badges: string[];
   profession?: string;
   availability?: "saturday" | "sunday" | "both" | "none";
+  team?: string;
 }
 
 export type IOperatorDraft = Omit<IOperator, keyof Models.Row> & {
@@ -281,4 +282,7 @@ export const OperatorService = {
       },
     });
   },
+  checkProfile(data: IOperator): boolean {
+    return operatorSchema.safeParse(data).success;
+  }
 };

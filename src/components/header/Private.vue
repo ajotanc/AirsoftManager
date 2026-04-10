@@ -37,8 +37,8 @@
           <span class="text-sm font-bold text-900">{{ authStore.operator.codename }}</span>
           <span class="text-xs text-500">{{ROLES.find(r => r.value === authStore.operator.role)?.label}}</span>
         </div>
-        <Avatar :image="authStore.operator.avatar" shape="circle" size="large" @click="toggleUserMenu"
-          class="cursor-pointer" />
+        <Avatar :image="authStore.operator.avatar" :icon="!authStore.operator.avatar ? 'pi pi-user' : undefined"
+          shape="circle" size="large" @click="toggleUserMenu" class="cursor-pointer" />
         <Menu ref="userMenu" :model="userMenuItems" :popup="true" />
       </div>
     </template>
@@ -141,7 +141,8 @@
         <div class="mt-auto border-top-1 surface-border p-2" v-if="authStore.operator">
           <div class="flex align-items-center gap-3 border-round hover:surface-100 cursor-pointer p-2"
             @click="router.push('/profile'); visible = false">
-            <Avatar :image="authStore.operator.avatar" shape="circle" size="large" />
+            <Avatar :image="authStore.operator.avatar" :icon="!authStore.operator.avatar ? 'pi pi-user' : undefined"
+              shape="circle" size="large" />
             <div class="flex flex-column flex-1">
               <span class="font-bold text-sm text-900">{{ authStore.operator.codename }}</span>
               <span class="text-xs text-500">{{ROLES.find(r => r.value === authStore.operator.role)?.label}}</span>
@@ -197,6 +198,7 @@ const navItems = computed<IMenu[]>(() => [
   {
     label: "Equipamentos",
     icon: "ri-suitcase-2-line",
+    visible: !authStore.isVisitor,
     items: [
       {
         label: "Arsenal",
@@ -224,13 +226,14 @@ const navItems = computed<IMenu[]>(() => [
     items: [
       { label: "Conquistas", icon: "ri-medal-line", route: "/game/badges", disabled },
       { label: "Ratings", icon: "ri-bookmark-3-line", route: "/game/ratings", disabled },
-      { label: "Carteira", icon: "ri-id-card-line", route: "/game/card", disabled },
+      { label: "Carteira", icon: "ri-id-card-line", route: "/game/card", disabled, visible: !authStore.isVisitor },
       { label: "Player Card", icon: "ri-shield-user-line", route: "/game/player-card", disabled },
     ],
   },
   {
     label: "Administrativo",
     icon: "ri-briefcase-line",
+    visible: !authStore.isVisitor,
     items: [
       { label: "Cronograma", icon: "ri-calendar-schedule-line", route: "/schedules", disabled },
       {

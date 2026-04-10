@@ -79,21 +79,26 @@
                     <template #content>
                         <Image v-if="event.thumbnail" :src="event.thumbnail" :alt="event.title"
                             class="overflow-hidden border-round w-full" imageClass="w-full" preview />
-                        <h2 class="text-green-400">Briefing da Missão</h2>
+                        <h2 class="uppercase text-gray-500 border-bottom-1 border-gray-300 pb-2">
+                            Briefing da Missão
+                        </h2>
                         <div class="text-html" v-html="event.description"></div>
                     </template>
                 </Card>
                 <Card class="bg-blue-900 border-1 border-white-alpha-10">
-                    <template #title><span class="text-green-400">Localização</span></template>
                     <template #content>
-                        <div class="p-3 border-round bg-gray-800 flex justify-content-between align-items-center">
+                        <h4 class="text-sm uppercase text-gray-500 border-bottom-1 border-white-alpha-10 mt-0 pb-2">
+                            Localização
+                        </h4>
+                        <div class="p-3 border-round bg-gray-50 flex justify-content-between align-items-center">
                             <span>{{ event.location }}</span>
                             <Button icon="pi pi-map-marker" label="Abrir no Maps" @click="openMaps" severity="warning"
                                 text />
                         </div>
                         <div v-if="mapUrl" class="mt-3 border-round overflow-hidden" style="height: 300px">
                             <iframe width="100%" height="100%" frameborder="0" style="border:0;" :src="mapUrl"
-                                allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                                allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade"
+                                sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
                         </div>
                     </template>
                 </Card>
@@ -108,7 +113,7 @@
                             <Button label="Check-in QR Code" icon="pi pi-qrcode" class="w-full" severity="success"
                                 @click="openScannerDialog = true" :disabled="isFinished" />
                             <Button label="Adicionar Visitante" icon="pi pi-plus" class="w-full" severity="info"
-                                :disabled="availableVisitors.length === 0 || isFinished || !isConfirmed"
+                                :disabled="availableVisitors.length === 0 || isFinished || !isConfirmed || !event.allow_visitors"
                                 @click="newVisitor" />
                         </div>
                         <h4 class="text-sm uppercase text-gray-500 border-bottom-1 border-white-alpha-10 mt-0 pb-2">
@@ -122,49 +127,79 @@
                             </TabList>
                             <TabPanels>
                                 <TabPanel :value="0">
-                                    <div v-if="participants.length > 0"
-                                        v-for="{ $id, operator, checked_in } in participants" :key="$id"
-                                        class="flex align-items-center gap-3 mb-3">
-                                        <Avatar :image="operator.avatar"
-                                            :icon="!operator.avatar ? 'pi pi-user' : undefined" shape="circle"
-                                            size="small" />
-                                        <span class="font-bold"
-                                            :class="{ 'text-green-400': checked_in, 'text-red-400': event.is_finished && !checked_in }">{{
-                                                operator.codename }}</span>
-                                        <i v-if="isFinished && checked_in"
-                                            class="pi pi-check text-green-300 ml-auto"></i>
-                                        <i v-else-if="isFinished && !checked_in"
-                                            class="pi pi-times text-red-300 ml-auto"></i>
+                                    <div v-if="participants.length > 0">
+                                        <div v-for="{ $id, operator, checked_in } in participants" :key="$id"
+                                            class="flex align-items-center gap-3 mb-2 p-2 border-round">
+
+                                            <Avatar :image="operator.avatar"
+                                                :icon="!operator.avatar ? 'pi pi-user' : ''" shape="circle" />
+
+                                            <div class="flex flex-column gap-1">
+                                                <span class="font-bold line-height-1" :class="{
+                                                    'text-green-500': checked_in,
+                                                    'text-red-400': isFinished && !checked_in,
+                                                    'text-700': !isFinished && !checked_in
+                                                }">
+                                                    {{ getDisplayName(operator) }}
+                                                </span>
+                                                <small v-if="operator.role === 'visitor'"
+                                                    class="text-gray-500 uppercase text-xs">
+                                                    Visitante
+                                                </small>
+                                            </div>
+
+                                            <div class="ml-auto">
+                                                <template v-if="isFinished">
+                                                    <Tag :severity="checked_in ? 'success' : 'danger'"
+                                                        :icon="checked_in ? 'pi pi-check' : 'pi pi-times'"
+                                                        :value="checked_in ? 'Presente' : 'Faltou'" rounded />
+                                                </template>
+                                                <i v-else-if="checked_in"
+                                                    class="pi pi-check-circle text-green-500 text-xl"></i>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <Empty v-else label=" Nenhum operador participando dessa missão."
-                                        icon="pi pi-users" />
+
+                                    <Empty v-else label="Nenhum operador nesta missão." icon="pi pi-users" />
                                 </TabPanel>
                                 <TabPanel :value="1">
-                                    <div v-if="visitorParticipants.length > 0"
-                                        v-for="{ $id, visitor, checked_in } in visitorParticipants" :key="$id"
-                                        class="flex align-items-center gap-3 mb-3">
-                                        <div class="flex flex-column">
-                                            <span class="font-bold"
-                                                :class="{ 'text-green-600': checked_in, 'text-red-400': event.is_finished && !checked_in }">{{
-                                                    visitor.codename }} ({{ visitor.team }})</span>
-                                            <small class="text-gray-700">Convidado por <strong>{{
-                                                getOperatorName(visitor.operator) }}</strong></small>
+                                    <div v-if="visitorParticipants.length > 0">
+                                        <div v-for="{ $id, visitor, checked_in } in visitorParticipants" :key="$id"
+                                            class="flex align-items-center gap-3 mb-2 p-2 border-round">
+                                            <div class="flex flex-column gap-1">
+                                                <span class="font-bold line-height-1" :class="{
+                                                    'text-green-600': checked_in,
+                                                    'text-red-400': isFinished && !checked_in
+                                                }">
+                                                    {{ visitor.codename }} ({{ visitor.team || 'Independente' }})
+                                                </span>
+
+                                                <small class="text-500">
+                                                    Convidado por <strong class="text-700">{{
+                                                        getOperatorName(visitor.operator) }}</strong>
+                                                </small>
+                                            </div>
+
+                                            <div v-if="!event.is_finished && isAdmin" class="flex gap-2 ml-auto">
+                                                <Button icon="pi pi-check" severity="success" rounded text
+                                                    @click="checkInVisitor($id)" :disabled="checked_in"
+                                                    v-tooltip.top="'Confirmar Presença'" />
+                                                <Button icon="pi pi-trash" severity="danger" rounded text
+                                                    @click="deleteVisitorParticipation($id, visitor)"
+                                                    :disabled="checked_in" v-tooltip.top="'Excluir'" />
+                                            </div>
+
+                                            <div v-if="isFinished" class="ml-auto">
+                                                <Tag :severity="checked_in ? 'success' : 'danger'"
+                                                    :icon="checked_in ? 'pi pi-check' : 'pi pi-times'"
+                                                    :value="checked_in ? 'Presente' : 'Faltou'" rounded />
+                                            </div>
+                                            <i v-else-if="checked_in && !isAdmin"
+                                                class="pi pi-check text-green-500 ml-auto"></i>
                                         </div>
-                                        <div v-if="!event.is_finished && operator.role === 'admin'"
-                                            class="flex gap-1 ml-auto">
-                                            <Button icon=" pi pi-check" severity="success" rounded
-                                                @click="checkInVisitor($id)" size="small"
-                                                v-tooltip.top="'Confirmar Presença'" :disabled="checked_in" />
-                                            <Button icon=" pi pi-trash" severity="danger" rounded
-                                                @click="deleteVisitorParticipation($id, visitor)" size="small"
-                                                v-tooltip.top="'Excluir Presença'" :disabled="checked_in" />
-                                        </div>
-                                        <i v-if="isFinished && checked_in"
-                                            class="pi pi-check text-green-300 ml-auto"></i>
-                                        <i v-else-if="isFinished && !checked_in"
-                                            class="pi pi-times text-red-300 ml-auto"></i>
                                     </div>
-                                    <Empty v-else label="Nenhum visitante adicionado a missão." icon="pi pi-users" />
+
+                                    <Empty v-else label="Nenhum visitante adicionado à missão." icon="pi pi-users" />
                                 </TabPanel>
                             </TabPanels>
                         </Tabs>
@@ -302,7 +337,7 @@
                                     :icon="!feedback.operator.avatar ? 'pi pi-user' : undefined" shape="circle" />
                                 <div class="flex flex-column">
                                     <span class="text-sm font-bold uppercase">{{ getShortName(feedback.operator.name)
-                                        }}</span>
+                                    }}</span>
                                     <span class="text-xs uppercase">{{ feedback.operator.codename }}</span>
                                 </div>
                             </div>
@@ -349,7 +384,7 @@
                         <template #option="slotProps">
                             <div class="flex flex-column">
                                 <span class="font-bold">{{ slotProps.option.name }} ({{ slotProps.option.codename
-                                    }})</span>
+                                }})</span>
                                 <small class="text-gray-500">Convidado por {{
                                     slotProps.option.operator.codename }}</small>
                             </div>
@@ -1197,6 +1232,11 @@ const deadlineInfo = computed(() => {
 
 const getOperator = (id: string) => operatorsMap.value.get(id);
 const getOperatorName = (id: string) => operatorsMap.value.get(id)?.codename || 'Desconhecido';
+
+const getDisplayName = (op: IOperator) => {
+    const team = op.team || 'Independente';
+    return op.role === 'visitor' ? `${op.codename} (${team})` : op.codename;
+};
 </script>
 
 <style scoped>

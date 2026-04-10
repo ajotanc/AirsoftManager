@@ -15,59 +15,64 @@
     </Card>
   </div>
 
-  <div v-else class="grid">
+  <div v-else-if="isActiveOperator" class="grid">
+
     <div class="col-12">
       <Level :operator="operator" :qrcode="true" />
     </div>
-    <div class="col-12 md:col-4">
-      <Card>
-        <template #title>Financeiro</template>
-        <template #content>{{ openPayments.length }} Pagamento(s) em aberto</template>
-      </Card>
-    </div>
-    <div class="col-12 md:col-4">
-      <Card>
-        <template #title>Arma(s)</template>
-        <template #content>{{ arsenal.length }} Arma(s) cadastrada(s)</template>
-      </Card>
-    </div>
-    <div class="col-12 md:col-4">
-      <Card>
-        <template #title>Loadout(s)</template>
-        <template #content>{{ loadout.length }} Loadout(s) cadastrado(s)</template>
-      </Card>
-    </div>
-    <div class="col-12">
-      <Card>
-        <template #title>Cronograma</template>
-        <template #content>
-          <ArenaSchedule />
-        </template>
-      </Card>
-    </div>
-    <div class="col-12">
-      <Card>
-        <template #title>Base Militar</template>
-        <template #content>
-          <OperatorList />
-        </template>
-      </Card>
-    </div>
-    <div v-if="isAdmin" class="col-12">
-      <AdminBadgeScanner />
-      <Card class="mt-2">
-        <template #title>
-          <div class="flex align-items-center gap-2 text-primary">
-            <i class="ri-id-card-line text-2xl"></i>
-            <span>Verificar Operador</span>
-          </div>
-        </template>
-        <template #content>
-          <Button label="QR Code" icon="pi pi-qrcode" class="camera-switch p-button-outlined mt-2"
-            @click="openScannerDialog = true" />
-        </template>
-      </Card>
-    </div>
+
+    <template v-if="!isVisitor">
+      <div class="col-12 md:col-4">
+        <Card>
+          <template #title>Financeiro</template>
+          <template #content>{{ openPayments.length }} Pagamento(s) em aberto</template>
+        </Card>
+      </div>
+      <div class="col-12 md:col-4">
+        <Card>
+          <template #title>Arma(s)</template>
+          <template #content>{{ arsenal.length }} Arma(s) cadastrada(s)</template>
+        </Card>
+      </div>
+      <div class="col-12 md:col-4">
+        <Card>
+          <template #title>Loadout(s)</template>
+          <template #content>{{ loadout.length }} Loadout(s) cadastrado(s)</template>
+        </Card>
+      </div>
+      <div class="col-12">
+        <Card>
+          <template #title>Cronograma</template>
+          <template #content>
+            <ArenaSchedule />
+          </template>
+        </Card>
+      </div>
+      <div class="col-12">
+        <Card>
+          <template #title>Base Militar</template>
+          <template #content>
+            <OperatorList />
+          </template>
+        </Card>
+      </div>
+      <div v-if="isAdmin" class="col-12">
+        <AdminBadgeScanner />
+        <Card class="mt-2">
+          <template #title>
+            <div class="flex align-items-center gap-2 text-primary">
+              <i class="ri-id-card-line text-2xl"></i>
+              <span>Verificar Operador</span>
+            </div>
+          </template>
+          <template #content>
+            <Button label="QR Code" icon="pi pi-qrcode" class="camera-switch p-button-outlined mt-2"
+              @click="openScannerDialog = true" />
+          </template>
+        </Card>
+      </div>
+    </template>
+
     <div class="col-12">
       <Card>
         <template #title>Evento(s)</template>
@@ -76,22 +81,25 @@
         </template>
       </Card>
     </div>
-    <div class="col-12">
-      <Card>
-        <template #title>Meta(s)</template>
-        <template #content>
-          <GoalList />
-        </template>
-      </Card>
-    </div>
-    <div class="col-12">
-      <Card>
-        <template #title>Aniversariante(s)</template>
-        <template #content>
-          <BirthdayList />
-        </template>
-      </Card>
-    </div>
+
+    <template v-if="!isVisitor">
+      <div class="col-12">
+        <Card>
+          <template #title>Meta(s)</template>
+          <template #content>
+            <GoalList />
+          </template>
+        </Card>
+      </div>
+      <div class="col-12">
+        <Card>
+          <template #title>Aniversariante(s)</template>
+          <template #content>
+            <BirthdayList />
+          </template>
+        </Card>
+      </div>
+    </template>
   </div>
 
   <AppScanner v-model:visible="openScannerDialog" @detect="onDetect" header="QR Code" />
@@ -118,7 +126,7 @@ import AppScanner from "@/components/AppScanner.vue";
 import { PaymentService, type IPayment } from "@/services/payment";
 import { useOperator } from "@/composables/useOperator";
 
-const { operator, isActiveOperator, isAdmin } = useOperator();
+const { operator, isActiveOperator, isAdmin, authStore: { isVisitor } } = useOperator();
 const { $id, arsenal, loadout } = operator.value;
 
 const openScannerDialog = ref(false);

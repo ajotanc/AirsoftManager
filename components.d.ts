@@ -69,6 +69,7 @@ declare module 'vue' {
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     ScrollPanel: typeof import('primevue/scrollpanel')['default']
+    Select: typeof import('primevue/select')['default']
     Skeleton: typeof import('primevue/skeleton')['default']
     StatsCard: typeof import('./src/components/gamification/StatsCard.vue')['default']
     Tab: typeof import('primevue/tab')['default']

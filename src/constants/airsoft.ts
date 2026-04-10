@@ -234,6 +234,7 @@ export const ROLES = [
   { label: "Operador", value: "operator" },
   { label: "Recruta", value: "recruit" },
   { label: "Padrão & Equipamentos", value: "uniform" },
+  { label: "Visitante", value: "visitor" },
 ];
 
 export const SHIRT_SIZES = ["PP", "P", "M", "G", "GG", "XG"];
@@ -427,6 +428,7 @@ export const TEAMS = [
   "Cia de Airsoft Delta",
   "CITE",
   "Comando Selva",
+  "COMANF",
   "Corvos de Amargosa",
   "COTA",
   "CPAT",
@@ -443,6 +445,7 @@ export const TEAMS = [
   "E.F.A.S.",
   "Equipe Arcanjo",
   "Esquadrão Fantasma",
+  TEAM_NAME,
   "F.E.A.T.",
   "FBI",
   "FEAR",

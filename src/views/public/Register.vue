@@ -25,6 +25,15 @@
             {{ $field.error.message }}
           </Message>
         </FormField>
+        <FormField v-if="$props.role === 'visitor'" name="team" v-slot="$field" class="flex flex-column gap-2">
+          <FloatLabel variant="in">
+            <Select :options="TEAMS" class="w-full" v-model="$field.value" fluid filter />
+            <label>Equipe</label>
+          </FloatLabel>
+          <Message v-if="$field.invalid" severity="error" size="small" variant="simple">
+            {{ $field.error.message }}
+          </Message>
+        </FormField>
         <FormField name="password" v-slot="$field" class="flex flex-column gap-2">
           <FloatLabel variant="in">
             <Password :feedback="false" toggleMask class="w-full" v-model="$field.value" fluid />
@@ -66,6 +75,8 @@ import FloatLabel from "primevue/floatlabel";
 import Message from "primevue/message";
 import { useOperator } from "@/composables/useOperator";
 
+import { TEAMS } from "@/constants/airsoft";
+
 const { authStore } = useOperator();
 const router = useRouter();
 const toast = useToast();
@@ -75,8 +86,13 @@ const initialValues = ref({
   name: "",
   email: "",
   password: "",
-  confirmPassword: ""
+  confirmPassword: "",
+  team: undefined
 });
+
+const props = defineProps<{
+  role: string;
+}>();
 
 const resolver = zodResolver(
   z.object({
@@ -94,10 +110,20 @@ const resolver = zodResolver(
       .regex(/[0-9]/, { error: "Pelo menos um número." })
       .regex(/[^a-zA-Z0-9]/, { error: "Pelo menos um caractere especial." }),
     confirmPassword: z.string().min(1, { error: "A confirmação é obrigatória." }),
+    team: z.string().nullish().optional()
   })
     .refine((data) => data.password === data.confirmPassword, {
       error: "As senhas não coincidem.",
       path: ["confirmPassword"],
+    })
+    .superRefine((data, ctx) => {
+      if (props.role === 'visitor' && !data.team) {
+        ctx.addIssue({
+          code: "custom",
+          message: "O nome do seu time ou 'Independente' é obrigatório para visitantes.",
+          path: ["team"],
+        });
+      }
     })
 );
 
@@ -105,7 +131,7 @@ const handleRegister = async ({ valid, values }: FormSubmitEvent) => {
   if (valid) {
     loading.value = true;
     try {
-      await authStore.register(values.email, values.password, values.name);
+      await authStore.register(values.email, values.password, values.name, props.role);
       toast.add({ severity: "success", summary: "Bem-vindo", detail: "Verifique seu e-mail!", life: 5000 });
       router.push("/awaiting-verification");
     } catch (error: any) {

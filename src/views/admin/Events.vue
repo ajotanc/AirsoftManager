@@ -21,28 +21,41 @@
             :style="{ width: '100%', maxWidth: '640px' }" class="m-3">
             <Form :resolver="resolver" :initialValues="selectedEvent" @submit="saveEvent"
                 :key="selectedEvent.$id || 'new'" class="grid">
-                <div v-for="field in fields" :key="field.name" :class="`col-12 md:col-${field.col}`">
-                    <FormField v-if="field.name === 'description'" :name="field.name" v-slot="$field"
-                        class="flex flex-column gap-1">
-                        <label class="font-bold">{{ field.label }}</label>
-                        <Editor v-model="$field.value" editorStyle="height: 260px"
-                            placeholder="Escreva os detalhes da operação aqui..." />
-                        <Message v-if="$field.invalid" severity="error" size="small" variant="simple">
-                            {{ $field.error?.message }}
-                        </Message>
-                    </FormField>
-                    <FormField v-else :name="field.name" v-slot="$field" class="flex flex-column gap-1">
-                        <FloatLabel variant="in">
-                            <component :is="field.component" :id="field.name" v-bind="field.props"
-                                v-model="$field.value" class="w-full" :class="{ 'p-invalid': $field.invalid }" fluid />
-                            <label :for="field.name">{{ field.label }}</label>
-                        </FloatLabel>
+                <template v-for="{ name, component, label, col, props, hidden } in fields" :key="name">
+                    <div :class="`col-12 md:col-${col || 12}`" v-if="!hidden">
+                        <FormField v-if="component.name === 'Editor'" :name="name" v-slot="$field"
+                            class="flex flex-column gap-1">
+                            <label :for="name" class="font-bold">{{ label }}</label>
+                            <Editor v-model="$field.value" editorStyle="height: 260px"
+                                placeholder="Escreva os detalhes da operação aqui..." />
+                            <Message v-if="$field.invalid" severity="error" size="small" variant="simple">
+                                {{ $field.error?.message }}
+                            </Message>
+                        </FormField>
+                        <FormField v-else-if="component.name === 'ToggleSwitch'" :name="name" v-slot="$field"
+                            class="flex flex-column gap-1">
+                            <div class="flex align-items-center gap-2">
+                                <component :is="component" :id="name" v-bind="props" :name="name" v-model="$field.value"
+                                    fluid />
+                                <label :for="name" class="font-bold">{{ label }}</label>
+                            </div>
+                            <Message v-if="$field.invalid" severity="error" size="small" variant="simple">
+                                {{ $field.error?.message }}
+                            </Message>
+                        </FormField>
+                        <FormField v-else :name="name" v-slot="$field" class="flex flex-column gap-1">
+                            <FloatLabel variant="in">
+                                <component :is="component" :id="name" v-bind="props" v-model="$field.value"
+                                    class="w-full" :class="{ 'p-invalid': $field.invalid }" fluid />
+                                <label :for="name">{{ label }}</label>
+                            </FloatLabel>
 
-                        <Message v-if="$field.invalid" severity="error" size="small" variant="simple">
-                            {{ $field.error?.message }}
-                        </Message>
-                    </FormField>
-                </div>
+                            <Message v-if="$field.invalid" severity="error" size="small" variant="simple">
+                                {{ $field.error?.message }}
+                            </Message>
+                        </FormField>
+                    </div>
+                </template>
                 <div class="col-12">
                     <Image v-if="preview || selectedEvent.thumbnail"
                         :src="(preview ?? selectedEvent.thumbnail ?? undefined) as string | undefined" class="mb-3"
@@ -82,7 +95,7 @@ import Message from "primevue/message";
 import { Form } from '@primevue/forms';
 import { z } from 'zod';
 import { zodResolver } from "@primevue/forms/resolvers/zod";
-import { InputNumber, useConfirm, type FileUploadSelectEvent } from "primevue";
+import { InputNumber, ToggleSwitch, useConfirm, type FileUploadSelectEvent } from "primevue";
 import { EventService, type IEvent } from "@/services/event";
 import { formatDate, goToEvent, type IFields } from "@/functions/utils";
 import { EVENT_TYPES, RULES } from "@/constants/airsoft";
@@ -127,6 +140,7 @@ const missionSchema = z.object({
     endTime: z.string({ error: "Término obrigatório" }).trim().regex(/^([01]\d|2[0-3]):[0-5]\d$/, "Hora inválida (00:00 - 23:59)"),
     rule: z.string().nullish(),
     minimum_effective: z.number({ error: "Efetivo mínimo obrigatório" }),
+    allow_visitors: z.boolean().default(false),
     location_url: z.url({ error: "Insira uma URL válida" }).refine((val) => {
         return val.includes('maps.app.goo.gl');
     }, {
@@ -225,7 +239,13 @@ const fields: IFields[] = [
     },
     { name: 'location', label: 'Nome do Local', component: InputText, col: '12' },
     {
-        name: 'location_url', label: 'URL Google Maps', component: InputText, col: '12', hidden: true,
+        name: 'location_url', label: 'URL Google Maps', component: InputText, col: '12',
+    },
+    {
+        name: "allow_visitors",
+        label: "Permitir Visitantes?",
+        component: ToggleSwitch,
+        col: "6"
     },
 ];
 

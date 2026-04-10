@@ -1,7 +1,7 @@
 <template>
   <div class="flex align-items-center justify-content-center min-h-screen surface-ground px-2 py-2">
     <div class="surface-card p-4 shadow-2 border-round w-full lg:w-12">
-      <div class="flex justify-content-between align-items-start mb-3">
+      <div class="flex justify-content-center align-items-center mb-3">
         <div class="avatar-wrapper cursor-pointer" @click="triggerFileInput">
           <Avatar :image="operator.avatar" :icon="!operator.avatar ? 'pi pi-user' : undefined"
             class="text-xl bg-gray-200" size="xlarge" shape="circle" :style="loading ? 'opacity: 0.5' : ''" />
@@ -14,10 +14,6 @@
             <i class="pi pi-spin pi-spinner text-white text-2xl font-bold"></i>
           </div>
           <input type="file" ref="fileInput" class="hidden" accept="image/*" @change="handleUpdateAvatar" />
-        </div>
-        <div class="flex flex-column ml-3">
-          <div class="text-900 text-right font-bold">Graduação</div>
-          <Rating v-model="operator.rating" />
         </div>
       </div>
 
@@ -441,7 +437,6 @@ import DatePicker from "primevue/datepicker";
 import AutoComplete from "primevue/autocomplete";
 import Select from "primevue/select";
 import Panel from "primevue/panel";
-import Rating from "primevue/rating";
 
 import {
   addressByCep,
@@ -512,6 +507,10 @@ const handleUpdateProfile = async ({ valid, values }: any) => {
   try {
     loading.value = true;
 
+    if (authStore.isVisitor) {
+      values.status = valid
+    }
+
     const operatorUpdated = await OperatorService.update(operator.value.$id, values);
     const opWithBadges = await BadgeService.syncOperatorBadges(operatorUpdated);
 
@@ -524,7 +523,7 @@ const handleUpdateProfile = async ({ valid, values }: any) => {
       life: 3000,
     });
 
-    router.push("/profile");
+    router.push("/dashboard");
   } catch (error: any) {
     console.error("Erro ao atualizar perfil:", error);
   } finally {

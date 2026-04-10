@@ -105,7 +105,6 @@ app.use(PrimeVue, {
 });
 
 app.directive("tooltip", Tooltip);
-app.mount("#app");
 
 const { authStore } = useOperator();
 
@@ -171,3 +170,5 @@ const vueQueryOptions: VueQueryPluginOptions = {
 };
 
 app.use(VueQueryPlugin, vueQueryOptions);
+
+app.mount("#app");

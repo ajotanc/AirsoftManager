@@ -310,7 +310,7 @@ export const limitWords = (text: string, limit: number) => {
   const words = text?.split(/\s+/) ?? [];
   if (words.length <= limit) return text;
 
-  return `${words.slice(0, limit).join(" ")} (Ler mais...)`;
+  return words.slice(0, limit).join(" ").replace(/\.$/, "") + "...";
 };
 
 export const checkRegistrationPeriod = () => {
@@ -402,3 +402,5 @@ export const toTitleCase = (str: string): string => {
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(" ");
 };
+
+export const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
