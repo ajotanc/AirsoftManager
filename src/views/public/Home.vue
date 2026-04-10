@@ -7,7 +7,7 @@
 
       <div class="z-2 text-center px-4 w-full max-w-7xl flex flex-column align-items-center gap-6">
 
-        <Image src="/images/exd.webp" imageClass="w-15rem" />
+        <Image src="/images/exd.webp" imageClass="w-16rem h-16rem" />
 
         <div class="flex flex-column align-items-center gap-3">
           <Tag severity="warn" variant="outlined" class="p-2 px-3 uppercase font-bold">
@@ -20,7 +20,7 @@
             <h1 class="text-4xl md:text-8xl font-bold text-white m-0 uppercase">
               {{ TEAM_NAME }}
             </h1>
-            <p class="md:text-2xl text-300 max-w-3xl line-height-3 font-light m-0" style="letter-spacing: 0.05em;">
+            <p class="md:text-2xl text-white max-w-3xl line-height-3 font-light m-0" style="letter-spacing: 0.05em;">
               Onde a estratégia encontra a irmandade. O comando absoluto do seu <span
                 class="text-yellow-500 font-bold">arsenal</span> e da sua <span
                 class="text-yellow-500 font-bold">honra</span> em campo.
@@ -28,19 +28,12 @@
           </div>
         </div>
 
-        <div class="flex flex-column sm:flex-row justify-content-center align-items-center gap-3">
-          <Button v-if="checkRegistrationPeriod()" label="ALISTAR-SE AGORA" icon="ri-arrow-right-line" severity="warn"
-            size="large" class="font-bold text-yellow-900 uppercase shadow-4" @click="router.push('/register')" />
-          <Tag v-else severity="warn" class="px-4 py-3 text-lg font-bold uppercase">
-            <div class="flex align-items-center gap-2">
-              <i class="ri-lock-2-line text-xl"></i>
-              <span>Recrutamento Bloqueado</span>
-            </div>
-          </Tag>
+        <div class="flex flex-column sm:flex-row justify-content-center align-items-center gap-3 w-auto">
+          <Button :label="registration.label" :icon="registration.icon" :disabled="registration.disabled"
+            :severity="registration.severity" class="font-bold uppercase shadow-4 w-20rem" @click="router.push('/register')" />
 
-          <Button label="ACESSO RESTRITO" icon="ri-shield-keyhole-line" severity="secondary" outlined size="large"
-            class="font-bold uppercase text-white border-white hover:bg-white hover:text-gray-900"
-            @click="router.push('/login')" />
+          <Button label="ÁREA DO OPERADOR" icon="ri-shield-keyhole-line" severity="warn" outlined
+            class="font-bold uppercase shadow-4 w-20rem text-yellow-500 border-yellow-500 hover:text-yellow-900 hover:border-yellow-900 hover:bg-yellow-500" @click="router.push('/login')" />
         </div>
       </div>
     </div>
@@ -250,6 +243,17 @@ import { TEAM_NAME, TEAM_MOTTO } from "@/constants/airsoft";
 import { checkRegistrationPeriod } from "@/functions/utils";
 
 const router = useRouter();
+
+const registration = computed(() => {
+  const isOpen = checkRegistrationPeriod();
+
+  return {
+    label: isOpen ? 'ALISTAR-SE AGORA' : 'RECRUTAMENTO ENCERRADO',
+    severity: isOpen ? 'warn' : 'contrast',
+    icon: isOpen ? 'ri-arrow-right-line' : 'ri-lock-2-line',
+    disabled: !isOpen
+  };
+});
 
 const year = new Date().getFullYear();
 const description = import.meta.env.VITE_TITLE;
