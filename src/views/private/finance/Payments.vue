@@ -3,7 +3,7 @@
     <AppTable title="Pagamento(s)" resourceName="transações" :value="paymentsFiltered" :fields="fields"
       :loading="loading">
       <template v-if="accessAdmin" #header-actions>
-        <Button label="Nova" icon="pi pi-plus" size="small" @click="newTransaction" />
+        <Button label="Novo" icon="pi pi-plus" size="small" @click="newTransaction" />
       </template>
       <template #header-filter>
         <Select v-model="selectedMonth" :options="months" optionLabel="label" optionValue="value" />
@@ -176,6 +176,7 @@ const fields = computed<IFields[]>(() => [
       options: TRANSACTION_CATEGORIES,
       optionLabel: "label",
       optionValue: "value",
+      filter: true,
     },
   },
   {

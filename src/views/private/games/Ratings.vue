@@ -2,7 +2,7 @@
     <div class="card">
         <AppTable title="Voto(s)" :value="ratings" :fields="fields" :loading="loading" icon="ri-bookmark-3-line">
             <template #header-actions>
-                <Button label="Nova" icon="pi pi-plus" size="small" @click="newRating" />
+                <Button label="Novo" icon="pi pi-plus" size="small" @click="newRating" />
             </template>
             <template #actions="{ data }">
                 <Button icon="pi pi-pencil" text rounded severity="secondary" @click="editRating(data)" />

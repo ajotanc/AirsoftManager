@@ -182,6 +182,7 @@ const fields = computed<IFields[]>(() => [
       options: TRANSACTION_CATEGORIES,
       optionLabel: "label",
       optionValue: "value",
+      filter: true,
     },
   },
 ]);

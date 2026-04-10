@@ -2,7 +2,7 @@
     <div class="card">
         <AppTable title="Evento(s)" :value="events" :fields="fields" :loading="loading" icon="ri-calendar-event-line">
             <template #header-actions>
-                <Button label="Nova" icon="pi pi-plus" size="small" @click="newEvent" />
+                <Button label="Novo" icon="pi pi-plus" size="small" @click="newEvent" />
             </template>
             <template #actions="{ data }">
                 <Button icon="pi pi-pencil" rounded severity="info" v-tooltip.top="'Editar'" @click="editEvent(data)"
