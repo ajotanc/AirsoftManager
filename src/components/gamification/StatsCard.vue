@@ -31,7 +31,7 @@
           </div>
           <div class="flex flex-column align-items-center gap-1">
             <img src="/images/exd.webp" :alt="TEAM_NAME" class="w-5rem" />
-            <Rating v-model="operator.rating" readonly />
+            <Rating v-if="operator.role !== 'visitor'" v-model="operator.rating" readonly />
           </div>
         </div>
         <span class="text-xs font-italic mt-2" v-if="operator.quote">"{{ operator.quote.trim() }}"</span>

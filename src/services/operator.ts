@@ -160,6 +160,7 @@ export const OperatorService = {
           Query.orderAsc("codename"),
           Query.select(["*", "arsenal.*", "loadout.*"]),
           Query.equal("status", true),
+          Query.notEqual("role", "visitor"),
           Query.limit(1000),
         ],
       });
@@ -212,6 +213,7 @@ export const OperatorService = {
         tableId: TABLE_OPERATORS,
         queries: [
           Query.equal("status", true),
+          Query.notEqual("role", "visitor"),
           Query.limit(1000)
         ],
       });
@@ -282,7 +284,4 @@ export const OperatorService = {
       },
     });
   },
-  checkProfile(data: IOperator): boolean {
-    return operatorSchema.safeParse(data).success;
-  }
 };
