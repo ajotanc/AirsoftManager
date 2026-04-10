@@ -171,7 +171,7 @@ const { value: disabled } = computed(() => !authStore.isActiveOperator);
 
 const handleLogout = async () => {
   await authStore.logout();
-  router.push("/login");
+  router.push("/");
 };
 
 const toggleUserMenu = (event: Event) => {

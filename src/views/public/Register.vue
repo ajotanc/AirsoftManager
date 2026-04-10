@@ -2,6 +2,7 @@
   <div class="flex align-items-center justify-content-center flex-1 surface-ground p-3">
     <div class="surface-card p-4 shadow-2 border-round w-full lg:w-4">
       <div class="text-center mb-3">
+        <Image src="/images/exd.webp" alt="Image" imageClass="w-6rem h-6rem" />
         <div class="text-900 text-3xl font-bold uppercase">JUNTE-SE A NÓS</div>
         <span class="text-sm font-italic m-0">Onde a estratégia encontra a irmandade.</span>
       </div>

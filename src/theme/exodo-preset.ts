@@ -34,6 +34,9 @@ const ExodoPreset = definePreset(Aura, {
   },
   components: {
     button: {
+      root: {
+        borderRadius: "0.25rem",
+      },
       colorScheme: {
         light: {
           root: {

@@ -58,7 +58,6 @@ declare module 'vue' {
     Menubar: typeof import('primevue/menubar')['default']
     Message: typeof import('primevue/message')['default']
     OperatorSkeleton: typeof import('./src/components/skeleton/OperatorSkeleton.vue')['default']
-    OverlayBadge: typeof import('primevue/overlaybadge')['default']
     Password: typeof import('primevue/password')['default']
     PaymentDialog: typeof import('./src/components/PaymentDialog.vue')['default']
     Private: typeof import('./src/components/header/Private.vue')['default']
