@@ -1136,7 +1136,7 @@ export const TRANSACTION_CATEGORIES = [
   { value: "marketing_media", label: "Mídia e Marketing", severity: "info" },
   { value: "banking_fees", label: "Taxas Bancárias", severity: "danger" },
   { value: "social_event", label: "Confraternização/Social", severity: "secondary" },
-  { value: "guest_hospitality", label: "Recepção de Visitantes", severity: "help" },
+  { value: "guest_hospitality", label: "Recepção de Convidados", severity: "help" },
   { value: "hydration", label: "Hidratação", severity: "info" },
   { value: "operational_meal", label: "Almoço de Mutirão/Trabalho", severity: "warn" },
   { value: "safe_zone_food", label: "Coffee Break/Frutas", severity: "info" },

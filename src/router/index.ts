@@ -69,95 +69,131 @@ const router = createRouter({
           component: () => import("../views/private/Vehicle.vue"),
         },
         {
-          path: "game/badges",
-          component: () => import("../views/private/games/Badges.vue"),
+          path: "game",
+          children: [
+            {
+              path: "badges",
+              component: () => import("../views/private/games/Badges.vue"),
+            },
+            {
+              path: "ratings",
+              component: () => import("../views/private/games/Ratings.vue"),
+            },
+            {
+              path: "player-card",
+              component: () => import("../views/private/games/PlayerCard.vue"),
+            },
+            {
+              path: "card",
+              component: () => import("../views/private/games/Card.vue"),
+            },
+          ]
         },
         {
-          path: "game/ratings",
-          component: () => import("../views/private/games/Ratings.vue"),
-        },
-        {
-          path: "game/player-card",
-          component: () => import("../views/private/games/PlayerCard.vue"),
-        },
-        {
-          path: "game/card",
-          component: () => import("../views/private/games/Card.vue"),
-        },
-        {
-          path: "/schedules",
-          component: () => import("../views/private/Schedules.vue"),
+          path: "administrative",
+          children: [
+            {
+              path: "schedules",
+              component: () => import("../views/private/Schedules.vue"),
+            },
+            {
+              path: "school",
+              component: () => import("../views/private/school/Dashboard.vue"),
+            },
+            {
+              path: "school/quiz/:category/:id?",
+              component: () => import("../views/private/school/Quiz.vue"),
+            },
+            {
+              path: "school/recovery",
+              component: () => import("../views/private/school/Recovery.vue"),
+            },
+            {
+              path: "finance",
+              children: [
+                {
+                  path: "payments",
+                  component: () => import("../views/private/finance/Payments.vue"),
+                },
+                {
+                  path: "cashflow",
+                  component: () => import("../views/private/finance/FinancialTransparency.vue"),
+                },
+              ]
+            }
+          ]
         },
         {
           path: "operator/:username",
-          name: "operator-profile",
           component: () => import("../views/private/Operator.vue"),
         },
         {
           path: "events/:id",
-          name: "event-details",
           component: () => import("../views/private/EventDetails.vue"),
         },
         {
           path: "/happy-birthday/:id",
-          name: "happy-birthday",
           component: () => import("../views/private/HappyBirthday.vue"),
         },
         {
-          path: "finance/payments",
-          component: () => import("../views/private/finance/Payments.vue"),
-        },
-        {
-          path: "finance/cashflow",
-          component: () =>
-            import("../views/private/finance/FinancialTransparency.vue"),
-        },
-        {
           path: "/verify/operator/:id",
-          name: "verify-operator",
           component: () => import("../views/public/VerifyOperator.vue"),
         },
         {
-          path: "admin/operators",
-          component: () => import("../views/admin/Operators.vue"),
-        },
-        {
-          path: "admin/events",
-          component: () => import("../views/admin/Events.vue"),
-        },
-        {
-          path: "admin/birthdays",
-          component: () => import("../views/admin/Birthdays.vue"),
-        },
-        {
-          path: "admin/visitors",
-          component: () => import("../views/admin/Visitors.vue"),
-        },
-        {
-          path: "admin/schedules",
-          component: () => import("../views/admin/Schedules.vue"),
-        },
-        {
-          path: "admin/finance/payments",
-          component: () => import("../views/private/finance/Payments.vue"),
-        },
-        {
-          path: "admin/finance/goals",
-          component: () => import("../views/admin/finance/Goals.vue"),
-        },
-        {
-          path: "admin/finance/cashflow",
-          component: () => import("../views/admin/finance/Cashflow.vue"),
-        },
-        {
-          path: "admin/armory/maintenance",
-          component: () => import("../views/admin/Maintenance.vue"),
+          path: "management",
+          children: [
+            {
+              path: "operators",
+              component: () => import("../views/admin/Operators.vue"),
+            },
+            {
+              path: "events",
+              component: () => import("../views/admin/Events.vue"),
+            },
+            {
+              path: "birthdays",
+              component: () => import("../views/admin/Birthdays.vue"),
+            },
+            {
+              path: "guests",
+              component: () => import("../views/admin/Guests.vue"),
+            },
+            {
+              path: "schedules",
+              component: () => import("../views/admin/Schedules.vue"),
+            },
+            {
+              path: "finance",
+              children: [
+                {
+                  path: "payments",
+                  component: () => import("../views/private/finance/Payments.vue"),
+                },
+                {
+                  path: "goals",
+                  component: () => import("../views/admin/finance/Goals.vue"),
+                },
+                {
+                  path: "cashflow",
+                  component: () => import("../views/admin/finance/Cashflow.vue"),
+                },
+              ]
+            },
+            {
+              path: "armory",
+              children: [
+                {
+                  path: "maintenance",
+                  component: () => import("../views/admin/Maintenance.vue"),
+                },
+              ]
+            }
+          ]
         },
       ],
     },
     {
       path: "/verify/weapon/:id",
-      name: "verify-weapon",
       component: () => import("../views/public/VerifyWeapon.vue"),
       meta: {
         isPublic: true,
@@ -225,8 +261,8 @@ router.beforeEach(async (to, _, next) => {
 
     // Se ele tentar acessar algo fora das permissões (Admin, Financeiro, Arsenal, etc)
     const isTryingRestricted =
-      to.path.startsWith('/admin') ||
-      to.path.startsWith('/finance') ||
+      to.path.startsWith('/management') ||
+      to.path.startsWith('/administrative') ||
       ["/arsenal", "/loadout", "/vehicles"].includes(to.path);
 
     if (isTryingRestricted || !isAllowed) {
@@ -247,6 +283,17 @@ router.beforeEach(async (to, _, next) => {
 
       if (isProfileComplete && hasArsenal && !hasLoadout && to.path !== "/loadout") {
         return next("/loadout");
+      }
+
+      if (authStore.isSchoolLocked) {
+        const RECOVERY_PATH = "/administrative/school/recovery";
+
+        if (to.path !== RECOVERY_PATH) {
+          console.warn("🛡️ SISTEMA TRAVADO: Redirecionando para Recuperação.");
+          return next(RECOVERY_PATH);
+        }
+
+        // Se ele já está indo para uma das rotas permitidas, deixa passar (next() no final do arquivo)
       }
     }
   }

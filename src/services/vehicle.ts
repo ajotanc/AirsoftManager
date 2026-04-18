@@ -1,4 +1,4 @@
-import { tables, DATABASE_ID } from "@/services/appwrite";
+import { tables, permissions, DATABASE_ID } from "@/services/appwrite";
 import { ID, Query, type Models } from "appwrite";
 import type { IOperator } from "./operator";
 
@@ -37,7 +37,8 @@ export const VehicleService = {
       databaseId: DATABASE_ID,
       tableId: TABLE_VEHICLES,
       rowId: id,
-      data
+      data,
+      permissions
     });
   },
   async delete(rowId: string): Promise<{}> {

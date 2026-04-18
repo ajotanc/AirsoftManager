@@ -1,5 +1,5 @@
 <template>
-  <div class="flex align-items-center justify-content-center flex-1 surface-ground px-4">
+  <div class="flex align-items-center justify-content-center flex-1 px-4">
     <div v-if="loading">Buscando dados no sistema...</div>
 
     <div v-else-if="operator" class="surface-card p-4 shadow-4 border-round max-w-30rem w-full gap-3">

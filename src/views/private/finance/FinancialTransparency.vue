@@ -1,5 +1,5 @@
 <template>
-  <div class="surface-ground p-3 min-h-screen">
+  <div class="p-3 min-h-screen">
     <div class="flex justify-content-between align-items-center mb-3 flex-wrap gap-3">
       <h1 class="text-2xl font-bold m-0 text-900">Transparência Financeira</h1>
       <div class="flex">

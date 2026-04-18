@@ -95,7 +95,6 @@ function onClose() {
   height: 100vh;
   height: 100dvh;
   overflow: hidden;
-  /* border-radius: var(--p-dialog-border-radius); */
 }
 
 .scanner-overlay {

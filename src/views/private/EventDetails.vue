@@ -113,7 +113,7 @@
                             <Button label="Check-in QR Code" icon="pi pi-qrcode" class="w-full" severity="success"
                                 @click="openScannerDialog = true" :disabled="isFinished" />
                             <Button label="Adicionar Visitante" icon="pi pi-plus" class="w-full" severity="info"
-                                :disabled="availableVisitors.length === 0 || isFinished || !isConfirmed || !event.allow_visitors"
+                                :disabled="availableVisitors.length === 0 || isFinished || !isConfirmed"
                                 @click="newVisitor" />
                         </div>
                         <h4 class="text-sm uppercase text-gray-500 border-bottom-1 border-white-alpha-10 mt-0 pb-2">
@@ -122,8 +122,8 @@
                         <Tabs :value="0">
                             <TabList>
                                 <Tab :value="0">Operadores ({{ participants.length }})</Tab>
-                                <Tab :value="1">Visitantes ({{
-                                    visitorParticipants.length }})</Tab>
+                                <Tab :value="1">Convidados ({{
+                                    guestParticipants.length }})</Tab>
                             </TabList>
                             <TabPanels>
                                 <TabPanel :value="0">
@@ -142,7 +142,7 @@
                                                 }">
                                                     {{ getDisplayName(operator) }}
                                                 </span>
-                                                <small v-if="operator.role === 'visitor'"
+                                                <small v-if="operator.role === 'guest'"
                                                     class="text-gray-500 uppercase text-xs">
                                                     Visitante
                                                 </small>
@@ -163,20 +163,20 @@
                                     <Empty v-else label="Nenhum operador nesta missão." icon="pi pi-users" />
                                 </TabPanel>
                                 <TabPanel :value="1">
-                                    <div v-if="visitorParticipants.length > 0">
-                                        <div v-for="{ $id, visitor, checked_in } in visitorParticipants" :key="$id"
+                                    <div v-if="guestParticipants.length > 0">
+                                        <div v-for="{ $id, guest, checked_in } in guestParticipants" :key="$id"
                                             class="flex align-items-center gap-3 mb-2 p-2 border-round">
                                             <div class="flex flex-column gap-1">
                                                 <span class="font-bold line-height-1" :class="{
                                                     'text-green-600': checked_in,
                                                     'text-red-400': isFinished && !checked_in
                                                 }">
-                                                    {{ visitor.codename }} ({{ visitor.team || 'Independente' }})
+                                                    {{ guest.codename }} ({{ guest.team || 'Independente' }})
                                                 </span>
 
                                                 <small class="text-500">
                                                     Convidado por <strong class="text-700">{{
-                                                        getOperatorName(visitor.operator) }}</strong>
+                                                        getOperatorName(guest.operator) }}</strong>
                                                 </small>
                                             </div>
 
@@ -185,7 +185,7 @@
                                                     @click="checkInVisitor($id)" :disabled="checked_in"
                                                     v-tooltip.top="'Confirmar Presença'" />
                                                 <Button icon="pi pi-trash" severity="danger" rounded text
-                                                    @click="deleteVisitorParticipation($id, visitor)"
+                                                    @click="deleteVisitorParticipation($id, guest)"
                                                     :disabled="checked_in" v-tooltip.top="'Excluir'" />
                                             </div>
 
@@ -375,7 +375,7 @@
 
         <AppScanner v-model:visible="openScannerDialog" @detect="onDetect" header="Check-in de Operador" />
 
-        <Dialog v-model:visible="openVisitorDialog" header="Adicionar Visitantes" :modal="true"
+        <Dialog v-model:visible="openVisitorDialog" header="Adicionar Convidados" :modal="true"
             class="w-full md:w-30rem">
             <div class="col-12">
                 <FloatLabel variant="in">
@@ -391,9 +391,9 @@
                         </template>
                         <template #empty>Nenhum visitante disponível</template>
                     </MultiSelect>
-                    <label>Visitantes</label>
+                    <label>Convidados</label>
                 </FloatLabel>
-                <Button label="Adicionar Visitantes" icon="pi pi-check-circle" severity="success" class="w-full mt-2"
+                <Button label="Adicionar Convidados" icon="pi pi-check-circle" severity="success" class="w-full mt-2"
                     :disabled="selectedVisitors.length === 0" @click="addVisitorParcipations" />
             </div>
         </Dialog>
@@ -444,7 +444,7 @@ import { Divider, InputMask, InputNumber, InputText, Rating, Select, Textarea, u
 import dayjs from 'dayjs';
 import { useToast } from "primevue/usetoast";
 import { atcb_action } from 'add-to-calendar-button';
-import { EventService, type IEvent, type IParticipation, type IVisitorParticipation, type IVisitorParticipationDetail } from '@/services/event';
+import { EventService, type IEvent, type IParticipation, type IGuestParticipation, type IGuestParticipationDetail } from '@/services/event';
 import { DEADLINE_HOUR, EVENT_TYPES, TEAM_NAME } from '@/constants/airsoft';
 import { export2Excel, formatDate, playBeep, type IFields } from '@/functions/utils';
 import type { ATCBActionEventConfig } from 'add-to-calendar-button';
@@ -464,7 +464,7 @@ import MultiSelect from 'primevue/multiselect';
 import FloatLabel from 'primevue/floatlabel';
 
 import type { IOperator } from '@/services/operator';
-import { VisitorService, type IVisitor } from '@/services/visitor';
+import { GuestService, type IGuest } from '@/services/guest';
 import { CarpoolService, type ICarpool, type ICarpoolDetail } from '@/services/carpool';
 import { VehicleService, type IVehicle } from '@/services/vehicle';
 import { CarpoolRequestService, type ICarpoolRequest } from '@/services/carpool_request';
@@ -487,10 +487,10 @@ const { operator, isAdmin, authStore: { isAdministrativeManagement } } = useOper
 
 const rawEvent = ref<IEvent>({} as IEvent);
 const participants = ref<IParticipation<IOperator>[]>([]);
-const visitorParticipants = ref<IVisitorParticipationDetail[]>([]);
+const guestParticipants = ref<IGuestParticipationDetail[]>([]);
 
-const visitors = ref<IVisitor<IOperator>[]>([]);
-const selectedVisitors = ref<IVisitor<IOperator>[]>([]);
+const guests = ref<IGuest<IOperator>[]>([]);
+const selectedVisitors = ref<IGuest<IOperator>[]>([]);
 
 const carpools = ref<ICarpool<IVehicle<string>>[]>([]);
 
@@ -522,12 +522,12 @@ const event = computed(() => {
     return {
         ...rawEvent.value,
         participations: participants.value,
-        visitor_participations: visitorParticipants.value
+        guest_participations: guestParticipants.value
     };
 });
 
 const totalParticipants = computed(() => {
-    return participants.value.length + visitorParticipants.value.length;
+    return participants.value.length + guestParticipants.value.length;
 });
 
 const canFinalize = computed(() => {
@@ -790,7 +790,7 @@ const handleCalendarDynamic = () => {
     atcb_action(config);
 };
 
-const checkinsCount = computed(() => (participants.value.filter(p => p.checked_in).length || 0) + (visitorParticipants.value.filter(p => p.checked_in).length || 0));
+const checkinsCount = computed(() => (participants.value.filter(p => p.checked_in).length || 0) + (guestParticipants.value.filter(p => p.checked_in).length || 0));
 
 const mapUrl = computed(() => {
     if (!event.value.location_coords) return null;
@@ -816,20 +816,20 @@ const loadServices = async () => {
         rawEvent.value = eventDetails;
 
         participants.value = eventDetails.participations as IParticipation<IOperator>[];
-        visitorParticipants.value = eventDetails.visitor_participations as IVisitorParticipationDetail[];
+        guestParticipants.value = eventDetails.guest_participations as IGuestParticipationDetail[];
         carpools.value = eventDetails.carpools as ICarpool<IVehicle<string>>[];
 
         const carpoolIds = carpools.value.map(c => c.$id);
 
-        const [requestsData, vehiclesData, visitorsData] = await Promise.all([
+        const [requestsData, vehiclesData, guestsData] = await Promise.all([
             carpoolIds.length > 0 ? CarpoolRequestService.listByCarpools(carpoolIds) : [],
             VehicleService.listByOperator(operator.value.$id),
-            VisitorService.list()
+            GuestService.list()
         ]);
 
         requests.value = requestsData as ICarpoolRequest<IOperator, ICarpoolDetail>[];
         vehicles.value = vehiclesData as IVehicle[];
-        visitors.value = visitorsData as IVisitor<IOperator>[];
+        guests.value = guestsData as IGuest<IOperator>[];
 
         feedbacks.value = eventDetails.feedbacks as IFeedback<IOperator, string>[] || [];
 
@@ -898,28 +898,28 @@ const toggleParticipation = async () => {
 const openMaps = () => window.open(event.value.location_url, '_blank');
 
 const availableVisitors = computed(() => {
-    const alreadyInEventIds = visitorParticipants.value.map(p => p.visitor.$id);
-    return visitors.value.filter(v => !alreadyInEventIds.includes(v.$id));
+    const alreadyInEventIds = guestParticipants.value.map(p => p.guest.$id);
+    return guests.value.filter(v => !alreadyInEventIds.includes(v.$id));
 });
 
 const addVisitorParcipations = async () => {
     try {
         const eventId = event.value.$id;
 
-        const promises = selectedVisitors.value.map(visitor =>
-            EventService.addVisitorToEvent(eventId, visitor.$id)
+        const promises = selectedVisitors.value.map(guest =>
+            EventService.addGuestToEvent(eventId, guest.$id)
         )
 
-        const participations = await Promise.all(promises) as IVisitorParticipation<IVisitor<IOperator>>[];
-        const participationsHydrated: IVisitorParticipationDetail[] = participations.map((vp) => ({
+        const participations = await Promise.all(promises) as IGuestParticipation<IGuest<IOperator>>[];
+        const participationsHydrated: IGuestParticipationDetail[] = participations.map((vp) => ({
             ...vp,
-            visitor: {
-                ...vp.visitor,
-                operator: vp.visitor.operator.$id
+            guest: {
+                ...vp.guest,
+                operator: vp.guest.operator.$id
             }
         }));
 
-        visitorParticipants.value.push(...participationsHydrated);
+        guestParticipants.value.push(...participationsHydrated);
 
         toast.add({
             severity: 'success',
@@ -936,9 +936,9 @@ const addVisitorParcipations = async () => {
     }
 };
 
-const deleteVisitorParticipation = async (participationId: string, visitor: IVisitor) => {
+const deleteVisitorParticipation = async (participationId: string, guest: IGuest) => {
     confirm.require({
-        message: `Deseja remover o visitante ${visitor.codename} da lista?`,
+        message: `Deseja remover o visitante ${guest.codename} da lista?`,
         header: 'Remover Visitante',
         acceptLabel: 'Sim',
         rejectLabel: 'Não',
@@ -953,7 +953,7 @@ const deleteVisitorParticipation = async (participationId: string, visitor: IVis
         },
         accept: async () => {
             await EventService.deleteVisitorParticipation(participationId);
-            visitorParticipants.value = visitorParticipants.value.filter(v => v.$id !== participationId);
+            guestParticipants.value = guestParticipants.value.filter(v => v.$id !== participationId);
 
             toast.add({ severity: 'success', summary: 'Visitante removido da lista!', life: 3000 });
         }
@@ -977,9 +977,9 @@ const checkInVisitor = async (participationId: string) => {
         },
         accept: async () => {
             await EventService.confirmVisitorAttendance(participationId);
-            const visitorParticipantion = visitorParticipants.value.find(v => v.$id === participationId);
+            const guestParticipantion = guestParticipants.value.find(v => v.$id === participationId);
 
-            if (visitorParticipantion) visitorParticipantion.checked_in = true;
+            if (guestParticipantion) guestParticipantion.checked_in = true;
 
             toast.add({ severity: 'success', summary: 'Presença confirmada do visitante!', life: 3000 });
 
@@ -1235,7 +1235,7 @@ const getOperatorName = (id: string) => operatorsMap.value.get(id)?.codename || 
 
 const getDisplayName = (op: IOperator) => {
     const team = op.team || 'Independente';
-    return op.role === 'visitor' ? `${op.codename} (${team})` : op.codename;
+    return op.role === 'guest' ? `${op.codename} (${team})` : op.codename;
 };
 </script>
 

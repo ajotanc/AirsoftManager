@@ -13,12 +13,12 @@
             <slot name="header-actions"></slot>
           </div>
 
-          <div class="flex align-items-center gap-2">
+          <div class="flex align-items-center gap-3">
             <slot name="header-filter"></slot>
 
             <IconField iconPosition="left">
               <InputIcon><i class="pi pi-search" /></InputIcon>
-              <InputText v-model="filters['global'].value" placeholder="Procurar..." />
+              <InputText v-model="filters['global'].value" placeholder="Procurar..." fluid />
             </IconField>
           </div>
         </div>

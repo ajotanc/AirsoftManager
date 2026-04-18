@@ -32,6 +32,9 @@
           :disabled="data.status !== 'pending'" severity="success" v-tooltip.top="'Confirmar Pagamento'" />
         <Button v-if="operator.$id === data.operator.$id" icon="pi pi-dollar" rounded @click="makePayment(data)"
           :disabled="!['created', 'overdue'].includes(data.status)" v-tooltip.top="'Efetuar Pagamento'" />
+        <!-- <Button v-if="operator.$id === data.operator.$id" icon="pi pi-dollar" rounded @click="handlePayment(data)"
+          :disabled="!['created', 'overdue'].includes(data.status)" v-tooltip.top="'Efetuar Pagamento'"
+          severity="success" /> -->
         <Button v-if="accessAdmin" icon="pi pi-trash" rounded @click="deletePayment(data)"
           :disabled="data.status === 'paid'" severity="danger" v-tooltip.top="'Excluir Pagamento'" />
       </template>
@@ -94,7 +97,7 @@ const transactionDialog = ref(false);
 const selectedPayment = ref<IPayment>({} as IPayment);
 
 const accessAdmin = computed(() => {
-  return isAdmin && route.path.includes('admin');
+  return isAdmin && route.path.includes('management');
 })
 
 const selectedMonth = ref('ALL');
@@ -397,7 +400,7 @@ const saveTransaction = async (values: IPayment) => {
 
 const invoice = (payment: IPayment) => {
 
-  if (payment.status === 'paid') {
+  if (['paid', 'pending'].includes(payment.status)) {
     return {
       overdue: false,
       days: 0
@@ -436,4 +439,37 @@ const exportPayments = async () => {
   await export2Excel(`${dayjs().unix()}-PAGAMENTOS`, dataToExport, summary);
   toast.add({ severity: 'success', summary, detail: 'Exportação concluída! Verifica a tua pasta de transferências.', life: 3000 });
 };
+
+// const handlePayment = async (payment: IPayment) => {
+//   loading.value = true;
+//   try {
+//     const execution = await functions.createExecution({
+//       functionId: '69e00fdf001c10591a1a', // ID da sua função
+//       body: JSON.stringify({
+//         id: payment.$id,
+//         unit_price: payment.amount,
+//         title: payment.description,
+//         description: 'Mensalidade Êxodo Airsoft',
+//         email: user.value?.email
+//       }),
+//       async: false,
+//       xpath: '/'
+//     });
+
+//     // 2. Transforma a string de resposta em objeto
+//     const response = JSON.parse(execution.responseBody);
+
+//     if (response.url) {
+//       // 3. Redireciona para o Checkout Pro do Mercado Pago
+//       window.location.href = response.url;
+//     } else {
+//       throw new Error('URL de checkout não encontrada');
+//     }
+//   } catch (error) {
+//     console.error("Erro ao processar pagamento:", error);
+//     alert("Erro ao iniciar pagamento. Tente novamente.");
+//   } finally {
+//     loading.value = false;
+//   }
+// };
 </script>

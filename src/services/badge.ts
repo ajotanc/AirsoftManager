@@ -5,7 +5,7 @@ import { PaymentService } from "./payment";
 import { RatingService } from "./rating";
 import { VehicleService } from "./vehicle";
 import { CarpoolService } from "./carpool";
-import { VisitorService } from "./visitor";
+import { GuestService } from "./guest";
 import { ScheduleService } from "./schedule"; // Importante para missões
 import {
   UNIFORM_IDS,
@@ -110,11 +110,11 @@ export const BadgeService = {
     if (pmc) earned.add("pmc_expert");
 
     // 4. FINANCIAL, LOGISTICS, MAINTENANCE & SCHEDULES
-    const [payments, vehicles, visitors, maintenances, schedules] =
+    const [payments, vehicles, guests, maintenances, schedules] =
       await Promise.all([
         PaymentService.listByOperator(operator.$id),
         VehicleService.listByOperator(operator.$id),
-        VisitorService.listByOperator(operator.$id),
+        GuestService.listByOperator(operator.$id),
         MaintenanceService.listByOperator(operator.$id),
         ScheduleService.list(),
       ]);
@@ -147,8 +147,8 @@ export const BadgeService = {
       if (carpools.length >= 5) earned.add("road_captain");
     }
 
-    if (visitors.length > 0) earned.add("hospitality_host");
-    if (visitors.length >= 3) earned.add("team_ambassador");
+    if (guests.length > 0) earned.add("hospitality_host");
+    if (guests.length >= 3) earned.add("team_ambassador");
 
     const maintenanceCompleted = maintenances.filter(
       (m) => m.status === "completed",

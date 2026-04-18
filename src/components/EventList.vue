@@ -108,7 +108,7 @@ onMounted(async () => {
 
 const loadServices = async () => {
     try {
-        allEvents.value = await EventService.list() as IEvent[];
+        allEvents.value = await EventService.listByMonth() as IEvent[];
     } catch (error) {
         console.error("Erro ao carregar serviços:", error);
         toast.add({ severity: 'error', summary: 'Erro', detail: 'Falha ao carregar dados.' });

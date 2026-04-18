@@ -7,7 +7,7 @@ import type { IOperator } from '@/services/operator';
 export function useOperator() {
   const authStore = useAuthStore();
 
-  const { operator, isActiveOperator, isAdmin } = storeToRefs(authStore);
+  const { user, operator, isActiveOperator, isAdmin } = storeToRefs(authStore);
 
   const arsenal = computed(() => operator.value?.arsenal || []);
   const loadout = computed(() => operator.value?.loadout || []);
@@ -19,6 +19,7 @@ export function useOperator() {
 
   return {
     authStore,
+    user,
     operator,
     isActiveOperator,
     isAdmin,

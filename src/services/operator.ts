@@ -6,6 +6,7 @@ import type { IArsenal } from "./arsenal";
 import type { ILoadout } from "./loadout";
 import { deleteFile, formatDate, uploadFile } from "@/functions/utils";
 import z from "zod";
+import type { ISchoolAnswer } from "./school";
 
 export interface IOperator extends Models.Row {
   name: string;
@@ -56,6 +57,7 @@ export interface IOperator extends Models.Row {
   profession?: string;
   availability?: "saturday" | "sunday" | "both" | "none";
   team?: string;
+  school_answers?: ISchoolAnswer[];
 }
 
 export type IOperatorDraft = Omit<IOperator, keyof Models.Row> & {

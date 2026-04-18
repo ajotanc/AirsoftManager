@@ -2,9 +2,9 @@ import { ID, Query, type Models } from "appwrite";
 import { tables, permissions, DATABASE_ID } from "@/services/appwrite";
 import type { IOperator } from "./operator";
 
-export const TABLE_VISITORS = "visitors"; // Crie esta coleção no Appwrite
+export const TABLE_GUESTS = "visitors";
 
-export interface IVisitor<TOp = string | IOperator> extends Models.Row {
+export interface IGuest<TOp = string | IOperator> extends Models.Row {
   name: string;
   codename: string;
   team: string;
@@ -14,24 +14,24 @@ export interface IVisitor<TOp = string | IOperator> extends Models.Row {
   selected?: IOperator;
 }
 
-export const VisitorService = {
-  async row(rowId: string): Promise<IVisitor> {
+export const GuestService = {
+  async row(rowId: string): Promise<IGuest> {
     try {
-      return await tables.getRow<IVisitor>({
+      return await tables.getRow<IGuest>({
         databaseId: DATABASE_ID,
-        tableId: TABLE_VISITORS,
+        tableId: TABLE_GUESTS,
         rowId,
       });
     } catch (error) {
       console.error("Erro ao buscar arsenal:", error);
-      return {} as IVisitor;
+      return {} as IGuest;
     }
   },
-  async list(): Promise<IVisitor<IOperator>[]> {
+  async list(): Promise<IGuest<IOperator>[]> {
     try {
-      const response = await tables.listRows<IVisitor<IOperator>>({
+      const response = await tables.listRows<IGuest<IOperator>>({
         databaseId: DATABASE_ID,
-        tableId: TABLE_VISITORS,
+        tableId: TABLE_GUESTS,
         queries: [Query.orderAsc("name"), Query.select(["*", "operator.*"])],
       });
 
@@ -41,11 +41,11 @@ export const VisitorService = {
       return [];
     }
   },
-  async listByOperator(operatorId: string): Promise<IVisitor<IOperator>[]> {
+  async listByOperator(operatorId: string): Promise<IGuest<IOperator>[]> {
     try {
-      const response = await tables.listRows<IVisitor<IOperator>>({
+      const response = await tables.listRows<IGuest<IOperator>>({
         databaseId: DATABASE_ID,
-        tableId: TABLE_VISITORS,
+        tableId: TABLE_GUESTS,
         queries: [Query.equal("operator", operatorId)],
       });
 
@@ -55,24 +55,24 @@ export const VisitorService = {
       return [];
     }
   },
-  async create(data: IVisitor): Promise<IVisitor> {
+  async create(data: IGuest): Promise<IGuest> {
     return await tables.createRow({
       databaseId: DATABASE_ID,
-      tableId: TABLE_VISITORS,
+      tableId: TABLE_GUESTS,
       rowId: ID.unique(),
       data: { ...data, status: true },
     });
   },
   async upsert(
     rowId: string | undefined,
-    data: Partial<IVisitor>
-  ): Promise<IVisitor> {
+    data: Partial<IGuest>
+  ): Promise<IGuest> {
     try {
       const id = rowId || ID.unique();
 
       return await tables.upsertRow({
         databaseId: DATABASE_ID,
-        tableId: TABLE_VISITORS,
+        tableId: TABLE_GUESTS,
         rowId: id,
         data,
         permissions
@@ -85,7 +85,7 @@ export const VisitorService = {
   async delete(rowId: string): Promise<{}> {
     return await tables.deleteRow({
       databaseId: DATABASE_ID,
-      tableId: TABLE_VISITORS,
+      tableId: TABLE_GUESTS,
       rowId,
     });
   },

@@ -23,31 +23,3 @@ onMounted(() => {
   }
 });
 </script>
-
-<style>
-* {
-  box-sizing: border-box;
-}
-
-body {
-  margin: 0;
-  padding: 0;
-  font-family: var(--font-family);
-  background-color: var(--p-content-background);
-  color: var(--text-color);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-#app {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-
-.grid {
-  margin-right: 0 !important;
-  margin-left: 0 !important;
-  margin-top: 0 !important;
-}
-</style>

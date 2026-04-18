@@ -15,26 +15,32 @@
     </Card>
   </div>
 
-  <div v-else-if="isActiveOperator" class="grid">
+  <div v-else-if="isActiveOperator" class="grid p-3">
 
     <div class="col-12">
       <Level :operator="operator" :qrcode="true" />
     </div>
 
     <template v-if="!isVisitor">
-      <div class="col-12 md:col-4">
+      <div class="col-12 md:col-3">
         <Card>
           <template #title>Financeiro</template>
           <template #content>{{ openPayments.length }} Pagamento(s) em aberto</template>
         </Card>
       </div>
-      <div class="col-12 md:col-4">
+      <div class="col-12 md:col-3">
+        <Card>
+          <template #title>Escola</template>
+          <template #content>{{ missingCerts?.length }} Prova(s) pendente(s)</template>
+        </Card>
+      </div>
+      <div class="col-12 md:col-3">
         <Card>
           <template #title>Arma(s)</template>
           <template #content>{{ arsenal.length }} Arma(s) cadastrada(s)</template>
         </Card>
       </div>
-      <div class="col-12 md:col-4">
+      <div class="col-12 md:col-3">
         <Card>
           <template #title>Loadout(s)</template>
           <template #content>{{ loadout.length }} Loadout(s) cadastrado(s)</template>
@@ -124,6 +130,7 @@ import ArenaSchedule from "@/components/ArenaSchedule.vue";
 import AppScanner from "@/components/AppScanner.vue";
 
 import { PaymentService, type IPayment } from "@/services/payment";
+import { SchoolService } from "@/services/school";
 import { useOperator } from "@/composables/useOperator";
 
 const { operator, isActiveOperator, isAdmin, authStore: { isVisitor } } = useOperator();
@@ -132,8 +139,15 @@ const { $id, arsenal, loadout } = operator.value;
 const openScannerDialog = ref(false);
 
 const {
+  data: missingCerts,
+} = useQuery({
+  queryKey: ['school', 'missing', $id],
+  queryFn: () => SchoolService.getMissingCertifications($id),
+});
+
+const {
   data: payments,
-  // isLoading 
+  // isLoading
 } = useQuery({
   queryKey: ['payments', 'operator', $id],
   queryFn: () => PaymentService.listByOperator($id),

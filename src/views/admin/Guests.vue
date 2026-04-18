@@ -1,21 +1,21 @@
 <template>
   <div class="card">
-    <AppTable title="Visitante(s)" :value="visitors" :fields="fields" :loading="loading" icon="ri-group-3-line">
+    <AppTable title="Convidado(s)" :value="guests" :fields="fields" :loading="loading" icon="ri-group-3-line">
       <template #header-actions>
-        <Button label="Novo" icon="pi pi-plus" size="small" @click="newVisitor" />
+        <Button label="Novo" icon="pi pi-plus" size="small" @click="newGuest" />
       </template>
 
       <template #actions="{ data }">
         <Skeleton v-if="loading" width="100%" height="1rem" />
         <div v-else class="flex gap-2 justify-content-center">
-          <Button icon="pi pi-pencil" text rounded severity="secondary" @click="editVisitor(data)" />
+          <Button icon="pi pi-pencil" text rounded severity="secondary" @click="editGuest(data)" />
           <Button icon="pi pi-trash" text rounded severity="danger" @click="confirmDelete(data)" />
         </div>
       </template>
     </AppTable>
 
-    <AppFormDialog v-model:visible="visitorDialog" :header="selectedVisitor.$id ? 'Editar Visitante' : 'Novo Visitante'"
-      :fields="fields" :initialValues="selectedVisitor" :resolver="resolver" @submit="saveVisitor" />
+    <AppFormDialog v-model:visible="guestDialog" :header="selectedVisitor.$id ? 'Editar Convidado' : 'Novo Convidado'"
+      :fields="fields" :initialValues="selectedVisitor" :resolver="resolver" @submit="saveGuest" />
   </div>
 </template>
 
@@ -28,7 +28,7 @@ import Select from "primevue/select";
 import { z } from 'zod';
 import { zodResolver } from "@primevue/forms/resolvers/zod";
 import { InputMask, useConfirm } from "primevue";
-import { VisitorService, type IVisitor } from "@/services/visitor";
+import { GuestService, type IGuest } from "@/services/guest";
 import { OperatorService, type IOperator } from "@/services/operator";
 import type { IFields } from "@/functions/utils";
 import { TEAMS } from "@/constants/airsoft";
@@ -39,12 +39,12 @@ onMounted(() => {
 
 const loadServices = async () => {
   try {
-    const [visitorsData, operatorsData] = await Promise.all([
-      VisitorService.list(),
+    const [guestsData, operatorsData] = await Promise.all([
+      GuestService.list(),
       OperatorService.listActive()
     ]);
 
-    visitors.value = visitorsData;
+    guests.value = guestsData;
     operators.value = operatorsData;
 
   } catch (error) {
@@ -56,16 +56,16 @@ const loadServices = async () => {
 };
 
 const loading = ref(true);
-const visitors = ref<IVisitor[]>([]);
+const guests = ref<IGuest[]>([]);
 const operators = ref<IOperator[]>([]);
 
 const toast = useToast();
 const confirm = useConfirm();
 
-const visitorDialog = ref(false);
-const selectedVisitor = ref<IVisitor>({} as IVisitor);
+const guestDialog = ref(false);
+const selectedVisitor = ref<IGuest>({} as IGuest);
 
-const visitorSchema = z.object({
+const guestSchema = z.object({
   name: z.string({ error: "Nome Completo obrigatório" }),
   codename: z.string({ error: "Codinome obrigatório" }),
   phone: z.string({ error: "Telefone / Whatsapp obrigatório" }).transform((v) => v.replace(/\D/g, "")),
@@ -86,7 +86,7 @@ const fields = computed<IFields[]>(() => [
       filter: true,
     }
   },
-  { name: "name", label: "Nome do Visitante", component: InputText, col: '12' },
+  { name: "name", label: "Nome do Convidado", component: InputText, col: '12' },
   { name: "codename", label: "Codinome", component: InputText, col: '6' },
   {
     name: "phone",
@@ -94,7 +94,7 @@ const fields = computed<IFields[]>(() => [
     button: {
       severity: "success",
       icon: "pi pi-whatsapp",
-      callback: ({ phone }: IVisitor) => {
+      callback: ({ phone }: IGuest) => {
         window.open(`https://wa.me/55${phone}`, '_blank');
       }
     },
@@ -109,23 +109,23 @@ const fields = computed<IFields[]>(() => [
   },
 ]);
 
-const resolver = ref(zodResolver(visitorSchema));
+const resolver = ref(zodResolver(guestSchema));
 
-const saveVisitor = async (values: IVisitor) => {
+const saveGuest = async (values: IGuest) => {
   try {
-    const response = await VisitorService.upsert(selectedVisitor.value.$id, values);
-    const index = visitors.value.findIndex((item: IVisitor) => item.$id === response.$id);
+    const response = await GuestService.upsert(selectedVisitor.value.$id, values);
+    const index = guests.value.findIndex((item: IGuest) => item.$id === response.$id);
 
     if (index !== -1) {
-      visitors.value[index] = response;
+      guests.value[index] = response;
     } else {
-      visitors.value.push(response);
+      guests.value.push(response);
     }
 
     toast.add({
       severity: "success",
       summary: "Sucesso!",
-      detail: "Visitante salvo com sucesso.",
+      detail: "Convidado salvo com sucesso.",
       life: 3000,
     });
   } catch (error: any) {
@@ -136,10 +136,10 @@ const saveVisitor = async (values: IVisitor) => {
   }
 };
 
-const confirmDelete = (visitor: IVisitor) => {
+const confirmDelete = (guest: IGuest) => {
   confirm.require({
     message: 'Você tem certeza que deseja excluir este visitante?',
-    header: "Visitante",
+    header: "Convidado",
     rejectProps: {
       label: 'Não',
       severity: 'secondary',
@@ -151,13 +151,13 @@ const confirmDelete = (visitor: IVisitor) => {
     },
     accept: async () => {
       try {
-        await VisitorService.delete(visitor.$id);
-        visitors.value = visitors.value.filter((item: IVisitor) => item.$id !== visitor.$id);
+        await GuestService.delete(guest.$id);
+        guests.value = guests.value.filter((item: IGuest) => item.$id !== guest.$id);
 
         toast.add({
           severity: "success",
           summary: "Sucesso",
-          detail: "Visitante excluído com sucesso!",
+          detail: "Convidado excluído com sucesso!",
           life: 3000,
         });
 
@@ -175,17 +175,17 @@ const confirmDelete = (visitor: IVisitor) => {
   });
 };
 
-const newVisitor = async () => {
-  selectedVisitor.value = {} as IVisitor;
-  visitorDialog.value = true;
+const newGuest = async () => {
+  selectedVisitor.value = {} as IGuest;
+  guestDialog.value = true;
 };
 
-const editVisitor = async (visitor: IVisitor<IOperator>) => {
-  selectedVisitor.value = { ...visitor, operator: visitor.operator.$id, selected: visitor.operator };
-  visitorDialog.value = true;
+const editGuest = async (guest: IGuest<IOperator>) => {
+  selectedVisitor.value = { ...guest, operator: guest.operator.$id, selected: guest.operator };
+  guestDialog.value = true;
 };
 
 const hideDialog = () => {
-  visitorDialog.value = false;
+  guestDialog.value = false;
 };
 </script>

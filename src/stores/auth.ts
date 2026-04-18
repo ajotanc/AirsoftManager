@@ -11,6 +11,7 @@ import {
 } from "@/services/operator";
 import { PaymentService, type IPayment } from "@/services/payment";
 import { DUE_DATE, MONTHLY_FEE, TEAM_NAME } from "@/constants/airsoft";
+import { SCHOOL_CATEGORIES, SchoolService, type ISchoolAnswer, type SchoolCategory } from '@/services/school';
 
 export const useAuthStore = defineStore("auth", {
   state: () => ({
@@ -49,6 +50,35 @@ export const useAuthStore = defineStore("auth", {
     isFinancialManagement: (state) => state.operator && state.operator.role === 'financial',
     isAdmin: (state) => state.operator && state.operator.role === "admin",
     isManager: (state) => state.operator && !["recruit", "operator", "visitor"].includes(state.operator.role),
+    missingCertifications: (state): SchoolCategory[] => {
+      const { start } = SchoolService.getSemesterInfo();
+      const allCategories: SchoolCategory[] = ['rescom', 'fta', 'sar'];
+
+      const school_answers = state.operator.school_answers as ISchoolAnswer[];
+      const completed = school_answers
+        .filter(ans => dayjs(ans.completed_at).isAfter(start) || dayjs(ans.completed_at).isSame(start))
+        .map(ans => ans.category);
+
+      return allCategories.filter(cat => !completed.includes(cat));
+    },
+    isSchoolLocked(): boolean {
+      if (this.isVisitor) return false;
+
+      const baseDone = this.isProfileComplete && this.hasArsenal && this.hasLoadout;
+      if (!baseDone) return false;
+
+      const info = SchoolService.getSemesterInfo();
+      const missing = this.missingCertifications;
+      const hasCompletedAll = missing.length === 0;
+
+      const status = SchoolService.getIReadinessLevel(
+        info.daysRemaining,
+        hasCompletedAll,
+        info.isRecoveryPeriod
+      );
+
+      return !!status.force;
+    }
   },
 
   actions: {
@@ -57,7 +87,13 @@ export const useAuthStore = defineStore("auth", {
       try {
         this.user = await account.get();
         if (this.user) {
-          await this.fetchOperator();
+          const [op, school] = await Promise.all([
+            OperatorService.row(this.user.$id),
+            SchoolService.getAnswers(this.user.$id, SCHOOL_CATEGORIES)
+          ]);
+
+          this.operator = op || {} as IOperator;
+          this.operator.school_answers = school.all;
         }
       } catch (error) {
         this.user = null;

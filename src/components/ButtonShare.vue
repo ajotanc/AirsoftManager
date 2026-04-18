@@ -3,11 +3,11 @@
 </template>
 
 <script setup lang="ts">
-import { EVENT_TYPES, TEAM_NAME } from '@/constants/airsoft';
+import { EVENT_TYPES, TEAM_NAME, TEAM_TAG } from '@/constants/airsoft';
 import { cleanHtml, formatDate, limitWords } from '@/functions/utils';
-import type { IEvent, IParticipation, IVisitorParticipation } from '@/services/event';
+import type { IEvent, IParticipation, IGuestParticipation } from '@/services/event';
 import type { IOperator } from '@/services/operator';
-import type { IVisitor } from '@/services/visitor';
+import type { IGuest } from '@/services/guest';
 import Button from 'primevue/button';
 import { useToast } from 'primevue/usetoast';
 
@@ -35,7 +35,9 @@ const shareNative = async () => {
 
     const displayName = role === 'visitor'
       ? `${codename.trim()} (${team})`
-      : codename.trim();
+      : allow_visitors ?
+        `${codename.trim()} (${TEAM_TAG}) 🦅` :
+        codename.trim();
 
     if (is_finished) {
       if (checked_in) {
@@ -48,9 +50,9 @@ const shareNative = async () => {
     }
   }).join('\n');
 
-  const visitor_participations = eventData.visitor_participations as IVisitorParticipation<IVisitor>[];
-  const visitors = visitor_participations.map(({ checked_in, visitor: { codename, team } }, i) => {
-    const index = (i + 1).toString().padStart((visitor_participations.length.toString().length), '0');
+  const guest_participations = eventData.guest_participations as IGuestParticipation<IGuest>[];
+  const guests = guest_participations.map(({ checked_in, guest: { codename, team } }, i) => {
+    const index = (i + 1).toString().padStart((guest_participations.length.toString().length), '0');
 
     const displayName = `${codename.trim()} (${team})`;
 
@@ -65,7 +67,7 @@ const shareNative = async () => {
     }
   }).join('\n');
 
-  const effective = participations.length + visitor_participations.length;
+  const effective = participations.length + guest_participations.length;
   const newDescription = limitWords(cleanHtml(description), 60);
 
   const header = `*${title}*\n-------------------------------------------------`;
@@ -73,7 +75,7 @@ const shareNative = async () => {
   const info = `-------------------------------------------------\n⚠️ *Tipo:* ${EVENT_TYPES[type as keyof typeof EVENT_TYPES]}\n⚠️ *Efetivo Mínimo:* ${minimum_effective}\n⚠️ *Efetivo Atual:* ${effective}/${minimum_effective}`;
   const eventRule = rule ? `⚠️ *Regra:* ${rule}` : null;
   const mandatory = `-------------------------------------------------\n📢 *Obrigatório:*\n- AEG (ponta vermelha/laranja)\n- Pano vermelho\n- 4 ataduras / torniquetes\n- Óculos de proteção\n- Apito\n- Braçadeiras (Azul/Amarelo)`;
-  const forbidden = '-------------------------------------------------\n🚫 *PROIBIDO*\nO uso de fardas de instituições militares ou forças de segurança.'
+  const forbidden = '-------------------------------------------------\n🚫 *Proibido*\n- O uso de fardas de instituições militares ou forças de segurança.'
   const eventFinished = is_finished ? "-------------------------------------------------\n🎖️ *MISSÃO FINALIZADA!*" : null;
   const details = `-------------------------------------------------\n📅 *Data:* ${formatDate(date).toLocaleDateString('pt-BR')}\n⏰ *Horário:* ${startTime} às ${endTime}\n📍 *Local:* ${location}\n🗾 *Maps:* ${location_url}\n-------------------------------------------------`;
 
@@ -88,7 +90,7 @@ const shareNative = async () => {
     info,
     eventRule,
     operators ? `\n🪖 *Lista de Operadores:*\n${operators}` : null,
-    visitors ? `\n🪖 *Lista de Visitantes:*\n${visitors}` : null,
+    guests ? `\n🪖 *Lista de Convidados:*\n${guests}` : null,
     mandatoryItems,
     forbidden,
     eventFinished,
