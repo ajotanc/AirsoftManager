@@ -112,7 +112,7 @@
                                 class="w-full" @click="finalizeEvent" :disabled="isFinished" />
                             <Button label="Check-in QR Code" icon="pi pi-qrcode" class="w-full" severity="success"
                                 @click="openScannerDialog = true" :disabled="isFinished" />
-                            <Button label="Adicionar Visitante" icon="pi pi-plus" class="w-full" severity="info"
+                            <Button label="Adicionar Convidado" icon="pi pi-plus" class="w-full" severity="info"
                                 :disabled="availableVisitors.length === 0 || isFinished || !isConfirmed"
                                 @click="newVisitor" />
                         </div>
@@ -144,7 +144,7 @@
                                                 </span>
                                                 <small v-if="operator.role === 'guest'"
                                                     class="text-gray-500 uppercase text-xs">
-                                                    Visitante
+                                                    Convidado
                                                 </small>
                                             </div>
 
@@ -337,7 +337,7 @@
                                     :icon="!feedback.operator.avatar ? 'pi pi-user' : undefined" shape="circle" />
                                 <div class="flex flex-column">
                                     <span class="text-sm font-bold uppercase">{{ getShortName(feedback.operator.name)
-                                    }}</span>
+                                        }}</span>
                                     <span class="text-xs uppercase">{{ feedback.operator.codename }}</span>
                                 </div>
                             </div>
@@ -384,7 +384,7 @@
                         <template #option="slotProps">
                             <div class="flex flex-column">
                                 <span class="font-bold">{{ slotProps.option.name }} ({{ slotProps.option.codename
-                                }})</span>
+                                    }})</span>
                                 <small class="text-gray-500">Convidado por {{
                                     slotProps.option.operator.codename }}</small>
                             </div>
@@ -939,7 +939,7 @@ const addVisitorParcipations = async () => {
 const deleteVisitorParticipation = async (participationId: string, guest: IGuest) => {
     confirm.require({
         message: `Deseja remover o visitante ${guest.codename} da lista?`,
-        header: 'Remover Visitante',
+        header: 'Remover Convidado',
         acceptLabel: 'Sim',
         rejectLabel: 'Não',
         rejectProps: {
@@ -955,7 +955,7 @@ const deleteVisitorParticipation = async (participationId: string, guest: IGuest
             await EventService.deleteVisitorParticipation(participationId);
             guestParticipants.value = guestParticipants.value.filter(v => v.$id !== participationId);
 
-            toast.add({ severity: 'success', summary: 'Visitante removido da lista!', life: 3000 });
+            toast.add({ severity: 'success', summary: 'Convidado removido da lista!', life: 3000 });
         }
     });
 }
