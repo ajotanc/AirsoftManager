@@ -68,7 +68,7 @@
                 <template v-if="item.url && !item.disabled">
                   <a v-if="isExternal(item.url)" :href="item.url" target="_blank" v-ripple
                     class="flex align-items-center cursor-pointer p-2 border-round text-700 hover:surface-100 no-underline">
-                    <i :class="[item.icon, 'mr-3 text-xl']"></i>
+                    <i :class="[item.icon, 'mr-2 text-xl']"></i>
                     <span class="font-medium">{{ item.label }}</span>
                     <i class="ri-external-link-line ml-auto opacity-50" />
                   </a>
@@ -77,7 +77,7 @@
                     <a v-ripple
                       class="flex align-items-center cursor-pointer p-2 border-round text-700 hover:surface-100"
                       :class="{ 'bg-primary-50 text-primary font-bold': isActive }">
-                      <i :class="[item.icon, 'mr-3 text-xl']"></i>
+                      <i :class="[item.icon, 'mr-2 text-xl']"></i>
                       <span class="font-medium">{{ item.label }}</span>
                     </a>
                   </router-link>
@@ -92,7 +92,7 @@
                       <template v-if="sub.url && !sub.disabled">
                         <a v-if="isExternal(sub.url)" :href="sub.url" target="_blank" v-ripple
                           class="flex align-items-center cursor-pointer p-2 pl-4 border-round text-700 hover:surface-100 no-underline">
-                          <i :class="[sub.icon, 'mr-3']"></i>
+                          <i :class="[sub.icon, 'mr-2']"></i>
                           <span>{{ sub.label }}</span>
                           <i class="ri-external-link-line ml-auto opacity-50" />
                         </a>
@@ -100,7 +100,7 @@
                           class="no-underline">
                           <a v-ripple
                             class="flex align-items-center cursor-pointer p-2 pl-4 border-round text-700 hover:surface-100">
-                            <i :class="[sub.icon, 'mr-3']"></i>
+                            <i :class="[sub.icon, 'mr-2']"></i>
                             <span :class="{ 'text-primary font-bold': isActive }">{{ sub.label }}</span>
                           </a>
                         </router-link>
@@ -114,7 +114,7 @@
                             <template v-if="child.url">
                               <a v-if="isExternal(child.url)" :href="child.url" target="_blank" v-ripple
                                 class="flex align-items-center cursor-pointer p-2 pl-5 border-round text-700 hover:surface-100 no-underline">
-                                <i :class="[child.icon, 'mr-3 text-sm']"></i>
+                                <i :class="[child.icon, 'mr-2 text-sm']"></i>
                                 <span>{{ child.label }}</span>
                                 <i class="ri-external-link-line ml-auto opacity-50" />
                               </a>
@@ -122,7 +122,7 @@
                                 class="no-underline">
                                 <a v-ripple
                                   class="flex align-items-center cursor-pointer p-2 pl-5 border-round text-700 hover:surface-100">
-                                  <i :class="[child.icon, 'mr-3 text-sm']"></i>
+                                  <i :class="[child.icon, 'mr-2 text-sm']"></i>
                                   <span :class="{ 'text-primary font-bold': isActive }">{{ child.label }}</span>
                                 </a>
                               </router-link>

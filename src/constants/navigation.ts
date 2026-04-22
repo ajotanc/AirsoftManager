@@ -46,6 +46,7 @@ export const navItems = computed<AppMenuItem[]>(() => [
   {
     label: "Games",
     icon: "ri-gamepad-line",
+    visible: authStore.isAuthenticated,
     items: [
       { label: "Conquistas", icon: "ri-medal-line", url: "/game/badges", disabled },
       { label: "Ratings", icon: "ri-bookmark-3-line", url: "/game/ratings", disabled },
@@ -73,6 +74,7 @@ export const navItems = computed<AppMenuItem[]>(() => [
   {
     label: "Ajuda",
     icon: "ri-question-line",
+    visible: authStore.isAuthenticated,
     items: [
       { label: "Código de Conduta", icon: "ri-file-pdf-2-line", url: "https://docs.google.com/document/d/1xHYJ2ykv0pmuz9YVpoaHdn_Yw8j2y0exFLa204OKyRU/preview" },
       { label: "Regime Disciplinar", icon: "ri-file-pdf-2-line", url: "https://docs.google.com/document/d/1tKmugjzNvw2xJmgRGn7Av9M5LXu7emk0VGey_BuHtQw/preview" },

@@ -102,6 +102,7 @@ const router = createRouter({
             },
             {
               path: "school/quiz/:category/:id?",
+              name: "school-quiz",
               component: () => import("../views/private/school/Quiz.vue"),
             },
             {

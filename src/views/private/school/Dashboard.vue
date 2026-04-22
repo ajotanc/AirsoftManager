@@ -258,7 +258,10 @@ const openManual = (url: string) => {
 };
 
 const openTest = (category: string, id?: string) => {
-  router.push(`/administrative/school/quiz/${category}/${id}`);
+  router.push({
+    name: 'school-quiz',
+    params: { category, id }
+  });
 };
 
 const openHistory = async (category: string) => {
