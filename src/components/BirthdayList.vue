@@ -6,31 +6,27 @@
         <Skeleton width="100%" height="16rem" borderRadius="16px" />
       </div>
       <template v-else>
-        <Card class="h-full border-1 border-white-alpha-10 overflow-hidden shadow-3 m-2">
+        <Card class="border-1 border-white-alpha-10 overflow-hidden shadow-3 m-2">
           <template #content>
-
-            <a class="no-underline"
-              :href="isBirthdayToday(birthday.birth_date) ? `/happy-birthday/${birthday.$id}` : 'javascript:void(0);'">
-              <div class="wrapper">
-                <div v-if="isBirthdayToday(birthday.birth_date)"
-                  class="w-full flex justify-content-between align-items-center absolute top-0 right-0 p-3 z-2">
-                  <Tag value="Feliz Aniversário!" severity="warn" />
-                  <i class="pi pi-gift text-base md:text-xl text-yellow-50"></i>
-                </div>
-
-                <Image v-if="birthday.avatar && isValidUrl(birthday.avatar)" :src="birthday.avatar"
-                  :alt="birthday.codename" class="avatar" />
-                <div v-else class="avatar">
-                  <i class="pi pi-image text-3xl text-blue-200"></i>
-                </div>
-                <div class="content">
-                  <span class="text-xs md:text-base font-bold text-yellow-500">{{ birthday.codename }}</span>
-                  <span class="text-base md:text-2xl font-bold">{{ getShortName(birthday.name) }}</span>
-                  <span class="text-xs md:text-base">{{ formatDate(birthday.birth_date).toLocaleDateString('pt-BR')
-                  }}</span>
-                </div>
+            <div class="wrapper" @click="goToBirthday(birthday)">
+              <div v-if="isBirthdayToday(birthday.birth_date)"
+                class="w-full flex justify-content-between align-items-center absolute top-0 right-0 p-3 z-2">
+                <Tag value="Feliz Aniversário!" severity="warn" />
+                <i class="pi pi-gift text-base md:text-xl text-yellow-50"></i>
               </div>
-            </a>
+
+              <Image v-if="birthday.avatar && isValidUrl(birthday.avatar)" :src="birthday.avatar"
+                :alt="birthday.codename" class="avatar" />
+              <div v-else class="avatar">
+                <i class="pi pi-image text-3xl text-blue-200"></i>
+              </div>
+              <div class="content">
+                <span class="text-xs md:text-base font-bold text-yellow-500">{{ birthday.codename }}</span>
+                <span class="text-base md:text-2xl font-bold">{{ getShortName(birthday.name) }}</span>
+                <span class="text-xs md:text-base">{{ formatDate(birthday.birth_date).toLocaleDateString('pt-BR')
+                }}</span>
+              </div>
+            </div>
           </template>
         </Card>
       </template>
@@ -47,6 +43,7 @@ import { formatDate, isBirthdayToday, getShortName } from '@/functions/utils';
 import { OperatorService, type IOperator } from '@/services/operator';
 import { useToast } from 'primevue';
 import Empty from './Empty.vue';
+import router from '@/router';
 
 const allBirthdays = ref<IOperator[]>([]);
 
@@ -98,6 +95,10 @@ const loadServices = async () => {
   }
 };
 
+const goToBirthday = (operator: IOperator) => {
+  !isBirthdayToday(operator.birth_date) && router.push({ name: 'happy-birthday', params: { id: operator.$id } });
+};
+
 const dtValue = computed(() => {
   return loading.value ? new Array(5).fill({}) : allBirthdays.value;
 });
@@ -105,21 +106,27 @@ const dtValue = computed(() => {
 </script>
 
 <style scoped>
+:deep(.p-card-body) {
+  padding: 0;
+}
+
 .wrapper {
   position: relative;
   overflow: hidden;
-  border-radius: var(--p-card-border-radius);
-  background-color: var(--p-blue-300);
+  border-radius: inherit;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  -webkit-mask-image: -webkit-radial-gradient(white, black);
+  mask-image: -webkit-radial-gradient(white, black);
 }
 
 .wrapper::after {
   content: '';
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  inset: 0;
   background: linear-gradient(to bottom, transparent 20%, rgba(0, 0, 0, 0.8) 80%);
+  border-radius: inherit;
 }
 
 .avatar {
@@ -128,7 +135,7 @@ const dtValue = computed(() => {
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: var(--p-blue-300);
+  background-color: var(--p-surface-800);
 }
 
 .avatar img {
@@ -140,26 +147,14 @@ const dtValue = computed(() => {
 
 .content {
   position: absolute;
-  inset: auto 0 0 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
   display: flex;
   flex-direction: column;
   z-index: 1;
   color: white;
   text-transform: uppercase;
-  padding: 1rem;
-  overflow: hidden;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-:deep(.p-card-body) {
-  padding: 0;
-}
-
-:deep(.avatar img) {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
+  padding: 1.5rem 1rem 1rem 1rem;
 }
 </style>

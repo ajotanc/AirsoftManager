@@ -1,5 +1,5 @@
 <template>
-  <div class="carousel-container w-full overflow-hidden p-2">
+  <div class="carousel-container w-full overflow-hidden">
     <Carousel :key="dtValue.length" :circular="dtValue.length > 12" :showNavigators="dtValue.length > 1"
       :value="dtValue" :numVisible="12" :numScroll="1" :responsiveOptions="responsiveOptions" :autoplayInterval="4000"
       :showIndicators="false">

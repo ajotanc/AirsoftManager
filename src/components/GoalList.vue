@@ -43,7 +43,8 @@
                 <div class="flex flex-column">
                   <div class="flex justify-content-between text-xs mb-1">
                     <span class="text-left">Arrecadado: {{ formatCurrency(data.current_amount) }}</span>
-                    <span class="text-right font-bold text-blue-500">Meta: {{ formatCurrency(data.target_amount) }}</span>
+                    <span class="text-right font-bold text-blue-500">Meta: {{ formatCurrency(data.target_amount)
+                      }}</span>
                   </div>
                   <ProgressBar :value="calculatePercent(data)" :showValue="false" style="height: 0.5rem;"
                     :pt="{ value: { style: { backgroundColor: 'var(--p-yellow-800)' } } }" />
@@ -199,3 +200,14 @@ const saveContribute = async ({ file, amount }: { file: File, amount: number }) 
 };
 
 </script>
+
+<style scoped>
+:deep(.p-card-body),
+:deep(.p-card-content) {
+  flex: 1;
+}
+
+:deep(.p-carousel-item){
+  padding-bottom: 1rem;
+}
+</style>

@@ -78,66 +78,61 @@
     </div>
 
     <Dialog v-model:visible="uniformDialog" header="Detalhes do Loadout" :modal="true"
-      :style="{ width: '100%', maxWidth: '368px' }" class="m-3">
-      <div class="grid">
-        <div class="col-12 pb-0">
-          <div class="flex flex-column gap-3">
-            <FloatLabel variant="in">
-              <Select :options="UNIFORMS_OPTIONS_FILTER" optionLabel="label" optionValue="value" name="type_uniform"
-                v-model="selectedUniform.type_uniform" class="w-full" :disabled="!!selectedUniform.$id" fluid />
-              <label>Uniformes</label>
-            </FloatLabel>
-            <div
-              class="inventory flex flex-column gap-3 relative overflow-hidden border-gray-600 border-1 border-round-lg relative p-3">
-              <div class=" flex justify-content-between align-items-center">
-                <span class="font-bold text-sm uppercase tracking-widest">Equipamentos</span>
-                <Tag :value="`${activeCount}/${totalMandatoryItems}`" severity="warn" />
-              </div>
-              <Image :src="getTypeUniform()" alt="Operador"
-                :imageClass="['absolute w-full left-50 opacity-40 transition-all transition-duration-500', { 'z-1 opacity-100': shownUniform }]"
-                imageStyle="transform: translate(-50%, -5%);" />
-              <div
-                :class="['flex justify-content-center align-items-center relative transition-all transition-duration-500', { 'opacity-40': shownUniform }]">
-                <div class="gap-3" style="display: grid; grid-template-columns: repeat(3, 1fr);">
-                  <div v-for="(item, index) in GRID_LAYOUT" :key="index">
-                    <div v-if="['rating', 'patch'].includes(item)"
-                      class="flex justify-content-center align-items-center border-solid text-gray-700 border-gray-600 border-1 border-round-lg bg-black-alpha-20 overflow-hidden square">
-                      <Image preview v-if="isStandard" :src="getImage(item)" :alt="item"
-                        imageClass="p-2 transition-all transition-duration-500 square" style="scale: 1.1;" width="80"
-                        height="80" />
-                      <i v-else class="pi pi-minus-circle"></i>
-                    </div>
+      :style="{ width: '100%', maxWidth: '368px', overflow: 'hidden', maxHeight: '100%' }" class="m-3">
+      <div class="flex flex-column gap-3">
+        <FloatLabel variant="in">
+          <Select :options="UNIFORMS_OPTIONS_FILTER" optionLabel="label" optionValue="value" name="type_uniform"
+            v-model="selectedUniform.type_uniform" class="w-full" :disabled="!!selectedUniform.$id" fluid />
+          <label>Uniformes</label>
+        </FloatLabel>
+        <div
+          class="inventory flex flex-column gap-3 relative overflow-hidden border-gray-600 border-1 border-round-lg relative p-3">
+          <div class=" flex justify-content-between align-items-center">
+            <span class="font-bold text-sm uppercase tracking-widest">Equipamentos</span>
+            <Tag :value="`${activeCount}/${totalMandatoryItems}`" severity="warn" />
+          </div>
+          <Image :src="getTypeUniform()" alt="Operador"
+            :imageClass="['absolute w-full left-50 opacity-40 transition-all transition-duration-500', { 'z-1 opacity-100': shownUniform }]"
+            imageStyle="transform: translate(-50%, -5%);" />
+          <div
+            :class="['flex justify-content-center align-items-center relative transition-all transition-duration-500', { 'opacity-40': shownUniform }]">
+            <div class="gap-3" style="display: grid; grid-template-columns: repeat(3, 1fr);">
+              <div v-for="(item, index) in GRID_LAYOUT" :key="index">
+                <div v-if="['rating', 'patch'].includes(item)"
+                  class="flex justify-content-center align-items-center border-solid text-gray-700 border-gray-600 border-1 border-round-lg bg-black-alpha-20 overflow-hidden square">
+                  <Image preview v-if="isStandard" :src="getImage(item)" :alt="item"
+                    imageClass="p-2 transition-all transition-duration-500 square" style="scale: 1.1;" width="80"
+                    height="80" />
+                  <i v-else class="pi pi-minus-circle"></i>
+                </div>
 
-                    <div v-else-if="isException(item, selectedUniform.type_uniform)"
-                      class="flex justify-content-center align-items-center border-solid text-gray-700 border-gray-600 border-1 border-round-lg bg-black-alpha-20 overflow-hidden square">
-                      <i class="pi pi-minus-circle"></i>
-                    </div>
+                <div v-else-if="isException(item, selectedUniform.type_uniform)"
+                  class="flex justify-content-center align-items-center border-solid text-gray-700 border-gray-600 border-1 border-round-lg bg-black-alpha-20 overflow-hidden square">
+                  <i class="pi pi-minus-circle"></i>
+                </div>
 
-                    <div v-else
-                      class="flex border-solid border-1 border-round-lg bg-black-alpha-20 transition-all transition-duration-500 cursor-pointer square"
-                      :class="[
-                        isEquipped(item)
-                          ? 'border-yellow-800'
-                          : 'border-gray-600 hover:border-yellow-400'
-                      ]" @click="toggleItem(item)">
-                      <Image :src="getImage(item)" :alt="item" class="flex overflow-hidden"
-                        :imageClass="['p-2 transition-all transition-duration-500 transition-ease-in-out square']"
-                        :imageStyle="{
-                          filter: isEquipped(item) ? 'none' : 'grayscale(100%)',
-                          scale: isEquipped(item) ? '1.1' : '1',
-                        }" width="80" height="80" />
-                    </div>
-                  </div>
+                <div v-else
+                  class="flex border-solid border-1 border-round-lg bg-black-alpha-20 transition-all transition-duration-500 cursor-pointer square"
+                  :class="[
+                    isEquipped(item)
+                      ? 'border-yellow-800'
+                      : 'border-gray-600 hover:border-yellow-400'
+                  ]" @click="toggleItem(item)">
+                  <Image :src="getImage(item)" :alt="item" class="flex overflow-hidden"
+                    :imageClass="['p-2 transition-all transition-duration-500 transition-ease-in-out square']"
+                    :imageStyle="{
+                      filter: isEquipped(item) ? 'none' : 'grayscale(100%)',
+                      scale: isEquipped(item) ? '1.1' : '1',
+                    }" width="80" height="80" />
                 </div>
               </div>
-              <div class="flex justify-content-between align-items-center gap-2 z-1">
-                <Button :icon="shownUniform ? 'pi pi-eye-slash' : 'pi pi-eye'" text
-                  @click="shownUniform = !shownUniform" />
-                <div class="flex gap-2">
-                  <Button label="Cancelar" outlined @click="uniformDialog = false" />
-                  <Button type="submit" label="Salvar" @click="saveUniform" />
-                </div>
-              </div>
+            </div>
+          </div>
+          <div class="flex justify-content-between align-items-center gap-2 z-1">
+            <Button :icon="shownUniform ? 'pi pi-eye-slash' : 'pi pi-eye'" text @click="shownUniform = !shownUniform" />
+            <div class="flex gap-2">
+              <Button label="Cancelar" outlined @click="uniformDialog = false" />
+              <Button type="submit" label="Salvar" @click="saveUniform" />
             </div>
           </div>
         </div>
@@ -419,20 +414,6 @@ const isException = (itemKey: string, uniformType: number) => {
 </script>
 
 <style scoped>
-.inventory::after {
-  content: '';
-  width: 100%;
-  height: 100%;
-  position: absolute;
-  background: rgba(0, 0, 0, 0.1);
-  /* background: url("/images/loadouts/background.webp") center center / cover no-repeat;
-  mask-image: linear-gradient(to bottom, black 60%, transparent 100%); */
-  z-index: -1;
-  opacity: 0.8;
-  top: 0;
-  left: 0
-}
-
 .square {
   width: 80px;
   height: 80px;

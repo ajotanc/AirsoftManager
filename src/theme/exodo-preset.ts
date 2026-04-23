@@ -131,6 +131,9 @@ const ExodoPreset = definePreset(Aura, {
       }
     },
     carousel: {
+      indicatorList: {
+        padding: '0.5rem 0 0',
+      },
       indicator: {
         width: '0.5rem',
         height: '0.5rem',

@@ -1,11 +1,11 @@
 <template>
-    <div class="relative overflow-hidden flex align-items-center justify-content-center h-full p-4">
+    <div class="relative overflow-hidden flex align-items-center justify-content-center flex-1 p-3">
         <div class="happy-birthday"></div>
         <BirthdaySkeleton v-if="loading" />
         <div v-else class="max-w-30rem w-full text-center relative">
             <p v-if="loading" class="font-bold">Buscando dados no sistema...</p>
             <div v-else-if="isBirthdayToday(operator.birth_date)">
-                <Avatar :image="operator.avatar" style="width: 6rem; height: 6rem;" shape="circle" />
+                <Avatar :image="operator.avatar" :icon="!operator.avatar ? 'pi pi-user' : undefined" shape="circle" class="w-6rem h-6rem shadow-3" />
                 <h1 class="text-2xl font-bold mb-3">{{ operator.codename }}, missão de aniversário autorizada e em
                     curso!
                 </h1>

@@ -22,10 +22,7 @@
 
 * {
   font-family: var(--font-family);
-  box-sizing: border-box;
   font-optical-sizing: auto;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
 body {

@@ -56,7 +56,6 @@
       </div>
       <div class="col-12">
         <Card>
-          <template #title>Base Militar</template>
           <template #content>
             <OperatorList />
           </template>

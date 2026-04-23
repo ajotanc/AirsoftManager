@@ -127,4 +127,8 @@ const dtValue = computed(() => {
 :deep(.p-card-content) {
     flex: 1;
 }
+
+:deep(.p-carousel-item){
+  padding-bottom: 1rem;
+}
 </style>

@@ -83,6 +83,10 @@ export const navItems = computed<AppMenuItem[]>(() => [
         icon: "ri-link",
         items: [
           {
+            label: "Cursos",
+            icon: "ri-graduation-cap-line",
+            url: "https://drive.google.com/drive/folders/1p3iEL5luK2QF7wT7DxRhqJOW_v1UwzNO?usp=sharing"
+          }, {
             label: "Equipamentos",
             icon: "ri-file-excel-2-line",
             url: "https://docs.google.com/spreadsheets/d/1DaZQZVTGFtRX9wUaXwXqKtHkJQch_Sy2jtnS9oLlANU/edit?usp=sharing"

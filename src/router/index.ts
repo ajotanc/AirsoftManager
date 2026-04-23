@@ -134,6 +134,7 @@ const router = createRouter({
         },
         {
           path: "/happy-birthday/:id",
+          name: "happy-birthday",
           component: () => import("../views/private/HappyBirthday.vue"),
         },
         {

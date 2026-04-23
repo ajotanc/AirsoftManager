@@ -50,8 +50,8 @@
                   <div class="flex flex-column gap-2">
                     <span class="font-bold text-800">Material de Estudo:</span>
                     <div class="flex flex-column">
-                      <span class="text-600 cursor-pointer py-1">
-                        <i class="ri-movie-line text-lg"></i> <span>Vídeos</span>
+                      <span class="text-600 cursor-pointer py-1" @click="openDrive">
+                        <i class="ri-movie-line text-lg"></i> <span>Cursos</span>
                       </span>
                       <span @click="openManual(module.url!)" class="text-600 cursor-pointer py-1">
                         <i class="ri-file-pdf-2-line text-lg"></i> <span>Manual</span>
@@ -268,10 +268,13 @@ const openHistory = async (category: string) => {
   historyDialog.value = true;
   history.value = history.value.filter(h => h.category === category);
 };
+
+const openDrive = () => {
+  window.open('https://drive.google.com/drive/folders/1p3iEL5luK2QF7wT7DxRhqJOW_v1UwzNO?usp=sharing', '_blank');
+};
 </script>
 
 <style scoped>
-/* Transforma a barra de progresso em vermelha caso ele reprove */
 :deep(.p-progressbar-danger .p-progressbar-value) {
   background-color: var(--red-500) !important;
 }
