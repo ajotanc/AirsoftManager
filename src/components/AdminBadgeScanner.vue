@@ -1,13 +1,8 @@
 <template>
   <Card>
-    <template #title>
-      <div class="flex align-items-center gap-2 text-primary">
-        <i class="ri-radar-line text-2xl"></i>
-        <span>Sincronização Tática de Conquistas</span>
-      </div>
-    </template>
+    <template #title>Sincronização Tática de Conquistas</template>
     <template #content>
-      <p class="mb-4 text-secondary">
+      <p class="m-0 mb-3 text-secondary">
         Este scanner analisa o comportamento, loadouts, financeiro e status de todos os
         operadores do <strong>{{ TEAM_NAME }}</strong> para atribuir novas medalhas acumulativas.
       </p>

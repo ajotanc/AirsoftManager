@@ -63,14 +63,8 @@
         </Card>
       </div>
       <div v-if="isAdmin" class="col-12">
-        <AdminBadgeScanner />
         <Card class="mt-2">
-          <template #title>
-            <div class="flex align-items-center gap-2 text-primary">
-              <i class="ri-id-card-line text-2xl"></i>
-              <span>Verificar Operador</span>
-            </div>
-          </template>
+          <template #title>Verificar Operador</template>
           <template #content>
             <Button label="QR Code" icon="pi pi-qrcode" class="camera-switch p-button-outlined mt-2"
               @click="openScannerDialog = true" />
@@ -123,7 +117,6 @@ import Button from "primevue/button";
 import Level from "@/components/operators/Level.vue";
 import EventList from "@/components/EventList.vue";
 import BirthdayList from "@/components/BirthdayList.vue";
-import AdminBadgeScanner from "@/components/AdminBadgeScanner.vue";
 import OperatorList from "@/components/operators/List.vue";
 import GoalList from "@/components/GoalList.vue";
 import ArenaSchedule from "@/components/ArenaSchedule.vue";

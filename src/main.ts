@@ -16,6 +16,7 @@ import dayjs from "dayjs";
 import { useOperator } from "@/composables/useOperator";
 import ExodoPreset from "./theme/exodo-preset";
 
+import '@fontsource-variable/google-sans-flex/full.css';
 import "primeicons/primeicons.css";
 import "primeflex/primeflex.css";
 import "./style.css";

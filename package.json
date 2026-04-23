@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@brazilian-utils/brazilian-utils": "^2.0.0",
+    "@fontsource-variable/google-sans-flex": "^5.2.3",
     "@netlify/edge-functions": "^3.0.3",
     "@primevue/forms": "^4.5.3",
     "@primevue/themes": "^4.5.3",

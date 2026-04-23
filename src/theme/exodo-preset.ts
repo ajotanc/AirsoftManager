@@ -124,7 +124,18 @@ const ExodoPreset = definePreset(Aura, {
           },
         }
       }
-    }
+    },
+    card: {
+      body: {
+        padding: "1rem"
+      }
+    },
+    carousel: {
+      indicator: {
+        width: '0.5rem',
+        height: '0.5rem',
+      }
+    },
   },
 });
 

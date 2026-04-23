@@ -105,9 +105,6 @@ export default defineConfig(({ mode }) => {
       "process.env": {},
       global: "window",
     },
-    server: {
-      allowedHosts: ['6113-170-245-179-41.ngrok-free.app']
-    },
     resolve: {
       alias: {
         "@": fileURLToPath(new URL("./src", import.meta.url)),

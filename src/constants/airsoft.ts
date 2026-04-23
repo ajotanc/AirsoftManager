@@ -8,7 +8,7 @@ export const DUE_DATE = Number.parseInt(import.meta.env.VITE_DUE_DATE, 10);
 
 export const MIN_COMPLETE_UNIFORMS = 3;
 export const EXPERIENCE_PER_LEVEL = 200;
-export const MIN_VOTES_REQUIRED = 8;
+export const MIN_VOTES_REQUIRED = 6;
 export const DEADLINE_HOUR = 22;
 
 export const EVENT_TYPES = {
@@ -308,6 +308,10 @@ export const SKILL_ATTRIBUTES: SkillAttribute[] = [
   { field: "communication", header: "Comunicação", tag: "COM" },
   { field: "mobility", header: "Mobilidade", tag: "MOB" },
   { field: "stealth", header: "Furtividade", tag: "FUR" },
+  // { field: "awareness", header: "Percepção", tag: "PER" },
+  // { field: "aggressiveness", header: "Ímpeto", tag: "IMP" },
+  // { field: "stamina", header: "Resistência", tag: "RES" },
+  // { field: "support", header: "Suporte", tag: "SUP" },
 ];
 
 export const RADAR_OPTIONS: ChartOptions<"radar"> = {

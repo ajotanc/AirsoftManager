@@ -1,55 +1,54 @@
 <template>
-    <div class="carousel-container w-full overflow-hidden px-2">
-        <Carousel :key="dtValue.length" :circular="dtValue.length > 5" :showNavigators="dtValue.length > 1"
-            :value="dtValue" :numVisible="5" :numScroll="1" :responsiveOptions="responsiveOptions"
-            :autoplayInterval="4000">
+    <div class="carousel-container w-full">
+        <Carousel :key="dtValue.length" :circular="dtValue.length > 5" :showNavigators="false" :value="dtValue"
+            :numVisible="5" :numScroll="1" :responsiveOptions="responsiveOptions" :autoplayInterval="4000">
             <template #item="{ data: event }">
-                <div v-if="loading" class="flex gap-2 p-2">
+                <div v-if="loading" class="flex gap-2">
                     <Skeleton width="100%" height="16rem" borderRadius="16px" />
                 </div>
                 <template v-else>
-                    <div class="p-2 h-full">
-                        <Card class="h-full border-1 border-white-alpha-10 overflow-hidden flex flex-column">
-                            <template #header>
-                                <div class="relative">
-                                    <Tag :value="EVENT_TYPES[event.type as keyof typeof EVENT_TYPES] || 'Padrão'"
-                                        :severity="severityEvent(event.type)" class="absolute top-0 left-0 m-2" />
-                                    <Tag v-if="event.is_finished" icon="pi pi-check-circle" value="Finalizado"
-                                        severity="warn" class="absolute top-0 right-0 m-2 z-2" />
-                                    <div v-if="event.thumbnail && isValidUrl(event.thumbnail)" class="w-full" :style="{
-                                        height: '10rem',
-                                        backgroundImage: `url(${event.thumbnail})`,
-                                        backgroundSize: 'cover',
-                                        backgroundPosition: 'center'
-                                    }" />
-                                    <div v-else class="flex align-items-center justify-content-center bg-gray-800"
-                                        style="height: 10rem;">
-                                        <i class="pi pi-image text-3xl text-gray-600"></i>
-                                    </div>
+                    <Card class="h-full border-1 border-white-alpha-10 flex flex-column overflow-hidden shadow-3 m-2">
+                        <template #header>
+                            <div class="relative">
+                                <Tag :value="EVENT_TYPES[event.type as keyof typeof EVENT_TYPES] || 'Padrão'"
+                                    :severity="severityEvent(event.type)" class="absolute top-0 left-0 m-2" />
+                                <Tag v-if="event.is_finished" icon="pi pi-check-circle" value="Finalizado"
+                                    severity="warn" class="absolute top-0 right-0 m-2 z-2" />
+                                <div v-if="event.thumbnail && isValidUrl(event.thumbnail)" class="w-full" :style="{
+                                    height: '10rem',
+                                    backgroundImage: `url(${event.thumbnail})`,
+                                    backgroundSize: 'cover',
+                                    backgroundPosition: 'center'
+                                }" />
+                                <div v-else class="flex align-items-center justify-content-center bg-gray-800"
+                                    style="height: 10rem;">
+                                    <i class="pi pi-image text-3xl text-gray-600"></i>
                                 </div>
-                            </template>
+                            </div>
+                        </template>
 
-                            <template #title>
-                                <div class="text-lg font-bold text-gold-500 line-clamp-1">
-                                    <i :class="['text-xl', event.is_finished ? 'ri-checkbox-fill text-green-400': 'ri-checkbox-indeterminate-fill text-red-600']"></i> {{ event.title }}
-                                </div>
-                            </template>
+                        <template #title>
+                            <div class="text-lg font-bold text-gold-500 line-clamp-1">
+                                <i
+                                    :class="['text-xl', event.is_finished ? 'ri-checkbox-fill text-green-400' : 'ri-checkbox-indeterminate-fill text-red-600']"></i>
+                                {{ event.title }}
+                            </div>
+                        </template>
 
-                            <template #content>
-                                <div class="flex flex-column gap-1 text-sm text-gray-400">
-                                    <span><i class="pi pi-map-marker mr-1 text-xs"></i>{{ event.location }}</span>
-                                    <span><i class="pi pi-calendar mr-1 text-xs text-gray-400"></i>{{
-                                        dayjs(event.date).format('DD/MM/YYYY') }}</span>
-                                </div>
-                            </template>
-                            <template #footer>
-                                <div class="mt-auto">
-                                    <Button label="Ver Missão" icon="pi pi-search" class="w-full p-button-sm"
-                                        @click="goToEvent(event.$id)" />
-                                </div>
-                            </template>
-                        </Card>
-                    </div>
+                        <template #content>
+                            <div class="flex flex-column gap-1 text-sm text-gray-400">
+                                <span><i class="pi pi-map-marker mr-1 text-xs"></i>{{ event.location }}</span>
+                                <span><i class="pi pi-calendar mr-1 text-xs text-gray-400"></i>{{
+                                    dayjs(event.date).format('DD/MM/YYYY') }}</span>
+                            </div>
+                        </template>
+                        <template #footer>
+                            <div class="mt-auto">
+                                <Button label="Ver Missão" icon="pi pi-search" class="w-full p-button-sm"
+                                    @click="goToEvent(event.$id)" />
+                            </div>
+                        </template>
+                    </Card>
                 </template>
             </template>
             <template #empty>
@@ -122,3 +121,10 @@ const dtValue = computed(() => {
 });
 
 </script>
+
+<style scoped>
+:deep(.p-card-body),
+:deep(.p-card-content) {
+    flex: 1;
+}
+</style>

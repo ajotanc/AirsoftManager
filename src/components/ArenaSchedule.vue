@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-column md:flex-row gap-3">
-    <DatePicker v-model="selectedDate" inline :minDate="minDate" class="w-full lg:w-4 xl:w-3" fluid>
+    <DatePicker v-model="selectedDate" inline :minDate="minDate">
       <template #date="slotProps">
         <span :class="{ 'not-schedule': !hasSchedule(slotProps.date), 'has-schedule': hasSchedule(slotProps.date) }">
           {{ slotProps.date.day }}

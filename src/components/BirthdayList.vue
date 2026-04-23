@@ -1,40 +1,38 @@
 <template>
-  <Carousel :key="dtValue.length" :circular="dtValue.length > 5" :showNavigators="dtValue.length > 1" :value="dtValue"
+  <Carousel :key="dtValue.length" :circular="dtValue.length > 5" :showNavigators="false" :value="dtValue"
     :numVisible="5" :numScroll="1" :responsiveOptions="responsiveOptions" :autoplayInterval="4000">
     <template #item="{ data: birthday }">
-      <div v-if="loading" class="flex gap-2 p-2">
+      <div v-if="loading" class="flex gap-2">
         <Skeleton width="100%" height="16rem" borderRadius="16px" />
       </div>
       <template v-else>
-        <div class="p-2 h-full">
-          <Card class="h-full border-1 border-white-alpha-10 overflow-hidden flex flex-column">
-            <template #content>
+        <Card class="h-full border-1 border-white-alpha-10 overflow-hidden shadow-3 m-2">
+          <template #content>
 
-              <a class="no-underline"
-                :href="isBirthdayToday(birthday.birth_date) ? `/happy-birthday/${birthday.$id}` : 'javascript:void(0);'">
-                <div class="wrapper">
-                  <div v-if="isBirthdayToday(birthday.birth_date)"
-                    class="w-full flex justify-content-between align-items-center absolute top-0 right-0 p-3 z-2">
-                    <Tag value="Feliz Aniversário!" severity="warn" />
-                    <i class="pi pi-gift text-base md:text-xl text-yellow-50"></i>
-                  </div>
-
-                  <Image v-if="birthday.avatar && isValidUrl(birthday.avatar)" :src="birthday.avatar"
-                    :alt="birthday.codename" class="avatar" />
-                  <div v-else class="avatar">
-                    <i class="pi pi-image text-3xl text-blue-200"></i>
-                  </div>
-                  <div class="content">
-                    <span class="text-xs md:text-base font-bold text-yellow-500">{{ birthday.codename }}</span>
-                    <span class="text-base md:text-2xl font-bold">{{ getShortName(birthday.name) }}</span>
-                    <span class="text-xs md:text-base">{{ formatDate(birthday.birth_date).toLocaleDateString('pt-BR')
-                    }}</span>
-                  </div>
+            <a class="no-underline"
+              :href="isBirthdayToday(birthday.birth_date) ? `/happy-birthday/${birthday.$id}` : 'javascript:void(0);'">
+              <div class="wrapper">
+                <div v-if="isBirthdayToday(birthday.birth_date)"
+                  class="w-full flex justify-content-between align-items-center absolute top-0 right-0 p-3 z-2">
+                  <Tag value="Feliz Aniversário!" severity="warn" />
+                  <i class="pi pi-gift text-base md:text-xl text-yellow-50"></i>
                 </div>
-              </a>
-            </template>
-          </Card>
-        </div>
+
+                <Image v-if="birthday.avatar && isValidUrl(birthday.avatar)" :src="birthday.avatar"
+                  :alt="birthday.codename" class="avatar" />
+                <div v-else class="avatar">
+                  <i class="pi pi-image text-3xl text-blue-200"></i>
+                </div>
+                <div class="content">
+                  <span class="text-xs md:text-base font-bold text-yellow-500">{{ birthday.codename }}</span>
+                  <span class="text-base md:text-2xl font-bold">{{ getShortName(birthday.name) }}</span>
+                  <span class="text-xs md:text-base">{{ formatDate(birthday.birth_date).toLocaleDateString('pt-BR')
+                  }}</span>
+                </div>
+              </div>
+            </a>
+          </template>
+        </Card>
       </template>
     </template>
     <template #empty>
@@ -142,15 +140,16 @@ const dtValue = computed(() => {
 
 .content {
   position: absolute;
-  overflow: hidden;
+  inset: auto 0 0 0;
   display: flex;
   flex-direction: column;
   z-index: 1;
   color: white;
   text-transform: uppercase;
-  bottom: 0;
-  left: 0;
   padding: 1rem;
+  overflow: hidden;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 :deep(.p-card-body) {

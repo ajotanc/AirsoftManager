@@ -1,71 +1,69 @@
 <template>
   <div class="carousel-container w-full overflow-hidden px-2">
-    <Carousel :key="dtValue.length" :circular="dtValue.length > 5" :showNavigators="dtValue.length > 1" :value="dtValue"
+    <Carousel :key="dtValue.length" :circular="dtValue.length > 5" :showNavigators="false" :value="dtValue"
       :numVisible="5" :numScroll="1" :responsiveOptions="responsiveOptions" :autoplayInterval="4000">
 
       <template #item="{ data }">
-        <div v-if="loading" class="p-2">
+        <div v-if="loading" class="flex p-2">
           <Skeleton width="100%" height="20rem" borderRadius="16px" />
         </div>
 
         <template v-else>
-          <div class="p-2 h-full">
-            <Card class="h-full border-1 border-white-alpha-10 overflow-hidden shadow-3">
-              <template #header>
-                <div class="relative">
-                  <div class="absolute top-0 right-0 m-2 flex gap-2">
-                    <Tag v-if="data.isExpired" value="Finalizado" severity="danger" class="shadow-4" />
-                    <Tag :value="`${calculatePercent(data)}%`" severity="warn" class="shadow-3" />
-                  </div>
-
-                  <div v-if="data.image_url && isValidUrl(data.image_url)" class="w-full" :style="{
-                    height: '10rem',
-                    backgroundImage: `url(${data.image_url})`,
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center'
-                  }" />
-                  <div v-else class="flex align-items-center justify-content-center bg-gray-800" style="height: 10rem;">
-                    <i class="pi pi-image text-4xl text-gray-700"></i>
-                  </div>
+          <Card class="h-full border-1 border-white-alpha-10 overflow-hidden shadow-3 m-2">
+            <template #header>
+              <div class="relative">
+                <div class="absolute top-0 right-0 m-2 flex gap-2">
+                  <Tag v-if="data.isExpired" value="Finalizado" severity="danger" class="shadow-4" />
+                  <Tag :value="`${calculatePercent(data)}%`" severity="warn" class="shadow-3" />
                 </div>
-              </template>
 
-              <template #title>
-                <div class="flex flex-column gap-1">
-                  <span class="text-lg font-bold text-gold-500 line-clamp-1">{{ data.title }}</span>
-                  <p class="text-sm font-normal text-gray-500 line-clamp-2 m-0">
-                    {{ data.description }}
-                  </p>
+                <div v-if="data.image_url && isValidUrl(data.image_url)" class="w-full" :style="{
+                  height: '10rem',
+                  backgroundImage: `url(${data.image_url})`,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center'
+                }" />
+                <div v-else class="flex align-items-center justify-content-center bg-gray-800" style="height: 10rem;">
+                  <i class="pi pi-image text-4xl text-gray-700"></i>
                 </div>
-              </template>
+              </div>
+            </template>
 
-              <template #content>
-                <div class="flex flex-column gap-3 text-gray-500 mt-1">
-                  <div class="flex flex-column">
-                    <div class="flex justify-content-between text-xs mb-1">
-                      <span>Arrecadado: {{ formatCurrency(data.current_amount) }}</span>
-                      <span class="font-bold text-blue-500">Meta: {{ formatCurrency(data.target_amount) }}</span>
-                    </div>
-                    <ProgressBar :value="calculatePercent(data)" :showValue="false" style="height: 0.5rem;"
-                      :pt="{ value: { style: { backgroundColor: 'var(--p-yellow-800)' } } }" />
-                  </div>
+            <template #title>
+              <div class="flex flex-column gap-1">
+                <span class="text-lg font-bold text-gold-500 line-clamp-1">{{ data.title }}</span>
+                <p class="text-sm font-normal text-gray-500 line-clamp-2 m-0">
+                  {{ data.description }}
+                </p>
+              </div>
+            </template>
 
-                  <div class="flex align-items-center text-xs text-gray-500 italic">
-                    <i class="ri-calendar-line mr-1"></i>
-                    Expira em: {{ dayjs(data.deadline).format('DD/MM/YYYY') }}
+            <template #content>
+              <div class="flex flex-column gap-3 text-gray-500 mt-1">
+                <div class="flex flex-column">
+                  <div class="flex justify-content-between text-xs mb-1">
+                    <span class="text-left">Arrecadado: {{ formatCurrency(data.current_amount) }}</span>
+                    <span class="text-right font-bold text-blue-500">Meta: {{ formatCurrency(data.target_amount) }}</span>
                   </div>
+                  <ProgressBar :value="calculatePercent(data)" :showValue="false" style="height: 0.5rem;"
+                    :pt="{ value: { style: { backgroundColor: 'var(--p-yellow-800)' } } }" />
                 </div>
-              </template>
 
-              <template #footer>
-                <Button
-                  :label="data.isExpired && !data.isCompleted ? 'Prazo Encerrado' : (data.isCompleted ? 'Meta Batida' : 'Contribuir')"
-                  :icon="data.isExpired && !data.isCompleted ? 'pi pi-calendar-times' : 'ri-hand-heart-line'"
-                  size="small" class="w-full" :severity="data.isExpired ? 'secondary' : 'warn'"
-                  :disabled="!data.canContribute" @click="makeContribute(data)" />
-              </template>
-            </Card>
-          </div>
+                <div class="flex align-items-center text-xs text-gray-500 italic">
+                  <i class="ri-calendar-line mr-1"></i>
+                  Expira em: {{ dayjs(data.deadline).format('DD/MM/YYYY') }}
+                </div>
+              </div>
+            </template>
+
+            <template #footer>
+              <Button
+                :label="data.isExpired && !data.isCompleted ? 'Prazo Encerrado' : (data.isCompleted ? 'Meta Batida' : 'Contribuir')"
+                :icon="data.isExpired && !data.isCompleted ? 'pi pi-calendar-times' : 'ri-hand-heart-line'" size="small"
+                class="w-full" :severity="data.isExpired ? 'secondary' : 'warn'" :disabled="!data.canContribute"
+                @click="makeContribute(data)" />
+            </template>
+          </Card>
         </template>
       </template>
       <template #empty>
