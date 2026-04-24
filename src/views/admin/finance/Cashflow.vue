@@ -99,7 +99,7 @@ import { DatePicker, InputNumber, InputText, Select, useConfirm, type FileUpload
 import { CashflowService, type ICashflow } from "@/services/cashflow";
 import { dateToISOString, toSentenceCase, type IFields } from "@/functions/utils";
 import AppTable from "@/components/AppTable.vue";
-import { CASHFLOW_TYPES, TRANSACTION_CATEGORIES } from "@/constants/airsoft";
+import { CASHFLOW_TYPES, TRANSACTION_CATEGORIES, MAX_FILE_SIZE } from "@/constants/airsoft";
 import dayjs from "dayjs";
 import Image from "primevue/image";
 import Skeleton from "primevue/skeleton";
@@ -107,8 +107,6 @@ import FileUpload from "primevue/fileupload";
 
 const toast = useToast();
 const confirm = useConfirm();
-
-const MAX_FILE_SIZE = 2 * 1024 * 1024;
 
 const selectedMonth = ref('ALL');
 

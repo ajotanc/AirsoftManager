@@ -4,6 +4,7 @@ import ExcelJS from 'exceljs';
 import { saveAs } from 'file-saver';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import { type FormResolverOptions } from '@primevue/forms';
+import * as pdfjsLib from 'pdfjs-dist';
 
 import router from "@/router";
 
@@ -11,6 +12,7 @@ import { BUCKET_ID, storage } from '@/services/appwrite';
 import { CATEGORIES_OPTIONS, MAINTENANCE_STATUS_TYPES, MAINTENANCE_TYPES } from '@/constants/airsoft';
 
 dayjs.extend(customParseFormat);
+pdfjsLib.GlobalWorkerOptions.workerSrc = '/js/pdf.worker.min.mjs';
 
 export interface IFields {
   name: string;
@@ -218,22 +220,34 @@ export const search = (query: string, sourceArray: string[]): string[] => {
 
 export const uploadFile = async (rowId: string, file: File, filename?: string): Promise<string> => {
   const fileId = `${filename || 'file'}-${rowId}`;
-  const newFile = file.type.includes('image/') ? await processImage(file) : file;
+
+  const fileToUpload = await (async () => {
+    if (file.type === 'application/pdf') {
+      const fileConverted = await convertPdfToImage(file);
+      return await processImage(fileConverted);
+    }
+
+    if (file.type.includes('image/')) {
+      return await processImage(file);
+    }
+
+    return file;
+  })();
 
   try {
     await storage.createFile({
       bucketId: BUCKET_ID,
       fileId,
-      file: newFile,
+      file: fileToUpload,
     });
 
     const url = storage.getFileView({ bucketId: BUCKET_ID, fileId });
     return `${url.toString()}&v=${Date.now()}`;
   } catch (error) {
-    console.error("Erro no upload da imagem:", error);
-    throw new Error("Falha ao processar imagem da missão.");
+    console.error("Erro no upload do arquivo:", error);
+    throw new Error("Falha ao processar o arquivo para o servidor.");
   }
-}
+};
 
 export const deleteFile = async (rowId: string, filename?: string): Promise<{}> => {
   const fileId = `${filename || 'file'}-${rowId}`;
@@ -245,6 +259,35 @@ export const deleteFile = async (rowId: string, filename?: string): Promise<{}> 
     throw new Error("Falha ao processar imagem da missão.");
   }
 }
+
+export const convertPdfToImage = async (file: File): Promise<File> => {
+  const filename = file.name.replace(/\.[^/.]+$/, "");
+  const type = 'image/png';
+
+  const arrayBuffer = await file.arrayBuffer();
+  const pdf = await pdfjsLib.getDocument({ data: arrayBuffer, verbosity: 0 }).promise;
+  const page = await pdf.getPage(1);
+  const viewport = page.getViewport({ scale: 2.0 });
+
+  const canvas = document.createElement('canvas');
+  const canvasContext = canvas.getContext('2d')!;
+  canvas.height = viewport.height;
+  canvas.width = viewport.width;
+
+  console.log(`Convertendo PDF para imagem...`);
+
+  await page.render({ canvasContext, viewport, canvas }).promise;
+
+  return new Promise((resolve, reject) => {
+    canvas.toBlob((blob) => {
+      if (blob) {
+        resolve(new File([blob], `${filename}.png`, { type }));
+      } else {
+        reject(new Error("Falha ao gerar blob do PDF"));
+      }
+    }, type);
+  });
+};
 
 export const getSpecialtyLabel = (val?: number) => {
   return CATEGORIES_OPTIONS.find(a => a.value === val)?.label || 'Indisponível';

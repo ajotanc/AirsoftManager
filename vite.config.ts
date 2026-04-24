@@ -6,6 +6,7 @@ import Components from "unplugin-vue-components/vite";
 import { PrimeVueResolver } from "@primevue/auto-import-resolver";
 import { nodePolyfills } from "vite-plugin-node-polyfills";
 import { VitePWA } from "vite-plugin-pwa";
+import { viteStaticCopy } from 'vite-plugin-static-copy'
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd());
@@ -100,6 +101,14 @@ export default defineConfig(({ mode }) => {
           ],
         },
       }),
+      viteStaticCopy({
+        targets: [
+          {
+            src: 'node_modules/pdfjs-dist/build/pdf.worker.min.mjs',
+            dest: '.',
+          },
+        ],
+      }),
     ],
     define: {
       "process.env": {},
@@ -128,5 +137,12 @@ export default defineConfig(({ mode }) => {
         },
       },
     },
+    optimizeDeps: {
+      exclude: ['pdfjs-dist']
+    },
+    ssr: {
+      noExternal: [],
+      external: ['pdfjs-dist']
+    }
   };
 });

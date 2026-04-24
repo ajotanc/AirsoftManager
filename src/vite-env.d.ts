@@ -7,3 +7,4 @@ declare module "*.vue" {
 }
 
 declare module '@fontsource-variable/google-sans-flex';
+declare module 'pdfjs-dist/build/pdf.worker.min.mjs'

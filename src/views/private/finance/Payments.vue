@@ -1,7 +1,7 @@
 <template>
   <div class="card">
     <AppTable title="Pagamento(s)" resourceName="transações" :value="paymentsFiltered" :fields="fields"
-      :loading="loading">
+      :loading="loadingData">
       <template v-if="accessAdmin" #header-actions>
         <Button label="Novo" icon="pi pi-plus" size="small" @click="newTransaction" />
       </template>
@@ -11,7 +11,7 @@
       <template #extra-columns-end>
         <Column header="Atraso">
           <template #body="{ data }">
-            <Skeleton v-if="loading" width="100%" height="1rem" />
+            <Skeleton v-if="loadingData" width="100%" height="1rem" />
             <template v-else>
               <Tag v-if="invoice(data).overdue" :value="invoice(data).days" severity="danger" />
             </template>
@@ -19,10 +19,10 @@
         </Column>
         <Column header="Comprovante">
           <template #body="{ data }">
-            <Skeleton v-if="loading" width="100%" height="1rem" />
+            <Skeleton v-if="loadingData" width="100%" height="1rem" />
             <template v-else>
               <Image :src="data.receipt_url" :alt="data.title" width="50" height="50" v-if="data.receipt_url"
-                class="overflow-hidden border-circle" preview />
+                class="overflow-hidden border-circle border-1 border-100" preview image-style="object-fit: cover;" />
             </template>
           </template>
         </Column>
@@ -54,7 +54,8 @@
 
     <AppFormDialog v-model:visible="transactionDialog"
       :header="selectedPayment.$id ? 'Editar Transação' : 'Nova Transação'" :fields="fields"
-      :initialValues="selectedPayment" :resolver="resolver" @submit="saveTransaction" @field-change="onFieldChange" />
+      :initialValues="selectedPayment" :resolver="resolver" @submit="saveTransaction" @field-change="onFieldChange"
+      :loading="loadingSubmit" />
   </div>
 </template>
 
@@ -64,10 +65,10 @@ import { useToast } from "primevue/usetoast";
 import Button from "primevue/button";
 import InputText from "primevue/inputtext";
 import Select from "primevue/select";
-import { DatePicker, InputNumber, useConfirm } from "primevue";
+import { DatePicker, FileUpload, InputNumber, useConfirm } from "primevue";
 import { PaymentService, type IPayment } from "@/services/payment";
 import { dateToISOString, export2Excel, toSentenceCase, type FieldChangePayload, type IFields } from "@/functions/utils";
-import { TRANSACTION_STATUS, TRANSACTION_CATEGORIES } from "@/constants/airsoft";
+import { TRANSACTION_STATUS, TRANSACTION_CATEGORIES, MAX_FILE_SIZE } from "@/constants/airsoft";
 import PaymentDialog from "@/components/PaymentDialog.vue";
 import { OperatorService, type IOperator } from "@/services/operator";
 import { useRoute } from "vue-router";
@@ -90,7 +91,8 @@ const pixData = ref({ payload: '', base64: '' });
 const operators = ref<IOperator[]>([]);
 const goals = ref<IGoal[]>([]);
 
-const loading = ref(true);
+const loadingData = ref(true);
+const loadingSubmit = ref(false);
 
 const paymentDialog = ref(false);
 const transactionDialog = ref(false);
@@ -139,7 +141,7 @@ const loadServices = async () => {
     console.error("Erro ao carregar serviços:", error);
     toast.add({ severity: 'error', summary: 'Erro', detail: 'Falha ao carregar dados.' });
   } finally {
-    loading.value = false;
+    loadingData.value = false;
   }
 };
 
@@ -203,6 +205,16 @@ const fields = computed<IFields[]>(() => [
       optionValue: "$id",
     }
   },
+  {
+    name: "file", label: "Comprovante", component: FileUpload, col: "12", props: {
+      "upload-button-props": { style: { display: 'none' } },
+      chooseLabel: "Imagem",
+      accept: "image/*, application/pdf",
+      maxFileSize: MAX_FILE_SIZE
+    },
+    emptyMessage: "Nenhum comprovante ou NF-e selecionado.",
+    hiddenTable: true
+  },
 ]);
 
 const transactionSchema = z.object({
@@ -211,6 +223,7 @@ const transactionSchema = z.object({
   amount: z.number({ error: "Valor obrigatório" }),
   status: z.string({ error: "Status obrigatório" }),
   due_date: z.custom().refine((date) => date instanceof Date || typeof date === 'string', "Data obrigatória").transform((date) => dateToISOString(date as Date | string)),
+  file: z.any().optional()
 });
 
 const goalSchema = z.object({
@@ -243,6 +256,8 @@ const makePayment = async (payment: IPayment) => {
 
 const savePayment = async ({ file }: { file: File }) => {
   try {
+    loadingSubmit.value = true;
+
     const response = await PaymentService.payment(selectedPayment.value.$id, file);
     const index = payments.value.findIndex((item) => item.$id === response.$id);
 
@@ -264,6 +279,7 @@ const savePayment = async ({ file }: { file: File }) => {
   } finally {
     selectedPayment.value = {} as IPayment;
     paymentDialog.value = false;
+    loadingSubmit.value = false;
   }
 };
 
@@ -367,14 +383,14 @@ const newTransaction = () => {
   transactionDialog.value = true;
 };
 
-const saveTransaction = async (values: IPayment) => {
+const saveTransaction = async (values: IPayment, file?: File) => {
   try {
     const payload = {
       ...values,
-      reference: dayjs().format('MM/YYYY')
+      reference: dayjs(values.due_date).format('MM/YYYY')
     }
 
-    const response = await PaymentService.transaction(payload);
+    const response = await PaymentService.transaction(payload, file);
     const index = payments.value.findIndex((item) => item.$id === response.$id);
 
     if (index !== -1) {
@@ -439,37 +455,4 @@ const exportPayments = async () => {
   await export2Excel(`${dayjs().unix()}-PAGAMENTOS`, dataToExport, summary);
   toast.add({ severity: 'success', summary, detail: 'Exportação concluída! Verifica a tua pasta de transferências.', life: 3000 });
 };
-
-// const handlePayment = async (payment: IPayment) => {
-//   loading.value = true;
-//   try {
-//     const execution = await functions.createExecution({
-//       functionId: '69e00fdf001c10591a1a', // ID da sua função
-//       body: JSON.stringify({
-//         id: payment.$id,
-//         unit_price: payment.amount,
-//         title: payment.description,
-//         description: 'Mensalidade Êxodo Airsoft',
-//         email: user.value?.email
-//       }),
-//       async: false,
-//       xpath: '/'
-//     });
-
-//     // 2. Transforma a string de resposta em objeto
-//     const response = JSON.parse(execution.responseBody);
-
-//     if (response.url) {
-//       // 3. Redireciona para o Checkout Pro do Mercado Pago
-//       window.location.href = response.url;
-//     } else {
-//       throw new Error('URL de checkout não encontrada');
-//     }
-//   } catch (error) {
-//     console.error("Erro ao processar pagamento:", error);
-//     alert("Erro ao iniciar pagamento. Tente novamente.");
-//   } finally {
-//     loading.value = false;
-//   }
-// };
 </script>

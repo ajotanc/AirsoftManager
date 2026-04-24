@@ -4,10 +4,10 @@
     :style="{ width: '90vw', maxWidth: '375px' }">
     <div class="grid">
       <div v-if="payment?.category === 'goal'" class="col-12">
-        <IftaLabel>
+        <FloatLabel>
           <InputNumber v-model="localAmount" mode="currency" currency="BRL" locale="pt-BR" :min="1" fluid />
           <label>Quanto deseja contribuir?</label>
-        </IftaLabel>
+        </FloatLabel>
       </div>
 
       <div class="col-12 flex flex-column align-items-center gap-3">
@@ -48,7 +48,7 @@
 import { ref, watch } from 'vue';
 import {
   Dialog, Button, InputText, InputNumber, InputGroup, InputGroupAddon,
-  FileUpload, Divider, IftaLabel, useToast, Skeleton
+  FileUpload, Divider, FloatLabel, useToast, Skeleton
 } from 'primevue';
 import type { FileUploadUploaderEvent } from 'primevue/fileupload';
 import { PaymentService, type IPayment } from '@/services/payment';

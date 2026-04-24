@@ -23,6 +23,7 @@ export interface IPayment extends Models.Row {
   goal?: string | IGoal;
   operator: string | IOperator;
   due_date: Date | string | null;
+  file?: File;
 }
 
 export const PaymentService = {
@@ -219,11 +220,18 @@ export const PaymentService = {
       permissions,
     });
   },
-  async transaction(data: IPayment): Promise<IPayment> {
+  async transaction(data: IPayment, file?: File): Promise<IPayment> {
+    const rowId = ID.unique();
+
+    if (file) {
+      const urlFormatted = await uploadFile(rowId, file, "payment");
+      data.receipt_url = urlFormatted;
+    }
+
     const payment = await tables.createRow<IPayment>({
       databaseId: DATABASE_ID,
       tableId: TABLE_PAYMENTS,
-      rowId: ID.unique(),
+      rowId,
       data,
       permissions,
     });

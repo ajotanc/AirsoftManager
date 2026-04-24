@@ -10,6 +10,7 @@ export const MIN_COMPLETE_UNIFORMS = 3;
 export const EXPERIENCE_PER_LEVEL = 200;
 export const MIN_VOTES_REQUIRED = 6;
 export const DEADLINE_HOUR = 22;
+export const MAX_FILE_SIZE = 5 * 1024 * 1024;
 
 export const EVENT_TYPES = {
   1: "Jogo",
