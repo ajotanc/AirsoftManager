@@ -142,7 +142,7 @@
               <div class="flex-grow-1">
                 <div class="font-bold text-900">{{ flow.description }}</div>
                 <div class="text-500 text-sm">
-                  {{ dayjs(flow.date).format('DD/MM/YYYY') }} · {{ categoryMap[flow.category] || flow.category }}
+                  {{ dayjs(flow.date).format('DD/MM/YYYY') }} · {{ CATEGORY_MAP[flow.category] || flow.category }}
                 </div>
               </div>
               <div :class="['font-bold text-lg', flow.type === 'income' ? 'text-green-600' : 'text-red-600']">
@@ -190,8 +190,10 @@ const cashflows = ref<ICashflow[]>([]);
 const payments = ref<IPayment[]>([]);
 const loading = ref(true);
 const cashflowDialog = ref(false);
-const selectedYear = ref(dayjs().year());
-const currentMonth = dayjs().format('MM/YYYY');
+
+const now = ref(dayjs());
+const selectedYear = ref(now.value.year());
+const currentMonth = now.value.format('MM/YYYY');
 const years = ref([2024, 2025, 2026]);
 
 const visibility = ref({
@@ -236,61 +238,78 @@ const totalActiveOperators = computed(() => payments.value.filter(p => p.categor
 const paidOperatorsCount = computed(() => cashflows.value.filter(c => c.category === 'monthly_fee' && c.reference === currentMonth).length);
 const percentage = computed(() => totalActiveOperators.value ? Math.round((paidOperatorsCount.value / totalActiveOperators.value) * 100) : 0);
 
-const categoryMap = computed(() => Object.fromEntries(TRANSACTION_CATEGORIES.map(c => [c.value, c.label])));
+const CATEGORY_MAP = Object.fromEntries(TRANSACTION_CATEGORIES.map(c => [c.value, c.label]));
 
-const totalIncomes = computed(() => cashflows.value.filter(c => c.type === 'income' && dayjs(c.date).year() === selectedYear.value).reduce((acc, curr) => acc + Number(curr.amount), 0));
-const totalExpenses = computed(() => cashflows.value.filter(c => c.type === 'expense' && dayjs(c.date).year() === selectedYear.value).reduce((acc, curr) => acc + Math.abs(Number(curr.amount)), 0));
+const incomes = computed(() => cashflows.value.filter(c => c.type === 'income' && dayjs(c.date).year() === selectedYear.value));
+const totalIncomes = computed(() => incomes.value.reduce((acc, curr) => acc + Number(curr.amount), 0));
+
+const expenses = computed(() => cashflows.value.filter(c => c.type === 'expense' && dayjs(c.date).year() === selectedYear.value));
+const totalExpenses = computed(() => expenses.value.reduce((acc, curr) => acc + Math.abs(Number(curr.amount)), 0));
+
 const totalBalance = computed(() => totalIncomes.value - totalExpenses.value);
 
 const trends = computed(() => {
-  const now = dayjs();
-  const currentM = now.month();
-  const prevM = now.subtract(1, 'month').month();
-  let currIn = 0, prevIn = 0, currOut = 0, prevOut = 0;
+  const previousMonth = now.value.subtract(1, 'month').format('MM/YYYY');
 
-  cashflows.value.forEach(f => {
-    const d = dayjs(f.date);
-    const m = d.month();
-    const val = Math.abs(Number(f.amount));
-    if (m === currentM && d.year() === now.year()) f.type === 'income' ? currIn += val : currOut += val;
-    else if (m === prevM) f.type === 'income' ? prevIn += val : prevOut += val;
-  });
-
-  const calc = (cur: number, pre: number) => {
-    if (pre === 0) return cur > 0 ? 100 : 0;
-    return Math.round(((cur - pre) / pre) * 100);
+  const getTotals = (ref: string) => {
+    return cashflows.value
+      .filter(f => f.reference === ref)
+      .reduce((acc, f) => {
+        const val = Math.abs(Number(f.amount));
+        f.type === 'income' ? acc.inc += val : acc.exp += val;
+        return acc;
+      }, { inc: 0, exp: 0 });
   };
-  return { income: calc(currIn, prevIn), expense: calc(currOut, prevOut) };
+
+  const curr = getTotals(currentMonth);
+  const prev = getTotals(previousMonth);
+
+  const calc = (c: number, p: number) => p === 0 ? (c > 0 ? 100 : 0) : Math.round(((c - p) / p) * 100);
+
+  return {
+    income: calc(curr.inc, prev.inc),
+    expense: calc(curr.exp, prev.exp)
+  };
 });
 
 const monthlyTotals = computed(() => {
-  const inc = Array(12).fill(0);
-  const exp = Array(12).fill(0);
-  cashflows.value.forEach(f => {
-    const d = dayjs(f.date);
-    if (d.year() === selectedYear.value) {
-      const m = d.month();
-      f.type === 'income' ? inc[m] += Number(f.amount) : exp[m] += Math.abs(Number(f.amount));
+  const incomes = Array(12).fill(0);
+  const expenses = Array(12).fill(0);
+
+  cashflows.value.forEach(({ reference, type, amount }) => {
+    if (reference.endsWith(selectedYear.value.toString())) {
+      const index = parseInt(reference.substring(0, 2), 10) - 1;
+      const val = Math.abs(Number(amount));
+
+      type === 'income' ? incomes[index] += val : expenses[index] += val;
     }
   });
-  return { inc, exp };
+
+  return { incomes, expenses };
 });
 
 const barData = computed(() => ({
   labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
   datasets: [
-    { label: 'Entradas', backgroundColor: '#99C19B', data: monthlyTotals.value.inc },
-    { label: 'Saídas', backgroundColor: '#E595A4', data: monthlyTotals.value.exp }
+    { label: 'Entradas', backgroundColor: '#99C19B', data: monthlyTotals.value.incomes },
+    { label: 'Saídas', backgroundColor: '#E595A4', data: monthlyTotals.value.expenses }
   ]
 }));
 
 const pieData = computed(() => {
-  const expense = cashflows.value.filter(c => c.type === 'expense' && dayjs(c.date).year() === selectedYear.value);
-  const cats = [...new Set(expense.map(c => c.category))];
-  const data = cats.map(cat => expense.filter(e => e.category === cat).reduce((a, b) => a + Math.abs(Number(b.amount)), 0));
+  const categoryTotals: Record<string, number> = {};
+
+  expenses.value.forEach(e => {
+    const label = CATEGORY_MAP[e.category] || e.category;
+    categoryTotals[label] = (categoryTotals[label] || 0) + Math.abs(Number(e.amount));
+  });
+
   return {
-    labels: cats.map(c => categoryMap.value[c] || c),
-    datasets: [{ data, backgroundColor: ['#8095B5', '#99C19B', '#E7C67F', '#A384E6', '#E595A4'] }]
+    labels: Object.keys(categoryTotals),
+    datasets: [{
+      data: Object.values(categoryTotals),
+      backgroundColor: ['#8095B5', '#99C19B', '#E7C67F', '#A384E6', '#E595A4']
+    }]
   };
 });
 
