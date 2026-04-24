@@ -172,9 +172,7 @@
           </Column>
           <Column header="Tipo">
             <template #body="{ data }">
-              <ul v-for="type in data.type" class="list-none m-0 p-0">
-                <li class="text-sm">- {{ getMaintenanceTypeLabel(type) }}</li>
-              </ul>
+              <Tag v-for="type in data.type" :key="type" :value="getMaintenanceTypeLabel(type)" />
             </template>
           </Column>
           <Column header="Relatório Técnico">

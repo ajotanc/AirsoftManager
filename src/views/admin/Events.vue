@@ -243,7 +243,7 @@ const fields: IFields[] = [
     },
     {
         name: "allow_visitors",
-        label: "Permitir Convidados?",
+        label: "Permitir Visitantes?",
         component: ToggleSwitch,
         col: "6"
     },

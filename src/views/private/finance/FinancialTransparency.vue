@@ -110,14 +110,18 @@
       <div class="col-12 lg:col-8">
         <div class="card shadow-2 p-4 border-round bg-white">
           <span class="text-xl font-bold block mb-4">Evolução Mensal (R$)</span>
-          <Chart type="bar" :data="barData" :options="barOptions" :height="300" />
+          <div class="chart-container">
+            <Chart type="bar" :data="barData" :options="barOptions" class="h-full" />
+          </div>
         </div>
       </div>
 
       <div class="col-12 lg:col-4">
         <div class="card shadow-2 p-4 border-round bg-white">
           <span class="text-xl font-bold block mb-4">Gastos por Categoria</span>
-          <Chart type="doughnut" :data="pieData" :options="pieOptions" :height="300" />
+          <div class="chart-container">
+            <Chart type="doughnut" :data="pieData" :options="pieOptions" class="h-full" />
+          </div>
         </div>
       </div>
 
@@ -293,3 +297,11 @@ const pieData = computed(() => {
 const barOptions = { maintainAspectRatio: false, plugins: { legend: { position: 'bottom' }, tooltip: { callbacks: { label: (c: any) => `${c.dataset.label}: ${formatCurrency(c.raw)}` } } }, scales: { y: { ticks: { callback: (v: any) => formatCurrency(v) } } } };
 const pieOptions = { maintainAspectRatio: false, plugins: { legend: { position: 'bottom' }, tooltip: { callbacks: { label: (c: any) => ` ${c.label}: ${formatCurrency(c.raw)}` } } } };
 </script>
+
+<style scoped>
+.chart-container {
+  position: relative;
+  height: 40vh;
+  min-height: 300px;
+}
+</style>

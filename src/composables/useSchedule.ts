@@ -61,9 +61,13 @@ export function useSchedule() {
     try {
       const response = await ScheduleService.upsert(selectedSchedule.value.$id, values) as ISchedule<IOperator>;
 
-      schedules.value = schedules.value.map(item =>
-        item.$id === response.$id ? response : item
-      );
+      const index = schedules.value.findIndex(item => item.$id === response.$id);
+
+      if (index !== -1) {
+        schedules.value[index] = response;
+      } else {
+        schedules.value.push(response);
+      }
 
       toast.add({ severity: "success", summary: "Sucesso!", detail: "Cronograma salvo.", life: 3000 });
       scheduleDialog.value = false;

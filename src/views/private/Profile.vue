@@ -341,59 +341,6 @@
         </Panel>
 
         <div class="grid formgrid">
-          <span>Estatuto e Conduta da equipe <strong>{{ TEAM_NAME }}</strong></span>
-          <ScrollPanel @scroll.capture="handleScroll" class="col-12 border-1 border-gray-400 border-round mt-3 p-3"
-            style="height: 15rem;">
-            <p class="m-0 line-height-2 font-bold">
-              TERMO DE CIÊNCIA E ACEITE – ESTATUTO INTEGRAL E CÓDIGO DE CONDUTA
-            </p>
-            <p class="line-height-2">
-              Ao prosseguir, declaro que li, compreendo e aceito integralmente os termos estabelecidos no Estatuto
-              Integral e Código de Conduta do Êxodo Airsoft, comprometendo-me a seguir as diretrizes abaixo descritas:
-            </p>
-            <p class="line-height-2">
-              <strong>IDENTIDADE E COMPROMISSO:</strong> Compreendo que o uso do Patch da unidade é um privilégio que
-              implica na
-              aceitação total deste estatuto. Comprometo-me a zelar pela imagem da equipe, agindo com honra e respeito
-              em qualquer evento, treino ou operação.
-
-            </p>
-            <p class="line-height-2"> <strong>SEGURANÇA E PROTEÇÃO:</strong> Declaro ciência de que a segurança é o
-              pilar inegociável. É
-              terminantemente proibida
-              a retirada da proteção ocular em "Zona Quente". Reconheço que o descumprimento de normas de segurança
-              básica ou conduta de risco facultará à liderança a minha expulsão imediata da atividade ou da unidade.
-            </p>
-            <p class="line-height-2">
-              <strong>LEGALIDADE DO EQUIPAMENTO:</strong> Certifico que meu equipamento de airsoft (AEG/GBB) está em
-              conformidade com a
-              legislação vigente, possuindo obrigatoriamente a ponta laranja ou vermelha e a devida nota fiscal de
-              compra. Assumo total responsabilidade pelo transporte e porte do equipamento conforme as normas do
-              Exército Brasileiro.
-            </p>
-            <p class="line-height-2">
-              <strong>DOUTRINA E FAIR PLAY:</strong> Aceito os pilares de União, Lealdade e Respeito. Comprometo-me com
-              a honestidade nas
-              eliminações, combatendo o "Highlanderismo" (não marcar o acerto). Entendo que o Airsoft é um jogo de honra
-              e que minha conduta reflete em todo o grupo.
-            </p>
-            <p class="line-height-2">
-              <strong>REGIME DISCIPLINAR:</strong> Estou ciente de que qualquer desvio de conduta, ato de insubordinação
-              ou comportamento
-              antidesportivo me sujeitará ao conselho disciplinar da unidade, podendo resultar em advertência, suspensão
-              ou exclusão definitiva, sem prejuízo de responsabilidades civis.
-            </p>
-            <p class="line-height-2">
-              <strong>CONFIDENCIALIDADE:</strong> Comprometo-me a manter sigilo sobre táticas, comunicações internas e
-              estratégias da
-              Unidade Êxodo, respeitando a hierarquia e a organização estabelecida pela liderança.
-            </p>
-            <p class="line-height-2">
-              Declaro ser maior de idade (ou possuir autorização legal) e estar em pleno gozo de minhas capacidades
-              físicas e mentais para a prática do esporte, isentando a Unidade Êxodo de responsabilidade por incidentes
-              decorrentes do descumprimento destas normas.
-            </p>
-          </ScrollPanel>
           <div class="col-12 mt-4">
             <FormField name="media_consent" v-slot="$field" class="flex align-items-center mb-3">
               <Checkbox v-model="$field.value" binary inputId="media_consent" />
@@ -402,8 +349,11 @@
 
             <FormField name="terms_accepted" v-slot="$field" class="flex flex-column gap-1">
               <div class="flex align-items-center">
-                <Checkbox v-model="$field.value" binary inputId="terms_accepted" />
-                <label :for="$field.props.name" class="ml-2">Li e aceito os termos de serviço e regulamento
+                <Checkbox v-model="$field.value" binary inputId="terms_accepted" @click.prevent="openTermsDialog" />
+                <label :for="$field.props.name" class="ml-2" @click.prevent="openTermsDialog">Li e aceito os termos de
+                  serviço
+                  e
+                  regulamento
                   interno.</label>
               </div>
               <Message v-if="$field.invalid" severity="error" size="small" variant="simple">{{ $field.error.message }}
@@ -413,11 +363,78 @@
         </div>
 
         <div class="col-12">
-          <Button type="submit" label="Salvar" :loading="loading" :disabled="!canAccept" />
+          <Button type="submit" label="Salvar" :loading="loading" />
         </div>
       </Form>
     </div>
   </div>
+
+  <Dialog v-model:visible="dialogTerms" :header="`Estatuto e Conduta - ${TEAM_NAME}`" :modal="true" :closable="false"
+    :style="{ width: '90vw', maxWidth: '600px' }">
+    <div class="flex flex-column gap-2">
+      <ScrollPanel @scroll.capture="handleScroll" class="border-1 border-gray-400 border-round p-3"
+        style="height: 15rem;">
+        <p class="m-0 line-height-2 font-bold">
+          TERMO DE CIÊNCIA E ACEITE – ESTATUTO INTEGRAL E CÓDIGO DE CONDUTA
+        </p>
+        <p class="line-height-2">
+          Ao prosseguir, declaro que li, compreendo e aceito integralmente os termos estabelecidos no Estatuto
+          Integral e Código de Conduta do Êxodo Airsoft, comprometendo-me a seguir as diretrizes abaixo descritas:
+        </p>
+        <p class="line-height-2">
+          <strong>IDENTIDADE E COMPROMISSO:</strong> Compreendo que o uso do Patch da unidade é um privilégio que
+          implica na
+          aceitação total deste estatuto. Comprometo-me a zelar pela imagem da equipe, agindo com honra e respeito
+          em qualquer evento, treino ou operação.
+
+        </p>
+        <p class="line-height-2"> <strong>SEGURANÇA E PROTEÇÃO:</strong> Declaro ciência de que a segurança é o
+          pilar inegociável. É
+          terminantemente proibida
+          a retirada da proteção ocular em "Zona Quente". Reconheço que o descumprimento de normas de segurança
+          básica ou conduta de risco facultará à liderança a minha expulsão imediata da atividade ou da unidade.
+        </p>
+        <p class="line-height-2">
+          <strong>LEGALIDADE DO EQUIPAMENTO:</strong> Certifico que meu equipamento de airsoft (AEG/GBB) está em
+          conformidade com a
+          legislação vigente, possuindo obrigatoriamente a ponta laranja ou vermelha e a devida nota fiscal de
+          compra. Assumo total responsabilidade pelo transporte e porte do equipamento conforme as normas do
+          Exército Brasileiro.
+        </p>
+        <p class="line-height-2">
+          <strong>DOUTRINA E FAIR PLAY:</strong> Aceito os pilares de União, Lealdade e Respeito. Comprometo-me com
+          a honestidade nas
+          eliminações, combatendo o "Highlanderismo" (não marcar o acerto). Entendo que o Airsoft é um jogo de honra
+          e que minha conduta reflete em todo o grupo.
+        </p>
+        <p class="line-height-2">
+          <strong>REGIME DISCIPLINAR:</strong> Estou ciente de que qualquer desvio de conduta, ato de insubordinação
+          ou comportamento
+          antidesportivo me sujeitará ao conselho disciplinar da unidade, podendo resultar em advertência, suspensão
+          ou exclusão definitiva, sem prejuízo de responsabilidades civis.
+        </p>
+        <p class="line-height-2">
+          <strong>CONFIDENCIALIDADE:</strong> Comprometo-me a manter sigilo sobre táticas, comunicações internas e
+          estratégias da
+          Unidade Êxodo, respeitando a hierarquia e a organização estabelecida pela liderança.
+        </p>
+        <p class="line-height-2">
+          Declaro ser maior de idade (ou possuir autorização legal) e estar em pleno gozo de minhas capacidades
+          físicas e mentais para a prática do esporte, isentando a Unidade Êxodo de responsabilidade por incidentes
+          decorrentes do descumprimento destas normas.
+        </p>
+      </ScrollPanel>
+      <Message v-if="!canAccept" size="small" variant="simple">
+        <span class="font-bold">Role até o final para liberar o botão de aceite.</span>
+      </Message>
+    </div>
+    <template #footer>
+      <div class="flex justify-content-end gap-2">
+        <Button label="Recusar" severity="danger" text @click="handleRefuseTerms" />
+        <Button label="Li e Aceito os Termos" icon="pi pi-check" :disabled="!canAccept" @click="handleAcceptTerms" />
+      </div>
+    </template>
+  </Dialog>
 </template>
 
 <script setup lang="ts">
@@ -456,6 +473,7 @@ const toast = useToast();
 const loading = ref(false);
 const loadingAvatar = ref(false);
 const canAccept = ref(false);
+const dialogTerms = ref(false);
 
 const form = ref();
 
@@ -529,6 +547,27 @@ const handleUpdateProfile = async ({ valid, values }: any) => {
   } finally {
     loading.value = false;
   }
+};
+
+const openTermsDialog = () => {
+  const isChecked = form.value?.states?.terms_accepted?.value;
+
+  if (isChecked) {
+    form.value.setValues({ terms_accepted: false });
+    return;
+  }
+
+  dialogTerms.value = true;
+};
+
+const handleAcceptTerms = () => {
+  form.value.setValues({ terms_accepted: true });
+  dialogTerms.value = false;
+};
+
+const handleRefuseTerms = () => {
+  form.value.setValues({ terms_accepted: false });
+  dialogTerms.value = false;
 };
 
 const handleCep = async (event: any) => {
