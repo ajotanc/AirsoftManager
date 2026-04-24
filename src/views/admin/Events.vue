@@ -17,8 +17,8 @@
             </template>
         </AppTable>
 
-        <Dialog v-model:visible="eventDialog" header="Detalhes do Evento" :modal="true"
-            :style="{ width: '100%', maxWidth: '640px' }" class="m-3">
+        <Dialog v-model:visible="eventDialog" header="Detalhes do Evento" modal
+            :style="{ width: '90vw', maxWidth: '667px' }">
             <Form :resolver="resolver" :initialValues="selectedEvent" @submit="saveEvent"
                 :key="selectedEvent.$id || 'new'" class="grid">
                 <template v-for="{ name, component, label, col, props, hidden } in fields" :key="name">

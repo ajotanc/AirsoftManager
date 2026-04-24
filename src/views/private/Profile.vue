@@ -369,8 +369,8 @@
     </div>
   </div>
 
-  <Dialog v-model:visible="dialogTerms" :header="`Estatuto e Conduta - ${TEAM_NAME}`" :modal="true" :closable="false"
-    :style="{ width: '90vw', maxWidth: '600px' }">
+  <Dialog v-model:visible="dialogTerms" :header="`Estatuto e Conduta - ${TEAM_NAME}`" modal :closable="false"
+    :style="{ width: '90vw', maxWidth: '667px' }">
     <div class="flex flex-column gap-2">
       <ScrollPanel @scroll.capture="handleScroll" class="border-1 border-gray-400 border-round p-3"
         style="height: 15rem;">

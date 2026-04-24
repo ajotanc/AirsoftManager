@@ -1,7 +1,7 @@
 <template>
   <Dialog :visible="visible" @update:visible="$emit('update:visible', $event)"
-    :header="payment?.description || 'Efetuar Pagamento'" :modal="true" :closable="true" :key="payment?.$id"
-    :style="{ width: '100%', maxWidth: '384px' }" class="m-3">
+    :header="payment?.description || 'Efetuar Pagamento'" modal :closable="true" :key="payment?.$id"
+    :style="{ width: '90vw', maxWidth: '375px' }">
     <div class="grid">
       <div v-if="payment?.category === 'goal'" class="col-12">
         <IftaLabel>

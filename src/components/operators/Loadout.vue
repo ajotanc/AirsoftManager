@@ -77,8 +77,8 @@
       </DataTable>
     </div>
 
-    <Dialog v-model:visible="uniformDialog" header="Detalhes do Loadout" :modal="true"
-      :style="{ width: '100%', maxWidth: '368px', overflow: 'hidden', maxHeight: '100%' }" class="m-3">
+    <Dialog v-model:visible="uniformDialog" header="Detalhes do Loadout" modal
+      :style="{ width: '90vw', maxWidth: '375px', overflow: 'hidden', maxHeight: '100%' }">
       <div class="flex flex-column gap-3">
         <FloatLabel variant="in">
           <Select :options="UNIFORMS_OPTIONS_FILTER" optionLabel="label" optionValue="value" name="type_uniform"

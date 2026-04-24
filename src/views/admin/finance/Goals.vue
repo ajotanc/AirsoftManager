@@ -20,8 +20,7 @@
         <Button icon="pi pi-trash" text rounded severity="danger" @click="confirmDelete(data)" /> </template>
     </AppTable>
 
-    <Dialog v-model:visible="goalDialog" header="Meta" :modal="true" :style="{ width: '100%', maxWidth: '640px' }"
-      class="m-3">
+    <Dialog v-model:visible="goalDialog" header="Meta" modal :style="{ width: '90vw', maxWidth: '667px' }">
       <Form :resolver="resolver" :initialValues="selectedGoal" @submit="saveGoal" class="grid"
         :key="selectedGoal.$id || 'new'">
         <template v-for="{ name, label, component, col, hidden, props } in fields" :key="name">

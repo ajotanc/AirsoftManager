@@ -110,7 +110,7 @@
     </div>
   </div>
 
-  <Dialog v-model:visible="historyDialog" :header="`Histórico`" modal style="width: 360px" class="m-3">
+  <Dialog v-model:visible="historyDialog" :header="`Histórico`" modal :style="{ width: '90vw', maxWidth: '375px' }">
     <div class="flex flex-column gap-2">
       <div v-for="item in history" :key="item.$id" @click="openTest(item.category, item.$id)"
         class="flex justify-content-between align-items-center p-3 border-round surface-100 cursor-pointer hover:surface-200 transition-all transition-duration-400">

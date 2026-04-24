@@ -27,8 +27,7 @@
       </template>
     </AppTable>
 
-    <Dialog v-model:visible="cashflowDialog" header="Meta" :modal="true" :style="{ width: '100%', maxWidth: '640px' }"
-      class="m-3">
+    <Dialog v-model:visible="cashflowDialog" header="Meta" modal :style="{ width: '90vw', maxWidth: '667px' }">
       <Form :resolver="resolver" :initialValues="selectedCashflow" @submit="saveCashflow" class="grid"
         :key="selectedCashflow.$id || 'new'">
         <template v-for="{ name, label, component, col, hidden, props } in fields" :key="name">

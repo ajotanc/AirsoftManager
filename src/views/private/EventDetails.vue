@@ -337,7 +337,7 @@
                                     :icon="!feedback.operator.avatar ? 'pi pi-user' : undefined" shape="circle" />
                                 <div class="flex flex-column">
                                     <span class="text-sm font-bold uppercase">{{ getShortName(feedback.operator.name)
-                                        }}</span>
+                                    }}</span>
                                     <span class="text-xs uppercase">{{ feedback.operator.codename }}</span>
                                 </div>
                             </div>
@@ -375,8 +375,8 @@
 
         <AppScanner v-model:visible="openScannerDialog" @detect="onDetect" header="Check-in de Operador" />
 
-        <Dialog v-model:visible="openVisitorDialog" header="Adicionar Convidados" :modal="true"
-            class="w-full md:w-30rem">
+        <Dialog v-model:visible="openVisitorDialog" header="Adicionar Convidados" modal
+            :style="{ width: '90vw', maxWidth: '375px' }">
             <div class="col-12">
                 <FloatLabel variant="in">
                     <MultiSelect v-model="selectedVisitors" :options="availableVisitors" optionLabel="codename" filter
@@ -384,7 +384,7 @@
                         <template #option="slotProps">
                             <div class="flex flex-column">
                                 <span class="font-bold">{{ slotProps.option.name }} ({{ slotProps.option.codename
-                                    }})</span>
+                                }})</span>
                                 <small class="text-gray-500">Convidado por {{
                                     slotProps.option.operator.codename }}</small>
                             </div>
@@ -398,7 +398,8 @@
             </div>
         </Dialog>
 
-        <Dialog v-model:visible="openCarpoolDialog" :style="{ width: '512px' }" header="Veículo" :modal="true">
+        <Dialog v-model:visible="openCarpoolDialog" header="Veículo" modal
+            :style="{ width: '90vw', maxWidth: '667px' }">
             <Form :resolver="resolverCarpool" :initialValues="selectedCarpool" @submit="saveCarpool" class="grid"
                 :key="selectedCarpool.$id || 'new'">
                 <div v-for="{ name, label, component, col, props } in carpoolFields" :key="name" :class="`col-${col}`">

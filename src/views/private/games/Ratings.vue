@@ -9,8 +9,8 @@
                 <Button icon="pi pi-trash" text rounded severity="danger" @click="confirmDelete(data)" /> </template>
         </AppTable>
 
-        <Dialog v-model:visible="ratingDialog" header="Detalhes do Voto" :modal="true"
-            :style="{ width: '100%', maxWidth: '640px' }" class="m-3">
+        <Dialog v-model:visible="ratingDialog" header="Detalhes do Voto" modal
+            :style="{ width: '90vw', maxWidth: '667px' }">
             <Form ref="form" :resolver="resolver" :initialValues="selectedRating" @submit="saveRating" class="grid"
                 :key="selectedRating.$id || 'new'">
                 <div class="col-12">
@@ -35,7 +35,7 @@
                                             shape="circle" size="small" />
                                         <span>{{availableOperators.find(op => op.$id ===
                                             slotProps.value)?.codename
-                                        }}</span>
+                                            }}</span>
                                     </div>
                                 </template>
                             </Select>

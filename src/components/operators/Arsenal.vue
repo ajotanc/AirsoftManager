@@ -55,139 +55,136 @@
         </template>
       </DataTable>
     </div>
-
-    <Dialog v-model:visible="weaponDialog" header="Detalhes do Arsenal" :style="{ width: '100%', maxWidth: '640px' }"
-      class="m-3">
-      <Form :resolver="resolver" :initialValues="selectedWeapon" @submit="saveWeapon" :key="selectedWeapon.$id || 'new'"
-        class="grid">
-        <div v-for="{ name, label, component, col, props } in fields" :key="name" :class="`col-12 md:col-${col}`">
-          <FormField v-if="component.name === 'ToggleSwitch'" :name="name" v-slot="$field"
-            class="flex flex-column gap-1">
-            <div class="flex gap-2">
-              <component :is="component" :id="name" v-bind="props" :name="name" v-model="$field.value" fluid />
-              <label :for="name">{{ label }}</label>
-            </div>
-            <Message v-if="$field.invalid" severity="error" size="small" variant="simple">
-              {{ $field.error?.message }}
-            </Message>
-          </FormField>
-          <FormField v-else :name="name" v-slot="$field" class="flex flex-column gap-1">
-            <FloatLabel variant="in">
-              <component :is="component" :id="name" v-bind="props" v-model="$field.value" class="w-full"
-                :class="{ 'p-invalid': $field.invalid }" fluid />
-              <label :for="name">{{ label }}</label>
-            </FloatLabel>
-
-            <Message v-if="$field.invalid" severity="error" size="small" variant="simple">
-              {{ $field.error?.message }}
-            </Message>
-          </FormField>
-        </div>
-
-        <div class="col-12" v-if="selectedWeapon.$id && !selectedWeapon.invoice">
-          <FileUpload mode="advanced" accept="application/pdf" :maxFileSize="MAX_SIZE" @select="onSelectedFiles">
-            <template #header="{ chooseCallback, clearCallback, files }">
-              <div class="flex flex-wrap justify-between items-center flex-1 gap-4">
-                <div class="flex gap-2">
-                  <Button @click="chooseCallback" icon="pi pi-file-pdf" rounded variant="outlined" severity="secondary"
-                    :disabled="files.length === 1" v-tooltip.top="'Anexar Nota Fiscal'"></Button>
-                  <Button @click="uploadInvoice" icon="pi pi-save" rounded variant="outlined" severity="success"
-                    :disabled="files.length === 0" :loading="uploading" v-tooltip.top="'Upload'"></Button>
-                  <Button @click="clearCallback" icon="pi pi-times" rounded variant="outlined" severity="danger"
-                    :disabled="files.length === 0" v-tooltip.top="'Limpar'"></Button>
-                </div>
-              </div>
-            </template>
-            <template #content="{ files, messages }">
-              <div class="flex flex-column" v-if="files.length > 0">
-                <Message v-for="message of messages" :key="message" severity="error">
-                  {{ message }}
-                </Message>
-
-                <div class="flex flex-wrap">
-                  <div v-for="(file) of files" :key="file.name + file.type + file.size"
-                    class="flex justify-content-center align-items-center border border-surface items-center gap-2">
-                    <i class="pi pi-file-pdf"></i>
-                    <span class="font-semibold text-ellipsis max-w-60 whitespace-nowrap overflow-hidden">{{
-                      file.name }}</span>
-                  </div>
-                </div>
-              </div>
-            </template>
-            <template #empty>
-              <span>Selecione a <strong>Nota Fiscal</strong> (Nf-e) da sua arma.</span>
-            </template>
-          </FileUpload>
-        </div>
-
-        <div class="col-12 pb-0">
-          <div class="flex justify-content-end gap-2">
-            <Button label="Cancelar" outlined @click="hideDialog" />
-            <Button type="submit" label="Salvar" />
-          </div>
-        </div>
-      </Form>
-    </Dialog>
-
-    <Dialog v-model:visible="qrDialog" modal header="Etiqueta de Patrimônio"
-      :style="{ width: '100%', maxWidth: '368px' }" class="m-3">
-      <div class="grid">
-        <div class="col-12">
-          <div class="flex flex-column align-items-center gap-3">
-            <div ref="label" class="border-2 border-round p-3 text-center surface-0 shadow-2 bg-white">
-              <div class="text-xs font-bold mb-2 text-gray-600">
-                {{ selectedWeapon.name }}
-              </div>
-              <QrcodeVue :value="generateUrl(selectedWeapon.$id)" :size="200" level="H" background="#ffffff"
-                foreground="#000000" />
-              <div class="text-xs mt-2 text-gray-600">
-                ID: {{ selectedWeapon.$id }}
-              </div>
-            </div>
-
-            <div class="flex flex-column w-full gap-2">
-              <Button label="Baixar Etiqueta" icon="pi pi-download" @click="downloadQrCode" severity="success"
-                :loading="downloading" />
-              <small class="text-center text-gray-500">Imprima e cole no equipamento.</small>
-            </div>
-          </div>
-        </div>
-      </div>
-    </Dialog>
-
-    <Dialog v-model:visible="maintenanceDialog" modal header="Histórico de Manutenções"
-      :style="{ width: '100%', maxWidth: '640px' }" class="m-3">
-      <div class="card">
-        <DataTable :value="maintenance" stripedRows tableStyle="min-width: 50rem">
-          <Column header="Data">
-            <template #body="{ data }">
-              {{ dayjs(data.maintenance_at).format('DD/MM/YYYY') }}
-            </template>
-          </Column>
-          <Column header="Status">
-            <template #body="{ data }">
-              <Tag :value="getMaintenanceStatusLabel(data.status)"
-                :severity="data.status === 'completed' ? 'success' : 'secondary'" />
-            </template>
-          </Column>
-          <Column header="Tipo">
-            <template #body="{ data }">
-              <Tag v-for="type in data.type" :key="type" :value="getMaintenanceTypeLabel(type)" />
-            </template>
-          </Column>
-          <Column header="Relatório Técnico">
-            <template #body="{ data }">
-              <span>{{ data.technical_report || 'Nenhum relatório disponível.' }}</span>
-            </template>
-          </Column>
-
-          <template #empty>
-            <Empty label="Nenhuma manutenção encontrada" icon="ri-history-line" />
-          </template>
-        </DataTable>
-      </div>
-    </Dialog>
   </div>
+
+  <Dialog v-model:visible="weaponDialog" modal header="Detalhes do Arsenal"
+    :style="{ width: '90vw', maxWidth: '667px' }">
+    <Form :resolver="resolver" :initialValues="selectedWeapon" @submit="saveWeapon" :key="selectedWeapon.$id || 'new'"
+      class="grid">
+      <div v-for="{ name, label, component, col, props } in fields" :key="name" :class="`col-12 md:col-${col}`">
+        <FormField v-if="component.name === 'ToggleSwitch'" :name="name" v-slot="$field" class="flex flex-column gap-1">
+          <div class="flex gap-2">
+            <component :is="component" :id="name" v-bind="props" :name="name" v-model="$field.value" fluid />
+            <label :for="name">{{ label }}</label>
+          </div>
+          <Message v-if="$field.invalid" severity="error" size="small" variant="simple">
+            {{ $field.error?.message }}
+          </Message>
+        </FormField>
+        <FormField v-else :name="name" v-slot="$field" class="flex flex-column gap-1">
+          <FloatLabel variant="in">
+            <component :is="component" :id="name" v-bind="props" v-model="$field.value" class="w-full"
+              :class="{ 'p-invalid': $field.invalid }" fluid />
+            <label :for="name">{{ label }}</label>
+          </FloatLabel>
+
+          <Message v-if="$field.invalid" severity="error" size="small" variant="simple">
+            {{ $field.error?.message }}
+          </Message>
+        </FormField>
+      </div>
+
+      <div class="col-12" v-if="selectedWeapon.$id && !selectedWeapon.invoice">
+        <FileUpload mode="advanced" accept="application/pdf" :maxFileSize="MAX_SIZE" @select="onSelectedFiles">
+          <template #header="{ chooseCallback, clearCallback, files }">
+            <div class="flex flex-wrap justify-between items-center flex-1 gap-4">
+              <div class="flex gap-2">
+                <Button @click="chooseCallback" icon="pi pi-file-pdf" rounded variant="outlined" severity="secondary"
+                  :disabled="files.length === 1" v-tooltip.top="'Anexar Nota Fiscal'"></Button>
+                <Button @click="uploadInvoice" icon="pi pi-save" rounded variant="outlined" severity="success"
+                  :disabled="files.length === 0" :loading="uploading" v-tooltip.top="'Upload'"></Button>
+                <Button @click="clearCallback" icon="pi pi-times" rounded variant="outlined" severity="danger"
+                  :disabled="files.length === 0" v-tooltip.top="'Limpar'"></Button>
+              </div>
+            </div>
+          </template>
+          <template #content="{ files, messages }">
+            <div class="flex flex-column" v-if="files.length > 0">
+              <Message v-for="message of messages" :key="message" severity="error">
+                {{ message }}
+              </Message>
+
+              <div class="flex flex-wrap">
+                <div v-for="(file) of files" :key="file.name + file.type + file.size"
+                  class="flex justify-content-center align-items-center border border-surface items-center gap-2">
+                  <i class="pi pi-file-pdf"></i>
+                  <span class="font-semibold text-ellipsis max-w-60 whitespace-nowrap overflow-hidden">{{
+                    file.name }}</span>
+                </div>
+              </div>
+            </div>
+          </template>
+          <template #empty>
+            <span>Selecione a <strong>Nota Fiscal</strong> (Nf-e) da sua arma.</span>
+          </template>
+        </FileUpload>
+      </div>
+
+      <div class="col-12 pb-0">
+        <div class="flex justify-content-end gap-2">
+          <Button label="Cancelar" outlined @click="hideDialog" />
+          <Button type="submit" label="Salvar" />
+        </div>
+      </div>
+    </Form>
+  </Dialog>
+
+  <Dialog v-model:visible="qrDialog" modal header="Etiqueta de Patrimônio"
+    :style="{ width: '90vw', maxWidth: '375px' }">
+    <div class="grid">
+      <div class="col-12">
+        <div class="flex flex-column align-items-center gap-3">
+          <div ref="label" class="border-2 border-round p-3 text-center surface-0 shadow-2 bg-white">
+            <div class="text-xs font-bold mb-2 text-gray-600">
+              {{ selectedWeapon.name }}
+            </div>
+            <QrcodeVue :value="generateUrl(selectedWeapon.$id)" :size="200" level="H" background="#ffffff"
+              foreground="#000000" />
+            <div class="text-xs mt-2 text-gray-600">
+              ID: {{ selectedWeapon.$id }}
+            </div>
+          </div>
+
+          <div class="flex flex-column w-full gap-2">
+            <Button label="Baixar Etiqueta" icon="pi pi-download" @click="downloadQrCode" severity="success"
+              :loading="downloading" />
+            <small class="text-center text-gray-500">Imprima e cole no equipamento.</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </Dialog>
+
+  <Dialog v-model:visible="maintenanceDialog" modal header="Histórico de Manutenções"
+    :style="{ width: '90vw', maxWidth: '667px' }">
+    <DataTable :value="maintenance" stripedRows tableStyle="min-width: 50rem">
+      <Column header="Data">
+        <template #body="{ data }">
+          {{ dayjs(data.maintenance_at).format('DD/MM/YYYY') }}
+        </template>
+      </Column>
+      <Column header="Status">
+        <template #body="{ data }">
+          <Tag :value="getMaintenanceStatusLabel(data.status)"
+            :severity="data.status === 'completed' ? 'success' : 'secondary'" />
+        </template>
+      </Column>
+      <Column header="Tipo">
+        <template #body="{ data }">
+          <Tag v-for="type in data.type" :key="type" :value="getMaintenanceTypeLabel(type)" />
+        </template>
+      </Column>
+      <Column header="Relatório Técnico">
+        <template #body="{ data }">
+          <span>{{ data.technical_report || 'Nenhum relatório disponível.' }}</span>
+        </template>
+      </Column>
+
+      <template #empty>
+        <Empty label="Nenhuma manutenção encontrada" icon="ri-history-line" />
+      </template>
+    </DataTable>
+  </Dialog>
 </template>
 
 <script setup lang="ts">

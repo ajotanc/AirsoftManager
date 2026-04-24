@@ -1,6 +1,6 @@
 <template>
-  <Dialog v-model:visible="visible" :header="header" :modal="true"
-    :style="{ width: '100%', maxWidth: '384px', overflow: 'hidden' }" class="m-3"
+  <Dialog v-model:visible="visible" :header="header" modal
+    :style="{ width: '90vw', maxWidth: '375px', overflow: 'hidden' }"
     :contentStyle="{ padding: '0', display: 'flex', flexDirection: 'column' }" @hide="onClose">
     <div class="relative scanner-viewport">
       <QrcodeStream class="qrcode-stream-wrapper" @detect="onDetectInternal" @init="onInit" :track="paintOutline"

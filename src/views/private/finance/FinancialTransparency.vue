@@ -156,8 +156,8 @@
       </div>
     </div>
 
-    <Dialog v-model:visible="cashflowDialog" header="Histórico de Movimentações" :modal="true"
-      :style="{ width: '100%', maxWidth: '768px' }">
+    <Dialog v-model:visible="cashflowDialog" header="Histórico de Movimentações" modal
+      :style="{ width: '90vw', maxWidth: '768px' }">
       <AppTable title="Transações" :value="cashflows" :fields="fields" :loading="loading" :header="false" />
     </Dialog>
   </div>

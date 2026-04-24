@@ -1,6 +1,6 @@
 <template>
-  <Dialog v-model:visible="visible" :header="header" :modal="true" :style="{ width: '100%', maxWidth: '640px' }"
-    class="m-3" @hide="$emit('close')">
+  <Dialog v-model:visible="visible" :header="header" modal :style="{ width: '90vw', maxWidth: '667px' }"
+    @hide="$emit('close')">
     <Form ref="formRef" :resolver="resolver" :initialValues="initialValues" @submit="onHandleSubmit" class="grid"
       :key="initialValues.$id || 'new'">
       <template v-for="field in fields" :key="field.name">

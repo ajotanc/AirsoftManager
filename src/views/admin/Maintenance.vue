@@ -27,8 +27,7 @@
       </template>
     </AppTable>
 
-    <Dialog v-model:visible="maintenanceDialog" header="Manutenção" :modal="true"
-      :style="{ width: '100%', maxWidth: '640px' }" class="m-3">
+    <Dialog v-model:visible="maintenanceDialog" header="Manutenção" modal :style="{ width: '90vw', maxWidth: '667px' }">
       <Form ref="form" :resolver="resolver" :initialValues="selectedMaintenance" @submit="saveMaintenance" class="grid"
         :key="selectedMaintenance.$id || 'new'">
         <div class="col-12">
