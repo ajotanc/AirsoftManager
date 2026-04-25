@@ -2,19 +2,19 @@ import { ID, Query, type Models } from "appwrite";
 import { tables, permissions, DATABASE_ID } from "@/services/appwrite";
 import { deleteFile, uploadFile } from "@/functions/utils";
 import dayjs from "dayjs";
+import type { IPayment } from "./payment";
 
 export const TABLE_CASHFLOW = "cashflow";
 
-export interface ICashflow extends Models.Row {
+export interface ICashflow<Tp = IPayment | string> extends Models.Row {
   description: string;
   amount: number;
   type: "income" | "expense";
   category: string;
   date: Date | string | null;
   reference: string;
-
   receipt_url: string | null;
-  payment?: string;
+  payment?: Tp;
   file?: File | null;
 }
 
@@ -27,6 +27,7 @@ export const CashflowService = {
         databaseId: DATABASE_ID,
         tableId: TABLE_CASHFLOW,
         queries: [
+          Query.select(["*", "payment.*", "payment.operator.*"]),
           Query.orderDesc("date"),
           Query.orderDesc("reference"),
           Query.endsWith("reference", reference),
@@ -40,14 +41,16 @@ export const CashflowService = {
       return [];
     }
   },
-  async listAnnual(year?: string | number): Promise<ICashflow[]> {
+  // Adicionando o generic <T = string | IPayment>
+  async listAnnual<T = string | IPayment>(year?: string | number): Promise<ICashflow<T>[]> {
     try {
       const referenceYear = year ? year.toString() : dayjs().format("YYYY");
 
-      const response = await tables.listRows<ICashflow>({
+      const response = await tables.listRows<ICashflow<T>>({
         databaseId: DATABASE_ID,
         tableId: TABLE_CASHFLOW,
         queries: [
+          Query.select(["*", "payment.*", "payment.operator.*"]),
           Query.orderDesc("date"),
           Query.endsWith("reference", referenceYear),
           Query.limit(1000),
@@ -56,7 +59,7 @@ export const CashflowService = {
 
       return response.rows;
     } catch (error) {
-      console.error("Erro ao listar visitantes:", error);
+      console.error("Erro ao listar financeiro:", error);
       return [];
     }
   },

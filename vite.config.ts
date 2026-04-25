@@ -105,7 +105,7 @@ export default defineConfig(({ mode }) => {
         targets: [
           {
             src: 'node_modules/pdfjs-dist/build/pdf.worker.min.mjs',
-            dest: '.',
+            dest: 'js',
           },
         ],
       }),

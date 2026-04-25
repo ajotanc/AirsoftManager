@@ -142,7 +142,7 @@
               <div class="flex-grow-1">
                 <div class="font-bold text-900">{{ flow.description }}</div>
                 <div class="text-500 text-sm">
-                  {{ dayjs(flow.date).format('DD/MM/YYYY') }} · {{ CATEGORY_MAP[flow.category] || flow.category }}
+                  {{ flow.payment?.operator.codename }} · {{ dayjs(flow.date).format('DD/MM/YYYY') }} · {{ CATEGORY_MAP[flow.category] || flow.category }}
                 </div>
               </div>
               <div :class="['font-bold text-lg', flow.type === 'income' ? 'text-green-600' : 'text-red-600']">
@@ -158,7 +158,7 @@
 
     <Dialog v-model:visible="cashflowDialog" header="Histórico de Movimentações" modal
       :style="{ width: '90vw', maxWidth: '768px' }">
-      <AppTable title="Transações" :value="cashflows" :fields="fields" :loading="loading" :header="false" />
+      <AppTable :value="cashflows" :fields="fields" :loading="loading" :header="false" />
     </Dialog>
   </div>
 </template>
@@ -183,10 +183,11 @@ import FinancialTransparencySkeleton from "@/components/skeleton/FinancialTransp
 import { PaymentService, type IPayment } from "@/services/payment";
 import { formatCurrency } from "@/functions/utils";
 import Empty from "@/components/Empty.vue";
+import type { IOperator } from "@/services/operator";
 
 dayjs.locale('pt-br');
 
-const cashflows = ref<ICashflow[]>([]);
+const cashflows = ref<ICashflow<IPayment<IOperator>>[]>([]);
 const payments = ref<IPayment[]>([]);
 const loading = ref(true);
 const cashflowDialog = ref(false);
@@ -212,7 +213,7 @@ async function loadServices() {
   loading.value = true;
   try {
     const [cashflowsData, paymentsData] = await Promise.all([
-      CashflowService.listAnnual(selectedYear.value),
+      CashflowService.listAnnual<IPayment<IOperator>>(selectedYear.value),
       PaymentService.list()
     ]);
 
@@ -226,6 +227,7 @@ async function loadServices() {
 }
 
 const fields = ref([
+  { name: "payment.operator.codename", label: "Operador", component: InputText },
   { name: "date", label: "Data", component: DatePicker },
   { name: "description", label: "Descrição", component: InputText },
   { name: "category", label: "Categoria", component: Select, props: { options: TRANSACTION_CATEGORIES } },

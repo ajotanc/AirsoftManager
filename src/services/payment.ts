@@ -13,7 +13,7 @@ import { useOperator } from "@/composables/useOperator";
 export const TABLE_PAYMENTS = "payments";
 const key = import.meta.env.VITE_PIX_KEY;
 
-export interface IPayment extends Models.Row {
+export interface IPayment<To = IOperator | string> extends Models.Row {
   description: string;
   amount: number;
   status: "created" | "pending" | "overdue" | "paid";
@@ -21,7 +21,7 @@ export interface IPayment extends Models.Row {
   reference: string;
   receipt_url: string | null;
   goal?: string | IGoal;
-  operator: string | IOperator;
+  operator: To;
   due_date: Date | string | null;
   file?: File;
 }

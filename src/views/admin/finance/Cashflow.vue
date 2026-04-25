@@ -14,7 +14,7 @@
             <Skeleton v-if="loading" width="100%" height="1rem" />
             <template v-else>
               <Image :src="data.receipt_url" :alt="data.title" width="50" height="50" v-if="data.receipt_url"
-                class="overflow-hidden border-circle" preview />
+                class="overflow-hidden border-circle border-1 border-100" preview style="object-fit: cover;" />
             </template>
           </template>
         </Column>
@@ -144,12 +144,14 @@ const loadServices = async () => {
 };
 
 const cashflows = ref<ICashflow[]>([]);
+
 const loading = ref(true);
 
 const cashflowDialog = ref(false);
 const selectedCashflow = ref<ICashflow>({} as ICashflow);
 
 const fields = computed<IFields[]>(() => [
+  { name: "payment.operator.codename", label: "Operador", component: InputText, hidden: true },
   { name: "description", label: "Descrição", component: InputText, col: "12" },
   {
     name: "date", label: "Data", component: DatePicker, col: "6", props: {
