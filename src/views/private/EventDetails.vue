@@ -142,9 +142,9 @@
                                                 }">
                                                     {{ getDisplayName(operator) }}
                                                 </span>
-                                                <small v-if="operator.role === 'guest'"
-                                                    class="text-gray-500 uppercase text-xs">
-                                                    Convidado
+                                                <small v-if="operator.role === 'visitor'"
+                                                    class="text-gray-600 uppercase text-xs">
+                                                    Visitante
                                                 </small>
                                             </div>
 
@@ -1247,7 +1247,7 @@ const getOperatorName = (id: string) => operatorsMap.value.get(id)?.codename || 
 
 const getDisplayName = (op: IOperator) => {
     const team = op.team || 'Independente';
-    return op.role === 'guest' ? `${op.codename} (${team})` : op.codename;
+    return op.role === 'visitor' ? `${op.codename} (${team})` : op.codename;
 };
 </script>
 
