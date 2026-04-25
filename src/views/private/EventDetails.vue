@@ -110,8 +110,8 @@
                         <div v-if="isAdmin || isAdministrativeManagement" class="buttons flex flex-column gap-2 mb-3">
                             <Button v-if="canFinalize" label="Finalizar" icon="pi pi-check" severity="secondary"
                                 class="w-full" @click="finalizeEvent" :disabled="isFinished" />
-                            <Button label="Check-in QR Code" icon="pi pi-qrcode" class="w-full" severity="success"
-                                @click="openScannerDialog = true" :disabled="isFinished" />
+                            <Button label="Check-in" icon="pi pi-qrcode" class="w-full" severity="success"
+                                @click="openScannerDialog = true" :disabled="!canCheckin" />
                             <Button label="Adicionar Convidado" icon="pi pi-plus" class="w-full" severity="info"
                                 :disabled="availableVisitors.length === 0 || isFinished || !isConfirmed"
                                 @click="newVisitor" />
@@ -383,7 +383,8 @@
                         :maxSelectedLabels="3" class="w-full" display="chip">
                         <template #option="slotProps">
                             <div class="flex flex-column">
-                                <span class="font-bold">{{ slotProps.option.name }} ({{ slotProps.option.codename
+                                <span class="font-bold">{{ getShortName(slotProps.option.name) }} ({{
+                                    slotProps.option.codename
                                 }})</span>
                                 <small class="text-gray-500">Convidado por {{
                                     slotProps.option.operator.codename }}</small>
@@ -507,9 +508,13 @@ const averageFeedback = computed(() => {
 });
 
 const hasRating = computed(() => feedbacks.value.some(feedback => feedback.operator.$id === operator.value.$id));
-
 const hasCarpools = computed(() => carpools.value.some(carpool => carpool.vehicle.driver === operator.value.$id));
 const isFinished = computed(() => event.value.is_finished);
+
+const canCheckin = computed(() => {
+    const isToday = dayjs().isSame(dayjs(event.value.date), 'day');
+    return isToday && !isFinished.value && isConfirmed.value;
+});
 
 const carpoolAccepteds = computed(() => requests.value.filter(request => request.status === 'accepted'));
 const carpoolRequests = computed(() => {
@@ -752,19 +757,25 @@ async function onDetect(operatorId?: string) {
     if (!operatorId) return;
 
     try {
-
         await EventService.confirmAttendance(event.value.$id, operatorId);
+        const participation = participants.value.find(p => p.operator.$id === operatorId);
 
-        const op = participants.value.find(p => p.operator.$id === operatorId);
-        if (op) op.checked_in = true;
+        if (participation) {
+            participation.checked_in = true;
+        }
 
-        toast.add({ severity: 'success', summary: 'Check-in OK', life: 2000 });
+        toast.add({
+            severity: 'success',
+            summary: 'Check-in',
+            detail: `O operador ${participation?.operator.codename} foi identificado e confirmado.`,
+            life: 3000
+        });
 
         if (navigator.vibrate) navigator.vibrate(200);
         playBeep();
     } catch (e) {
         if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
-        toast.add({ severity: 'error', summary: 'Falha no Check-in' });
+        toast.add({ severity: 'error', summary: 'Falha no Check-in', life: 3000 });
     } finally {
         openScannerDialog.value = false;
     }

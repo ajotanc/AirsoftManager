@@ -108,7 +108,7 @@ watch(localAmount, (newValue, oldValue) => {
 
 const copyPix = () => {
   navigator.clipboard.writeText(localPixData.value.payload);
-  toast.add({ severity: 'success', summary: 'Copiado', detail: 'PIX copiado!', life: 2000 });
+  toast.add({ severity: 'success', summary: 'Copiado', detail: 'PIX copiado!', life: 3000 });
 };
 
 const onUploader = (event: FileUploadUploaderEvent) => {
