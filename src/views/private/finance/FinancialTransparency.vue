@@ -34,7 +34,17 @@
             :pt="{ value: { style: { backgroundColor: 'var(--p-yellow-900)' } } }" />
 
           <div class="mt-2 text-sm flex justify-content-between">
-            <span class="font-bold">{{ currentMonthName }}</span>
+            <div class="flex gap-1 font-bold">
+              <span @click="setActiveMonth(1)" class="cursor-pointer transition-colors"
+                :class="activeMonth === dayjs().subtract(1, 'month').format('MM/YYYY') ? 'text-yellow-900' : 'text-400'">
+                {{ dayjs().subtract(1, 'month').format('MMMM').toUpperCase() }}
+              </span>
+              <span class="text-400">/</span>
+              <span @click="setActiveMonth(0)" class="cursor-pointer transition-colors"
+                :class="activeMonth === dayjs().format('MM/YYYY') ? 'text-yellow-900' : 'text-400'">
+                {{ dayjs().format('MMMM').toUpperCase() }}
+              </span>
+            </div>
             <span>{{ percentage }}% concluído</span>
           </div>
         </div>
@@ -53,19 +63,18 @@
             </div>
           </div>
           <div class="mt-2 text-sm font-medium">Acumulado em {{ selectedYear }}</div>
-          <i :class="['absolute right-0 bottom-0 m-3', visibility.balance ? 'ri-eye-off-line' : 'ri-eye-line']"
+          <i :class="['absolute right-0 bottom-0 m-3 cursor-pointer', visibility.balance ? 'ri-eye-off-line' : 'ri-eye-line']"
             @click="toggleVisibility('balance')"></i>
         </div>
       </div>
 
       <div class="col-12 md:col-3">
         <div
-          class="card shadow-2 p-3 border-round h-full flex flex-column justify-content-between  bg-green-100 border-left-3 border-green-900 text-green-900 relative">
+          class="card shadow-2 p-3 border-round h-full flex flex-column justify-content-between bg-green-100 border-left-3 border-green-900 text-green-900 relative">
           <div class="flex align-items-center justify-content-between">
             <div>
               <span class="block font-bold mb-2">Total Entradas</span>
-              <div class="font-bold text-xl">+ {{ visibility.income ? formatCurrency(totalIncomes) : 'R$ •••••' }}
-              </div>
+              <div class="font-bold text-xl">+ {{ visibility.income ? formatCurrency(totalIncomes) : 'R$ •••••' }}</div>
             </div>
             <div class="bg-green-200 border-round w-3rem h-3rem flex align-items-center justify-content-center">
               <i class="ri-arrow-up-line text-xl"></i>
@@ -77,7 +86,7 @@
             </span>
             <span class="ml-1 font-normal">vs mês anterior</span>
           </div>
-          <i :class="['absolute right-0 bottom-0 m-3', visibility.income ? 'ri-eye-off-line' : 'ri-eye-line']"
+          <i :class="['absolute right-0 bottom-0 m-3 cursor-pointer', visibility.income ? 'ri-eye-off-line' : 'ri-eye-line']"
             @click="toggleVisibility('income')"></i>
         </div>
       </div>
@@ -89,7 +98,7 @@
             <div>
               <span class="block text-red-900 font-bold mb-2">Total Saídas</span>
               <div class="text-red-900 font-bold text-xl">- {{ visibility.expense ? formatCurrency(totalExpenses) :
-                'R$ •••••' }}</div>
+                'R$•••••' }}</div>
             </div>
             <div class="bg-red-200 border-round w-3rem h-3rem flex align-items-center justify-content-center">
               <i class="ri-arrow-down-line text-red-900 text-xl"></i>
@@ -102,7 +111,7 @@
             </span>
             <span class="ml-1 font-normal">vs mês anterior</span>
           </div>
-          <i :class="['absolute right-0 bottom-0 m-3', visibility.expense ? 'ri-eye-off-line' : 'ri-eye-line']"
+          <i :class="['absolute right-0 bottom-0 m-3 cursor-pointer', visibility.expense ? 'ri-eye-off-line' : 'ri-eye-line']"
             @click="toggleVisibility('expense')"></i>
         </div>
       </div>
@@ -133,7 +142,7 @@
           </div>
 
           <ul v-if="cashflows.length > 0" class="list-none p-0 m-0">
-            <li v-for="flow in cashflows.slice(0, 6)" :key="flow.$id"
+            <li v-for="flow in cashflows.slice(0, 10)" :key="flow.$id"
               class="flex align-items-center py-3 border-bottom-1 surface-border">
               <div :class="['w-3rem h-3rem flex align-items-center justify-content-center border-round mr-3',
                 flow.type === 'income' ? 'bg-green-100' : 'bg-red-100']">
@@ -142,7 +151,8 @@
               <div class="flex-grow-1">
                 <div class="font-bold text-900">{{ flow.description }}</div>
                 <div class="text-500 text-sm">
-                  {{ flow.payment?.operator.codename }} · {{ dayjs(flow.date).format('DD/MM/YYYY') }} · {{ CATEGORY_MAP[flow.category] || flow.category }}
+                  {{ flow.payment?.operator?.codename || 'Sem operador' }} · {{ dayjs(flow.date).format('DD/MM/YYYY') }}
+                  · {{ CATEGORY_MAP[flow.category] || flow.category }}
                 </div>
               </div>
               <div :class="['font-bold text-lg', flow.type === 'income' ? 'text-green-600' : 'text-red-600']">
@@ -187,27 +197,24 @@ import type { IOperator } from "@/services/operator";
 
 dayjs.locale('pt-br');
 
+// --- ESTADO ---
 const cashflows = ref<ICashflow<IPayment<IOperator>>[]>([]);
 const payments = ref<IPayment[]>([]);
 const loading = ref(true);
 const cashflowDialog = ref(false);
 
-const now = ref(dayjs());
-const selectedYear = ref(now.value.year());
-const currentMonth = now.value.format('MM/YYYY');
+const selectedYear = ref(dayjs().year());
+const activeMonth = ref(dayjs().format('MM/YYYY')); // Mês selecionado para o card de Saúde
 const years = ref([2024, 2025, 2026]);
 
-const visibility = ref({
-  balance: true,
-  income: true,
-  expense: true
-});
+const visibility = ref({ balance: true, income: true, expense: true });
 
-const toggleVisibility = (key: keyof typeof visibility.value) => {
-  visibility.value[key] = !visibility.value[key];
+// --- MÉTODOS ---
+const toggleVisibility = (key: keyof typeof visibility.value) => visibility.value[key] = !visibility.value[key];
+
+const setActiveMonth = (monthsAgo: number) => {
+  activeMonth.value = dayjs().subtract(monthsAgo, 'month').format('MM/YYYY');
 };
-
-onMounted(loadServices);
 
 async function loadServices() {
   loading.value = true;
@@ -216,7 +223,6 @@ async function loadServices() {
       CashflowService.listAnnual<IPayment<IOperator>>(selectedYear.value),
       PaymentService.list()
     ]);
-
     cashflows.value = cashflowsData;
     payments.value = paymentsData;
   } catch (e) {
@@ -226,97 +232,99 @@ async function loadServices() {
   }
 }
 
-const fields = ref([
-  { name: "payment.operator.codename", label: "Operador", component: InputText },
-  { name: "date", label: "Data", component: DatePicker },
-  { name: "description", label: "Descrição", component: InputText },
-  { name: "category", label: "Categoria", component: Select, props: { options: TRANSACTION_CATEGORIES } },
-  { name: "type", label: "Tipo de Transação", component: Select, props: { options: CASHFLOW_TYPES } },
-  { name: "amount", label: "Valor", component: InputNumber, props: { mode: 'currency', currency: 'BRL', locale: 'pt-BR' } }
-]);
-
-const currentMonthName = computed(() => dayjs().format('MMMM').toUpperCase());
-const totalActiveOperators = computed(() => payments.value.filter(p => p.category === 'monthly_fee' && p.reference === currentMonth).length);
-const paidOperatorsCount = computed(() => cashflows.value.filter(c => c.category === 'monthly_fee' && c.reference === currentMonth).length);
-const percentage = computed(() => totalActiveOperators.value ? Math.round((paidOperatorsCount.value / totalActiveOperators.value) * 100) : 0);
+onMounted(loadServices);
 
 const CATEGORY_MAP = Object.fromEntries(TRANSACTION_CATEGORIES.map(c => [c.value, c.label]));
 
-const incomes = computed(() => cashflows.value.filter(c => c.type === 'income' && dayjs(c.date).year() === selectedYear.value));
+const totalActiveOperators = computed(() =>
+  payments.value.filter(p => p.category === 'monthly_fee' && p.reference === activeMonth.value).length
+);
+
+const paidOperatorsCount = computed(() =>
+  cashflows.value.filter(c => c.category === 'monthly_fee' && c.reference === activeMonth.value).length
+);
+
+const percentage = computed(() =>
+  totalActiveOperators.value ? Math.round((paidOperatorsCount.value / totalActiveOperators.value) * 100) : 0
+);
+
+// Totais Anuais
+const incomes = computed(() => cashflows.value.filter(c => c.type === 'income'));
 const totalIncomes = computed(() => incomes.value.reduce((acc, curr) => acc + Number(curr.amount), 0));
-
-const expenses = computed(() => cashflows.value.filter(c => c.type === 'expense' && dayjs(c.date).year() === selectedYear.value));
+const expenses = computed(() => cashflows.value.filter(c => c.type === 'expense'));
 const totalExpenses = computed(() => expenses.value.reduce((acc, curr) => acc + Math.abs(Number(curr.amount)), 0));
-
 const totalBalance = computed(() => totalIncomes.value - totalExpenses.value);
 
+// Tendências (Compara Mês Atual vs Anterior)
 const trends = computed(() => {
-  const previousMonth = now.value.subtract(1, 'month').format('MM/YYYY');
+  const current = dayjs().format('MM/YYYY');
+  const prev = dayjs().subtract(1, 'month').format('MM/YYYY');
 
-  const getTotals = (ref: string) => {
-    return cashflows.value
-      .filter(f => f.reference === ref)
-      .reduce((acc, f) => {
-        const val = Math.abs(Number(f.amount));
-        f.type === 'income' ? acc.inc += val : acc.exp += val;
-        return acc;
-      }, { inc: 0, exp: 0 });
-  };
+  const getTotals = (ref: string) => cashflows.value
+    .filter(f => f.reference === ref)
+    .reduce((acc, f) => {
+      const val = Math.abs(Number(f.amount));
+      f.type === 'income' ? acc.inc += val : acc.exp += val;
+      return acc;
+    }, { inc: 0, exp: 0 });
 
-  const curr = getTotals(currentMonth);
-  const prev = getTotals(previousMonth);
+  const currTotals = getTotals(current);
+  const prevTotals = getTotals(prev);
 
   const calc = (c: number, p: number) => p === 0 ? (c > 0 ? 100 : 0) : Math.round(((c - p) / p) * 100);
 
-  return {
-    income: calc(curr.inc, prev.inc),
-    expense: calc(curr.exp, prev.exp)
-  };
+  return { income: calc(currTotals.inc, prevTotals.inc), expense: calc(currTotals.exp, prevTotals.exp) };
 });
 
+// Gráficos
 const monthlyTotals = computed(() => {
-  const incomes = Array(12).fill(0);
-  const expenses = Array(12).fill(0);
+  const inc = Array(12).fill(0);
+  const exp = Array(12).fill(0);
 
   cashflows.value.forEach(({ reference, type, amount }) => {
     if (reference.endsWith(selectedYear.value.toString())) {
       const index = parseInt(reference.substring(0, 2), 10) - 1;
       const val = Math.abs(Number(amount));
-
-      type === 'income' ? incomes[index] += val : expenses[index] += val;
+      type === 'income' ? inc[index] += val : exp[index] += val;
     }
   });
-
-  return { incomes, expenses };
+  return { inc, exp };
 });
 
 const barData = computed(() => ({
   labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
   datasets: [
-    { label: 'Entradas', backgroundColor: '#99C19B', data: monthlyTotals.value.incomes },
-    { label: 'Saídas', backgroundColor: '#E595A4', data: monthlyTotals.value.expenses }
+    { label: 'Entradas', backgroundColor: '#99C19B', data: monthlyTotals.value.inc },
+    { label: 'Saídas', backgroundColor: '#E595A4', data: monthlyTotals.value.exp }
   ]
 }));
 
 const pieData = computed(() => {
-  const categoryTotals: Record<string, number> = {};
-
+  const catTotals: Record<string, number> = {};
+  
   expenses.value.forEach(e => {
     const label = CATEGORY_MAP[e.category] || e.category;
-    categoryTotals[label] = (categoryTotals[label] || 0) + Math.abs(Number(e.amount));
+    catTotals[label] = (catTotals[label] || 0) + Math.abs(Number(e.amount));
   });
 
   return {
-    labels: Object.keys(categoryTotals),
-    datasets: [{
-      data: Object.values(categoryTotals),
-      backgroundColor: ['#8095B5', '#99C19B', '#E7C67F', '#A384E6', '#E595A4']
-    }]
+    labels: Object.keys(catTotals),
+    datasets: [{ data: Object.values(catTotals), backgroundColor: ['#8095B5', '#99C19B', '#E7C67F', '#A384E6', '#E595A4'] }]
   };
 });
 
-const barOptions = { maintainAspectRatio: false, plugins: { legend: { position: 'bottom' }, tooltip: { callbacks: { label: (c: any) => `${c.dataset.label}: ${formatCurrency(c.raw)}` } } }, scales: { y: { ticks: { callback: (v: any) => formatCurrency(v) } } } };
-const pieOptions = { maintainAspectRatio: false, plugins: { legend: { position: 'bottom' }, tooltip: { callbacks: { label: (c: any) => ` ${c.label}: ${formatCurrency(c.raw)}` } } } };
+// Configurações Table/Chart
+const fields = ref([
+  { name: "payment.operator.codename", label: "Operador", component: InputText },
+  { name: "date", label: "Data", component: DatePicker },
+  { name: "description", label: "Descrição", component: InputText },
+  { name: "category", label: "Categoria", component: Select, props: { options: TRANSACTION_CATEGORIES } },
+  { name: "type", label: "Tipo", component: Select, props: { options: CASHFLOW_TYPES } },
+  { name: "amount", label: "Valor", component: InputNumber, props: { mode: 'currency', currency: 'BRL', locale: 'pt-BR' } }
+]);
+
+const barOptions = { maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } }, scales: { y: { ticks: { callback: (v: any) => formatCurrency(v) } } } };
+const pieOptions = { maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } };
 </script>
 
 <style scoped>
