@@ -101,6 +101,10 @@
     </template>
   </div>
 
+  <div v-if="settings.isChampionshipActive">
+    Campeonado {{ settings.teamName }} ativo!
+  </div>
+
   <AppScanner v-model:visible="openScannerDialog" @detect="onDetect" header="QR Code" />
 
 </template>
@@ -124,12 +128,14 @@ import AppScanner from "@/components/AppScanner.vue";
 import { PaymentService, type IPayment } from "@/services/payment";
 import { SchoolService } from "@/services/school";
 import { useOperator } from "@/composables/useOperator";
+import { useSettingsStore } from '@/stores/settings';
+
+const settings = useSettingsStore();
 
 const { operator, isActiveOperator, isAdmin, authStore: { isVisitor } } = useOperator();
 const { $id, arsenal, loadout } = operator.value;
 
 const openScannerDialog = ref(false);
-
 const {
   data: missingCerts,
 } = useQuery({

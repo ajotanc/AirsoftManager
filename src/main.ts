@@ -1,6 +1,9 @@
 import { createApp } from "vue";
 import { createPinia } from "pinia";
-import { VueQueryPlugin, type VueQueryPluginOptions } from "@tanstack/vue-query";
+import {
+  VueQueryPlugin,
+  type VueQueryPluginOptions,
+} from "@tanstack/vue-query";
 
 import App from "./App.vue";
 import router from "./router";
@@ -9,23 +12,25 @@ import ToastService from "primevue/toastservice";
 import Tooltip from "primevue/tooltip";
 import ConfirmationService from "primevue/confirmationservice";
 import { registerSW } from "virtual:pwa-register";
-import StyleClass from 'primevue/styleclass';
-import Ripple from 'primevue/ripple';
+import StyleClass from "primevue/styleclass";
+import Ripple from "primevue/ripple";
 import dayjs from "dayjs";
 
 import { useOperator } from "@/composables/useOperator";
+import { useSettingsStore } from "@/stores/settings";
+
 import ExodoPreset from "./theme/exodo-preset";
 
-import '@fontsource-variable/google-sans-flex/full.css';
+import "@fontsource-variable/google-sans-flex/full.css";
 import "primeicons/primeicons.css";
 import "primeflex/primeflex.css";
 import "./style.css";
 
 import "remixicon/fonts/remixicon.css";
 
-import 'dayjs/locale/pt-br';
+import "dayjs/locale/pt-br";
 
-dayjs.locale('pt-br')
+dayjs.locale("pt-br");
 
 const app = createApp(App);
 const pinia = createPinia();
@@ -34,15 +39,18 @@ registerSW({
   immediate: true,
   onRegistered(r) {
     if (r) {
-      setInterval(() => {
-        console.log('Verificando atualizações no servidor...');
-        r.update();
-      }, 10 * 60 * 1000);
+      setInterval(
+        () => {
+          console.log("Verificando atualizações no servidor...");
+          r.update();
+        },
+        10 * 60 * 1000,
+      );
     }
   },
   onNeedRefresh() {
     location.reload();
-  }
+  },
 });
 
 app.use(pinia);
@@ -108,32 +116,31 @@ app.use(PrimeVue, {
 app.directive("tooltip", Tooltip);
 
 const { authStore } = useOperator();
+const settingsStore = useSettingsStore();
 
-authStore
-  .init()
-  .then(() => {
-    console.log("Auth inicializado com sucesso.");
-  })
-  .catch((err) => {
-    console.error("Erro ao conectar no Appwrite:", err);
-  });
+Promise.all([authStore.init(), settingsStore.init()]).then(() => {
+  console.log("Auth inicializado com sucesso.");
+  console.log("Configurações carregadas com sucesso.");
+});
 
-app.directive('styleclass', StyleClass);
-app.directive('ripple', Ripple);
+app.directive("styleclass", StyleClass);
+app.directive("ripple", Ripple);
 
-app.directive('asterisk', {
+app.directive("asterisk", {
   mounted(el, binding) {
     const schema = binding.value;
     if (!schema || !schema.shape) return;
 
     const shapes = schema.shape;
-    const labels = el.querySelectorAll('label');
+    const labels = el.querySelectorAll("label");
 
     labels.forEach((label: HTMLLabelElement) => {
-      const container = label.closest('.p-formfield');
+      const container = label.closest(".p-formfield");
       if (!container) return;
 
-      const input = container.querySelector('input[name], select[name], textarea[name]') as HTMLInputElement;
+      const input = container.querySelector(
+        "input[name], select[name], textarea[name]",
+      ) as HTMLInputElement;
 
       const fieldName = input ? input.name : label.htmlFor;
 
@@ -143,18 +150,18 @@ app.directive('asterisk', {
         const isOptional = fieldSchema.safeParse(undefined).success;
         const isRequired = !isOptional;
 
-        if (isRequired && !label.querySelector('.auto-asterisk')) {
-          const star = document.createElement('span');
-          star.innerText = '*';
-          star.style.paddingLeft = '0.15rem';
-          star.style.color = 'var(--p-red-500)';
-          star.style.fontWeight = 'bold';
-          star.classList.add('auto-asterisk');
+        if (isRequired && !label.querySelector(".auto-asterisk")) {
+          const star = document.createElement("span");
+          star.innerText = "*";
+          star.style.paddingLeft = "0.15rem";
+          star.style.color = "var(--p-red-500)";
+          star.style.fontWeight = "bold";
+          star.classList.add("auto-asterisk");
           label.appendChild(star);
         }
       }
     });
-  }
+  },
 });
 
 const vueQueryOptions: VueQueryPluginOptions = {
@@ -162,7 +169,7 @@ const vueQueryOptions: VueQueryPluginOptions = {
     defaultOptions: {
       queries: {
         staleTime: 1000 * 60 * 5, // Os dados ficam "frescos" por 5 minutos (não bate na API)
-        gcTime: 1000 * 60 * 15,   // Mantém no cache (lixo) por 15 minutos
+        gcTime: 1000 * 60 * 15, // Mantém no cache (lixo) por 15 minutos
         refetchOnWindowFocus: false, // Evita requisição ao focar na aba do navegador
         retry: 1, // Se der erro na rede (comum no mato no Airsoft), tenta só mais 1 vez
       },

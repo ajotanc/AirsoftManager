@@ -4,16 +4,16 @@ import { ID, Query, type Models } from "appwrite";
 
 export interface IArsenal extends Models.Row {
   name: string;
-  type: number | null;
-  joule: string | null;
-  fps: number | null;
-  invoice: string | null;
-  category: number | null;
-  avatar: string | null;
+  type: number;
+  joule: string;
+  fps: number;
+  invoice: string;
+  category: number;
+  avatar: string;
   maintenance_at: Date | string | null;
   operator: string;
-  is_favorite: boolean | null;
-  is_secondary: boolean | null;
+  is_favorite: boolean;
+  is_secondary: boolean;
 }
 
 export const ArsenalService = {
