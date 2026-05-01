@@ -4,15 +4,15 @@ import type { IOperator } from "./operator";
 import type { IArsenal } from "./arsenal";
 import { CATEGORIES } from "@/constants/airsoft";
 
-export const TABLE_TOURNAMENTS = "championships";
-export const TABLE_TOURNAMENT_TEAMS = "championship_teams";
-export const TABLE_TOURNAMENT_MATCHES = "championship_matches";
-export const TABLE_TOURNAMENT_REGISTRATIONS = "championship_registrations";
+// export const TABLE_TOURNAMENTS = "championships";
+// export const TABLE_TOURNAMENT_TEAMS = "championship_teams";
+// export const TABLE_TOURNAMENT_MATCHES = "championship_matches";
+// export const TABLE_TOURNAMENT_REGISTRATIONS = "championship_registrations";
 
-// export const TABLE_TOURNAMENTS = "tournaments";
-// export const TABLE_TOURNAMENT_TEAMS = "tournament_teams";
-// export const TABLE_TOURNAMENT_MATCHES = "tournament_matches";
-// export const TABLE_TOURNAMENT_REGISTRATIONS = "tournament_registrations";
+export const TABLE_TOURNAMENTS = "tournaments";
+export const TABLE_TOURNAMENT_TEAMS = "tournament_teams";
+export const TABLE_TOURNAMENT_MATCHES = "tournament_matches";
+export const TABLE_TOURNAMENT_REGISTRATIONS = "tournament_registrations";
 
 export type TournamentType = "knockout" | "bo3" | "bo5";
 export type TournamentAllowedClass = "all" | "pistol" | string;
