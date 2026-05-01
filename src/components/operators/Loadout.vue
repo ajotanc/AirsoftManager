@@ -93,7 +93,7 @@
           </div>
           <Image :src="getTypeUniform()" alt="Operador"
             :imageClass="['absolute w-full left-50 opacity-40 transition-all transition-duration-500', { 'z-1 opacity-100': shownUniform }]"
-            imageStyle="transform: translate(-50%, -5%);" />
+            imageStyle="transform: translate(-50%, -8%);" />
           <div
             :class="['flex justify-content-center align-items-center relative transition-all transition-duration-500', { 'opacity-40': shownUniform }]">
             <div class="gap-3" style="display: grid; grid-template-columns: repeat(3, 1fr);">
