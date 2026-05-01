@@ -10,6 +10,7 @@ import router from "@/router";
 
 import { BUCKET_ID, storage } from '@/services/appwrite';
 import { CATEGORIES_OPTIONS, MAINTENANCE_STATUS_TYPES, MAINTENANCE_TYPES } from '@/constants/airsoft';
+import { useSettingsStore } from '@/stores/settings';
 
 dayjs.extend(customParseFormat);
 pdfjsLib.GlobalWorkerOptions.workerSrc = '/js/pdf.worker.min.mjs';
@@ -357,15 +358,15 @@ export const limitWords = (text: string, limit: number) => {
 };
 
 export const checkRegistrationPeriod = () => {
-  const startDateStr = import.meta.env.VITE_REGISTRATION_START_DATE;
+  const settings = useSettingsStore();
 
-  if (!startDateStr) return false;
+  if (!settings.registrationStartDate) return false;
 
   const now = dayjs();
-  const startDate = dayjs(startDateStr);
+  const startDate = dayjs(settings.registrationStartDate);
   const endDate = startDate.add(20, 'day');
 
-  return now.isAfter(startDate) && now.isBefore(endDate);
+  return now.isAfter(startDate) && now.isBefore(endDate) && settings.recruitmentIsOpen;
 };
 
 export const export2CSV = (filename: string, rows: any[], headers: string[], separator: string = ";") => {

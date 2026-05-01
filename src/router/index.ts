@@ -133,6 +133,11 @@ const router = createRouter({
           component: () => import("../views/private/EventDetails.vue"),
         },
         {
+          path: "tournament/:id",
+          name: "tournament-details",
+          component: () => import("../views/private/Tournament.vue"),
+        },
+        {
           path: "/happy-birthday/:id",
           name: "happy-birthday",
           component: () => import("../views/private/HappyBirthday.vue"),
@@ -244,28 +249,34 @@ router.beforeEach(async (to, _, next) => {
   }
 
   // 3. Redirecionamento de Logados
+  // AJUSTE: Só manda pro Dashboard se já tiver o básico (Perfil e Arsenal)
   if (isAuthenticated && ["/login", "/register", "visitor-registration", "/"].includes(to.path)) {
-    return next("/dashboard");
+    if (isProfileComplete && hasArsenal) {
+      return next("/dashboard");
+    }
+    // Se não tiver o básico, deixa passar para as regras 4 ou 5 tratarem o redirecionamento correto
   }
 
   // 4. REGRAS ESPECÍFICAS PARA VISITANTES
   if (isAuthenticated && isVisitor) {
-    // TRAVA DE PERFIL: Se não completou o perfil, força ir para /profile e não sai de lá
+    // PASSO 1: Perfil
     if (!isProfileComplete && to.path !== "/profile") {
       return next("/profile");
     }
 
-    // Definimos o que o visitante PODE acessar (Rotas base + Gamificação/Game)
-    const allowedPaths = ["/dashboard", "/profile", "/game/badges", "/game/ratings", "/game/player-card"];
+    // PASSO 2 (NOVO): Arsenal Obrigatório para Visitante também
+    if (isProfileComplete && !hasArsenal && to.path !== "/arsenal") {
+      return next("/arsenal");
+    }
 
-    // Verifica se a rota atual está na lista de permitidas ou se é um detalhe de evento (pelo nome ou path)
-    const isAllowed = allowedPaths.includes(to.path) || to.name?.toString().includes('event-details') || to.path.startsWith('/events/');
+    const allowedPaths = ["/dashboard", "/profile", "/arsenal", "/game/badges", "/game/ratings", "/game/player-card"];
+    const isAllowed = allowedPaths.includes(to.path) || to.name?.toString().includes('event-details') || to.path.startsWith('/events/') || to.name?.toString().includes('tournament-details');
 
-    // Se ele tentar acessar algo fora das permissões (Admin, Financeiro, Arsenal, etc)
+    // Removido "/arsenal" da lista isTryingRestricted para o visitante poder entrar
     const isTryingRestricted =
       to.path.startsWith('/management') ||
       to.path.startsWith('/administrative') ||
-      ["/arsenal", "/loadout", "/vehicles"].includes(to.path);
+      ["/loadout", "/vehicles"].includes(to.path);
 
     if (isTryingRestricted || !isAllowed) {
       return next("/dashboard");
@@ -274,7 +285,7 @@ router.beforeEach(async (to, _, next) => {
     return next();
   }
 
-  // 5. FLUXO OBRIGATÓRIO DE CADASTRO (Apenas para Operadores/Recrutas)
+  // 5. FLUXO OBRIGATÓRIO DE CADASTRO (Operadores/Recrutas)
   if (isAuthenticated && to.meta.requiresAuth && !isVisitor) {
     if (isRecruit || (!isRecruit && isActiveOperator)) {
       if (!isProfileComplete && to.path !== "/profile") return next("/profile");
@@ -289,13 +300,9 @@ router.beforeEach(async (to, _, next) => {
 
       if (authStore.isSchoolLocked) {
         const RECOVERY_PATH = "/administrative/school/recovery";
-
         if (to.path !== RECOVERY_PATH) {
-          console.warn("🛡️ SISTEMA TRAVADO: Redirecionando para Recuperação.");
           return next(RECOVERY_PATH);
         }
-
-        // Se ele já está indo para uma das rotas permitidas, deixa passar (next() no final do arquivo)
       }
     }
   }

@@ -12,7 +12,7 @@
         <div class="flex flex-column align-items-center gap-3">
           <Tag severity="warn" variant="outlined" class="p-2 px-3 uppercase font-bold">
             <div class="flex align-items-center gap-2">
-              <i class="ri-radar-line pi-spin blink animation-duration-1000 animation-iteration-infinite"></i>
+              <i class="ri-radar-line blink animation-duration-1000 animation-iteration-infinite"></i>
               <span>Sistema de Gestão Tática Ativo</span>
             </div>
           </Tag>
@@ -30,10 +30,12 @@
 
         <div class="flex flex-column sm:flex-row justify-content-center align-items-center gap-3 w-auto">
           <Button :label="registration.label" :icon="registration.icon" :disabled="registration.disabled"
-            :severity="registration.severity" class="font-bold uppercase shadow-4 w-20rem" @click="router.push('/register')" />
+            :severity="registration.severity" class="text-yellow-900 uppercase shadow-4 w-20rem"
+            @click="router.push('/register')" />
 
           <Button label="ÁREA DO OPERADOR" icon="ri-shield-keyhole-line" severity="warn" outlined
-            class="font-bold uppercase shadow-4 w-20rem text-yellow-500 border-yellow-500 hover:text-yellow-900 hover:border-yellow-900 hover:bg-yellow-500" @click="router.push('/login')" />
+            class="uppercase shadow-4 w-20rem text-yellow-500 border-yellow-500 hover:text-yellow-900 hover:border-yellow-900 hover:bg-yellow-500"
+            @click="router.push('/login')" />
         </div>
       </div>
     </div>
@@ -259,3 +261,9 @@ const year = new Date().getFullYear();
 const description = import.meta.env.VITE_TITLE;
 
 </script>
+
+<style scoped>
+:deep(.p-button-label) {
+  font-weight: bold;
+}
+</style>

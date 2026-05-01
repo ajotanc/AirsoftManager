@@ -7,6 +7,8 @@ const success = palette("#388E3C");
 const danger = palette("#dc143c");
 const warn = palette("#daa520");
 const help = palette("#7c4dff");
+const hazard = palette("#E65100");
+const secondary = palette("#546E7A");
 
 const ExodoPreset = definePreset(Aura, {
   primitive: {
@@ -15,6 +17,8 @@ const ExodoPreset = definePreset(Aura, {
     yellow: warn,
     purple: help,
     blue: primary,
+    orange: hazard,
+    gray: secondary
   },
   semantic: {
     colorScheme: {

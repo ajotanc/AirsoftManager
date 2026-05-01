@@ -138,7 +138,7 @@ const dtValue = computed(() => {
   background-color: var(--p-surface-800);
 }
 
-.avatar img {
+:deep(.avatar img) {
   width: 100%;
   height: 100%;
   object-fit: cover;

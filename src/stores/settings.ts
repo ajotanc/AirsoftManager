@@ -9,9 +9,10 @@ export const useSettingsStore = defineStore("settings", {
   }),
   getters: {
     teamName: (state) => state.config["team_name"] || "Team Airsoft",
-    isChampionshipActive: (state) =>
-      JSON.parse(state.config["championship_active"] || "false"),
-    monthlyFee: (state) => Number(state.config["monthly_fee"] || 0),
+    isTournamentActive: (state) => String(state.config["tournament_active"]) === "true",
+    recruitmentIsOpen: (state) => String(state.config["recruitment_open"]) === "true",
+    monthlyFee: (state) => state.config["monthly_fee"] || import.meta.env.VITE_MONTHLY_FEE,
+    registrationStartDate: (state) => state.config["registration_start_date"] || import.meta.env.VITE_REGISTRATION_START_DATE
   },
   actions: {
     async init() {
@@ -20,38 +21,49 @@ export const useSettingsStore = defineStore("settings", {
       if (cached) {
         try {
           this.config = JSON.parse(cached);
+          this.refresh();
         } catch (e) {
           localStorage.removeItem("app_settings");
         }
       }
 
-      await this.refresh();
+      // Se após o cache ainda estiver vazio, busca obrigatório com await
+      if (Object.keys(this.config).length === 0) {
+        await this.refresh();
+      }
 
       const channel = `databases.${DATABASE_ID}.collections.${TABLE_SETTINGS}.documents`;
 
       realtime.subscribe(channel, (response) => {
-        if (
-          response.events.some(
-            (e) => e.includes(".update") || e.includes(".create"),
-          )
-        ) {
+        const isChange = response.events.some(
+          (e) => e.includes(".update") || e.includes(".create") || e.includes(".delete")
+        );
+
+        if (isChange) {
           this.refresh();
         }
       });
     },
 
     async refresh() {
+      if (this.loading) return; // Evita múltiplas chamadas simultâneas
+
       this.loading = true;
-      const rows = await SettingsService.list();
-      const map: Record<string, string> = {};
+      try {
+        const rows = await SettingsService.list();
+        const map: Record<string, string> = {};
 
-      rows.forEach((s) => {
-        map[s.key] = s.value;
-      });
+        rows.forEach((s) => {
+          map[s.key] = s.value;
+        });
 
-      this.config = map;
-      localStorage.setItem("app_settings", JSON.stringify(map));
-      this.loading = false;
+        this.config = map;
+        localStorage.setItem("app_settings", JSON.stringify(map));
+      } catch (error) {
+        console.error("Falha ao sincronizar configurações:", error);
+      } finally {
+        this.loading = false;
+      }
     },
   },
 });

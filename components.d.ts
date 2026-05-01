@@ -87,6 +87,10 @@ declare module 'vue' {
     Tag: typeof import('primevue/tag')['default']
     Toast: typeof import('primevue/toast')['default']
     ToggleSwitch: typeof import('primevue/toggleswitch')['default']
+    TournamentBracket: typeof import('./src/components/tournament/TournamentBracket.vue')['default']
+    TournamentInfo: typeof import('./src/components/tournament/TournamentInfo.vue')['default']
+    TournamentLeaderboard: typeof import('./src/components/tournament/TournamentLeaderboard.vue')['default']
+    TournamentStat: typeof import('./src/components/tournament/TournamentStat.vue')['default']
   }
   export interface GlobalDirectives {
     Ripple: typeof import('primevue/ripple')['default']

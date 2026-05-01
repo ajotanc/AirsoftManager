@@ -16,7 +16,10 @@ export const SettingsService = {
       const response = await tables.listRows<ISetting>({
         databaseId: DATABASE_ID,
         tableId: TABLE_SETTINGS,
-        queries: [Query.limit(100)],
+        queries: [
+          Query.select(['key', 'value']),
+          Query.limit(100)
+        ],
       });
       return response.rows;
     } catch (error) {

@@ -1126,6 +1126,7 @@ export const TRANSACTION_CATEGORIES = [
   { value: "enrollment", label: "Matrícula/Adesão", severity: "success" },
   { value: "guest_fee", label: "Diária de Visitante", severity: "info" },
   { value: "event_registration", label: "Inscrição de Evento", severity: "info" },
+  { value: "championship_registration", label: "Inscrição do Campeonato", severity: "info" },
   { value: "merchandise", label: "Vendas", severity: "success" },
   { value: "sponsorship", label: "Patrocínio / Parceria", severity: "success" },
   { value: "donation", label: "Doação Espontânea", severity: "success" },

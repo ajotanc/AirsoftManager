@@ -21,7 +21,7 @@ export const navItems = computed<AppMenuItem[]>(() => [
   {
     label: "Equipamentos",
     icon: "ri-suitcase-2-line",
-    visible: !authStore.isVisitor,
+    visible: authStore.isAuthenticated,
     items: [
       {
         label: "Arsenal",
@@ -33,12 +33,14 @@ export const navItems = computed<AppMenuItem[]>(() => [
         label: "Loadout",
         icon: "ri-t-shirt-2-line",
         url: "/loadout",
+        visible: !authStore.isVisitor,
         disabled: authStore.isLoadoutLocked
       },
       {
         label: "Veiculos",
         icon: "ri-car-line",
         url: "/vehicles",
+        visible: !authStore.isVisitor,
         disabled
       },
     ],

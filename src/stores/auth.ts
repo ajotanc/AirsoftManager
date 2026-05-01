@@ -34,10 +34,6 @@ export const useAuthStore = defineStore("auth", {
     canAccessFinance(_state): boolean {
       return this.isActiveOperator || (!this.isRecruit && !this.isActiveOperator);
     },
-    canAccessGear(state): boolean {
-      const profileDone = this.isProfileComplete;
-      return !!state.operator.status || (state.operator.role === 'recruit' && profileDone);
-    },
     isArsenalLocked(): boolean {
       return !this.isProfileComplete;
     },

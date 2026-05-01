@@ -1,0 +1,366 @@
+/* ── 1. TIPOGRAFIA E LABELS GERAIS ── */
+.tournament-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.section-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+  color: var(--p-blue-300);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.section-title::before {
+  content: '';
+  width: 4px;
+  height: 16px;
+  background: var(--p-red-500);
+  display: block;
+  border-radius: 1px;
+}
+
+.round-label, .bracket-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--p-blue-300);
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: .15em;
+}
+
+/* ── 2. INFO GRID & CARDS (Estatísticas e MVP) ── */
+.info-grid {
+  background: var(--p-blue-100);
+  border: 1px solid var(--p-blue-100);
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.info-card {
+  background: var(--p-surface-0);
+  padding: 1rem 1.25rem;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.info-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--p-blue-100), transparent);
+}
+
+/* Cores de Destaque dos Cards */
+.info-card.accent-green::before { background: linear-gradient(90deg, var(--p-green-500), transparent); }
+.info-card.accent-red::before, .info-card.red::before { background: linear-gradient(90deg, var(--p-red-500), transparent); }
+.info-card.accent-blue::before, .info-card.blue::before { background: linear-gradient(90deg, var(--p-blue-500), transparent); }
+.info-card.accent-yellow::before, .info-card.gold::before { background: linear-gradient(90deg, var(--p-yellow-500), transparent); }
+
+.info-card-bg {
+  position: absolute;
+  top: 0; right: 4px;
+  font-size: 48px;
+  font-weight: 900;
+  opacity: .04;
+  line-height: 1;
+  pointer-events: none;
+  letter-spacing: -.02em;
+  color: var(--p-blue-900);
+}
+
+.gold .info-card-bg { color: var(--p-yellow-500); }
+.red .info-card-bg { color: var(--p-red-500); }
+.blue .info-card-bg { color: var(--p-blue-500); }
+
+.info-label, .mvp-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--p-blue-300);
+  margin-bottom: 2px;
+}
+
+.gold .mvp-label { color: var(--p-yellow-700); }
+.red .mvp-label { color: var(--p-red-500); }
+.blue .mvp-label { color: var(--p-blue-500); }
+
+.info-value {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--p-blue-700);
+  line-height: 1.1;
+}
+
+.mvp-value {
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 1;
+  margin-top: 8px;
+  font-variant-numeric: tabular-nums;
+}
+
+.gold .mvp-value { color: var(--p-yellow-700); }
+.red .mvp-value { color: var(--p-red-500); }
+.blue .mvp-value { color: var(--p-blue-500); }
+
+.info-value span,
+.mvp-value span {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--p-blue-300);
+}
+
+/* ── 3. LEADERBOARD (TABELA DE CLASSIFICAÇÃO) ── */
+.lb-table {
+  background: var(--p-surface-0);
+  border: 1px solid var(--p-blue-100);
+  border-radius: 8px;
+  overflow-x: auto; /* Scroll horizontal se a tela for muito pequena */
+}
+
+.lb-header, .lb-row {
+  display: grid;
+grid-template-columns: 3rem 1fr 3rem 3rem 4rem 3rem 3rem 3rem 3rem 3rem 3rem 4rem;
+  column-gap: 0.5rem;
+  padding-block: 0.75rem;
+  align-items: center;
+  min-width: 48rem;
+  position: relative;
+}
+
+.lb-header {
+  background: var(--p-blue-50);
+  border-bottom: 1px solid var(--p-blue-100);
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.lb-cell {
+  font-size: 10px;
+  color: var(--p-blue-300);
+  letter-spacing: 0.05em;
+}
+
+.lb-row {
+  border-bottom: 1px solid var(--p-blue-50);
+  transition: background 0.2s;
+}
+
+.lb-row:last-child { border-bottom: none; }
+.lb-row:hover { background: var(--p-blue-50); }
+
+/* Ranks e Destaques da Tabela */
+.lb-row.rank-1, .lb-row.rank-1 { background: var(--p-yellow-100); }
+.lb-row.rank-1::before, .lb-row.rank-1::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--p-yellow-500);
+}
+
+.lb-row.rank-2 { background: var(--p-gray-100); }
+.lb-row.rank-2::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--p-gray-500);
+}
+
+.lb-row.rank-3 { background: var(--p-orange-100); }
+.lb-row.rank-3::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--p-orange-700);
+}
+
+.op-name { font-size: 13px; font-weight: 700; color: var(--p-blue-700); line-height: 1.2; }
+.op-team { font-size: 11px; color: var(--p-blue-300); }
+.mvp-operator { font-size: 17px; font-weight: 700; color: var(--p-blue-700); line-height: 1; }
+.mvp-team { font-size: 11px; color: var(--p-blue-300);}
+
+.rank { font-size: 13px; font-weight: 700; color: var(--p-blue-300); font-variant-numeric: tabular-nums; }
+.rank.r1 { color: var(--p-yellow-700); }
+.rank.r2 { color: var(--p-silver-700); }
+.rank.r3 { color: var(--p-orange-700); }
+
+.stat { font-size: 13px; font-weight: 600; color: var(--p-blue-700); font-variant-numeric: tabular-nums; }
+.stat.deaths { color: var(--p-red-800); }
+.stat.pts { color: var(--p-yellow-800); font-size: 13px; font-weight: 800; }
+
+/* ── 4. BRACKET (CHAVEAMENTO) ── */
+.bracket-wrapper {
+width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+.bracket {
+  display: flex;
+  align-items: flex-start;
+  gap: 0;
+  padding-top: 1.75rem;
+  width: 100%;
+}
+
+/* Garante que os rounds não "esmaguem" no mobile */
+.round-col, 
+.connector-col {
+  flex-shrink: 0; 
+}
+
+.match-card {
+  width: 13.75rem;
+  background: var(--p-blue-50);
+  border: 1px solid var(--p-blue-100);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.match-champion {
+  width: 13.75rem;
+  background: var(--p-yellow-500);
+  color: var(--p-yellow-900);
+  border: 1px solid var(--p-yellow-900);
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  /* justify-content: space-between; */
+  padding: 8px 12px;
+  min-height: 40px;
+  transition: background .2s;
+}
+
+.champion-name {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.match-side {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  min-height: 40px;
+  transition: background .2s;
+}
+
+.match-side.winner {
+  background-color: var(--p-blue-700);
+  border-left: 4px solid var(--p-red-500);
+}
+
+.match-side.winner .side-name { color: var(--p-surface-0); }
+.match-side.loser { opacity: 0.6; }
+
+.side-name { font-size: 13px; font-weight: 600; color: #1e293b; }
+.side-name.tbd { color: var(--p-blue-300); font-style: italic; }
+
+.match-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.connector-col {
+  padding-inline: 1rem;
+}
+ 
+.champion-connector {
+  width: 16px;
+  height: 2px;
+  background: var(--p-blue-200);
+} 
+
+.operators-drawer {
+  color: var(--p-blue-500);
+  border-block: 1px solid var(--p-blue-100);
+  padding: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.operator-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* ── 5. SHOT CLINIC (SILHUETA) ── */
+.tactical-silhouette-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.hit-zone {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.hit-zone:hover {
+  filter: brightness(1.4) drop-shadow(0 0 10px var(--p-red-500));
+  stroke: var(--p-red-500);
+  stroke-width: 0.25rem;
+ }
+
+ .hit-part:active {
+  transform: scale(0.98);
+  transform-origin: center;
+}
+
+.hit-zone.zone-head { fill: var(--p-blue-300); }
+.hit-zone.zone-torso { fill: var(--p-blue-500); }
+.hit-zone.zone-arms,
+.hit-zone.zone-legs { fill: var(--p-blue-200); }
+
+/* ── 6. UTILITÁRIOS ── */
+.center { text-align: center; }
+.cursor-pointer { cursor: pointer; }
+.rotate-90 { transform: rotate(90deg); }
+.winner-arrow { color: var(--p-yellow-500) !important; }
+
+.button-icon {
+  width: 1.5rem !important;
+  height: 1.5rem !important;
+}
+
+.button-icon .p-button-label {
+  font-size: 0.7rem;
+}
+
+.info-description {
+  font-size: 14px;
+  color: var(--p-blue-400);
+}
+
+.award-item {
+  text-transform: uppercase;
+  font-size: 13px;
+  }
+
+  .award-item:last-child {
+    border-right: none;
+  }
+
+.award-item.rank-1 {
+  color: var(--p-yellow-700);
+}
+
+.award-item.rank-2 {
+  color: var(--p-gray-700);
+}
+
+.award-item.rank-3 {
+  color: var(--p-orange-700);
+}

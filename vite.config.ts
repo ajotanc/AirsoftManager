@@ -47,7 +47,7 @@ export default defineConfig(({ mode }) => {
           theme_color: "#081534",
           background_color: "#FFFFFF",
           lang: "pt-BR",
-          orientation: "portrait",
+          orientation: "any",
           icons: [
             {
               src: "images/pwa/pwa-64x64.png",
