@@ -252,49 +252,46 @@ export const TournamentService = {
    */
   async generateBracket(tournamentId: string, teams: ITournamentTeam[]): Promise<ITournamentMatch[]> {
     const totalTeams = teams.length;
-    const numRounds = Math.log2(totalTeams); // Ex: 4 times = 2 rounds
 
-    let nextRoundMatches: ITournamentMatch[] = [];
+    // CORREÇÃO: Math.ceil garante que o número de rounds seja um inteiro (ex: 3.8 vira 4)
+    const numRounds = Math.ceil(Math.log2(totalTeams));
 
-    // Continuamos criando da Final para o Início para garantir os IDs de next_match
-    for (let round = numRounds; round >= 1; round--) {
-      // CORREÇÃO: A quantidade de partidas diminui conforme o round aumenta
-      // Round 1 (Início) terá 2^(2-1) = 2 partidas
-      // Round 2 (Final) terá 2^(2-2) = 1 partida
+    // Função recursiva para criar os rounds sem usar 'let' ou loops 'for' manuais
+    const createRounds = async (round: number, nextMatches: ITournamentMatch[]): Promise<ITournamentMatch[]> => {
+      if (round < 1) return nextMatches;
+
       const matchesInRound = Math.pow(2, numRounds - round);
-      const currentRoundCreated: ITournamentMatch[] = [];
 
-      for (let i = 0; i < matchesInRound; i++) {
-        // Pega o ID da partida que este vencedor vai alimentar no round seguinte
-        const next_match = nextRoundMatches[Math.floor(i / 2)]?.$id || null;
+      const currentRoundMatches = await Promise.all(
+        Array.from({ length: matchesInRound }).map(async (_, i) => {
+          const next_match = nextMatches[Math.floor(i / 2)]?.$id || null;
 
-        const data = {
-          tournament: tournamentId,
-          next_match,
-          round,
-          // Só preenchemos os times no Round 1 (o início da árvore)
-          top_side: round === 1 ? (teams[i * 2]?.$id ?? null) : null,
-          bottom_side: round === 1 ? (teams[i * 2 + 1]?.$id ?? null) : null,
-          winner: null,
-          top_score: 0,
-          bottom_score: 0
-        };
+          const data = {
+            tournament: tournamentId,
+            next_match,
+            round: Math.floor(round), // Garante que seja inteiro para o Appwrite
+            top_side: round === 1 ? (teams[i * 2]?.$id ?? null) : null,
+            bottom_side: round === 1 ? (teams[i * 2 + 1]?.$id ?? null) : null,
+            winner: null,
+            top_score: 0,
+            bottom_score: 0
+          };
 
-        const match = await tables.createRow<ITournamentMatch>({
-          databaseId: DATABASE_ID,
-          tableId: TABLE_TOURNAMENT_MATCHES,
-          rowId: ID.unique(),
-          data,
-          permissions
-        });
+          return await tables.createRow<ITournamentMatch>({
+            databaseId: DATABASE_ID,
+            tableId: TABLE_TOURNAMENT_MATCHES,
+            rowId: ID.unique(),
+            data,
+            permissions // Certifique-se que 'permissions' está definido no escopo
+          });
+        })
+      );
 
-        currentRoundCreated.push(match);
-      }
-      // As partidas que acabamos de criar servirão de "next_match" para o round anterior (loop volta)
-      nextRoundMatches = currentRoundCreated;
-    }
+      return await createRounds(round - 1, currentRoundMatches);
+    };
 
-    return nextRoundMatches;
+    // Inicia a criação de trás para frente (da Final para a Semifinal...)
+    return await createRounds(numRounds, []);
   },
   /**
    * Gera nomes militares dinâmicos (Alpha, Bravo... Alpha II, Bravo II...)
