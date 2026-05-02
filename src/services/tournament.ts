@@ -311,24 +311,24 @@ export const TournamentService = {
     const hasLeftover = totalRegistered % opsPerTeam !== 0;
     const currentTeamsCount = Math.ceil(totalRegistered / opsPerTeam);
 
-    // Calcula a próxima potência de 2 (Ex: se for 14, targetTeams será 16)
+    // Calcula o alvo de times (Potência de 2: 2, 4, 8, 16...)
     const targetTeams = Math.pow(
       2,
       Math.ceil(Math.log2(Math.max(minTeams, currentTeamsCount)))
     );
 
     const requiredCount = targetTeams * opsPerTeam;
+    const missingTotal = requiredCount - totalRegistered;
 
-    // Validação estrita: precisa completar o número de times que formam uma potência de 2
+    // Validação estrita
     const isValid = !hasLeftover &&
       currentTeamsCount >= minTeams &&
       currentTeamsCount === targetTeams;
 
+    // Mensagem objetiva: informa o quanto falta para o objetivo final da estrutura
     const message = isValid
-      ? `${currentTeamsCount} equipes prontas para o sorteio.`
-      : hasLeftover
-        ? `Faltam ${requiredCount - totalRegistered} para completar a próxima equipe.`
-        : `Faltam ${requiredCount - totalRegistered} para equilibrar as chaves (Necessário: ${targetTeams} equipes).`;
+      ? `${currentTeamsCount} times prontas para o sorteio.`
+      : `Faltam ${missingTotal} para fechar o total de ${targetTeams} times.`;
 
     return {
       valid: isValid,
@@ -338,7 +338,7 @@ export const TournamentService = {
     };
   },
   /**
-   * Realiza o sorteio aleatório e cria as equipes no Appwrite.
+   * Realiza o sorteio aleatório e cria as times no Appwrite.
    * O slice garante que cada operador caia em apenas um time.
    */
   async drawTeams(
