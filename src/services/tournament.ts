@@ -309,29 +309,26 @@ export const TournamentService = {
   canStart(totalRegistered: number, opsPerTeam: number) {
     const minTeams = 2;
     const hasLeftover = totalRegistered % opsPerTeam !== 0;
-    const nextTeamCount = Math.ceil(totalRegistered / opsPerTeam);
+    const currentTeamsCount = Math.ceil(totalRegistered / opsPerTeam);
 
-    // Define o alvo (required):
-    // Se o número de times for ímpar e não houver sobra, busca o próximo par.
-    // Caso contrário, o alvo é completar a equipe atual.
-    const targetTeams = nextTeamCount < minTeams
-      ? minTeams
-      : (nextTeamCount % 2 !== 0 && !hasLeftover)
-        ? nextTeamCount + 1
-        : nextTeamCount;
+    // Calcula a próxima potência de 2 (Ex: se for 14, targetTeams será 16)
+    const targetTeams = Math.pow(
+      2,
+      Math.ceil(Math.log2(Math.max(minTeams, currentTeamsCount)))
+    );
 
     const requiredCount = targetTeams * opsPerTeam;
-    const currentTeamsCount = totalRegistered / opsPerTeam;
 
-    const isValid = totalRegistered >= (minTeams * opsPerTeam) &&
-      !hasLeftover &&
-      Math.floor(currentTeamsCount) % 2 === 0;
+    // Validação estrita: precisa completar o número de times que formam uma potência de 2
+    const isValid = !hasLeftover &&
+      currentTeamsCount >= minTeams &&
+      currentTeamsCount === targetTeams;
 
     const message = isValid
       ? `${currentTeamsCount} equipes prontas para o sorteio.`
       : hasLeftover
         ? `Faltam ${requiredCount - totalRegistered} para completar a próxima equipe.`
-        : `Faltam ${requiredCount - totalRegistered} para formar a próxima equipe e equilibrar as chaves.`;
+        : `Faltam ${requiredCount - totalRegistered} para equilibrar as chaves (Necessário: ${targetTeams} equipes).`;
 
     return {
       valid: isValid,
@@ -391,17 +388,12 @@ export const TournamentService = {
     });
   },
   shuffleOperators(operators: IOperator[]): IOperator[] {
-    const arr: IOperator[] = [...operators];
-
-    for (let i = arr.length - 1; i > 0; i--) {
-      const randArr = crypto.getRandomValues(new Uint32Array(1));
-      const rand = randArr[0]!;
-      const j = rand % (i + 1);
-      const temp = arr[i]!;
-      arr[i] = arr[j]!;
-      arr[j] = temp;
-    }
-
-    return arr;
+    return [...operators]
+      .map((op) => ({
+        op,
+        sort: crypto.getRandomValues(new Uint32Array(1))[0] as number
+      }))
+      .sort((a, b) => a.sort - b.sort)
+      .map(({ op }) => op);
   }
 };
