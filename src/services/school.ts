@@ -2,6 +2,7 @@ import { ID, Query, type Models } from "appwrite";
 import { tables, permissions, DATABASE_ID } from "@/services/appwrite";
 import dayjs from "dayjs";
 import type { IOperator } from "./operator";
+import { fisherYatesShuffle } from "@/functions/utils";
 
 export const TABLE_SCHOOL_QUESTIONS = "school_questions";
 export const TABLE_SCHOOL_ANSWERS = "school_answers";
@@ -148,11 +149,11 @@ export const SchoolService = {
       tableId: TABLE_SCHOOL_QUESTIONS,
       queries: [
         Query.equal("category", category),
-        Query.limit(10)
+        Query.limit(100)
       ]
     });
 
-    return this.fisherYates(response.rows).slice(0, limit);
+    return fisherYatesShuffle<ISchoolQuestion>(response.rows).slice(0, limit);
   },
   async getMissingCertifications(operatorId: string): Promise<SchoolCategory[]> {
     const { start } = this.getSemesterInfo();
@@ -169,16 +170,6 @@ export const SchoolService = {
 
     const completed = response.rows.map(r => r.category);
     return categories.filter(cat => !completed.includes(cat));
-  },
-  fisherYates<T>(array: T[]): T[] {
-    const arr = [...array];
-    for (let i = arr.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      const temp = arr[i]!;
-      arr[i] = arr[j]!;
-      arr[j] = temp;
-    }
-    return arr;
   },
   async create(data: ISchoolAnswer): Promise<ISchoolAnswer> {
     return await tables.createRow({

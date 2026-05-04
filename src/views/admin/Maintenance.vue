@@ -113,7 +113,7 @@ import Message from "primevue/message";
 import { Form } from '@primevue/forms';
 import { z } from 'zod';
 import { zodResolver } from "@primevue/forms/resolvers/zod";
-import { DatePicker, MultiSelect, Textarea, useConfirm } from "primevue";
+import { DatePicker, InputMask, InputNumber, MultiSelect, Textarea, useConfirm } from "primevue";
 import { MaintenanceService, type IMaintenance } from "@/services/maintenance";
 import { OperatorService, type IOperator } from "@/services/operator";
 import { dateToISOString, type IFields } from "@/functions/utils";
@@ -182,6 +182,12 @@ const fields = computed<IFields[]>(() => [
       variant: 'filled'
     }
   },
+  { name: "fps", label: "FPS", component: InputNumber, col: '6' },
+  {
+    name: "joule", label: "Joule", component: InputMask, col: '6', props: {
+      mask: "9.99", inputmode: "numeric"
+    }
+  },
   {
     name: "status", label: "Status", component: Select, col: "6", props: {
       options: MAINTENANCE_STATUS_TYPES,
@@ -198,8 +204,11 @@ const maintenanceSchema = z.object({
   arsenal: z.string({ error: "Selecione o equipamento" }),
   type: z.array(z.string({ error: "Selecione ao menos um tipo de manutenção" })),
   status: z.string({ error: "Status obrigatório" }),
+  joule: z.coerce.number({ error: "Informe o Joule" }).gt(0, { error: "Joule deve ser maior que 0.00" }).transform((value) => value && value.toString()).nullish().optional(),
+  fps: z.number({ error: "Informe o FPS" }).max(550, { error: "FPS deve ser menor ou igual a 550" }).gt(0, { error: "FPS deve ser maior que 0" }).nullish().optional(),
   maintenance_at: z.custom().refine((date) => date instanceof Date || typeof date === 'string', "Data da manutenção obrigatória").transform((date) => dateToISOString(date as Date | string)),
   technical_report: z.string().nullish().optional(),
+
 });
 
 const resolver = ref(zodResolver(maintenanceSchema));

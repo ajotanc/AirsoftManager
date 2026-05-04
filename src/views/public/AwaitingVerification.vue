@@ -1,6 +1,6 @@
 <template>
   <div class="flex align-items-center justify-content-center flex-1 surface-ground p-3">
-    <div class="surface-card p-4 shadow-2 border-round w-full lg:w-4">
+    <div class="surface-card p-4 shadow-3 border-round w-full lg:w-4">
       <div class="flex flex-column gap-3 mb-3 text-center">
         <i class="pi pi-envelope text-blue-500 text-6xl"></i>
         <h2 class="text-900 font-bold m-0">Verifique seu E-mail</h2>

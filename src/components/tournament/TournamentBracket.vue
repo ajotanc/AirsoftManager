@@ -13,7 +13,7 @@
                 <div class="round-label">{{ roundLabel(rd.round) }}</div>
 
                 <div v-for="(match, mi) in rd.matches" :key="match.$id" :style="slotStyle(ri, mi)">
-                  <div class="match-card shadow-2">
+                  <div class="match-card shadow-3">
                     <template v-for="side in (['top', 'bottom'] as const)" :key="side">
                       <div :class="['match-side', sideClass(match, side), {
                         'cursor-pointer': getSide(match, side)
@@ -80,7 +80,7 @@
             <div class="round-col">
               <div class="round-label">Campeão</div>
               <div :style="{ marginTop: `${championConnectorMargin + (MATCH_H / 2)}px` }">
-                <div class="match-champion shadow-2">
+                <div class="match-champion shadow-3">
                   <i class="ri-trophy-fill trophy-icon" />
                   <span class="champion-name">{{ champion?.name || 'A definir' }}</span>
                 </div>

@@ -71,7 +71,7 @@
       <div class="grid justify-content-center gap-4 md:gap-0 max-w-7xl mx-auto">
         <div class="col-12 md:col-4 p-3">
           <Card
-            class="surface-card h-full shadow-2 hover:shadow-6 transition-all transition-duration-300 hover:-translate-y-1 border-1 surface-border">
+            class="surface-card h-full shadow-3 hover:shadow-6 transition-all transition-duration-300 hover:-translate-y-1 border-1 surface-border">
             <template #title>
               <div class="flex flex-column align-items-start gap-2">
                 <div class="bg-yellow-300 inline-flex p-3 mb-2" style="border-radius: 0.5rem">
@@ -91,7 +91,7 @@
 
         <div class="col-12 md:col-4 p-3">
           <Card
-            class="surface-card h-full shadow-2 hover:shadow-6 transition-all transition-duration-300 hover:-translate-y-1 border-1 surface-border">
+            class="surface-card h-full shadow-3 hover:shadow-6 transition-all transition-duration-300 hover:-translate-y-1 border-1 surface-border">
             <template #title>
               <div class="flex flex-column align-items-start gap-2">
                 <div class="bg-yellow-300 inline-flex p-3 mb-2" style="border-radius: 0.5rem">
@@ -111,7 +111,7 @@
 
         <div class="col-12 md:col-4 p-3">
           <Card
-            class="surface-card h-full shadow-2 hover:shadow-6 transition-all transition-duration-300 hover:-translate-y-1 border-1 surface-border">
+            class="surface-card h-full shadow-3 hover:shadow-6 transition-all transition-duration-300 hover:-translate-y-1 border-1 surface-border">
             <template #title>
               <div class="flex flex-column align-items-start gap-2">
                 <div class="bg-yellow-300 inline-flex p-3 mb-2" style="border-radius: 0.5rem">

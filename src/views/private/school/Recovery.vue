@@ -32,7 +32,7 @@
         </div>
       </div>
 
-      <div class="w-full card shadow-2 p-0 overflow-hidden border-round-xl">
+      <div class="w-full card shadow-3 p-0 overflow-hidden border-round-xl">
         <Stepper v-model:value="activeStep">
           <StepPanels>
             <StepPanel v-for="(question, index) in questions" :key="question.$id" :value="index">

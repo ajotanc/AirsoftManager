@@ -1,9 +1,10 @@
 <template>
   <div class="card">
-    <div class="surface-card shadow-2 border-round overflow-hidden">
+    <div class="surface-card shadow-3 border-round overflow-hidden">
 
-      <DataTable :value="dtValue" paginator :rows="20" stripedRows v-model:filters="filters" :globalFilterFields="labels"
-        v-model:editingRows="editingRows" editMode="row" dataKey="$id" @row-edit-save="handleUpdate"
+      <DataTable :value="dtValue" paginator :rows="20" stripedRows v-model:filters="filters"
+        :globalFilterFields="labels" v-model:editingRows="editingRows" editMode="row" dataKey="$id"
+        @row-edit-save="handleUpdate"
         paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
         :rowsPerPageOptions="[20, 40, 60, 80, 100]"
         currentPageReportTemplate="Exibindo {first} a {last} de {totalRecords} operadore(s)"

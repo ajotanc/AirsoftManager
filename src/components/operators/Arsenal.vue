@@ -1,6 +1,6 @@
 <template>
   <div class="card">
-    <div class="surface-card shadow-2 border-round overflow-hidden">
+    <div class="surface-card shadow-3 border-round overflow-hidden">
       <Message v-if="!authStore.hasArsenal" severity="error" class="mx-3 my-1" closable>
         <strong>Cadastre seu arsenal para liberar todas as funções do sistema.</strong>
       </Message>
@@ -136,7 +136,7 @@
     <div class="grid">
       <div class="col-12">
         <div class="flex flex-column align-items-center gap-3">
-          <div ref="label" class="border-2 border-round p-3 text-center surface-0 shadow-2 bg-white">
+          <div ref="label" class="border-2 border-round p-3 text-center surface-0 shadow-3 bg-white">
             <div class="text-xs font-bold mb-2 text-gray-600">
               {{ selectedWeapon.name }}
             </div>

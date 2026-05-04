@@ -1,5 +1,5 @@
 <template>
-  <div class="surface-card shadow-2 border-round overflow-hidden">
+  <div class="surface-card shadow-3 border-round overflow-hidden">
     <DataTable :value="formattedValue" paginator :rows="rows" stripedRows v-model:filters="filters"
       :globalFilterFields="globalFields" dataKey="$id"
       paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"

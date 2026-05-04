@@ -61,15 +61,6 @@
           </template>
         </Card>
       </div>
-      <div v-if="isAdmin" class="col-12">
-        <Card class="mt-2">
-          <template #title>Verificar Operador</template>
-          <template #content>
-            <Button label="QR Code" icon="pi pi-qrcode" class="camera-switch p-button-outlined mt-2"
-              @click="openScannerDialog = true" />
-          </template>
-        </Card>
-      </div>
     </template>
 
     <div class="col-12">
@@ -101,6 +92,19 @@
     </template>
   </div>
 
+  <nav v-if="isAdmin" class="admin-nav-container shadow-3">
+    <div v-for="(item, index) in adminActions" :key="index" class="nav-item">
+      <router-link v-if="item.to" :to="item.to" class="nav-link">
+        <i :class="[item.icon, 'nav-icon']"></i>
+        <span v-if="item.label" class="nav-label">{{ item.label }}</span>
+      </router-link>
+      <button v-else @click="item.command" class="nav-link btn-action">
+        <i :class="[item.icon, 'nav-icon']"></i>
+        <span v-if="item.label" class="nav-label">{{ item.label }}</span>
+      </button>
+    </div>
+  </nav>
+
   <AppScanner v-model:visible="openScannerDialog" @detect="onDetect" header="QR Code" />
 
 </template>
@@ -111,7 +115,6 @@ import { useQuery } from "@tanstack/vue-query";
 import router from "@/router";
 
 import Card from "primevue/card";
-import Button from "primevue/button";
 
 import Level from "@/components/operators/Level.vue";
 import EventList from "@/components/EventList.vue";
@@ -124,11 +127,13 @@ import AppScanner from "@/components/AppScanner.vue";
 import { PaymentService, type IPayment } from "@/services/payment";
 import { SchoolService } from "@/services/school";
 import { useOperator } from "@/composables/useOperator";
+import type { AdminAction } from "@/functions/utils";
 
 const { operator, isActiveOperator, isAdmin, authStore: { isVisitor } } = useOperator();
 const { $id, arsenal, loadout } = operator.value;
 
 const openScannerDialog = ref(false);
+
 const {
   data: missingCerts,
 } = useQuery({
@@ -154,4 +159,71 @@ function onDetect(operatorId?: string) {
     router.push(`/verify/operator/${operatorId}`);
   }
 };
+
+const adminActions = ref<AdminAction[]>([
+  {
+    icon: 'ri-group-line',
+    to: '/management/operators'
+  },
+  {
+    icon: 'ri-wallet-line',
+    to: '/management/finance/payments'
+  },
+  {
+    icon: 'ri-exchange-funds-line',
+    to: '/management/finance/payments'
+  },
+  {
+    icon: 'ri-calendar-event-line',
+    to: '/management/events'
+  },
+  {
+    icon: 'ri-calendar-schedule-line',
+    to: '/management/schedules'
+  },
+  {
+    icon: 'ri-health-book-line',
+    command: () => openScannerDialog.value = true
+  },
+]);
+
 </script>
+
+<style>
+.admin-nav-container {
+  position: fixed;
+  bottom: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90vw;
+  max-width: 375px;
+  background: var(--p-card-background);
+  border-radius: var(--p-card-border-radius);
+  box-shadow: var(--p-card-shadow);
+  padding: 1rem;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.nav-item .nav-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 2rem;
+  height: 2rem;
+  border: 0;
+  border-radius: var(--p-button-border-radius);
+  text-decoration: none;
+  color: var(--p-blue-500);
+  background-color: var(--p-blue-100);
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.nav-item .nav-link:hover {
+  background-color: var(--p-blue-200);
+}
+</style>

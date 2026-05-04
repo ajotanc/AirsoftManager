@@ -17,7 +17,7 @@
     <div v-else class="grid">
       <div class="col-12 md:col-3">
         <div
-          class="card shadow-2 p-3 border-round h-full flex flex-column justify-content-between bg-yellow-100 border-left-3 border-yellow-900 text-gray-900">
+          class="card shadow-3 p-3 border-round h-full flex flex-column justify-content-between bg-yellow-100 border-left-3 border-yellow-900 text-gray-900">
           <div class="flex align-items-center justify-content-between mb-3">
             <div>
               <span class="block font-bold mb-2">Saúde Operacional</span>
@@ -52,7 +52,7 @@
 
       <div class="col-12 md:col-3">
         <div
-          class="card shadow-2 p-3 border-round h-full flex flex-column justify-content-between bg-blue-100 border-left-3 border-blue-900 text-blue-900 relative">
+          class="card shadow-3 p-3 border-round h-full flex flex-column justify-content-between bg-blue-100 border-left-3 border-blue-900 text-blue-900 relative">
           <div class="flex align-items-center justify-content-between">
             <div>
               <span class="block font-bold mb-2 opacity-90">Saldo em Caixa</span>
@@ -70,7 +70,7 @@
 
       <div class="col-12 md:col-3">
         <div
-          class="card shadow-2 p-3 border-round h-full flex flex-column justify-content-between bg-green-100 border-left-3 border-green-900 text-green-900 relative">
+          class="card shadow-3 p-3 border-round h-full flex flex-column justify-content-between bg-green-100 border-left-3 border-green-900 text-green-900 relative">
           <div class="flex align-items-center justify-content-between">
             <div>
               <span class="block font-bold mb-2">Total Entradas</span>
@@ -93,7 +93,7 @@
 
       <div class="col-12 md:col-3">
         <div
-          class="card shadow-2 p-3 border-round h-full flex flex-column justify-content-between bg-red-100 border-left-3 border-red-900 relative">
+          class="card shadow-3 p-3 border-round h-full flex flex-column justify-content-between bg-red-100 border-left-3 border-red-900 relative">
           <div class="flex align-items-center justify-content-between">
             <div>
               <span class="block text-red-900 font-bold mb-2">Total Saídas</span>
@@ -117,7 +117,7 @@
       </div>
 
       <div class="col-12 lg:col-8">
-        <div class="card shadow-2 p-4 border-round bg-white">
+        <div class="card shadow-3 p-4 border-round bg-white">
           <span class="text-xl font-bold block mb-4">Evolução Mensal (R$)</span>
           <div class="chart-container">
             <Chart type="bar" :data="barData" :options="barOptions" class="h-full" />
@@ -126,7 +126,7 @@
       </div>
 
       <div class="col-12 lg:col-4">
-        <div class="card shadow-2 p-4 border-round bg-white">
+        <div class="card shadow-3 p-4 border-round bg-white">
           <span class="text-xl font-bold block mb-4">Gastos por Categoria</span>
           <div class="chart-container">
             <Chart type="doughnut" :data="pieData" :options="pieOptions" class="h-full" />
@@ -135,7 +135,7 @@
       </div>
 
       <div class="col-12">
-        <div class="card shadow-2 p-4 border-round bg-white">
+        <div class="card shadow-3 p-4 border-round bg-white">
           <div class="flex justify-content-between align-items-center mb-4">
             <span class="text-xl font-bold">Últimas Movimentações</span>
             <Button label="Histórico" icon="pi pi-list" class="p-button-text" @click="cashflowDialog = true" />
@@ -301,7 +301,7 @@ const barData = computed(() => ({
 
 const pieData = computed(() => {
   const catTotals: Record<string, number> = {};
-  
+
   expenses.value.forEach(e => {
     const label = CATEGORY_MAP[e.category] || e.category;
     catTotals[label] = (catTotals[label] || 0) + Math.abs(Number(e.amount));

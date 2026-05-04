@@ -65,6 +65,13 @@ export interface ViaCepResponse {
   erro?: boolean;
 }
 
+export interface AdminAction {
+  label?: string;
+  icon: string;
+  to?: string;
+  command?: () => void;
+}
+
 export async function addressByCep(
   cep: string
 ): Promise<ViaCepResponse | null> {
@@ -448,3 +455,15 @@ export const toTitleCase = (str: string): string => {
 };
 
 export const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+export const fisherYatesShuffle = <T>(array: T[]): T[] => {
+  const result = [...array];
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+
+    const temp = result[i] as T;
+    result[i] = result[j] as T;
+    result[j] = temp;
+  }
+  return result;
+};

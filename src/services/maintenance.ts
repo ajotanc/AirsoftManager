@@ -12,6 +12,8 @@ export interface IMaintenance<TOp = string | IOperator, TAr = string | IArsenal>
   operator: TOp;
   arsenal: TAr;
   maintenance_at: Date | string | null;
+  joule?: string;
+  fps?: number;
   selected?: IOperator;
 }
 
@@ -111,9 +113,16 @@ export const MaintenanceService = {
         data,
       });
 
+      console.log(response);
+
       if (response.status === 'completed') {
         const arsenal = response.arsenal as IArsenal;
-        await ArsenalService.update(arsenal.$id, { maintenance_at: response.maintenance_at })
+
+        await ArsenalService.update(arsenal.$id, {
+          maintenance_at: response.maintenance_at,
+          joule: response.joule,
+          fps: response.fps,
+        });
       }
 
       return response;

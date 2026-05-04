@@ -1,5 +1,5 @@
 <template>
-  <Menubar :model="navItems" class="hidden sticky top-0 z-1 md:flex border-none shadow-2 px-3 py-2">
+  <Menubar :model="navItems" class="hidden sticky top-0 z-1 md:flex border-none shadow-3 px-3 py-2">
     <template #start>
       <div class="flex align-items-center gap-2 mr-4 cursor-pointer" @click="router.push('/dashboard')">
         <img src="/images/exd.webp" :alt="TEAM_NAME" class="h-4rem">

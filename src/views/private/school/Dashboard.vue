@@ -26,7 +26,7 @@
 
       <div class="grid">
         <div v-for="module in modules" :key="module.category" class="col-12 md:col-6 lg:col-4">
-          <Card class="h-full shadow-2 border-round-xl flex flex-column">
+          <Card class="h-full shadow-3 border-round-xl flex flex-column">
 
             <template #title>
               <div class="flex justify-content-between align-items-center">

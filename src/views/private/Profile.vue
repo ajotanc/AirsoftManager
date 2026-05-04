@@ -1,6 +1,6 @@
 <template>
   <div class="flex align-items-center justify-content-center min-h-screen px-2 py-2">
-    <div class="surface-card p-4 shadow-2 border-round w-full lg:w-12">
+    <div class="surface-card p-4 shadow-3 border-round w-full lg:w-12">
       <div class="flex justify-content-center align-items-center mb-3">
         <div class="avatar-wrapper cursor-pointer" @click="triggerFileInput">
           <Avatar :image="operator.avatar" :icon="!operator.avatar ? 'pi pi-user' : undefined"
