@@ -2,6 +2,10 @@
   <div class="card">
     <div class="surface-card shadow-2 border-round overflow-hidden">
 
+      <Message v-if="!authStore.hasLoadout" severity="error" class="mx-3 my-1" closable>
+        <strong>Configure seu loadout para acessar todas as ferramentas do sistema.</strong>
+      </Message>
+
       <DataTable :value="items" paginator :rows="5" stripedRows v-model:filters="filters" :globalFilterFields="labels"
         paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
         :rowsPerPageOptions="[5, 10, 25]"
@@ -159,6 +163,7 @@ import Select from "primevue/select";
 import { TEAM_NAME, UNIFORMS, UNIFORMS_OPTIONS, LOADOUT_ITEMS, UNIFORM_IDS, PMC_EXCEPTIONS } from "@/constants/airsoft";
 import { LoadoutService, type ILoadout } from "@/services/loadout";
 import { useConfirm } from "primevue";
+import { useOperator } from "@/composables/useOperator";
 
 const items = defineModel('items', {
   type: Array as PropType<ILoadout[]>,
@@ -183,6 +188,7 @@ const props = defineProps({
 
 const toast = useToast();
 const confirm = useConfirm();
+const { authStore } = useOperator();
 
 const confirmDelete = (uniform: ILoadout) => {
   confirm.require({

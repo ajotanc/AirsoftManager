@@ -1,7 +1,9 @@
 <template>
   <div class="card">
     <div class="surface-card shadow-2 border-round overflow-hidden">
-
+      <Message v-if="!authStore.hasArsenal" severity="error" class="mx-3 my-1" closable>
+        <strong>Cadastre seu arsenal para liberar todas as funções do sistema.</strong>
+      </Message>
       <DataTable :value="items" paginator :rows="5" stripedRows v-model:filters="filters" :globalFilterFields="labels"
         paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
         :rowsPerPageOptions="[5, 10, 25]"
@@ -215,6 +217,7 @@ import { formatDate, getMaintenanceStatusLabel, getMaintenanceTypeLabel, type IF
 import ColumnContent from "../ColumnContent.vue";
 import { MaintenanceService, type IMaintenance } from "@/services/maintenance";
 import type { IOperator } from "@/services/operator";
+import { useOperator } from "@/composables/useOperator";
 
 const items = defineModel('items', {
   type: Array as PropType<IArsenal[]>,
@@ -239,6 +242,7 @@ const props = defineProps({
 
 const toast = useToast();
 const confirm = useConfirm();
+const { authStore } = useOperator();
 
 const weaponDialog = ref(false);
 const maintenanceDialog = ref(false);
