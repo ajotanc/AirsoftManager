@@ -40,7 +40,6 @@ declare module 'vue' {
     Details: typeof import('./src/components/operators/Details.vue')['default']
     Dialog: typeof import('primevue/dialog')['default']
     Divider: typeof import('primevue/divider')['default']
-    Dock: typeof import('primevue/dock')['default']
     Drawer: typeof import('primevue/drawer')['default']
     Empty: typeof import('./src/components/Empty.vue')['default']
     EventList: typeof import('./src/components/EventList.vue')['default']
@@ -88,7 +87,6 @@ declare module 'vue' {
     Stepper: typeof import('primevue/stepper')['default']
     Tab: typeof import('primevue/tab')['default']
     TabList: typeof import('primevue/tablist')['default']
-    TabMenu: typeof import('primevue/tabmenu')['default']
     TabPanel: typeof import('primevue/tabpanel')['default']
     TabPanels: typeof import('primevue/tabpanels')['default']
     Tabs: typeof import('primevue/tabs')['default']
@@ -97,7 +95,6 @@ declare module 'vue' {
     ToggleSwitch: typeof import('primevue/toggleswitch')['default']
     TournamentBracket: typeof import('./src/components/tournament/TournamentBracket.vue')['default']
     TournamentInfo: typeof import('./src/components/tournament/TournamentInfo.vue')['default']
-    TournamentLeaderboard: typeof import('./src/components/tournament/TournamentLeaderboard.vue')['default']
     TournamentSkeleton: typeof import('./src/components/skeleton/TournamentSkeleton.vue')['default']
     TournamentStat: typeof import('./src/components/tournament/TournamentStat.vue')['default']
   }

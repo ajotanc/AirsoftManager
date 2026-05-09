@@ -73,13 +73,19 @@ export interface AdminAction {
   command?: () => void;
 }
 
-export const z = Object.assign(zodOriginal, {
-  required: (message: string, minLength: number = 1) =>
-    zodOriginal.preprocess(
-      (v) => (!v ? "" : v),
-      zodOriginal.string().min(minLength, message)
-    ),
-});
+
+export const z = Object.create(
+  Object.getPrototypeOf(zodOriginal),
+  Object.getOwnPropertyDescriptors(zodOriginal)
+);
+
+z.required = (message: string, minLength: number = 1) =>
+  zodOriginal.preprocess(
+    (v) => (!v ? "" : v),
+    zodOriginal.string().min(minLength, message)
+  );
+
+export type z = typeof zodOriginal;
 
 export async function addressByCep(
   cep: string
