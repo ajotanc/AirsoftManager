@@ -1,7 +1,7 @@
 <template>
   <div class="card">
     <div class="surface-card shadow-3 border-round overflow-hidden">
-      <Message v-if="!authStore.hasArsenal" severity="error" class="mx-3 my-1" closable>
+      <Message v-if="!authStore.hasArsenal" severity="error" class="m-3" closable>
         <strong>Cadastre seu arsenal para liberar todas as funções do sistema.</strong>
       </Message>
       <DataTable :value="items" paginator :rows="5" stripedRows v-model:filters="filters" :globalFilterFields="labels"

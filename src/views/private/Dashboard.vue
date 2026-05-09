@@ -23,25 +23,25 @@
 
     <template v-if="!isVisitor">
       <div class="col-12 md:col-3">
-        <Card>
+        <Card @click="$router.push('/administrative/finance/payments')" class="cursor-pointer">
           <template #title>Financeiro</template>
           <template #content>{{ openPayments.length }} Pagamento(s) em aberto</template>
         </Card>
       </div>
       <div class="col-12 md:col-3">
-        <Card>
+        <Card @click="$router.push('/administrative/school')" class="cursor-pointer">
           <template #title>Escola</template>
           <template #content>{{ missingCerts?.length }} Prova(s) pendente(s)</template>
         </Card>
       </div>
       <div class="col-12 md:col-3">
-        <Card>
+        <Card @click="$router.push('/arsenal')" class="cursor-pointer">
           <template #title>Arma(s)</template>
           <template #content>{{ arsenal.length }} Arma(s) cadastrada(s)</template>
         </Card>
       </div>
       <div class="col-12 md:col-3">
-        <Card>
+        <Card @click="$router.push('/loadout')" class="cursor-pointer">
           <template #title>Loadout(s)</template>
           <template #content>{{ loadout.length }} Loadout(s) cadastrado(s)</template>
         </Card>

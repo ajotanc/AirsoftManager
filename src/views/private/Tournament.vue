@@ -1,43 +1,70 @@
 <template>
-  <div class="p-3" v-if="tournament">
+  <TournamentSkeleton v-if="isInitialLoading" />
+  <div v-else class="p-3">
+    <Accordion :value="['panel', 'info', 'bracket', 'leaderboard']" multiple unstyled>
+      <AccordionPanel value="panel" class="tournament-wrapper" v-if="authStore.isAdmin">
+        <AccordionHeader class="tournament-header">
+          <div class="section-title">Painel Administrativo</div>
+        </AccordionHeader>
+        <AccordionContent>
+          <div class="info-grid grid">
+            <div class="info-card col-12 md:col-6 accent-green">
+              <div class="info-card-bg">OPS</div>
+              <div class="info-label">✅ Confirmados</div>
+              <div class="info-value">{{ registrations.length }} <span>ops</span></div>
+            </div>
+            <div class="info-card col-12 md:col-6">
+              <div class="info-card-bg">BAR</div>
+              <div class="info-label">📊 Progresso</div>
+              <ProgressBar :value="registrationProgress" :showValue="false" style="height: 8px; margin-top: 6px;" />
+              <div style="font-size: 12px; color: #94a3b8; margin-top: 4px;">
+                {{ validation.current }}/{{ validation.required }} ops
+              </div>
+            </div>
 
-    <div v-if="authStore.isAdmin" class="tournament-wrapper">
-      <div class="section-title">Painel Administrativo</div>
-      <div class="info-grid grid">
-        <div class="info-card col-12 md:col-6 accent-green">
-          <div class="info-card-bg">OPS</div>
-          <div class="info-label">✅ Confirmados</div>
-          <div class="info-value">{{ registrations.length }} <span>ops</span></div>
-        </div>
-        <div class="info-card col-12 md:col-6">
-          <div class="info-card-bg">BAR</div>
-          <div class="info-label">📊 Progresso</div>
-          <ProgressBar :value="registrationProgress" :showValue="false" style="height: 8px; margin-top: 6px;" />
-          <div style="font-size: 12px; color: #94a3b8; margin-top: 4px;">
-            {{ validation.current }}/{{ validation.required }} ops
+            <div v-if="authStore.isManager" class="info-card col-12">
+              <div class="flex align-items-center justify-content-between flex-wrap gap-2">
+                <small :class="['font-bold', canGenerate ? 'text-green-500' : 'text-red-500']">{{ validationMessage
+                }}</small>
+                <Button v-if="tournament.status === 'open'" label="Gerar Times e Chaveamento" icon="pi pi-sitemap"
+                  severity="success" size="small" :disabled="!canGenerate" @click="handleStartTournament" />
+                <Button v-if="tournament.status === 'ongoing'" label="Encerrar Torneio" icon="ri-flag-2-line"
+                  severity="warn" size="small" @click="handleEndTournament" :disabled="!hasChampion" />
+              </div>
+            </div>
           </div>
-        </div>
+        </AccordionContent>
+      </AccordionPanel>
+      <AccordionPanel value="info" class="tournament-wrapper">
+        <AccordionHeader class="tournament-header">
+          <div class="section-title">Informações do Torneio</div>
+        </AccordionHeader>
+        <AccordionContent>
+          <TournamentInfo :tournament="tournament" />
+        </AccordionContent>
+      </AccordionPanel>
+      <AccordionPanel value="bracket" class="tournament-wrapper">
+        <AccordionHeader class="tournament-header">
+          <div class="section-title">Chaveamento</div>
+        </AccordionHeader>
+        <AccordionContent>
+          <TournamentBracket :matches="bracketMatches" :tournament="tournament" :rankings="rankings"
+            @update-score="handleUpdateScore" @set-winner="handleSetWinner" @set-stat="handleSetRanking" />
+        </AccordionContent>
+      </AccordionPanel>
+      <AccordionPanel value="leaderboard" class="tournament-wrapper" v-if="rankings.length > 0">
+        <AccordionHeader class="tournament-header">
+          <div class="section-title">Destaques & Leaderboard</div>
+        </AccordionHeader>
+        <AccordionContent>
+          <Leaderboard :rankings="rankings" :teams="teams" />
+        </AccordionContent>
+      </AccordionPanel>
 
-        <div v-if="authStore.isManager" class="info-card col-12">
-          <div class="flex align-items-center justify-content-between flex-wrap gap-2">
-            <small :class="['font-bold', canGenerate ? 'text-green-500' : 'text-red-500']">{{ validationMessage
-            }}</small>
-            <Button v-if="tournament.status === 'open'" label="Gerar Times e Chaveamento" icon="pi pi-sitemap"
-              severity="success" size="small" :disabled="!canGenerate" :loading="loadingGenerate"
-              @click="handleStartTournament" />
-            <Button v-if="tournament.status === 'ongoing'" label="Encerrar Torneio" icon="ri-flag-2-line"
-              severity="warn" size="small" @click="handleEndTournament" :disabled="!hasChampion" />
-          </div>
-        </div>
-      </div>
-    </div>
+    </Accordion>
 
-    <TournamentInfo :tournament="tournament" />
 
-    <TournamentBracket :matches="bracketMatches" :tournament="tournament" :stats="stats"
-      @update-score="handleUpdateScore" @set-winner="handleSetWinner" @set-stat="handleSetStats" />
-
-    <TournamentLeaderboard v-if="stats.length > 0" :stats="stats" :teams="teams" />
+    <Loading :loading="loading" />
   </div>
 </template>
 
@@ -50,14 +77,16 @@ import confetti from 'canvas-confetti';
 
 import { useOperator } from '@/composables/useOperator';
 import type { IOperator } from '@/services/operator';
-import { StatsService, TABLE_TOURNAMENT_STATS, type ITournamentOperatorStat } from '@/services/stats';
+import { RankingService, TABLE_RANKINGS, type IRanking } from '@/services/ranking';
 
 import TournamentBracket from '@/components/tournament/TournamentBracket.vue';
-import TournamentLeaderboard from '@/components/tournament/TournamentLeaderboard.vue';
 import TournamentInfo from '@/components/tournament/TournamentInfo.vue';
+import Leaderboard from '@/components/Leaderboard.vue';
 
 import '@/components/tournament/style.css';
 import { DATABASE_ID, realtime } from '@/services/appwrite';
+import Loading from '@/components/Loading.vue';
+import TournamentSkeleton from '@/components/skeleton/TournamentSkeleton.vue';
 
 const route = useRoute();
 const toast = useToast();
@@ -70,15 +99,19 @@ const tournament = ref<ITournament>({} as ITournament);
 const registrations = ref<ITournamentRegistration[]>([]);
 const operators = ref<IOperator[]>([]);
 const bracketMatches = ref<ITournamentMatch[]>([]);
-const stats = ref<ITournamentOperatorStat[]>([]);
+const rankings = ref<IRanking[]>([]);
 const teams = ref<ITournamentTeam[]>([]);
 
 const loading = ref(false);
-const loadingGenerate = ref(false);
+const isInitialLoading = ref(true);
 
 onMounted(async () => {
-  await loadServices()
-  setupStatsRealtime();
+  try {
+    await loadServices();
+    setupStatsRealtime();
+  } finally {
+    isInitialLoading.value = false; // Desativa após carregar tudo
+  }
 });
 
 const loadServices = async () => {
@@ -90,12 +123,12 @@ const loadServices = async () => {
   teams.value = data.teams || [];
 
   bracketMatches.value = data.matches as ITournamentMatch[];
-  stats.value = await StatsService.getSatsTournamet(tournamentId);
+  rankings.value = await RankingService.listByTournament(tournamentId);
 };
 
 const setupStatsRealtime = () => {
   const channel = [
-    `databases.${DATABASE_ID}.collections.${TABLE_TOURNAMENT_STATS}.documents`,
+    `databases.${DATABASE_ID}.collections.${TABLE_RANKINGS}.documents`,
     `databases.${DATABASE_ID}.collections.${TABLE_TOURNAMENT_MATCHES}.documents`
   ];
 
@@ -104,14 +137,14 @@ const setupStatsRealtime = () => {
     const event = response.events.some(e => e.includes('.update') || e.includes('.create'));
     if (!event) return;
 
-    if (response.events.some(e => e.includes(TABLE_TOURNAMENT_STATS))) {
-      const payload = response.payload as ITournamentOperatorStat;
-      const index = stats.value.findIndex(s => s.$id === payload.$id);
+    if (response.events.some(e => e.includes(TABLE_RANKINGS))) {
+      const payload = response.payload as IRanking;
+      const index = rankings.value.findIndex(s => s.$id === payload.$id);
 
       if (index !== -1) {
-        stats.value[index] = { ...stats.value[index], ...payload };
+        rankings.value[index] = { ...rankings.value[index], ...payload };
       } else {
-        stats.value.push(payload);
+        rankings.value.push(payload);
       }
     }
 
@@ -157,7 +190,9 @@ const hasChampion = computed(() => {
 });
 
 const handleStartTournament = async () => {
+
   loading.value = true;
+
   try {
     const allTeams = await TournamentService.drawTeams(tournamentId, operators.value, tournament.value.mode);
     await TournamentService.generateBracket(tournamentId, allTeams);
@@ -215,8 +250,12 @@ const handleUpdateScore = async (match: ITournamentMatch, side: 'top' | 'bottom'
 };
 
 const handleSetWinner = async (match: ITournamentMatch, winnerId: string) => {
+
+  loading.value = true;
+
   try {
-    await TournamentService.advanceWinner(match, winnerId);
+    const { current } = await TournamentService.advanceWinner(match, winnerId);
+    await RankingService.updateMatchRankings(tournament.value, rankings.value, current, winnerId);
 
     toast.add({
       severity: 'success',
@@ -231,12 +270,16 @@ const handleSetWinner = async (match: ITournamentMatch, winnerId: string) => {
       detail: 'Falha ao promover vencedor!',
       life: 3000
     });
+  } finally {
+    loading.value = false;
   }
 };
 
-const handleSetStats = async (rowId: string | undefined, stat: ITournamentOperatorStat) => {
+const handleSetRanking = async (rowId: string | undefined, stat: IRanking) => {
+  loading.value = true;
+
   try {
-    await StatsService.setStats(rowId, stat)
+    await RankingService.upsert(rowId, stat)
 
     toast.add({
       severity: 'success',
@@ -251,6 +294,8 @@ const handleSetStats = async (rowId: string | undefined, stat: ITournamentOperat
       detail: 'Falha ao salvar estatística!',
       life: 3000
     })
+  } finally {
+    loading.value = false;
   }
 }
 
@@ -268,11 +313,15 @@ const handleEndTournament = async () => {
       severity: 'danger'
     },
     accept: async () => {
+      loading.value = true;
+
       try {
         await TournamentService.update(tournamentId, { status: 'finished' });
         toast.add({ severity: 'success', summary: 'Torneio Finalizado', detail: 'O campeão foi coroado!', life: 3000 });
       } catch (e) {
         toast.add({ severity: 'error', summary: 'Erro', detail: 'Não foi possível finalizar o torneio.', life: 3000 });
+      } finally {
+        loading.value = false;
       }
     },
   });

@@ -4,8 +4,7 @@ import { isValidCpf } from "@brazilian-utils/brazilian-utils";
 import { Query, type Models } from "appwrite";
 import type { IArsenal } from "./arsenal";
 import type { ILoadout } from "./loadout";
-import { deleteFile, formatDate, uploadFile } from "@/functions/utils";
-import z from "zod";
+import { deleteFile, formatDate, uploadFile, z } from "@/functions/utils";
 import type { ISchoolAnswer } from "./school";
 
 export interface IOperator extends Models.Row {
@@ -67,17 +66,15 @@ export type IOperatorDraft = Omit<IOperator, keyof Models.Row> & {
 export const operatorSchema = z
   .object({
     name: z
-      .string({ error: "Nome completo obrigatório" })
-      .min(1, "Nome completo obrigatório"),
+      .required("Nome completo obrigatório"),
     codename: z
-      .string({ error: "Codinome obrigatório" })
-      .min(1, "Codinome obrigatório"),
+      .required("Codinome obrigatório"),
     identity: z
-      .string({ error: "CPF obrigatório" })
+      .required("CPF obrigatório")
       .refine(isValidCpf, "CPF inválido")
       .transform((v) => v.replace(/\D/g, "")),
     general_registration: z
-      .string({ error: "RG obrigatório" })
+      .required("RG obrigatório")
       .transform((v) => v.replace(/\D/g, "")),
     birth_date: z
       .custom()
@@ -86,30 +83,29 @@ export const operatorSchema = z
         "Data obrigatória",
       )
       .transform((date) => date && formatDate(date).toISOString()),
-    blood_type: z.string({ error: "Tipo sanguíneo obrigatório" }),
-    mother_name: z.string({ error: "Nome da mãe obrigatório" }),
+    blood_type: z.required("Tipo sanguíneo obrigatório"),
+    mother_name: z.required("Nome da mãe obrigatório"),
     phone: z
-      .string({ error: "Telefone obrigatório" })
+      .required("Telefone obrigatório")
       .transform((v) => v.replace(/\D/g, "")),
     cep: z
-      .string({ error: "CEP obrigatório" })
+      .required("CEP obrigatório", 2)
       .transform((v) => v.replace(/\D/g, "")),
-    address: z.string({ error: "Endereço obrigatório" }),
-    address_number: z.string({ error: "Número obrigatório" }),
-    neighborhood: z.string({ error: "Bairro obrigatório" }),
-    city: z.string({ error: "Cidade obrigatória" }),
-    state: z.string({ error: "Estado obrigatório" }),
-    emergency_contact: z.string({ error: "Nome do Contato obrigatório" }),
+    address: z.required("Endereço obrigatório"),
+    address_number: z.required("Número obrigatório"),
+    neighborhood: z.required("Bairro obrigatório"),
+    city: z.required("Cidade obrigatória"),
+    state: z.required("Estado obrigatório"),
+    emergency_contact: z.required("Nome do Contato obrigatório"),
     emergency_contact_phone: z
-      .string({ error: "Telefone do Contato obrigatório" })
+      .required("Telefone do Contato obrigatório")
       .transform((v) => v.replace(/\D/g, "")),
     category: z.number({ error: "Categoria obrigatória" }),
-    shirt_size: z.string({ error: "Tamanho obrigatório" }),
+    shirt_size: z.required("Tamanho obrigatório"),
     terms_accepted: z
       .boolean({ error: "Aceite os termos obrigatório" })
       .refine((v) => v === true, "Aceite os termos obrigatório"),
-    availability: z.string({ error: "Escolha sua disponibilidade" }),
-    // profession: z.string({ error: "Escolha sua profissão" }),
+    availability: z.required("Escolha sua disponibilidade"),
     instagram: z
       .string()
       .regex(

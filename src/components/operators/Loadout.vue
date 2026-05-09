@@ -2,7 +2,7 @@
   <div class="card">
     <div class="surface-card shadow-3 border-round overflow-hidden">
 
-      <Message v-if="!authStore.hasLoadout" severity="error" class="mx-3 my-1" closable>
+      <Message v-if="!authStore.hasLoadout" severity="error" class="m-3" closable>
         <strong>Configure seu loadout para acessar todas as ferramentas do sistema.</strong>
       </Message>
 

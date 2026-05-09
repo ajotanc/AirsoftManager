@@ -18,11 +18,11 @@
 
 <script setup lang="ts">
 import type { IOperator } from '@/services/operator'
-import type { ITournamentOperatorStat } from '@/services/stats'
+import type { IRanking } from '@/services/ranking'
 
 defineProps<{
   op: IOperator
-  stat: ITournamentOperatorStat | undefined
+  stat: IRanking | undefined
   isAdmin: boolean
   disabled: boolean
 }>()

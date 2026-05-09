@@ -5,6 +5,7 @@ import { saveAs } from 'file-saver';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import { type FormResolverOptions } from '@primevue/forms';
 import * as pdfjsLib from 'pdfjs-dist';
+import { z as zodOriginal } from "zod";
 
 import router from "@/router";
 
@@ -71,6 +72,14 @@ export interface AdminAction {
   to?: string;
   command?: () => void;
 }
+
+export const z = Object.assign(zodOriginal, {
+  required: (message: string, minLength: number = 1) =>
+    zodOriginal.preprocess(
+      (v) => (!v ? "" : v),
+      zodOriginal.string().min(minLength, message)
+    ),
+});
 
 export async function addressByCep(
   cep: string
@@ -358,12 +367,18 @@ export const cleanHtml = (html: string) => {
 };
 
 export const limitWords = (text: string, limit: number) => {
-  const words = text?.split(/\s+/) ?? [];
-  if (words.length <= limit) return text;
+  if (!text) return "";
 
-  return words.slice(0, limit).join(" ").replace(/\.$/, "") + "...";
+  const cleanText = text.replace(/&quot;/g, '"').trim();
+  const words = cleanText.split(/\s+/);
+
+  if (words.length <= limit) return cleanText;
+
+  return words.slice(0, limit)
+    .join(" ")
+    .replace(/[.,!?;:]+$/, "")
+    .trim() + "...";
 };
-
 export const checkRegistrationPeriod = () => {
   const settings = useSettingsStore();
 

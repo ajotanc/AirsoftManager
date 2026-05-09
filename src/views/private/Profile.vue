@@ -489,7 +489,7 @@ const initialValues = computed(() => {
 
   return {
     ...op,
-    birth_date: op.birth_date ? new Date(op.birth_date).toLocaleDateString("pt-BR") : null,
+    birth_date: op.birth_date ? dayjs(op.birth_date).format("DD/MM/YYYY") : null,
   };
 });
 
@@ -514,10 +514,14 @@ const medicalSchema = z.object({
   }
 });
 
-const resolver = zodResolver(operatorSchema.and(medicalSchema).transform((data) => ({
-  ...data,
-  terms_accepted_at: data.terms_accepted ? new Date().toISOString() : null,
-})));
+const fullSchema = operatorSchema
+  .and(medicalSchema)
+  .transform((data) => ({
+    ...data,
+    terms_accepted_at: data.terms_accepted ? new Date().toISOString() : null,
+  }));
+
+const resolver = zodResolver(fullSchema);
 
 const handleUpdateProfile = async ({ valid, values }: any) => {
   if (!valid) return;

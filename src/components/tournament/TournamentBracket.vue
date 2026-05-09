@@ -1,89 +1,85 @@
 <template>
-  <div v-if="matches.length > 0" class="tournament-wrapper">
-    <div class="section-title">{{ tournament.name }}</div>
-    <div class="info-grid">
-      <div class="info-card red">
-        <div class="info-card-bg">CHA</div>
-        <div class="info-label">📊 Chaveamento</div>
-        <div class="bracket-wrapper">
-          <div class="bracket">
-            <template v-for="(rd, ri) in rounds" :key="rd.round">
-
-              <div class="round-col">
-                <div class="round-label">{{ roundLabel(rd.round) }}</div>
-
-                <div v-for="(match, mi) in rd.matches" :key="match.$id" :style="slotStyle(ri, mi)">
-                  <div class="match-card shadow-3">
-                    <template v-for="side in (['top', 'bottom'] as const)" :key="side">
-                      <div :class="['match-side', sideClass(match, side), {
-                        'cursor-pointer': getSide(match, side)
-                      }]">
-                        <div class="flex align-items-center gap-2">
-                          <Button v-if="getSide(match, side)" class="button-icon" text icon="ri-arrow-right-s-line"
-                            @click="toggleOperators(match.$id, side)" :class="{
-                              'rotate-90': isExpanded(match.$id, side),
-                              'winner-arrow': isWinner(match, side)
-                            }" severity="danger">
-                          </Button>
-                          <span :class="['side-name', { tbd: !getSide(match, side) }]">
-                            {{ getSide(match, side)?.name ?? 'A definir' }}
-                          </span>
-                        </div>
-
-                        <div class="match-actions">
-                          <Button v-if="isBo" :label="getSideScore(match, side).toString() ?? '0'" class="button-icon"
-                            severity="danger" size="small" text readonly />
-
-                          <template v-if="isAdmin && !match.winner && match.top_side && match.bottom_side">
-                            <Button v-if="isBo" class="button-icon" icon="ri-add-line" severity="secondary" size="small"
-                              @click="emit('update-score', match, side)" />
-                            <Button class="button-icon" icon="ri-check-line" severity="success" size="small"
-                              @click="onSetWinner(match, side)" />
-                          </template>
-                        </div>
-                      </div>
-
-                      <transition>
-                        <div v-if="isExpanded(match.$id, side)" class="operators-drawer">
-                          <TournamentStat v-for="op in getOperatorTeam(getSide(match, side)?.$id)" :key="op.$id"
-                            :op="op" :stat="getOpStat(match.$id, op.$id)"
-                            :is-admin="isAdmin && !!match.top_side && !!match.bottom_side" :disabled="!!match.winner"
-                            @kill="openShotClinic($event, match)" @death="onSetDeath($event, match)" />
-                        </div>
-                      </transition>
-                    </template>
-                  </div>
-                </div>
-              </div>
-
-              <div v-if="ri < rounds.length - 1" class="connector-col">
-                <div class="round-label">&nbsp;</div>
-                <svg width="32" :height="connectorHeight(ri)">
-                  <template v-for="(_, pi) in Math.floor(rd.matches.length / 2)" :key="pi">
-                    <line v-bind="connPairLine(ri, pi, 'top-h')" stroke="var(--p-blue-200)" stroke-width="2" />
-                    <line v-bind="connPairLine(ri, pi, 'bot-h')" stroke="var(--p-blue-200)" stroke-width="2" />
-                    <line v-bind="connPairLine(ri, pi, 'vert')" stroke="var(--p-blue-200)" stroke-width="2" />
-                    <line v-bind="connPairLine(ri, pi, 'out')" stroke="var(--p-blue-200)" stroke-width="2" />
-                  </template>
-                </svg>
-              </div>
-            </template>
-
-            <div class="connector-col">
-              <div class="round-label">&nbsp;</div>
-              <svg width="16" :height="CARD_H * rounds.length">
-                <line x1="0" :y1="championConnectorMargin + MATCH_H" x2="16" :y2="championConnectorMargin + MATCH_H"
-                  stroke="var(--p-blue-200)" stroke-width="2" />
-              </svg>
-            </div>
+  <div class="info-grid" v-if="matches.length > 0">
+    <div class="info-card red">
+      <div class="info-card-bg">CHA</div>
+      <div class="bracket-wrapper">
+        <div class="bracket">
+          <template v-for="(rd, ri) in rounds" :key="rd.round">
 
             <div class="round-col">
-              <div class="round-label">Campeão</div>
-              <div :style="{ marginTop: `${championConnectorMargin + (MATCH_H / 2)}px` }">
-                <div class="match-champion shadow-3">
-                  <i class="ri-trophy-fill trophy-icon" />
-                  <span class="champion-name">{{ champion?.name || 'A definir' }}</span>
+              <div class="round-label">{{ roundLabel(rd.round) }}</div>
+
+              <div v-for="(match, mi) in rd.matches" :key="match.$id" :style="slotStyle(ri, mi)">
+                <div class="match-card shadow-3">
+                  <template v-for="side in (['top', 'bottom'] as const)" :key="side">
+                    <div :class="['match-side', sideClass(match, side), {
+                      'cursor-pointer': getSide(match, side)
+                    }]">
+                      <div class="flex align-items-center gap-2">
+                        <Button v-if="getSide(match, side)" class="button-icon" text icon="ri-arrow-right-s-line"
+                          @click="toggleOperators(match.$id, side)" :class="{
+                            'rotate-90': isExpanded(match.$id, side),
+                            'winner-arrow': isWinner(match, side)
+                          }" severity="danger">
+                        </Button>
+                        <span :class="['side-name', { tbd: !getSide(match, side) }]">
+                          {{ getSide(match, side)?.name ?? 'A definir' }}
+                        </span>
+                      </div>
+
+                      <div class="match-actions">
+                        <Button v-if="isBo" :label="getSideScore(match, side).toString() ?? '0'" class="button-icon"
+                          severity="danger" size="small" text readonly />
+
+                        <template v-if="isAdmin && !match.winner && match.top_side && match.bottom_side">
+                          <Button v-if="isBo" class="button-icon" icon="ri-add-line" severity="secondary" size="small"
+                            @click="emit('update-score', match, side)" />
+                          <Button class="button-icon" icon="ri-check-line" severity="success" size="small"
+                            @click="onSetWinner(match, side)" :disabled="!canSetWinner(match, side)" />
+                        </template>
+                      </div>
+                    </div>
+
+                    <transition>
+                      <div v-if="isExpanded(match.$id, side)" class="operators-drawer">
+                        <TournamentStat v-for="op in getOperatorTeam(getSide(match, side)?.$id)" :key="op.$id" :op="op"
+                          :stat="getOpStat(match.$id, op.$id)"
+                          :is-admin="isAdmin && !!match.top_side && !!match.bottom_side" :disabled="!!match.winner"
+                          @kill="openShotClinic($event, match)" @death="onSetDeath($event, match)" />
+                      </div>
+                    </transition>
+                  </template>
                 </div>
+              </div>
+            </div>
+
+            <div v-if="ri < rounds.length - 1" class="connector-col">
+              <div class="round-label">&nbsp;</div>
+              <svg width="32" :height="connectorHeight(ri)">
+                <template v-for="(_, pi) in Math.floor(rd.matches.length / 2)" :key="pi">
+                  <line v-bind="connPairLine(ri, pi, 'top-h')" stroke="var(--p-blue-200)" stroke-width="2" />
+                  <line v-bind="connPairLine(ri, pi, 'bot-h')" stroke="var(--p-blue-200)" stroke-width="2" />
+                  <line v-bind="connPairLine(ri, pi, 'vert')" stroke="var(--p-blue-200)" stroke-width="2" />
+                  <line v-bind="connPairLine(ri, pi, 'out')" stroke="var(--p-blue-200)" stroke-width="2" />
+                </template>
+              </svg>
+            </div>
+          </template>
+
+          <div class="connector-col">
+            <div class="round-label">&nbsp;</div>
+            <svg width="16" :height="CARD_H * rounds.length">
+              <line x1="0" :y1="championConnectorMargin + MATCH_H" x2="16" :y2="championConnectorMargin + MATCH_H"
+                stroke="var(--p-blue-200)" stroke-width="2" />
+            </svg>
+          </div>
+
+          <div class="round-col">
+            <div class="round-label">Campeão</div>
+            <div :style="{ marginTop: `${championConnectorMargin + (MATCH_H / 2)}px` }">
+              <div class="match-champion shadow-3">
+                <i class="ri-trophy-fill trophy-icon" />
+                <span class="champion-name">{{ champion?.name || 'A definir' }}</span>
               </div>
             </div>
           </div>
@@ -91,20 +87,16 @@
       </div>
     </div>
   </div>
-  <div v-else class="tournament-wrapper">
-    <div class="section-title">Chaveamento</div>
-
-    <div class="info-grid">
-      <div class="info-card blue">
-        <div class="info-card-bg">AUTO</div>
-        <div class="flex flex-column align-items-center justify-content-center text-center gap-3 p-3 text-blue-500">
-          <i class="ri-cpu-line text-5xl"></i>
-          <div class="info-value">Aguardando Mobilização</div>
-          <span class="text-sm">
-            O motor de sorteio está em standby. As chaves serão geradas
-            <strong>automaticamente</strong> assim que o efetivo mínimo de operadores confirmados for atingido.
-          </span>
-        </div>
+  <div class="info-grid" v-else>
+    <div class="info-card blue">
+      <div class="info-card-bg">AUTO</div>
+      <div class="flex flex-column align-items-center justify-content-center text-center gap-3 p-3 text-blue-500">
+        <i class="ri-cpu-line text-5xl"></i>
+        <div class="info-value">Aguardando Mobilização</div>
+        <span class="text-sm">
+          O motor de sorteio está em standby. As chaves serão geradas
+          <strong>automaticamente</strong> assim que o efetivo mínimo de operadores confirmados for atingido.
+        </span>
       </div>
     </div>
   </div>
@@ -157,7 +149,7 @@ import { computed } from 'vue'
 import type { ITournament, ITournamentMatch, ITournamentTeam } from '@/services/tournament'
 import { useOperator } from '@/composables/useOperator'
 import type { IOperator } from '@/services/operator'
-import { TACTICAL_POINTS, type HitLocation, type ITournamentOperatorStat } from '@/services/stats'
+import { TACTICAL_POINTS, type HitLocation, type IRanking } from '@/services/ranking'
 import TournamentStat from './TournamentStat.vue'
 
 const CARD_H = 84;
@@ -167,14 +159,15 @@ const MATCH_H = CARD_H / 2;
 interface Props {
   matches: ITournamentMatch[]
   tournament: ITournament
-  stats: ITournamentOperatorStat[]
+  rankings: IRanking[]
 }
 
-const props = defineProps<Props>()
+const props = defineProps<Props>();
+
 const emit = defineEmits<{
   (e: 'update-score', match: ITournamentMatch, side: 'top' | 'bottom'): void
   (e: 'set-winner', match: ITournamentMatch, winnerId: string): void
-  (e: 'set-stat', rowId: string | undefined, stat: ITournamentOperatorStat): void
+  (e: 'set-stat', rowId: string | undefined, stat: IRanking): void
 }>()
 
 const { authStore } = useOperator();
@@ -214,14 +207,14 @@ const getSideScore = (m: ITournamentMatch, s: 'top' | 'bottom') => s === 'top' ?
 const isWinner = (m: ITournamentMatch, s: 'top' | 'bottom') => m.winner && (m.winner as any).$id === (getSide(m, s) as any)?.$id
 
 const getOpStat = (matchId: string | undefined, operatorId: string) => {
-  return props.stats.find(s => s.match?.$id === matchId && s.operator.$id === operatorId);
+  return props.rankings.find(s => s.match?.$id === matchId && s.operator.$id === operatorId);
 };
 
 function buildStatPayload(
   operator: IOperator,
   match: ITournamentMatch,
-  patch: Partial<ITournamentOperatorStat>
-): ITournamentOperatorStat {
+  patch: Partial<IRanking>
+): IRanking {
   const existing = getOpStat(match.$id, operator.$id)
 
   return {
@@ -231,14 +224,14 @@ function buildStatPayload(
       match,
     }),
     ...patch,
-  } as ITournamentOperatorStat
+  } as IRanking
 }
 
 function onSetStats(stat: HitLocation) {
   if (!clinic.value.operator || !clinic.value.match) return
 
   const points = TACTICAL_POINTS[stat]
-  const hitField = `${stat}_hits` as keyof ITournamentOperatorStat
+  const hitField = `${stat}_hits` as keyof IRanking
   const existing = getOpStat(clinic.value.match.$id, clinic.value.operator.$id)
 
   const payload = buildStatPayload(clinic.value.operator, clinic.value.match, {
@@ -316,6 +309,30 @@ function connPairLine(ri: number, pi: number, part: 'top-h' | 'bot-h' | 'vert' |
 const championConnectorMargin = computed(() => topPad(rounds.value.length - 1))
 
 const champion = computed(() => (props.matches.find(m => !m.next_match)?.winner as ITournamentTeam) ?? null)
+
+const canSetWinner = (match: ITournamentMatch, side: 'top' | 'bottom') => {
+  const oppositeSide = side === 'top' ? 'bottom' : 'top';
+
+  const team = getSide(match, side);
+  const enemyTeam = getSide(match, oppositeSide);
+
+  if (!team || !enemyTeam) return false;
+
+  const operators = getOperatorTeam(team.$id);
+  const enemyOperators = getOperatorTeam(enemyTeam.$id);
+
+  const matchStats = props.rankings.filter(s => s.match?.$id === match.$id);
+
+  const teamKills = matchStats
+    .filter(s => operators.some(op => op.$id === s.operator.$id))
+    .reduce((acc, s) => acc + (s.kills || 0), 0);
+
+  const enemyDeaths = matchStats
+    .filter(s => enemyOperators.some(op => op.$id === s.operator.$id))
+    .reduce((acc, s) => acc + (s.deaths || 0), 0);
+
+  return teamKills >= props.tournament.mode && enemyDeaths >= props.tournament.mode;
+};
 
 function roundLabel(r: number) {
   const t = rounds.value.length

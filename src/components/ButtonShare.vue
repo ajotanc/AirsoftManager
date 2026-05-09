@@ -75,7 +75,7 @@ const shareNative = async () => {
   const info = `-------------------------------------------------\n⚠️ *Tipo:* ${EVENT_TYPES[type as keyof typeof EVENT_TYPES]}\n⚠️ *Efetivo Mínimo:* ${minimum_effective}\n⚠️ *Efetivo Atual:* ${effective}/${minimum_effective}`;
   const eventRule = rule ? `⚠️ *Regra:* ${rule}` : null;
   const mandatory = `-------------------------------------------------\n📢 *Obrigatório:*\n- AEG (ponta vermelha/laranja)\n- Pano vermelho\n- 4 ataduras / torniquetes\n- Óculos de proteção\n- Apito\n- Braçadeiras (Azul/Amarelo)`;
-  const forbidden = '-------------------------------------------------\n🚫 *Proibido*\n- O uso de fardas de instituições militares ou forças de segurança.'
+  const forbidden = '-------------------------------------------------\n🚫 *Proibido:*\n- O uso de fardas de instituições militares ou forças de segurança.'
   const eventFinished = is_finished ? "-------------------------------------------------\n🎖️ *MISSÃO FINALIZADA!*" : null;
   const details = `-------------------------------------------------\n📅 *Data:* ${formatDate(date).toLocaleDateString('pt-BR')}\n⏰ *Horário:* ${startTime} às ${endTime}\n📍 *Local:* ${location}\n🗾 *Maps:* ${location_url}\n-------------------------------------------------`;
 

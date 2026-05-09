@@ -11,6 +11,10 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    Accordion: typeof import('primevue/accordion')['default']
+    AccordionContent: typeof import('primevue/accordioncontent')['default']
+    AccordionHeader: typeof import('primevue/accordionheader')['default']
+    AccordionPanel: typeof import('primevue/accordionpanel')['default']
     AdminBadgeScanner: typeof import('./src/components/AdminBadgeScanner.vue')['default']
     AppFormDialog: typeof import('./src/components/AppFormDialog.vue')['default']
     AppScanner: typeof import('./src/components/AppScanner.vue')['default']
@@ -36,6 +40,7 @@ declare module 'vue' {
     Details: typeof import('./src/components/operators/Details.vue')['default']
     Dialog: typeof import('primevue/dialog')['default']
     Divider: typeof import('primevue/divider')['default']
+    Dock: typeof import('primevue/dock')['default']
     Drawer: typeof import('primevue/drawer')['default']
     Empty: typeof import('./src/components/Empty.vue')['default']
     EventList: typeof import('./src/components/EventList.vue')['default']
@@ -53,8 +58,10 @@ declare module 'vue' {
     InputGroupAddon: typeof import('primevue/inputgroupaddon')['default']
     InputIcon: typeof import('primevue/inputicon')['default']
     InputText: typeof import('primevue/inputtext')['default']
+    Leaderboard: typeof import('./src/components/Leaderboard.vue')['default']
     Level: typeof import('./src/components/operators/Level.vue')['default']
     List: typeof import('./src/components/operators/List.vue')['default']
+    Loading: typeof import('./src/components/Loading.vue')['default']
     Loadout: typeof import('./src/components/operators/Loadout.vue')['default']
     Menu: typeof import('primevue/menu')['default']
     Menubar: typeof import('primevue/menubar')['default']
@@ -81,6 +88,7 @@ declare module 'vue' {
     Stepper: typeof import('primevue/stepper')['default']
     Tab: typeof import('primevue/tab')['default']
     TabList: typeof import('primevue/tablist')['default']
+    TabMenu: typeof import('primevue/tabmenu')['default']
     TabPanel: typeof import('primevue/tabpanel')['default']
     TabPanels: typeof import('primevue/tabpanels')['default']
     Tabs: typeof import('primevue/tabs')['default']
@@ -90,6 +98,7 @@ declare module 'vue' {
     TournamentBracket: typeof import('./src/components/tournament/TournamentBracket.vue')['default']
     TournamentInfo: typeof import('./src/components/tournament/TournamentInfo.vue')['default']
     TournamentLeaderboard: typeof import('./src/components/tournament/TournamentLeaderboard.vue')['default']
+    TournamentSkeleton: typeof import('./src/components/skeleton/TournamentSkeleton.vue')['default']
     TournamentStat: typeof import('./src/components/tournament/TournamentStat.vue')['default']
   }
   export interface GlobalDirectives {

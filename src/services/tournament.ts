@@ -2,6 +2,7 @@ import { tables, DATABASE_ID, permissions } from "@/services/appwrite";
 import { ID, Query, type Models } from "appwrite";
 import type { IOperator } from "./operator";
 import type { IArsenal } from "./arsenal";
+import { fisherYatesShuffle } from '@/functions/utils';
 import { CATEGORIES } from "@/constants/airsoft";
 
 // export const TABLE_TOURNAMENTS = "championships";
@@ -165,7 +166,7 @@ export const TournamentService = {
     });
   },
   async updateMatch(rowId: string, data: Partial<ITournamentMatch>): Promise<ITournamentMatch> {
-    return await tables.updateRow({
+    return await tables.updateRow<ITournamentMatch>({
       databaseId: DATABASE_ID,
       tableId: TABLE_TOURNAMENT_MATCHES,
       rowId,
@@ -346,7 +347,7 @@ export const TournamentService = {
     operators: IOperator[],
     opsPerTeam: number,
   ): Promise<ITournamentTeam[]> {
-    const shuffled = this.shuffleOperators(operators);
+    const shuffled = fisherYatesShuffle<IOperator>(operators);
 
     const totalTeamsCount = Math.floor(shuffled.length / opsPerTeam);
 
@@ -387,13 +388,4 @@ export const TournamentService = {
       return categoryLabel?.toLowerCase() === target;
     });
   },
-  shuffleOperators(operators: IOperator[]): IOperator[] {
-    return [...operators]
-      .map((op) => ({
-        op,
-        sort: crypto.getRandomValues(new Uint32Array(1))[0] as number
-      }))
-      .sort((a, b) => a.sort - b.sort)
-      .map(({ op }) => op);
-  }
 };
