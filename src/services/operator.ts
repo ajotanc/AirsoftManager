@@ -65,32 +65,30 @@ export type IOperatorDraft = Omit<IOperator, keyof Models.Row> & {
 
 export const operatorSchema = z
   .object({
-    name: z
-      .required("Nome completo obrigatório"),
-    codename: z
-      .required("Codinome obrigatório"),
+    name: z.required("Nome completo obrigatório"),
+    codename: z.required("Codinome obrigatório"),
     identity: z
       .required("CPF obrigatório")
-      .refine(isValidCpf, "CPF inválido")
-      .transform((v) => v.replace(/\D/g, "")),
+      .refine((v: string) => isValidCpf(v), "CPF inválido")
+      .transform((v: string) => v.replace(/\D/g, "")),
     general_registration: z
       .required("RG obrigatório")
-      .transform((v) => v.replace(/\D/g, "")),
+      .transform((v: string) => v.replace(/\D/g, "")),
     birth_date: z
       .custom()
       .refine(
-        (date) => date instanceof Date || typeof date === "string",
+        (date: unknown) => date instanceof Date || typeof date === "string",
         "Data obrigatória",
       )
-      .transform((date) => date && formatDate(date).toISOString()),
+      .transform((date: unknown) => date && formatDate(date as string | Date).toISOString()),
     blood_type: z.required("Tipo sanguíneo obrigatório"),
     mother_name: z.required("Nome da mãe obrigatório"),
     phone: z
       .required("Telefone obrigatório")
-      .transform((v) => v.replace(/\D/g, "")),
+      .transform((v: string) => v.replace(/\D/g, "")),
     cep: z
       .required("CEP obrigatório", 2)
-      .transform((v) => v.replace(/\D/g, "")),
+      .transform((v: string) => v.replace(/\D/g, "")),
     address: z.required("Endereço obrigatório"),
     address_number: z.required("Número obrigatório"),
     neighborhood: z.required("Bairro obrigatório"),
@@ -99,12 +97,12 @@ export const operatorSchema = z
     emergency_contact: z.required("Nome do Contato obrigatório"),
     emergency_contact_phone: z
       .required("Telefone do Contato obrigatório")
-      .transform((v) => v.replace(/\D/g, "")),
+      .transform((v: string) => v.replace(/\D/g, "")),
     category: z.number({ error: "Categoria obrigatória" }),
     shirt_size: z.required("Tamanho obrigatório"),
     terms_accepted: z
       .boolean({ error: "Aceite os termos obrigatório" })
-      .refine((v) => v === true, "Aceite os termos obrigatório"),
+      .refine((v: boolean) => v === true, "Aceite os termos obrigatório"),
     availability: z.required("Escolha sua disponibilidade"),
     instagram: z
       .string()
@@ -113,7 +111,7 @@ export const operatorSchema = z
         "Formato de usuário inválido (ex: exodoairsoft)",
       )
       .nullish()
-      .transform((value) => value?.replace("@", "").toLowerCase()),
+      .transform((value: string | null | undefined) => value?.replace("@", "").toLowerCase()),
   })
   .loose();
 

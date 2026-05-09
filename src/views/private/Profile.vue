@@ -483,6 +483,8 @@ const filteredProfessions = ref<string[]>([]);
 
 const fileInput = ref<HTMLInputElement | null>(null);
 
+type FullSchema = z.infer<typeof operatorSchema> & z.infer<typeof medicalSchema>;
+
 const initialValues = computed(() => {
   const op = operator.value as IOperator;
   if (!op) return {} as IOperator;
@@ -516,7 +518,7 @@ const medicalSchema = z.object({
 
 const fullSchema = operatorSchema
   .and(medicalSchema)
-  .transform((data) => ({
+  .transform((data: FullSchema) => ({
     ...data,
     terms_accepted_at: data.terms_accepted ? new Date().toISOString() : null,
   }));
