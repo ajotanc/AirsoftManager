@@ -13,39 +13,6 @@
             :style="{ width: '90vw', maxWidth: '667px' }">
             <Form ref="form" :resolver="resolver" :initialValues="selectedRating" @submit="saveRating" class="grid"
                 :key="selectedRating.$id || 'new'">
-                <div class="col-12">
-                    <FormField name="target" v-slot="$field" class="flex flex-column gap-1">
-                        <FloatLabel variant="in">
-                            <Select id="target" v-model="$field.value" :options="availableOperators"
-                                optionLabel="codename" optionValue="$id" class="w-full"
-                                :class="{ 'p-invalid': $field.invalid }" fluid>
-                                <template #option="slotProps">
-                                    <div class="flex align-items-center gap-2">
-                                        <Avatar :icon="!slotProps.option.avatar ? 'pi pi-user' : undefined"
-                                            :image="slotProps.option.avatar" shape="circle" size="small" />
-                                        <span>{{ slotProps.option.codename }}</span>
-                                    </div>
-                                </template>
-
-                                <template #value="slotProps">
-                                    <div v-if="slotProps.value" class="flex align-items-center gap-2">
-                                        <Avatar
-                                            :icon="!availableOperators.find(op => op.$id === slotProps.value)?.avatar ? 'pi pi-user' : undefined"
-                                            :image="availableOperators.find(op => op.$id === slotProps.value)?.avatar"
-                                            shape="circle" size="small" />
-                                        <span>{{availableOperators.find(op => op.$id ===
-                                            slotProps.value)?.codename
-                                            }}</span>
-                                    </div>
-                                </template>
-                            </Select>
-                            <label for="target">Operador</label>
-                        </FloatLabel>
-                        <Message v-if="$field.invalid" severity="error" size="small" variant="simple">
-                            {{ $field.error?.message }}
-                        </Message>
-                    </FormField>
-                </div>
                 <template v-for="{ name, label, component, col, hidden, props } in fields" :key="name">
                     <div :class="`col-${col}`" v-if="!hidden">
                         <FormField v-if="component.name === 'ColorPicker'" :name="name" v-slot="$field"
@@ -111,7 +78,6 @@ import { useToast } from "primevue/usetoast";
 import Button from "primevue/button";
 import Dialog from "primevue/dialog";
 import FloatLabel from "primevue/floatlabel";
-import InputText from "primevue/inputtext";
 import Select from "primevue/select";
 import Message from "primevue/message";
 import { Form } from '@primevue/forms';
@@ -244,7 +210,18 @@ const saveRating = async ({ valid, values }: any) => {
 };
 
 const fields = computed<IFields[]>(() => [
-    { name: "target.codename", label: "Operador", component: InputText, hidden: true },
+    {
+        name: "target",
+        label: "Operador",
+        component: Select,
+        col: '12',
+        props: {
+            options: availableOperators.value,
+            optionLabel: "codename",
+            optionValue: "$id",
+            filter: true,
+        }
+    },
     ...SKILL_ATTRIBUTES.map(({ field: name, header: label }) => {
         return {
             name, label, component: Rating, isRating: true, col: '6', props: { stars: 5 }

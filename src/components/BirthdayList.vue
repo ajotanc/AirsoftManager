@@ -96,7 +96,7 @@ const loadServices = async () => {
 };
 
 const goToBirthday = (operator: IOperator) => {
-  !isBirthdayToday(operator.birth_date) && router.push({ name: 'happy-birthday', params: { id: operator.$id } });
+  isBirthdayToday(operator.birth_date) && router.push({ name: 'happy-birthday', params: { id: operator.$id } });
 };
 
 const dtValue = computed(() => {

@@ -298,12 +298,14 @@ router.beforeEach(async (to, _, next) => {
         return next("/loadout");
       }
 
+      /*
       if (authStore.isSchoolLocked) {
         const RECOVERY_PATH = "/administrative/school/recovery";
         if (to.path !== RECOVERY_PATH) {
           return next(RECOVERY_PATH);
         }
       }
+        */
     }
   }
 
