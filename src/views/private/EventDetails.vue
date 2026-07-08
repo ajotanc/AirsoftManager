@@ -512,8 +512,13 @@ const hasCarpools = computed(() => carpools.value.some(carpool => carpool.vehicl
 const isFinished = computed(() => event.value.is_finished);
 
 const canCheckin = computed(() => {
-    const isToday = dayjs().isSame(dayjs(event.value.date), 'day');
-    return isToday && !isFinished.value && isConfirmed.value;
+    if (loading.value || !event.value?.date) return false;
+    
+    const eventDate = dayjs(event.value.date);
+    const today = dayjs().startOf('day');
+
+    const isTodayOrAfter = today.isSame(eventDate, 'day') || today.isAfter(eventDate, 'day');    
+    return isTodayOrAfter && !isFinished.value && isConfirmed.value;
 });
 
 const carpoolAccepteds = computed(() => requests.value.filter(request => request.status === 'accepted'));
