@@ -1,0 +1,15 @@
+{
+  "name": "appwrite-function-payment-mercadopago",
+  "version": "1.0.0",
+  "description": "-",
+  "main": "src/main.js",
+  "type": "module",
+  "dependencies": {
+    "mercadopago": "^2.12.0",
+    "node-appwrite": "^14.2.0",
+    "stripe": "^22.0.1"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  }
+}

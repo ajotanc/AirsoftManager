@@ -1,0 +1,13 @@
+{
+  "name": "appwrite-monthly-fee",
+  "version": "1.0.0",
+  "description": "-",
+  "main": "src/main.js",
+  "type": "module",
+  "dependencies": {
+    "node-appwrite": "^14.0.0"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  }
+}

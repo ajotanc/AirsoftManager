@@ -5,11 +5,6 @@ import type { IArsenal } from "./arsenal";
 import { fisherYatesShuffle } from '@/functions/utils';
 import { CATEGORIES } from "@/constants/airsoft";
 
-// export const TABLE_TOURNAMENTS = "championships";
-// export const TABLE_TOURNAMENT_TEAMS = "championship_teams";
-// export const TABLE_TOURNAMENT_MATCHES = "championship_matches";
-// export const TABLE_TOURNAMENT_REGISTRATIONS = "championship_registrations";
-
 export const TABLE_TOURNAMENTS = "tournaments";
 export const TABLE_TOURNAMENT_TEAMS = "tournament_teams";
 export const TABLE_TOURNAMENT_MATCHES = "tournament_matches";

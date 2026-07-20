@@ -35,6 +35,7 @@ export interface IEvent extends Models.Row {
   rule?: string;
   is_finished: boolean;
   allow_visitors: boolean;
+  list_open?: boolean;
   participations?: IParticipation[];
   guest_participations?: IGuestParticipation[];
   carpools?: ICarpool[];

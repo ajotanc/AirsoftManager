@@ -210,6 +210,15 @@ export const SchoolService = {
     const questions = data.questions as ISchoolQuestion[];
     const answers = data.answers as string[];
 
+    if (!questions.length || !answers.length) {
+      return {
+        ...data,
+        correct: data.correct ?? 0,
+        score: data.score ?? 0,
+        percentage: data.percentage ?? 0
+      };
+    }
+
     const orderedQuestions = answers.map(ans => questions.find(q => q.options.includes(ans))!);
     const updatedData = { ...data, questions: orderedQuestions };
 
@@ -232,8 +241,10 @@ export const SchoolService = {
     };
 
     const questions = answerRow.questions as ISchoolQuestion[];
-    const correct = questions.reduce((acc, q, i) =>
-      acc + (answerRow.answers[i] === q.correct_option ? 1 : 0), 0);
+    const correct = questions.reduce((acc, q, i) => {
+      if (!q || !q.correct_option) return acc;
+      return acc + (answerRow.answers[i] === q.correct_option ? 1 : 0);
+    }, 0);
 
     const percentage = Math.round((correct / questions.length) * 100);
     const score = percentage / 10;

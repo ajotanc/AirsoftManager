@@ -249,16 +249,29 @@ router.beforeEach(async (to, _, next) => {
   }
 
   // 3. Redirecionamento de Logados
-  // AJUSTE: Só manda pro Dashboard se já tiver o básico (Perfil e Arsenal)
-  if (isAuthenticated && ["/login", "/register", "visitor-registration", "/"].includes(to.path)) {
-    if (isProfileComplete && hasArsenal) {
+  if (isAuthenticated && ["/login", "/register", "/visitor-registration", "visitor-registration", "/"].includes(to.path)) {
+    if (user && !user.emailVerification) {
+      return next("/awaiting-verification");
+    }
+
+    if (isVisitor) {
+      if (!isProfileComplete) return next("/profile");
+      if (!hasArsenal) return next("/arsenal");
       return next("/dashboard");
     }
-    // Se não tiver o básico, deixa passar para as regras 4 ou 5 tratarem o redirecionamento correto
+
+    if (isRecruit || (!isRecruit && isActiveOperator)) {
+      if (!isProfileComplete) return next("/profile");
+      if (!hasArsenal) return next("/arsenal");
+      if (!hasLoadout) return next("/loadout");
+      return next("/dashboard");
+    }
+
+    return next("/dashboard");
   }
 
   // 4. REGRAS ESPECÍFICAS PARA VISITANTES
-  if (isAuthenticated && isVisitor) {
+  if (isAuthenticated && isVisitor && user?.emailVerification) {
     // PASSO 1: Perfil
     if (!isProfileComplete && to.path !== "/profile") {
       return next("/profile");
@@ -286,7 +299,7 @@ router.beforeEach(async (to, _, next) => {
   }
 
   // 5. FLUXO OBRIGATÓRIO DE CADASTRO (Operadores/Recrutas)
-  if (isAuthenticated && to.meta.requiresAuth && !isVisitor) {
+  if (isAuthenticated && to.meta.requiresAuth && !isVisitor && user?.emailVerification) {
     if (isRecruit || (!isRecruit && isActiveOperator)) {
       if (!isProfileComplete && to.path !== "/profile") return next("/profile");
 

@@ -63,7 +63,11 @@
                         </div>
                         <Button v-if="isFinished" label="Feedback" icon="pi pi-star" severity="warn"
                             @click="addFeedback" :disabled="hasRating" class="w-auto" />
-                        <div v-if="deadlineInfo.isOver && !isFinished"
+                        <div v-if="event.list_open && !isFinished"
+                            class="flex gap-2 align-items-center p-2 md:py-0 md:px-3 border-1 border-amber-300 bg-amber-100 text-amber-900 border-round text-sm">
+                            <span><i class="pi pi-unlock mr-1"></i><strong>Lista Extra Liberada:</strong> A lista de participantes foi aberta extraordinariamente pela administração.</span>
+                        </div>
+                        <div v-else-if="deadlineInfo.isOver && !isFinished"
                             class="flex gap-2 align-items-center p-2 md:py-0 md:px-3 border-1 border-red-300 bg-red-100 text-red-800 border-round text-sm">
                             <span><strong>Inscrições Encerradas:</strong> O limite para confirmação de efetivo foi até
                                 <span class="font-bold">{{ deadlineInfo.formatted }}</span>. A lista de operação já está
@@ -115,6 +119,10 @@
                             <Button label="Adicionar Convidado" icon="pi pi-plus" class="w-full" severity="info"
                                 :disabled="availableVisitors.length === 0 || isFinished || !isConfirmed"
                                 @click="newVisitor" />
+                            <Button :label="event.list_open ? 'Fechar Lista Extra' : 'Liberar Lista Extra'"
+                                :icon="event.list_open ? 'pi pi-lock' : 'pi pi-unlock'"
+                                :severity="event.list_open ? 'warn' : 'help'"
+                                class="w-full" :disabled="isFinished" @click="toggleListOpen" />
                         </div>
                         <h4 class="text-sm uppercase text-gray-500 border-bottom-1 border-white-alpha-10 mt-0 pb-2">
                             Lista de Operadores
@@ -151,11 +159,17 @@
                                             <div class="ml-auto">
                                                 <template v-if="isFinished">
                                                     <Tag :severity="checked_in ? 'success' : 'danger'"
-                                                        :icon="checked_in ? 'pi pi-check' : 'pi pi-times'"
+                                                        :icon="checked_in ? 'ri-check-double-line' : 'ri-close-line'"
                                                         :value="checked_in ? 'Presente' : 'Faltou'" rounded />
                                                 </template>
-                                                <i v-else-if="checked_in"
-                                                    class="pi pi-check-circle text-green-500 text-xl"></i>
+                                                <template v-else>
+                                                    <i v-if="checked_in"
+                                                        class="ri-check-double-line text-green-500 text-xl"></i>
+                                                    <Button v-else-if="isAdmin || isAdministrativeManagement"
+                                                        icon="ri-rfid-line" severity="secondary" rounded size="small"
+                                                        @click="onDetect(operator.$id)"
+                                                        v-tooltip.top="'Realizar Check-in Manualmente'" />
+                                                </template>
                                             </div>
                                         </div>
                                     </div>
@@ -1240,12 +1254,33 @@ const deadlineInfo = computed(() => {
 
     const eventDate = dayjs(event.value.date);
     const deadline = eventDate.subtract(1, 'day').hour(DEADLINE_HOUR).minute(0).second(0);
+    const isDeadlineOver = dayjs().isAfter(deadline);
 
     return {
-        isOver: dayjs().isAfter(deadline) || isFinished.value,
+        isOver: isFinished.value || (!event.value.list_open && isDeadlineOver),
         formatted: deadline.format('DD/MM [às] HH:mm')
     };
 });
+
+const toggleListOpen = async () => {
+    try {
+        const newListOpenState = !event.value.list_open;
+        await EventService.update(event.value.$id, { list_open: newListOpenState });
+        rawEvent.value.list_open = newListOpenState;
+
+        toast.add({
+            severity: newListOpenState ? 'warn' : 'info',
+            summary: newListOpenState ? 'Lista Extra Liberada' : 'Lista Extra Fechada',
+            detail: newListOpenState
+                ? 'A lista de participantes foi aberta extraordinariamente.'
+                : 'A validação padrão de prazo foi reativada.',
+            life: 3000
+        });
+    } catch (error) {
+        console.error("Erro ao alterar status da lista:", error);
+        toast.add({ severity: 'error', summary: 'Erro', detail: 'Não foi possível alterar o status da lista.', life: 3000 });
+    }
+};
 
 const getOperator = (id: string) => operatorsMap.value.get(id);
 const getOperatorName = (id: string) => operatorsMap.value.get(id)?.codename || 'Desconhecido';
