@@ -148,6 +148,19 @@ export const isBirthdayToday = (date: Date | string | null) => {
   );
 };
 
+export const isBirthdayTodayOrYesterday = (date: Date | string | null) => {
+  if (!date) return false;
+
+  const today = dayjs();
+  const yesterday = dayjs().subtract(1, 'day');
+  const birth = dayjs(date);
+
+  const isToday = today.month() === birth.month() && today.date() === birth.date();
+  const isYesterday = yesterday.month() === birth.month() && yesterday.date() === birth.date();
+
+  return isToday || isYesterday;
+};
+
 export const severityEvent = (type: number | string): string => {
   switch (Number(type)) {
     case 1:

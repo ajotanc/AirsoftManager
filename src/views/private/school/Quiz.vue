@@ -17,6 +17,7 @@
             pontuação necessária.
             Siga ao seu ritmo e boa sorte.
           </p>
+          <SchoolBadges class="mt-2" />
           <q class="font-italic p-1 mt-1 border-left-3 border-400 text-400 text-sm">O conhecimento da regra é a maior
             arma que o ser humano pode obter.</q>
         </div>
@@ -89,7 +90,8 @@ import { useRoute } from 'vue-router';
 import dayjs from 'dayjs';
 import { SchoolService, type ISchoolAnswer, type ISchoolQuestion, type SchoolCategory } from '@/services/school';
 import { useOperator } from '@/composables/useOperator';
-import { useToast } from 'primevue';
+import { useToast, ProgressSpinner, Stepper, StepPanels, StepPanel, Tag, RadioButton, Button } from 'primevue';
+import SchoolBadges from '@/components/school/SchoolBadges.vue';
 
 const route = useRoute();
 const toast = useToast();
@@ -168,7 +170,7 @@ const handleClick = (questionIndex: number, optionValue: string) => {
 const saveQuiz = async () => {
   const hits = checkAnswers(answers.value);
   correctCount.value = hits;
-  finalGrade.value = (hits / questions.value.length) * 10;
+  finalGrade.value = Math.ceil((hits / questions.value.length) * 10);
   isFinished.value = true;
   activeStep.value = 0;
 

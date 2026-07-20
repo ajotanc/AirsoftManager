@@ -3,7 +3,7 @@
     :numVisible="5" :numScroll="1" :responsiveOptions="responsiveOptions" :autoplayInterval="4000">
     <template #item="{ data: birthday }">
       <div v-if="loading" class="flex gap-2">
-        <Skeleton width="100%" height="16rem" borderRadius="16px" />
+        <Skeleton width="100%" style="aspect-ratio: 3 / 4;" borderRadius="16px" />
       </div>
       <template v-else>
         <Card class="border-1 border-white-alpha-10 overflow-hidden shadow-3 m-2">
@@ -112,6 +112,8 @@ const dtValue = computed(() => {
 
 .wrapper {
   position: relative;
+  width: 100%;
+  aspect-ratio: 3 / 4;
   overflow: hidden;
   border-radius: inherit;
   isolation: isolate;
@@ -131,6 +133,7 @@ const dtValue = computed(() => {
 
 .avatar {
   width: 100%;
+  height: 100%;
   aspect-ratio: 3 / 4;
   display: flex;
   justify-content: center;

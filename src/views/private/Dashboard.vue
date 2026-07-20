@@ -16,7 +16,6 @@
   </div>
 
   <div v-else-if="isActiveOperator" class="grid p-3">
-
     <div class="col-12">
       <Level :operator="operator" :qrcode="true" />
     </div>
@@ -106,6 +105,7 @@
   </nav>
 
   <AppScanner v-model:visible="openScannerDialog" @detect="onDetect" header="QR Code" />
+  <AdminBroadcastDialog v-model:visible="openBroadcastDialog" />
 
 </template>
 
@@ -115,7 +115,6 @@ import { useQuery } from "@tanstack/vue-query";
 import router from "@/router";
 
 import Card from "primevue/card";
-
 import Level from "@/components/operators/Level.vue";
 import EventList from "@/components/EventList.vue";
 import BirthdayList from "@/components/BirthdayList.vue";
@@ -123,6 +122,8 @@ import OperatorList from "@/components/operators/List.vue";
 import GoalList from "@/components/GoalList.vue";
 import ArenaSchedule from "@/components/ArenaSchedule.vue";
 import AppScanner from "@/components/AppScanner.vue";
+import SchoolBadges from "@/components/school/SchoolBadges.vue";
+import AdminBroadcastDialog from "@/components/admin/AdminBroadcastDialog.vue";
 
 import { PaymentService, type IPayment } from "@/services/payment";
 import { SchoolService } from "@/services/school";
@@ -133,6 +134,7 @@ const { operator, isActiveOperator, isAdmin, authStore: { isVisitor } } = useOpe
 const { $id, arsenal, loadout } = operator.value;
 
 const openScannerDialog = ref(false);
+const openBroadcastDialog = ref(false);
 
 const {
   data: missingCerts,
@@ -170,8 +172,8 @@ const adminActions = ref<AdminAction[]>([
     to: '/management/finance/payments'
   },
   {
-    icon: 'ri-exchange-funds-line',
-    to: '/management/finance/payments'
+    icon: 'ri-megaphone-line',
+    command: () => openBroadcastDialog.value = true
   },
   {
     icon: 'ri-calendar-event-line',

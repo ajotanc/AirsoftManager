@@ -69,7 +69,7 @@
                     <span class="text-xs font-bold">Nota da Avaliação</span>
                     <span class="text-xs font-bold uppercase"
                       :class="module.progress >= 70 ? 'text-green-500' : !module.progress ? 'text-600' : 'text-red-500'">
-                      {{ module.progress }}% ({{ module.score }}/{{ module.questionsCount }}) Questões
+                      {{ module.progress }}% ({{ module.correct }}/{{ module.questionsCount }}) Acertos
                     </span>
                   </div>
 
@@ -214,7 +214,8 @@ const modules = computed(() => {
       hasTakenTest: false,
       attemptNumber: 0,
       questionsCount: 0,
-      score: 0
+      score: 0,
+      correct: 0
     };
 
     if (answer) {
@@ -224,6 +225,7 @@ const modules = computed(() => {
       progressInfo.progress = percentage;
       progressInfo.questionsCount = answer.questions.length;
       progressInfo.score = answer.score || 0;
+      progressInfo.correct = answer.correct ?? Math.round((percentage / 100) * answer.questions.length);
 
       if (percentage >= PASSING_SCORE) {
         progressInfo.statusLabel = "Aprovado";

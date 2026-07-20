@@ -63,6 +63,11 @@
                         </div>
                         <Button v-if="isFinished" label="Feedback" icon="pi pi-star" severity="warn"
                             @click="addFeedback" :disabled="hasRating" class="w-auto" />
+                        <div v-if="hasPendingSchoolCerts"
+                            class="flex gap-2 align-items-center p-2 md:py-1 md:px-3 border-1 border-yellow-400 bg-yellow-100 text-yellow-900 border-round text-sm cursor-pointer"
+                            @click="$router.push('/administrative/school')">
+                            <span><i class="ri-graduation-cap-line mr-1 text-base"></i><strong>Atenção Escola Êxodo:</strong> Você tem {{ authStore.missingCertifications.length }} certificação(ões) pendente(s). <span class="underline font-bold">Regularize para manter seu acesso em dia (3 min)</span>.</span>
+                        </div>
                         <div v-if="event.list_open && !isFinished"
                             class="flex gap-2 align-items-center p-2 md:py-0 md:px-3 border-1 border-amber-300 bg-amber-100 text-amber-900 border-round text-sm">
                             <span><i class="pi pi-unlock mr-1"></i><strong>Lista Extra Liberada:</strong> A lista de participantes foi aberta extraordinariamente pela administração.</span>
@@ -499,7 +504,8 @@ const route = useRoute();
 const toast = useToast();
 const confirm = useConfirm();
 
-const { operator, isAdmin, authStore: { isAdministrativeManagement } } = useOperator();
+const { operator, isAdmin, authStore } = useOperator();
+const { isAdministrativeManagement } = authStore;
 
 const rawEvent = ref<IEvent>({} as IEvent);
 const participants = ref<IParticipation<IOperator>[]>([]);
@@ -524,6 +530,9 @@ const averageFeedback = computed(() => {
 const hasRating = computed(() => feedbacks.value.some(feedback => feedback.operator.$id === operator.value.$id));
 const hasCarpools = computed(() => carpools.value.some(carpool => carpool.vehicle.driver === operator.value.$id));
 const isFinished = computed(() => event.value.is_finished);
+const hasPendingSchoolCerts = computed(() => {
+    return !authStore.isVisitor && (authStore.missingCertifications?.length ?? 0) > 0 && !isFinished.value;
+});
 
 const canCheckin = computed(() => {
     if (loading.value || !event.value?.date) return false;

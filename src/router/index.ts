@@ -264,6 +264,7 @@ router.beforeEach(async (to, _, next) => {
       if (!isProfileComplete) return next("/profile");
       if (!hasArsenal) return next("/arsenal");
       if (!hasLoadout) return next("/loadout");
+      if (authStore.isSchoolLocked) return next("/administrative/school/recovery");
       return next("/dashboard");
     }
 
@@ -311,14 +312,12 @@ router.beforeEach(async (to, _, next) => {
         return next("/loadout");
       }
 
-      /*
       if (authStore.isSchoolLocked) {
         const RECOVERY_PATH = "/administrative/school/recovery";
         if (to.path !== RECOVERY_PATH) {
           return next(RECOVERY_PATH);
         }
       }
-        */
     }
   }
 

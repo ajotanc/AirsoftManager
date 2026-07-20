@@ -44,6 +44,8 @@
         </div>
       </template>
 
+      <slot name="extra-actions" />
+
       <div class="col-12 pb-0">
         <div class="flex justify-content-end gap-2">
           <Button :label="cancelLabel" outlined @click="visible = false" />
@@ -55,7 +57,7 @@
 </template>
 
 <script setup lang="ts" generic="T extends Record<string, any>">
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import { Form, type FormSubmitEvent } from '@primevue/forms';
 import type { IFields, AppFormResolver } from '@/functions/utils';
 import { Dialog, type FileUploadSelectEvent } from 'primevue';
@@ -76,6 +78,14 @@ const props = withDefaults(defineProps<Props>(), {
   cancelLabel: 'Cancelar',
   loading: false
 });
+
+watch(
+  () => props.initialValues,
+  (newValues) => {
+    formRef.value?.setValues(newValues);
+  },
+  { deep: true }
+);
 
 const emit = defineEmits<{
   submit: [values: T, file?: File];

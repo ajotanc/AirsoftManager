@@ -51,9 +51,8 @@ export const SchoolService = {
   getSemesterInfo(): ISemester {
     const now = dayjs();
     const month = now.month();
-    const day = now.date();
 
-    const isRecoveryPeriod = day <= 10 && (month === 0 || month === 6);
+    const isRecoveryPeriod = (month === 0 || month === 6);
 
     const semester = isRecoveryPeriod
       ? (month === 0 ? 2 : 1)
@@ -155,6 +154,11 @@ export const SchoolService = {
 
     return fisherYatesShuffle<ISchoolQuestion>(response.rows).slice(0, limit);
   },
+  async getRecoveryQuestions(limitPerCategory = 10): Promise<ISchoolQuestion[]> {
+    const promises = SCHOOL_CATEGORIES.map(cat => this.getRandomQuestions(cat, limitPerCategory));
+    const results = await Promise.all(promises);
+    return results.flat();
+  },
   async getMissingCertifications(operatorId: string): Promise<SchoolCategory[]> {
     const { start } = this.getSemesterInfo();
     const categories: SchoolCategory[] = ['rescom', 'fta', 'sar'];
@@ -246,8 +250,8 @@ export const SchoolService = {
       return acc + (answerRow.answers[i] === q.correct_option ? 1 : 0);
     }, 0);
 
-    const percentage = Math.round((correct / questions.length) * 100);
-    const score = percentage / 10;
+    const score = Math.ceil((correct / questions.length) * 10);
+    const percentage = score * 10;
 
     return {
       correct,
