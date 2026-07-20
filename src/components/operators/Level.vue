@@ -87,8 +87,7 @@ import Qrcode from './Qrcode.vue';
 import type { IOperator } from '@/services/operator';
 import { getSpecialtyLabel, getAvailabilityLabel } from '@/functions/utils'
 
-const operator = defineModel('operator', {
-    type: Object as PropType<IOperator>,
+const operator = defineModel<IOperator>('operator', {
     default: () => ({} as IOperator),
 });
 

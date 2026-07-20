@@ -146,7 +146,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, nextTick, type PropType } from "vue";
+import { ref, computed, nextTick } from "vue";
 import { useToast } from "primevue/usetoast";
 import { FilterMatchMode } from '@primevue/core/api';
 import IconField from "primevue/iconfield";
@@ -165,8 +165,7 @@ import { LoadoutService, type ILoadout } from "@/services/loadout";
 import { useConfirm } from "primevue";
 import { useOperator } from "@/composables/useOperator";
 
-const items = defineModel('items', {
-  type: Array as PropType<ILoadout[]>,
+const items = defineModel<ILoadout[]>('items', {
   default: () => []
 });
 

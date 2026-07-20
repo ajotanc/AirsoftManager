@@ -190,7 +190,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, nextTick, type PropType, computed } from "vue";
+import { ref, nextTick, computed } from "vue";
 import QrcodeVue from 'qrcode.vue';
 import { toPng } from 'html-to-image';
 import { useToast } from "primevue/usetoast";
@@ -219,8 +219,7 @@ import { MaintenanceService, type IMaintenance } from "@/services/maintenance";
 import type { IOperator } from "@/services/operator";
 import { useOperator } from "@/composables/useOperator";
 
-const items = defineModel('items', {
-  type: Array as PropType<IArsenal[]>,
+const items = defineModel<IArsenal[]>('items', {
   default: () => []
 });
 

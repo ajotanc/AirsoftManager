@@ -67,13 +67,11 @@ import RadarStats from '@/components/gamification/RadarStats.vue';
 import { RatingService } from '@/services/rating';
 import { MIN_VOTES_REQUIRED, SKILL_ATTRIBUTES } from '@/constants/airsoft';
 import type { IOperator } from '@/services/operator';
-import type { PropType } from 'vue';
 import { getSpecialtyLabel, getShortName } from '@/functions/utils'
 import { TEAM_NAME } from '@/constants/airsoft';
 import type { FileUploadSelectEvent } from 'primevue';
 
-const operator = defineModel('operator', {
-  type: Object as PropType<IOperator>,
+const operator = defineModel<IOperator>('operator', {
   default: () => ({} as IOperator),
 });
 
