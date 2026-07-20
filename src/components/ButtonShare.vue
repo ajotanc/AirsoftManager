@@ -70,19 +70,28 @@ const shareNative = async () => {
   const effective = participations.length + guest_participations.length;
   const newDescription = limitWords(cleanHtml(description), 60);
 
+  const medicalItem = rule && rule.toUpperCase() === "SAR" ? "- 4 Ataduras (12cm, 15cm ou 20cm x 1,80m)" : "- 4 Ataduras / Torniquetes"
+
   const header = `*${title}*\n-------------------------------------------------`;
   const checkin = `🔗 *Briefing / Check-in:*\n${newDescription}\n\n*Aperte no link acima e confirme a sua presença!*\n${url}`;
   const info = `-------------------------------------------------\n⚠️ *Tipo:* ${EVENT_TYPES[type as keyof typeof EVENT_TYPES]}\n⚠️ *Efetivo Mínimo:* ${minimum_effective}\n⚠️ *Efetivo Atual:* ${effective}/${minimum_effective}`;
   const eventRule = rule ? `⚠️ *Regra:* ${rule}` : null;
-  const mandatory = `-------------------------------------------------\n📢 *Obrigatório:*\n- AEG (ponta vermelha/laranja)\n- Pano vermelho\n- 4 ataduras / torniquetes\n- Óculos de proteção\n- Apito\n- Braçadeiras (Azul/Amarelo)`;
-  const forbidden = '-------------------------------------------------\n🚫 *Proibido:*\n- O uso de fardas de instituições militares ou forças de segurança.'
+  const forbidden = '-------------------------------------------------\n🚫 *Proibido:*\n- O uso de fardas de instituições militares ou forças de segurança.';
   const eventFinished = is_finished ? "-------------------------------------------------\n🎖️ *MISSÃO FINALIZADA!*" : null;
   const details = `-------------------------------------------------\n📅 *Data:* ${formatDate(date).toLocaleDateString('pt-BR')}\n⏰ *Horário:* ${startTime} às ${endTime}\n📍 *Local:* ${location}\n🗾 *Maps:* ${location_url}\n-------------------------------------------------`;
 
   const visitor = `🚸 *Visitante?* Faça sua inscrição e participe do evento! Acesse o link abaixo:\n${baseUrl}/visitor-registration`;
   const motto = `\n> _"No campo de batalha ou na vida: No *${TEAM_NAME}*, ninguém fica para trás!"_`;
 
-  const mandatoryItems = startTime > "18:00" ? mandatory.concat('\n- Luz vermelha / Lanterna') : mandatory;
+  let mandatoryText = `-------------------------------------------------\n📢 *Obrigatório:*\n- AEG (ponta vermelha/laranja)\n- Pano vermelho\n${medicalItem}\n- Óculos de proteção\n- Apito\n- Braçadeiras (Azul/Amarelo)`;
+
+  if (startTime > "18:00") {
+    mandatoryText += '\n- Luz vermelha / Lanterna';
+  }
+
+  if (rule && rule.toUpperCase() === "SAR") {
+    mandatoryText += `\n- 1-10 Real/Low/Mid Cap\n- 2 Fita Hellermann\n- 2 Braçadeiras de metal\n- 2 Bandagem Israelense (Médico)\n- 1 Alicate/Tesoura (Engenheiro)\n- 1 Bússola (Navegador)`;
+  }
 
   const messageBlocks = [
     header,
@@ -91,7 +100,7 @@ const shareNative = async () => {
     eventRule,
     operators ? `\n🪖 *Lista de Operadores:*\n${operators}` : null,
     guests ? `\n🪖 *Lista de Convidados:*\n${guests}` : null,
-    mandatoryItems,
+    mandatoryText,
     forbidden,
     eventFinished,
     details,
