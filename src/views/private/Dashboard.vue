@@ -122,7 +122,6 @@ import OperatorList from "@/components/operators/List.vue";
 import GoalList from "@/components/GoalList.vue";
 import ArenaSchedule from "@/components/ArenaSchedule.vue";
 import AppScanner from "@/components/AppScanner.vue";
-import SchoolBadges from "@/components/school/SchoolBadges.vue";
 import AdminBroadcastDialog from "@/components/admin/AdminBroadcastDialog.vue";
 
 import { PaymentService, type IPayment } from "@/services/payment";
