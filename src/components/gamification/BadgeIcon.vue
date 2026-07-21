@@ -27,7 +27,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import { ALL_BADGES_DEFINITION } from '@/constants/airsoft';
+import { BadgeService } from '@/services/badge';
 
 const props = defineProps<{
     slug?: string;
@@ -37,13 +37,7 @@ const props = defineProps<{
     size?: 'small' | 'normal' | 'large';
 }>();
 
-const badgeInfo = computed(() => {
-    return ALL_BADGES_DEFINITION.find(b => b.slug === props.slug) || {
-        label: undefined,
-        icon: 'ri-question-line',
-        color: '#94a3b8'
-    };
-});
+const badgeInfo = computed(() => BadgeService.getBadgeDefinition(props.slug));
 </script>
 
 <style scoped>

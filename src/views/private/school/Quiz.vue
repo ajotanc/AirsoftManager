@@ -93,6 +93,8 @@ import { useOperator } from '@/composables/useOperator';
 import { useToast, ProgressSpinner, Stepper, StepPanels, StepPanel, Tag, RadioButton, Button } from 'primevue';
 import SchoolBadges from '@/components/school/SchoolBadges.vue';
 
+import { BadgeService } from '@/services/badge';
+
 const route = useRoute();
 const toast = useToast();
 const { operator } = useOperator();
@@ -187,7 +189,12 @@ const saveQuiz = async () => {
     selectedAnswer.value = await SchoolService.create(payload);
     attempts.value++;
 
-    toast.add({ severity: "success", summary: "Sucesso!", detail: "Prova salva.", life: 3000 });
+    if (finalGrade.value >= 7) {
+      await BadgeService.addActivityXp(operator.value, 250);
+      await BadgeService.syncOperatorBadges(operator.value);
+    }
+
+    toast.add({ severity: "success", summary: "Sucesso!", detail: "Prova salva e +250 XP concedidos!", life: 3000 });
   } catch (error) {
     console.error("Erro ao salvar:", error);
     toast.add({ severity: "error", summary: "Erro", detail: "Falha ao registrar.", life: 3000 });

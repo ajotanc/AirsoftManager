@@ -7,6 +7,7 @@ import { VehicleService } from "./vehicle";
 import { CarpoolService } from "./carpool";
 import { GuestService } from "./guest";
 import { ScheduleService } from "./schedule"; // Importante para missões
+import { SchoolService, type SchoolCategory, type ISchoolAnswer } from "./school";
 import {
   UNIFORM_IDS,
   LOADOUT_ITEMS,
@@ -17,6 +18,7 @@ import {
   MIN_COMPLETE_UNIFORMS,
   EXPERIENCE_PER_LEVEL,
   MIN_VOTES_REQUIRED,
+  ALL_BADGES_DEFINITION,
 } from "@/constants/airsoft";
 import { MaintenanceService } from "./maintenance";
 
@@ -238,6 +240,22 @@ export const BadgeService = {
     if (operator.level >= 10 && operator.rating === 5 && isProfileFull)
       earned.add("iron_operator");
 
+    // 6. SCHOOL CERTIFICATIONS (Semestrais)
+    const schoolAnswers = (operator.school_answers || []) as ISchoolAnswer[];
+    const info = SchoolService.getSemesterInfo();
+    const currentSemBadges = this.getCurrentSemesterSchoolBadgeSlugs();
+
+    const currentCompleted = schoolAnswers
+      .filter(ans => dayjs(ans.completed_at).isAfter(info.start) || dayjs(ans.completed_at).isSame(info.start))
+      .map(ans => ans.category);
+
+    if (currentCompleted.includes('fta')) earned.add(currentSemBadges.fta);
+    if (currentCompleted.includes('sar')) earned.add(currentSemBadges.sar);
+    if (currentCompleted.includes('rescom')) earned.add(currentSemBadges.rescom);
+    if (['fta', 'sar', 'rescom'].every(cat => currentCompleted.includes(cat as SchoolCategory))) {
+      earned.add(currentSemBadges.master);
+    }
+
     // FINALIZAÇÃO E XP
     const finalBadges = Array.from(earned);
     const newBadgesCount = finalBadges.filter(
@@ -275,4 +293,114 @@ export const BadgeService = {
       badges: Array.from(earned),
     } as IOperator);
   },
+
+  getBadgeDefinition(slug?: string) {
+    if (!slug) {
+      return {
+        slug: '',
+        label: undefined,
+        icon: 'ri-question-line',
+        color: '#94a3b8',
+        description: ''
+      };
+    }
+
+    const staticBadge = ALL_BADGES_DEFINITION.find((b) => b.slug === slug);
+    if (staticBadge) return staticBadge;
+
+    // Resolução dinâmica para certificações semestrais da Escola
+    let match = slug.match(/^school_certified_fta_(\d{4})_(\d)$/);
+    if (match) {
+      return {
+        slug,
+        label: `Certificado FTA ${match[1]}.${match[2]}`,
+        icon: "ri-shield-check-line",
+        color: "#3b82f6",
+        description: `Aprovado na certificação semestral de Fundamentos Táticos de Airsoft (${match[1]}.${match[2]}).`
+      };
+    }
+
+    match = slug.match(/^school_certified_sar_(\d{4})_(\d)$/);
+    if (match) {
+      return {
+        slug,
+        label: `Certificado SAR ${match[1]}.${match[2]}`,
+        icon: "ri-first-aid-kit-line",
+        color: "#ef4444",
+        description: `Aprovado na certificação semestral de Busca, Salvamento e Resgate (${match[1]}.${match[2]}).`
+      };
+    }
+
+    match = slug.match(/^school_certified_rescom_(\d{4})_(\d)$/);
+    if (match) {
+      return {
+        slug,
+        label: `Certificado RESCOM ${match[1]}.${match[2]}`,
+        icon: "ri-radio-2-line",
+        color: "#f59e0b",
+        description: `Aprovado na certificação semestral de Comunicação e Resposta (${match[1]}.${match[2]}).`
+      };
+    }
+
+    match = slug.match(/^school_tactical_master_(\d{4})$/);
+    if (match) {
+      return {
+        slug,
+        label: `Mestre Tático ${match[1]}`,
+        icon: "ri-graduation-cap-line",
+        color: "#8b5cf6",
+        description: `Conquista Anual ${match[1]}: Certificado com excelência em todas as matérias táticas da Escola Êxodo.`
+      };
+    }
+
+    return {
+      slug,
+      label: undefined,
+      icon: 'ri-question-line',
+      color: '#94a3b8',
+      description: ''
+    };
+  },
+
+  getCurrentSemesterSchoolBadgeSlugs() {
+    const info = SchoolService.getSemesterInfo();
+    const semSlug = info.label.replace('.', '_');
+    const yearSlug = String(info.start.year());
+
+    const fta = `school_certified_fta_${semSlug}`;
+    const sar = `school_certified_sar_${semSlug}`;
+    const rescom = `school_certified_rescom_${semSlug}`;
+    const master = `school_tactical_master_${yearSlug}`;
+
+    return {
+      fta,
+      sar,
+      rescom,
+      master,
+      all: [fta, sar, rescom, master]
+    };
+  },
+
+  getDisplayedBadgesForOperator(earnedBadges: string[] = []) {
+    const map = new Map<string, any>();
+    ALL_BADGES_DEFINITION.forEach((b) => map.set(b.slug, b));
+
+    const currentSemBadges = this.getCurrentSemesterSchoolBadgeSlugs();
+    currentSemBadges.all.forEach((slug) => {
+      if (!map.has(slug)) {
+        map.set(slug, this.getBadgeDefinition(slug));
+      }
+    });
+
+    earnedBadges.forEach((slug) => {
+      if (!map.has(slug)) {
+        const def = this.getBadgeDefinition(slug);
+        if (def && def.label) {
+          map.set(slug, def);
+        }
+      }
+    });
+
+    return Array.from(map.values());
+  }
 };

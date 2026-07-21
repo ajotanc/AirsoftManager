@@ -52,7 +52,7 @@ export const GeminiService = {
 
     switch (params.promptType) {
       case 'school_reminder':
-        return `🪖 *CONVOCAÇÃO TÁTICA ESCOLA ${TEAM_NAME.toUpperCase()}* 📜🎯\n\nAtenção equipe! O prazo para renovação das certificações semestrais está ativo.\n\n_Mantenha seu conhecimento afiado e garanta seu acesso às próximas missões._ ⚡\n\n⏱️ *Tempo estimado:* 3 a 5 min\n🏆 *Recompensa:* +500 XP`;
+        return `🪖 *CONVOCAÇÃO TÁTICA ESCOLA ${TEAM_NAME.toUpperCase()}* 📜🎯\n\nAtenção equipe! O prazo para renovação das certificações semestrais está ativo.\n\n_Mantenha seu conhecimento afiado e garanta seu acesso às próximas missões._ ⚡\n\n⏱️ *Tempo estimado:* 3 a 5 min\n🏆 *Recompensa:* +250 XP por matéria (+750 XP total)`;
       case 'recovery_reminder':
         return `🚨 *ALERTA DE RECUPERAÇÃO TÁTICA* ⚠️⚔️\n\nAtenção Operadores! O período de recuperação da Escola ${TEAM_NAME} está aberto.\n\n_Regularize suas matérias pendentes o quanto antes para liberar seu acesso ao sistema. ${TEAM_MOTTO}!_ 🛡️💪`;
       case 'birthday_reminder':

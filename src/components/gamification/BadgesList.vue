@@ -2,13 +2,13 @@
     <div v-if="showActions" class="flex flex-column md:flex-row justify-content-between align-items-center mb-3">
         <div class="flex flex-column text-center md:text-left mb-3 md:mb-0">
             <h2 class="text-2xl font-bold m-0">Minhas Conquistas</h2>
-            <span class="text-lg">{{ operator.badges?.length || 0 }}/{{ ALL_BADGES_DEFINITION.length }}</span>
+            <span class="text-lg">{{ operator.badges?.length || 0 }}/{{ displayedBadges.length }}</span>
         </div>
         <Tag severity="warn" :value="`${operator.featured_badges?.length || 0} / 5 Destaques`" icon="pi pi-star-fill" />
     </div>
 
     <div class="flex flex-wrap justify-content-center gap-3">
-        <div v-for="badge in ALL_BADGES_DEFINITION" :key="badge.slug"
+        <div v-for="badge in displayedBadges" :key="badge.slug"
             class="badge-item flex flex-column justify-content-center align-items-center gap-3 p-3 border-2 border-round transition-all transition-duration-300 relative"
             :class="{
                 'earned-badge': isEarned(badge.slug),
@@ -32,12 +32,13 @@
 </template>
 
 <script setup lang="ts">
-import { ALL_BADGES_DEFINITION } from '@/constants/airsoft';
+import { computed } from 'vue';
+import { BadgeService } from '@/services/badge';
 import { OperatorService, type IOperator } from '@/services/operator';
 import { useToast } from 'primevue/usetoast';
 import Tag from 'primevue/tag';
-
-// console.log(ALL_BADGES_DEFINITION.map(b => b.slug).join(', '));
+import BadgeIcon from './BadgeIcon.vue';
+import Button from 'primevue/button';
 
 const toast = useToast();
 
@@ -51,6 +52,8 @@ const props = defineProps({
         default: false
     }
 });
+
+const displayedBadges = computed(() => BadgeService.getDisplayedBadgesForOperator(operator.value.badges || []));
 
 const isEarned = (slug: string): boolean => {
     return operator.value.badges?.includes(slug) || false;

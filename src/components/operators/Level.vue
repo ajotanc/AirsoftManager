@@ -82,7 +82,8 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import { LEVELS, EXPERIENCE_PER_LEVEL, ALL_BADGES_DEFINITION, TEAM_NAME } from '@/constants/airsoft';
+import { LEVELS, EXPERIENCE_PER_LEVEL, TEAM_NAME } from '@/constants/airsoft';
+import { BadgeService } from '@/services/badge';
 import Qrcode from './Qrcode.vue';
 import type { IOperator } from '@/services/operator';
 import { getSpecialtyLabel, getAvailabilityLabel } from '@/functions/utils'
@@ -115,7 +116,7 @@ const badgesCount = computed(() => {
 
 const featuredBadges = computed(() => {
     const featured = operator.value.featured_badges || [];
-    return ALL_BADGES_DEFINITION.filter(b => featured.includes(b.slug));
+    return featured.map(slug => BadgeService.getBadgeDefinition(slug));
 });
 
 </script>

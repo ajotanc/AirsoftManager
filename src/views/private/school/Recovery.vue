@@ -18,7 +18,7 @@
               acertos)</strong> para regularizar e liberar
             seu acesso ao sistema.
           </p>
-          <SchoolBadges class="mt-2" />
+          <SchoolBadges class="mt-2" timeText="⏱️ Leva 10 a 15 min" xpText="🏆 Ganhe +300 XP" />
           <q class="font-italic p-1 mt-1 border-left-3 border-400 text-400 text-sm">O conhecimento da regra é a maior
             arma que o ser humano pode obter.</q>
         </div>
@@ -103,6 +103,7 @@ import { ref, onMounted, computed } from 'vue';
 import dayjs from 'dayjs';
 import { SchoolService, type ISchoolAnswer, type ISchoolQuestion, SCHOOL_CATEGORIES } from '@/services/school';
 import { useRouter } from 'vue-router';
+import { BadgeService } from '@/services/badge';
 import { useOperator } from '@/composables/useOperator';
 import { useAuthStore } from '@/stores/auth';
 import { useToast, ProgressSpinner, Stepper, StepPanels, StepPanel, Tag, RadioButton, Button } from 'primevue';
@@ -223,10 +224,13 @@ const saveRecovery = async () => {
     authStore.operator.school_answers = all;
 
     if (isApproved.value) {
+      await BadgeService.addActivityXp(operator.value, 300);
+      await BadgeService.syncOperatorBadges(operator.value);
+
       toast.add({
         severity: "success",
         summary: "Aprovado na Recuperação!",
-        detail: "Sua prova foi registrada com sucesso e seu acesso foi liberado.",
+        detail: "Sua prova foi registrada com sucesso, +300 XP concedidos e seu acesso foi liberado.",
         life: 5000
       });
     } else {

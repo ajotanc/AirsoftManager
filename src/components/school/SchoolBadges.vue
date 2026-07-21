@@ -15,7 +15,7 @@ withDefaults(defineProps<{
   xpSeverity?: string;
 }>(), {
   timeText: '⏱️ Leva 3 a 5 min',
-  xpText: '🏆 Ganhe +500 XP',
+  xpText: '🏆 Ganhe +250 XP',
   timeSeverity: 'secondary',
   xpSeverity: 'success'
 });
