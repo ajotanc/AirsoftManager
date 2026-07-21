@@ -250,8 +250,8 @@ export const SchoolService = {
       return acc + (answerRow.answers[i] === q.correct_option ? 1 : 0);
     }, 0);
 
-    const score = Math.ceil((correct / questions.length) * 10);
-    const percentage = score * 10;
+    const score = Number(((correct / questions.length) * 10).toFixed(1));
+    const percentage = Math.round((correct / questions.length) * 100);
 
     return {
       correct,

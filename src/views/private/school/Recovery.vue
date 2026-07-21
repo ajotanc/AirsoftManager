@@ -170,8 +170,8 @@ const handleClick = (questionIndex: number, optionValue: string) => {
 const saveRecovery = async () => {
   const hits = checkAnswers(answers.value);
   correctCount.value = hits;
-  finalGrade.value = Math.ceil((hits / questions.value.length) * 10);
-  percentageScore.value = finalGrade.value * 10;
+  finalGrade.value = (hits / questions.value.length) * 10;
+  percentageScore.value = Math.round((hits / questions.value.length) * 100);
   isFinished.value = true;
   isApproved.value = percentageScore.value >= 70;
   activeStep.value = 0;
@@ -201,9 +201,7 @@ const saveRecovery = async () => {
         operator: operator.value.$id,
         questions: catQuestions,
         completed_at: now,
-        percentage: finalCategoryPct,
-        score: finalCategoryPct / 10,
-        correct: catHits
+        score: finalCategoryPct / 10
       } as ISchoolAnswer;
 
       return SchoolService.create(payload);

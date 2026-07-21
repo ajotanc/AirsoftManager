@@ -170,7 +170,7 @@ const handleClick = (questionIndex: number, optionValue: string) => {
 const saveQuiz = async () => {
   const hits = checkAnswers(answers.value);
   correctCount.value = hits;
-  finalGrade.value = Math.ceil((hits / questions.value.length) * 10);
+  finalGrade.value = (hits / questions.value.length) * 10;
   isFinished.value = true;
   activeStep.value = 0;
 
