@@ -190,18 +190,13 @@ const saveRecovery = async () => {
         }
       });
 
-      const catHits = catQuestions.reduce((acc, q, i) => acc + (catAnswers[i] === q.correct_option ? 1 : 0), 0);
-      const catPct = catQuestions.length ? Math.round((catHits / catQuestions.length) * 100) : 0;
-      const finalCategoryPct = isApproved.value ? Math.max(70, catPct) : catPct;
-
       const payload = {
         category: cat,
         answers: catAnswers,
         attempt_number: 1,
         operator: operator.value.$id,
         questions: catQuestions,
-        completed_at: now,
-        score: finalCategoryPct / 10
+        completed_at: now
       } as ISchoolAnswer;
 
       return SchoolService.create(payload);
