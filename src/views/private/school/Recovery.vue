@@ -102,11 +102,13 @@
 import { ref, onMounted, computed } from 'vue';
 import dayjs from 'dayjs';
 import { SchoolService, type ISchoolAnswer, type ISchoolQuestion, SCHOOL_CATEGORIES } from '@/services/school';
+import { useRouter } from 'vue-router';
 import { useOperator } from '@/composables/useOperator';
 import { useAuthStore } from '@/stores/auth';
 import { useToast, ProgressSpinner, Stepper, StepPanels, StepPanel, Tag, RadioButton, Button } from 'primevue';
 import SchoolBadges from '@/components/school/SchoolBadges.vue';
 
+const router = useRouter();
 const toast = useToast();
 const { operator } = useOperator();
 const authStore = useAuthStore();
@@ -144,6 +146,19 @@ const loadServices = async () => {
   answers.value = [];
 
   try {
+    const missing = await SchoolService.getMissingCertifications(operator.value.$id);
+    
+    if (missing.length === 0) {
+      toast.add({
+        severity: "info",
+        summary: "Sem pendências!",
+        detail: "Você já realizou todas as avaliações deste semestre.",
+        life: 4000
+      });
+      
+      router.push('/administrative/school');
+      return;
+    }
     questions.value = await SchoolService.getRecoveryQuestions();
   } catch (error) {
     console.error("Erro ao carregar prova de recuperação:", error);
