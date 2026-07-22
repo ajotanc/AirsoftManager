@@ -77,8 +77,8 @@
             </template>
           </template>
           <template #editor="{ data }">
-            <MultiSelect v-model="data.courses" :options="COURSES" optionLabel="label" optionValue="value" placeholder="Selecione cursos" class="w-full"
-              display="chip" fluid />
+            <MultiSelect v-model="data.courses" :options="COURSES" optionLabel="label" optionValue="value"
+              placeholder="Selecione cursos" class="w-full" display="chip" fluid />
           </template>
         </Column>
 
@@ -129,18 +129,17 @@
         </template>
 
         <template #paginatorstart>
-          <Button icon="ri-reset-right-line" rounded @click="() => refetch()" size="small"
-            v-tooltip.top="'Atualizar'" />
-        </template>
-
-        <template #paginatorend>
-          <div class="flex gap-2">
-            <Button type="button" icon="ri-download-2-line" rounded size="small" v-tooltip.top="'Exportar'"
-              @click="exportData" />
+          <div class="flex flex-wrap gap-2 p-2 justify-content-center">
+            <Button icon="ri-reset-right-line" rounded @click="() => refetch()" size="small"
+              v-tooltip.top="'Atualizar'" />
             <Button type="button" icon="ri-health-book-line" severity="danger" rounded size="small"
               v-tooltip.top="'Ficha Médica'" @click="exportHealth" />
-            <Button type="button" icon="ri-t-shirt-2-line" rounded size="small" v-tooltip.top="'Tamanhos de Camisa'"
-              @click="exportShirtSize" />
+            <Button type="button" icon="ri-download-2-line" severity="secondary" rounded size="small"
+              v-tooltip.top="'Exportar Lista'" @click="exportData" />
+            <Button type="button" icon="ri-t-shirt-2-line" severity="secondary" rounded size="small"
+              v-tooltip.top="'Tamanhos de Camisa'" @click="exportShirtSize" />
+            <Button type="button" icon="ri-archive-line" severity="secondary" rounded size="small"
+              v-tooltip.top="'Exportar Loadouts'" @click="exportLoadouts" />
           </div>
         </template>
 
@@ -172,9 +171,10 @@ import Skeleton from "primevue/skeleton";
 
 import Details from "@/components/operators/Details.vue";
 import CourseBadges from "@/components/operators/CourseBadges.vue";
-import { ROLES, COURSES } from "@/constants/airsoft";
+import { ROLES, COURSES, UNIFORMS, LOADOUT_ITEMS } from "@/constants/airsoft";
 
 import { type IOperator, operatorSchema, OperatorService } from "@/services/operator";
+import type { ILoadout } from "@/services/loadout";
 import { export2Excel, getShortName } from "@/functions/utils";
 import Empty from "@/components/Empty.vue";
 import { useOperator } from "@/composables/useOperator";
@@ -238,7 +238,9 @@ const dtValue = computed(() => {
   return isLoading.value ? new Array(5).fill({}) : (operators.value || []);
 });
 
-const handleUpdate = async (event: DataTableRowEditSaveEvent<any>) => {
+type IOperatorWithInfo = IOperator & { info: ReturnType<typeof checkOperator> };
+
+const handleUpdate = async (event: DataTableRowEditSaveEvent<IOperator>) => {
   const { newData } = event;
   const { $id, rating, role, status, courses } = newData;
 
@@ -247,15 +249,15 @@ const handleUpdate = async (event: DataTableRowEditSaveEvent<any>) => {
 
     const operatorUpdated = await OperatorService.update($id, payload);
 
-    const updatedWithInfo = {
+    const updatedWithInfo: IOperatorWithInfo = {
       ...operatorUpdated,
       info: checkOperator(operatorUpdated)
     };
 
     // Atualiza o cache local em vez de gastar requisições extra
-    queryClient.setQueryData(['operators', 'list'], (oldData: any) => {
+    queryClient.setQueryData(['operators', 'list'], (oldData: IOperatorWithInfo[] | undefined) => {
       if (!oldData) return [];
-      return oldData.map((op: any) => op.$id === $id ? updatedWithInfo : op);
+      return oldData.map(op => op.$id === $id ? updatedWithInfo : op);
     });
 
     if (operator.value.$id === $id) {
@@ -314,4 +316,55 @@ const exportHealth = async () => {
   await export2Excel(`${dayjs().unix()}-FICHA-MÉDICA`, dataToExport, summary);
   toast.add({ severity: 'success', summary, detail: 'Exportação concluída! Verifica a tua pasta de transferências.', life: 3000 });
 };
+
+const exportLoadouts = async () => {
+  const data = operators.value || [];
+  const rows: Record<string, string>[] = [];
+
+  for (const p of data) {
+    const codename = p.codename || p.name.trim();
+    const loadouts = p.loadout || [];
+
+    if (p.role === 'visitor' || !p.status) continue;
+
+    if (loadouts.length === 0) {
+      const row: Record<string, string> = {
+        "Codinome": codename,
+        "Uniforme": "Nenhum",
+      };
+      for (const item of LOADOUT_ITEMS) {
+        row[item.label] = "Não";
+      }
+      rows.push(row);
+    } else {
+      for (const l of loadouts) {
+        const uniformName = UNIFORMS[l.type_uniform] || `Uniforme ${l.type_uniform}`;
+        const row: Record<string, string> = {
+          "Codinome": codename,
+          "Uniforme": uniformName,
+        };
+        for (const item of LOADOUT_ITEMS) {
+          const val = l[item.key as keyof ILoadout];
+          row[item.label] = val ? "Sim" : "Não";
+        }
+        rows.push(row);
+      }
+    }
+  }
+
+  if (!rows.length) {
+    toast.add({ severity: 'warn', summary: 'Aviso', detail: 'Não existem dados de loadout para exportar.' });
+    return;
+  }
+
+  const summary = "Loadouts dos Operadores";
+  await export2Excel(`${dayjs().unix()}-LOADOUTS-OPERADORES`, rows, summary, true);
+  toast.add({ severity: 'success', summary, detail: 'Exportação concluída! Verifica a tua pasta de transferências.', life: 3000 });
+};
 </script>
+
+<style scoped>
+:deep(.p-paginator-content-start) {
+  width: 100%;
+}
+</style>

@@ -34,7 +34,7 @@
         <Column header="Tipo de Uniforme">
           <template #body="{ data: uniform }">
             <div class="flex align-items-center gap-2">
-              <Tag :value="UNIFORMS[uniform.type_uniform as keyof typeof UNIFORMS]" severity="info" />
+              <Tag :value="UNIFORMS[uniform.type_uniform]" severity="info" />
               <Tag v-if="checkUniformComplete(uniform)" severity="warn" icon="pi pi-crown">
               </Tag>
             </div>
@@ -192,7 +192,7 @@ const { authStore } = useOperator();
 const confirmDelete = (uniform: ILoadout) => {
   confirm.require({
     message: 'Você tem certeza que deseja excluir este uniforme?',
-    header: UNIFORMS[uniform.type_uniform as keyof typeof UNIFORMS],
+    header: UNIFORMS[uniform.type_uniform],
     rejectProps: {
       label: 'Não',
       severity: 'secondary',

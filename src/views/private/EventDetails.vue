@@ -170,7 +170,7 @@
                                                 <template v-else>
                                                     <i v-if="checked_in"
                                                         class="ri-check-double-line text-green-500 text-xl"></i>
-                                                    <Button v-else-if="isAdmin || isAdministrativeManagement"
+                                                    <Button v-else-if="canManualCheckin"
                                                         icon="ri-rfid-line" severity="secondary" rounded size="small"
                                                         @click="onDetect(operator.$id)"
                                                         v-tooltip.top="'Realizar Check-in Manualmente'" />
@@ -542,6 +542,17 @@ const canCheckin = computed(() => {
 
     const isTodayOrAfter = today.isSame(eventDate, 'day') || today.isAfter(eventDate, 'day');    
     return isTodayOrAfter && !isFinished.value && isConfirmed.value;
+});
+
+const canManualCheckin = computed(() => {
+    if (!isAdmin.value && !isAdministrativeManagement) return false;
+    if (!event.value?.date) return false;
+
+    const date = dayjs(event.value.date).format('YYYY-MM-DD');
+    const time = event.value.startTime;
+    const eventStart = dayjs(`${date}T${time}:00`);
+
+    return dayjs().isAfter(eventStart) || dayjs().isSame(eventStart);
 });
 
 const carpoolAccepteds = computed(() => requests.value.filter(request => request.status === 'accepted'));

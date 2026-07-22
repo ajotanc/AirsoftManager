@@ -15,13 +15,13 @@ import router from '@/router';
 dayjs.extend(customParseFormat);
 pdfjsLib.GlobalWorkerOptions.workerSrc = '/js/pdf.worker.min.mjs';
 
-export interface IFields {
+export interface IFields<T = object> {
   name: string;
   label: string;
-  component: any;
+  component: object | string | Function;
   col?: string;
   width?: string;
-  props?: any;
+  props?: Record<string, string | number | boolean | null | undefined | object | Function>;
   isTag?: boolean;
   isRating?: boolean;
   isHtml?: boolean;
@@ -33,27 +33,27 @@ export interface IFields {
     label?: string;
     icon?: string;
     severity?: string;
-    callback: (data: any) => void;
+    callback: (data: T) => void;
   };
-  [key: string]: any;
+  [key: string]: string | number | boolean | null | undefined | object | Function;
 }
 
-export interface FormInstance {
-  setFieldValue: (field: string, value: any) => void;
+export interface FormInstance<T = Record<string, string | number | boolean | null | undefined>> {
+  setFieldValue: (field: string, value: string | number | boolean | null | undefined | object) => void;
   reset: () => void;
-  validate: () => Promise<any>;
-  states: Record<string, any>;
-  getValues: () => Record<string, any>;
+  validate: () => Promise<boolean>;
+  states: Record<string, T>;
+  getValues: () => T;
 }
 
 export interface FieldChangePayload<T> {
   name: keyof T;
-  value: any;
-  form: FormInstance;
+  value: T[keyof T];
+  form: FormInstance<T>;
   data: T;
 }
 
-export type AppFormResolver = (e: FormResolverOptions) => Promise<Record<string, any>> | Record<string, any> | undefined;
+export type AppFormResolver = (e: FormResolverOptions) => Promise<Record<string, string | number | boolean | null | undefined>> | Record<string, string | number | boolean | null | undefined> | undefined;
 
 export interface ViaCepResponse {
   cep: string;
@@ -105,13 +105,16 @@ export async function addressByCep(
   }
 }
 
-export const formatDate = (date: any): Date => {
+export const formatDate = (date: Date | string | number | null | undefined): Date => {
+  if (!date) {
+    return new Date();
+  }
+
   let parsed: Date;
 
   if (date instanceof Date) {
     parsed = date;
   }
-
   else if (typeof date === 'string' && date.trim().length > 0 && date.includes('/')) {
     const parts = date.split('/');
 
@@ -404,7 +407,7 @@ export const checkRegistrationPeriod = () => {
   return now.isAfter(startDate) && now.isBefore(endDate) && settings.recruitmentIsOpen;
 };
 
-export const export2CSV = (filename: string, rows: any[], headers: string[], separator: string = ";") => {
+export const export2CSV = <T extends object>(filename: string, rows: T[], headers: string[], separator: string = ";") => {
   if (!rows || !rows.length) return;
 
   const csvContent = [
@@ -430,11 +433,18 @@ export const export2CSV = (filename: string, rows: any[], headers: string[], sep
   }
 };
 
-export const export2Excel = async (filename: string, data: any[], sheetName: string = 'Principal') => {
+export const export2Excel = async <T extends object>(
+  filename: string,
+  data: T[],
+  sheetName: string = 'Principal',
+  styleBooleanCells: boolean = false
+) => {
+  if (!data || !data.length) return;
+
   const workbook = new ExcelJS.Workbook();
   const worksheet = workbook.addWorksheet(sheetName);
 
-  const columns = Object.keys(data[0]).map(key => ({
+  const columns = Object.keys(data[0]!).map(key => ({
     header: key,
     key,
   }));
@@ -456,6 +466,21 @@ export const export2Excel = async (filename: string, data: any[], sheetName: str
   const headerRow = worksheet.getRow(1);
   headerRow.font = { size: 12, bold: true };
   headerRow.alignment = { vertical: 'middle', horizontal: 'left' };
+
+  if (styleBooleanCells) {
+    worksheet.eachRow((row, rowNumber) => {
+      if (rowNumber === 1) return;
+      row.eachCell((cell) => {
+        if (cell.value === 'Sim') {
+          cell.font = { color: { argb: 'FF15803D' }, bold: true };
+          cell.alignment = { horizontal: 'center' };
+        } else if (cell.value === 'Não') {
+          cell.font = { color: { argb: 'FF991B1B' } };
+          cell.alignment = { horizontal: 'center' };
+        }
+      });
+    });
+  }
 
   const buffer = await workbook.xlsx.writeBuffer();
   const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });

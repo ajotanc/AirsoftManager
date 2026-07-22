@@ -210,7 +210,7 @@ export const UNIFORM_IDS = {
   PMC: 3,
 } as const;
 
-export const UNIFORMS = {
+export const UNIFORMS: Record<number, string> = {
   [UNIFORM_IDS.MULTICAM]: "Multicam",
   [UNIFORM_IDS.VERDE_MILITAR]: "Verde Militar",
   [UNIFORM_IDS.PMC]: "PMC",
