@@ -150,12 +150,21 @@ const router = createRouter({
           path: "management",
           children: [
             {
+              path: "settings",
+              component: () => import("../views/admin/Settings.vue"),
+              meta: { requiresAdmin: true },
+            },
+            {
               path: "operators",
               component: () => import("../views/admin/Operators.vue"),
             },
             {
               path: "events",
               component: () => import("../views/admin/Events.vue"),
+            },
+            {
+              path: "tournaments",
+              component: () => import("../views/admin/Tournaments.vue"),
             },
             {
               path: "birthdays",
@@ -246,6 +255,10 @@ router.beforeEach(async (to, _, next) => {
     if (!user.emailVerification && to.path !== "/awaiting-verification") {
       return next("/awaiting-verification");
     }
+  }
+
+  if (to.meta.requiresAdmin && !authStore.isAdmin) {
+    return next("/dashboard");
   }
 
   // 3. Redirecionamento de Logados

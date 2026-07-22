@@ -5,13 +5,12 @@ import { saveAs } from 'file-saver';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import { type FormResolverOptions } from '@primevue/forms';
 import * as pdfjsLib from 'pdfjs-dist';
-import { z as zodOriginal } from "zod";
-
-import router from "@/router";
+import { z } from "zod";
 
 import { BUCKET_ID, storage } from '@/services/appwrite';
 import { CATEGORIES_OPTIONS, MAINTENANCE_STATUS_TYPES, MAINTENANCE_TYPES } from '@/constants/airsoft';
 import { useSettingsStore } from '@/stores/settings';
+import router from '@/router';
 
 dayjs.extend(customParseFormat);
 pdfjsLib.GlobalWorkerOptions.workerSrc = '/js/pdf.worker.min.mjs';
@@ -73,11 +72,14 @@ export interface AdminAction {
   command?: () => void;
 }
 
-export const zRequired = (message: string, minLength: number = 1) =>
-  zodOriginal.preprocess(
-    (v: unknown) => (!v ? "" : v),
-    zodOriginal.string().min(minLength, message)
+export type StringRequired = string | null | undefined;
+
+export function zRequired(message: string, minLength: number = 1) {
+  return z.preprocess(
+    (v: StringRequired) => (!v ? "" : v),
+    z.string().min(minLength, message)
   );
+}
 
 export async function addressByCep(
   cep: string
@@ -218,7 +220,7 @@ export const getShortName = (name: string) => {
   return `${parts[0]} ${parts[parts.length - 1]}`;
 };
 
-export const goToEvent = (id: string) => router.push(`/events/${id}?t=${Date.now()}`);
+export const goToEvent = (id: string) => router.push(`/events/${id}?t=${dayjs().unix()}`);
 
 export const normalize = (str: string) =>
   str

@@ -39,7 +39,7 @@
           </template>
         </Column>
 
-        <Column header="Codinome">
+        <Column header="Codinome" style="width: 12rem; min-width: 12rem;">
           <template #body="{ data: { name, codename } }">
             <Skeleton v-if="isLoading" width="100%" height="1rem" />
             <template v-else>
@@ -51,7 +51,7 @@
           </template>
         </Column>
 
-        <Column field="info.isComplete" header="Perfil" sortable style="width: 10rem">
+        <Column field="info.isComplete" header="Perfil" sortable style="width: 6rem; min-width: 6rem;">
           <template #body="{ data }">
             <Skeleton v-if="isLoading" width="100%" height="1rem" />
             <template v-else>
@@ -66,6 +66,19 @@
                   v-tooltip.top="'Loadout'" />
               </div>
             </template>
+          </template>
+        </Column>
+
+        <Column header="Cursos" style="width: 14rem; min-width: 14rem;">
+          <template #body="{ data }">
+            <Skeleton v-if="isLoading" width="100%" height="1rem" />
+            <template v-else>
+              <CourseBadges :courses="data.courses" size="small" />
+            </template>
+          </template>
+          <template #editor="{ data }">
+            <MultiSelect v-model="data.courses" :options="COURSES" optionLabel="label" optionValue="value" placeholder="Selecione cursos" class="w-full"
+              display="chip" fluid />
           </template>
         </Column>
 
@@ -150,6 +163,7 @@ import Rating from "primevue/rating";
 import Button from "primevue/button";
 import Avatar from "primevue/avatar";
 import Select from "primevue/select";
+import MultiSelect from "primevue/multiselect";
 import ToggleSwitch from "primevue/toggleswitch";
 import IconField from 'primevue/iconfield';
 import InputIcon from 'primevue/inputicon';
@@ -157,7 +171,8 @@ import InputText from 'primevue/inputtext';
 import Skeleton from "primevue/skeleton";
 
 import Details from "@/components/operators/Details.vue";
-import { ROLES } from "@/constants/airsoft";
+import CourseBadges from "@/components/operators/CourseBadges.vue";
+import { ROLES, COURSES } from "@/constants/airsoft";
 
 import { type IOperator, operatorSchema, OperatorService } from "@/services/operator";
 import { export2Excel, getShortName } from "@/functions/utils";
@@ -225,10 +240,10 @@ const dtValue = computed(() => {
 
 const handleUpdate = async (event: DataTableRowEditSaveEvent<any>) => {
   const { newData } = event;
-  const { $id, rating, role, status } = newData;
+  const { $id, rating, role, status, courses } = newData;
 
   try {
-    const payload = { rating, role, status };
+    const payload = { rating, role, status, courses };
 
     const operatorUpdated = await OperatorService.update($id, payload);
 

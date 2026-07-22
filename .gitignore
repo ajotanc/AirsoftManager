@@ -27,3 +27,4 @@ dist-ssr
 appwrite
 .playwright-mcp
 .netlify
+.agents

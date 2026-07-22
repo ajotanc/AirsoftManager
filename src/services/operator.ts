@@ -57,6 +57,7 @@ export interface IOperator extends Models.Row {
   profession?: string;
   availability?: "saturday" | "sunday" | "both" | "none";
   team?: string;
+  courses?: string[];
   school_answers?: ISchoolAnswer[];
 }
 

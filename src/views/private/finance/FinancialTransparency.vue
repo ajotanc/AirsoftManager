@@ -33,17 +33,15 @@
           <ProgressBar :value="percentage" :showValue="false" style="height: 0.5rem;"
             :pt="{ value: { style: { backgroundColor: 'var(--p-yellow-900)' } } }" />
 
-          <div class="mt-2 text-sm flex justify-content-between">
-            <div class="flex gap-1 font-bold">
-              <span @click="setActiveMonth(1)" class="cursor-pointer transition-colors"
-                :class="activeMonth === dayjs().subtract(1, 'month').format('MM/YYYY') ? 'text-yellow-900' : 'text-400'">
-                {{ dayjs().subtract(1, 'month').format('MMMM').toUpperCase() }}
-              </span>
-              <span class="text-400">/</span>
-              <span @click="setActiveMonth(0)" class="cursor-pointer transition-colors"
-                :class="activeMonth === dayjs().format('MM/YYYY') ? 'text-yellow-900' : 'text-400'">
-                {{ dayjs().format('MMMM').toUpperCase() }}
-              </span>
+          <div class="mt-2 text-xs flex justify-content-between align-items-center">
+            <div class="flex gap-1 font-bold flex-wrap text-xs">
+              <template v-for="(m, index) in visibleMonths" :key="m.reference">
+                <span v-if="index > 0" class="text-400">/</span>
+                <span @click="setActiveMonth(m.monthsAgo)" class="cursor-pointer transition-colors"
+                  :class="activeMonth === m.reference ? 'text-yellow-900' : 'text-400'">
+                  {{ m.label }}
+                </span>
+              </template>
             </div>
             <span>{{ percentage }}% concluído</span>
           </div>
@@ -143,19 +141,19 @@
 
           <ul v-if="cashflows.length > 0" class="list-none p-0 m-0">
             <li v-for="flow in cashflows.slice(0, 10)" :key="flow.$id"
-              class="flex align-items-center py-3 border-bottom-1 surface-border">
-              <div :class="['w-3rem h-3rem flex align-items-center justify-content-center border-round mr-3',
+              class="flex align-items-center py-3 border-bottom-1 surface-border gap-2">
+              <div :class="['w-2rem h-2rem flex align-items-center justify-content-center border-round flex-shrink-0',
                 flow.type === 'income' ? 'bg-green-100' : 'bg-red-100']">
-                <i :class="[flow.type === 'income' ? 'pi pi-plus text-green-600' : 'pi pi-minus text-red-600']"></i>
+                <i class="text-sm md:text-base" :class="[flow.type === 'income' ? 'pi pi-plus text-green-600' : 'pi pi-minus text-red-600']"></i>
               </div>
-              <div class="flex-grow-1">
-                <div class="font-bold text-900">{{ flow.description }}</div>
-                <div class="text-500 text-sm">
-                  {{ flow.payment?.operator?.codename || 'Sem operador' }} · {{ dayjs(flow.date).format('DD/MM/YYYY') }}
-                  · {{ CATEGORY_MAP[flow.category] || flow.category }}
+              <div class="flex-grow-1 min-w-0 pr-1">
+                <div class="font-bold text-900 text-sm line-height-2">{{ flow.description }}</div>
+                <div class="text-500 text-xs line-height-2">
+                  <template v-if="flow.payment?.operator?.codename">{{ flow.payment.operator.codename }} · </template>
+                  {{ dayjs(flow.date).format('DD/MM/YYYY') }} · {{ CATEGORY_MAP[flow.category] || flow.category }}
                 </div>
               </div>
-              <div :class="['font-bold text-lg', flow.type === 'income' ? 'text-green-600' : 'text-red-600']">
+              <div :class="['font-bold text-sm md:text-lg flex-shrink-0 white-space-nowrap text-right pl-2', flow.type === 'income' ? 'text-green-600' : 'text-red-600']">
                 {{ flow.type === 'income' ? '+' : '-' }} {{ visibility[flow.type] ?
                   formatCurrency(Math.abs(flow.amount)) : 'R$ •••••' }}
               </div>
@@ -208,6 +206,23 @@ const activeMonth = ref(dayjs().format('MM/YYYY')); // Mês selecionado para o c
 const years = ref([2024, 2025, 2026]);
 
 const visibility = ref({ balance: true, income: true, expense: true });
+
+const MONTHS_COUNT = 3; // Altere este número para ajustar quantos meses exibir (ex: 3, 4, 5, 6)
+
+const visibleMonths = computed(() => {
+  const list = [];
+
+  for (let i = MONTHS_COUNT - 1; i >= 0; i--) {
+    const date = dayjs().subtract(i, 'month');
+    list.push({
+      monthsAgo: i,
+      label: date.format('MMMM').toUpperCase(),
+      reference: date.format('MM/YYYY')
+    });
+  }
+
+  return list;
+});
 
 // --- MÉTODOS ---
 const toggleVisibility = (key: keyof typeof visibility.value) => visibility.value[key] = !visibility.value[key];

@@ -132,7 +132,7 @@ const handleRegister = async ({ valid, values }: FormSubmitEvent) => {
   if (valid) {
     loading.value = true;
     try {
-      await authStore.register(values.email, values.password, values.name, props.role);
+      await authStore.register(props.role, values.email, values.password, values.name, values.team);
       toast.add({ severity: "success", summary: "Bem-vindo", detail: "Verifique seu e-mail!", life: 5000 });
       router.push("/awaiting-verification");
     } catch (error: any) {

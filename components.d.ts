@@ -37,6 +37,7 @@ declare module 'vue' {
     Column: typeof import('primevue/column')['default']
     ColumnContent: typeof import('./src/components/ColumnContent.vue')['default']
     ConfirmDialog: typeof import('primevue/confirmdialog')['default']
+    CourseBadges: typeof import('./src/components/operators/CourseBadges.vue')['default']
     DatePicker: typeof import('primevue/datepicker')['default']
     Details: typeof import('./src/components/operators/Details.vue')['default']
     Dialog: typeof import('primevue/dialog')['default']
@@ -92,6 +93,7 @@ declare module 'vue' {
     ToggleSwitch: typeof import('primevue/toggleswitch')['default']
     TournamentBracket: typeof import('./src/components/tournament/TournamentBracket.vue')['default']
     TournamentInfo: typeof import('./src/components/tournament/TournamentInfo.vue')['default']
+    TournamentList: typeof import('./src/components/tournament/TournamentList.vue')['default']
     TournamentSkeleton: typeof import('./src/components/skeleton/TournamentSkeleton.vue')['default']
     TournamentStat: typeof import('./src/components/tournament/TournamentStat.vue')['default']
   }

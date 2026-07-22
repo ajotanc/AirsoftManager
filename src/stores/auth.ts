@@ -108,7 +108,7 @@ export const useAuthStore = defineStore("auth", {
         this.operator = {} as IOperator;
       }
     },
-    async register(email: string, password: string, name: string, role: string) {
+    async register(role: string, email: string, password: string, name: string, team?: string) {
       try {
         const userAccount = await account.create({
           userId: ID.unique(),
@@ -136,7 +136,8 @@ export const useAuthStore = defineStore("auth", {
           loadout: [],
           badges: [],
           featured_badges: [],
-          birth_date: null
+          birth_date: null,
+          team
         };
 
         const operator = await OperatorService.create(payload as IOperator, userAccount.$id);

@@ -45,6 +45,14 @@
           <template #content>{{ loadout.length }} Loadout(s) cadastrado(s)</template>
         </Card>
       </div>
+      <div class="col-12" v-if="isTournamentActive">
+        <Card>
+          <template #title>Torneio(s)</template>
+          <template #content>
+            <TournamentList />
+          </template>
+        </Card>
+      </div>
       <div class="col-12">
         <Card>
           <template #title>Cronograma</template>
@@ -121,12 +129,14 @@ import BirthdayList from "@/components/BirthdayList.vue";
 import OperatorList from "@/components/operators/List.vue";
 import GoalList from "@/components/GoalList.vue";
 import ArenaSchedule from "@/components/ArenaSchedule.vue";
+import TournamentList from "@/components/tournament/TournamentList.vue";
 import AppScanner from "@/components/AppScanner.vue";
 import AdminBroadcastDialog from "@/components/admin/AdminBroadcastDialog.vue";
 
 import { PaymentService, type IPayment } from "@/services/payment";
 import { SchoolService } from "@/services/school";
 import { useOperator } from "@/composables/useOperator";
+import { useSettingsStore } from "@/stores/settings";
 import type { AdminAction } from "@/functions/utils";
 
 const { operator, isActiveOperator, isAdmin, authStore: { isVisitor } } = useOperator();
@@ -134,6 +144,8 @@ const { $id, arsenal, loadout } = operator.value;
 
 const openScannerDialog = ref(false);
 const openBroadcastDialog = ref(false);
+
+const { isTournamentActive } = useSettingsStore();
 
 const {
   data: missingCerts,

@@ -40,7 +40,7 @@
           <div class="section-title">Informações do Torneio</div>
         </AccordionHeader>
         <AccordionContent>
-          <TournamentInfo :tournament="tournament" />
+          <TournamentInfo :tournament="tournament" @registered="handleRegistration" />
         </AccordionContent>
       </AccordionPanel>
       <AccordionPanel value="bracket" class="tournament-wrapper">
@@ -62,7 +62,6 @@
       </AccordionPanel>
 
     </Accordion>
-
 
     <Loading :loading="loading" />
   </div>
@@ -124,6 +123,25 @@ const loadServices = async () => {
 
   bracketMatches.value = data.matches as ITournamentMatch[];
   rankings.value = await RankingService.listByTournament(tournamentId);
+};
+
+const handleRegistration = (newRegistration: ITournamentRegistration) => {
+  if (!newRegistration || newRegistration.status !== 'confirmed') return;
+
+  const existsIndex = registrations.value.findIndex(r => r.$id === newRegistration.$id);
+  
+  if (existsIndex !== -1) {
+    registrations.value[existsIndex] = newRegistration;
+  } else {
+    registrations.value.push(newRegistration);
+  }
+
+  const operator = newRegistration.operator as IOperator;
+  const opExists = operators.value.some(o => o.$id === operator.$id);
+  
+  if (!opExists) {
+    operators.value.push(operator);
+  }
 };
 
 const setupStatsRealtime = () => {

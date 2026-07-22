@@ -15,9 +15,9 @@
                 <i class="pi pi-gift text-base md:text-xl text-yellow-50"></i>
               </div>
 
-              <Image v-if="birthday.avatar && isValidUrl(birthday.avatar)" :src="birthday.avatar"
-                :alt="birthday.codename" class="avatar" />
-              <div v-else class="avatar">
+              <img v-if="birthday.avatar && isValidUrl(birthday.avatar)" :src="birthday.avatar"
+                :alt="birthday.codename" class="avatar-img" />
+              <div v-else class="avatar-fallback flex justify-content-center align-items-center">
                 <i class="pi pi-image text-3xl text-blue-200"></i>
               </div>
               <div class="content">
@@ -131,21 +131,18 @@ const dtValue = computed(() => {
   border-radius: inherit;
 }
 
-.avatar {
-  width: 100%;
-  height: 100%;
-  aspect-ratio: 3 / 4;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: var(--p-surface-800);
-}
-
-:deep(.avatar img) {
+.avatar-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center;
   display: block;
+}
+
+.avatar-fallback {
+  width: 100%;
+  height: 100%;
+  background-color: var(--p-surface-800);
 }
 
 .content {

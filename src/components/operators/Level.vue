@@ -45,6 +45,10 @@
             <BadgeIcon v-if="badgesCount > 0" group :counter="badgesCount" size="normal" />
         </div>
 
+        <div class="flex flex-row py-1">
+            <CourseBadges :courses="operator.courses" size="small" />
+        </div>
+
         <template v-if="detail">
             <div v-if="operator.profession || operator.availability"
                 class="flex justify-content-center gap-4 text-xs w-full px-3">
@@ -85,6 +89,7 @@ import { computed } from 'vue';
 import { LEVELS, EXPERIENCE_PER_LEVEL, TEAM_NAME } from '@/constants/airsoft';
 import { BadgeService } from '@/services/badge';
 import Qrcode from './Qrcode.vue';
+import CourseBadges from './CourseBadges.vue';
 import type { IOperator } from '@/services/operator';
 import { getSpecialtyLabel, getAvailabilityLabel } from '@/functions/utils'
 

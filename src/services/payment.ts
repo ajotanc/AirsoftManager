@@ -10,6 +10,8 @@ import { GoalService, type IGoal } from "./goal";
 import { BadgeService } from "./badge";
 import { useOperator } from "@/composables/useOperator";
 
+import { TournamentService, type ITournament } from "./tournament";
+
 export const TABLE_PAYMENTS = "payments";
 const key = import.meta.env.VITE_PIX_KEY;
 
@@ -21,6 +23,7 @@ export interface IPayment<To = IOperator | string> extends Models.Row {
   reference: string;
   receipt_url: string | null;
   goal?: string | IGoal;
+  tournament?: string | ITournament;
   operator: To;
   due_date: Date | string | null;
   file?: File;
@@ -201,6 +204,11 @@ export const PaymentService = {
 
     if (payment.category === "enrollment") {
       await OperatorService.activate(payingOperator.$id);
+    }
+
+    if (payment.category === "tournament_registration") {
+      const tournament = payment.tournament as ITournament;
+      await TournamentService.registerOperator(tournament.$id, payingOperator.$id, "confirmed");
     }
 
     return response;

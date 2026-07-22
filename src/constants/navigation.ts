@@ -128,6 +128,7 @@ export const navItems = computed<AppMenuItem[]>(() => [
     items: [
       { label: "Operadores", icon: "ri-group-line", url: "/management/operators", visible: authStore.isManager },
       { label: "Eventos", icon: "ri-calendar-event-line", url: "/management/events", visible: authStore.isEventManagement },
+      { label: "Torneios", icon: "ri-trophy-line", url: "/management/tournaments", visible: authStore.isAdmin || authStore.isEventManagement },
       { label: "Aniversariantes", icon: "ri-cake-2-line", url: "/management/birthdays" },
       { label: "Convidados", icon: "ri-group-3-line", url: "/management/guests", visible: authStore.isAdmin || authStore.isAdministrativeManagement },
       { label: "Cronograma", icon: "ri-calendar-schedule-line", url: "/management/schedules", visible: authStore.isAdmin || authStore.isAdministrativeManagement },
@@ -149,6 +150,7 @@ export const navItems = computed<AppMenuItem[]>(() => [
           { label: "Manutenção", icon: "ri-hammer-line", url: "/management/armory/maintenance" },
         ]
       },
+      { label: "Configurações", icon: "ri-settings-4-line", url: "/management/settings", visible: authStore.isAdmin },
     ],
   },
 ]);

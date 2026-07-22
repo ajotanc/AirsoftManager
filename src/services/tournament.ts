@@ -85,7 +85,7 @@ export const MILITARY_ALPHABET = [
   "Zulu",
 ];
 
-export const STATUS_LABEL = {
+export const STATUS_LABEL: Record<TournamentStatus, string> = {
   open: 'Inscrições Abertas',
   ongoing: 'Em Andamento',
   finished: 'Finalizado',
@@ -126,6 +126,41 @@ const toRoman = (num: number): string => {
 };
 
 export const TournamentService = {
+  async list(): Promise<ITournament[]> {
+    try {
+      const startOfCurrentMonth = dayjs().startOf('month').toISOString();
+      
+      const response = await tables.listRows<ITournament>({
+        databaseId: DATABASE_ID,
+        tableId: TABLE_TOURNAMENTS,
+        queries: [
+          Query.greaterThanEqual("date", startOfCurrentMonth),
+          Query.orderDesc("date"),
+        ],
+      });
+      return response.rows;
+    } catch (error) {
+      console.error("Erro ao listar torneios:", error);
+      return [];
+    }
+  },
+  async upsert(rowId: string | undefined, data: Partial<ITournament>): Promise<ITournament> {
+    const id = rowId || ID.unique();
+    return await tables.upsertRow({
+      databaseId: DATABASE_ID,
+      tableId: TABLE_TOURNAMENTS,
+      rowId: id,
+      data,
+      permissions
+    });
+  },
+  async delete(rowId: string): Promise<{}> {
+    return await tables.deleteRow({
+      databaseId: DATABASE_ID,
+      tableId: TABLE_TOURNAMENTS,
+      rowId,
+    });
+  },
   async row(rowId: string): Promise<ITournament> {
     try {
       return await tables.getRow<ITournament>({
@@ -210,6 +245,51 @@ export const TournamentService = {
       console.error("Erro ao buscar inscrições confirmadas:", error);
       return [];
     }
+  },
+  async getUserRegistration(tournamentId: string, operatorId: string): Promise<ITournamentRegistration | null> {
+    try {
+      const response = await tables.listRows<ITournamentRegistration>({
+        databaseId: DATABASE_ID,
+        tableId: TABLE_TOURNAMENT_REGISTRATIONS,
+        queries: [
+          Query.equal("tournament", tournamentId),
+          Query.equal("operator", operatorId)
+        ],
+      });
+      return response.rows[0] || null;
+    } catch (error) {
+      console.error("Erro ao buscar inscrição do operador:", error);
+      return null;
+    }
+  },
+  async registerOperator(
+    tournamentId: string,
+    operatorId: string,
+    status: TournamentRegistrationStatus = "confirmed"
+  ): Promise<ITournamentRegistration> {
+    const existing = await this.getUserRegistration(tournamentId, operatorId);
+    if (existing) {
+      if (existing.status === status) return existing;
+      return await tables.updateRow<ITournamentRegistration>({
+        databaseId: DATABASE_ID,
+        tableId: TABLE_TOURNAMENT_REGISTRATIONS,
+        rowId: existing.$id,
+        data: { status },
+        permissions,
+      });
+    }
+
+    return await tables.createRow<ITournamentRegistration>({
+      databaseId: DATABASE_ID,
+      tableId: TABLE_TOURNAMENT_REGISTRATIONS,
+      rowId: ID.unique(),
+      data: {
+        tournament: tournamentId,
+        operator: operatorId,
+        status,
+      },
+      permissions,
+    });
   },
   async listMatches(tournamentId: string): Promise<ITournamentMatch[]> {
     try {
