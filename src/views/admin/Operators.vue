@@ -325,30 +325,19 @@ const exportLoadouts = async () => {
     const codename = p.codename || p.name.trim();
     const loadouts = p.loadout || [];
 
-    if (p.role === 'visitor' || !p.status) continue;
+    if (p.role === 'visitor' || !p.status || loadouts.length === 0) continue;
 
-    if (loadouts.length === 0) {
+    for (const l of loadouts) {
+      const uniformName = UNIFORMS[l.type_uniform] || `Uniforme ${l.type_uniform}`;
       const row: Record<string, string> = {
         "Codinome": codename,
-        "Uniforme": "Nenhum",
+        "Uniforme": uniformName,
       };
       for (const item of LOADOUT_ITEMS) {
-        row[item.label] = "Não";
+        const val = l[item.key as keyof ILoadout];
+        row[item.label] = val ? "Sim" : "Não";
       }
       rows.push(row);
-    } else {
-      for (const l of loadouts) {
-        const uniformName = UNIFORMS[l.type_uniform] || `Uniforme ${l.type_uniform}`;
-        const row: Record<string, string> = {
-          "Codinome": codename,
-          "Uniforme": uniformName,
-        };
-        for (const item of LOADOUT_ITEMS) {
-          const val = l[item.key as keyof ILoadout];
-          row[item.label] = val ? "Sim" : "Não";
-        }
-        rows.push(row);
-      }
     }
   }
 

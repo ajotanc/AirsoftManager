@@ -15,13 +15,13 @@ import router from '@/router';
 dayjs.extend(customParseFormat);
 pdfjsLib.GlobalWorkerOptions.workerSrc = '/js/pdf.worker.min.mjs';
 
-export interface IFields<T = object> {
+export interface IFields {
   name: string;
   label: string;
-  component: object | string | Function;
+  component: any;
   col?: string;
   width?: string;
-  props?: Record<string, string | number | boolean | null | undefined | object | Function>;
+  props?: any;
   isTag?: boolean;
   isRating?: boolean;
   isHtml?: boolean;
@@ -33,27 +33,27 @@ export interface IFields<T = object> {
     label?: string;
     icon?: string;
     severity?: string;
-    callback: (data: T) => void;
+    callback: (data: any) => void;
   };
-  [key: string]: string | number | boolean | null | undefined | object | Function;
+  [key: string]: any;
 }
 
-export interface FormInstance<T = Record<string, string | number | boolean | null | undefined>> {
-  setFieldValue: (field: string, value: string | number | boolean | null | undefined | object) => void;
+export interface FormInstance {
+  setFieldValue: (field: string, value: any) => void;
   reset: () => void;
-  validate: () => Promise<boolean>;
-  states: Record<string, T>;
-  getValues: () => T;
+  validate: () => Promise<any>;
+  states: Record<string, any>;
+  getValues: () => Record<string, any>;
 }
 
 export interface FieldChangePayload<T> {
   name: keyof T;
-  value: T[keyof T];
-  form: FormInstance<T>;
+  value: any;
+  form: FormInstance;
   data: T;
 }
 
-export type AppFormResolver = (e: FormResolverOptions) => Promise<Record<string, string | number | boolean | null | undefined>> | Record<string, string | number | boolean | null | undefined> | undefined;
+export type AppFormResolver = (e: FormResolverOptions) => Promise<Record<string, any>> | Record<string, any> | undefined;
 
 export interface ViaCepResponse {
   cep: string;
