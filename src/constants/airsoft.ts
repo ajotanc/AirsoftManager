@@ -1168,7 +1168,7 @@ export const CASHFLOW_TYPES = [
 ];
 
 export const COURSES = [
-  { label: "Operador", value: TEAM_TAG, group: TEAM_TAG },
+  { label: `Operador (${TEAM_TAG})`, value: TEAM_TAG, group: TEAM_TAG },
   { label: "Bootcamp FBDA 1", value: "bootcamp_fbda_1", group: "bootcamp" },
   { label: "Bootcamp FBDA 2", value: "bootcamp_fbda_2", group: "bootcamp" },
   { label: "Bootcamp FBDA 3", value: "bootcamp_fbda_3", group: "bootcamp" },

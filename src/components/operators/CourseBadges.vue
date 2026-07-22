@@ -37,8 +37,7 @@ const courseGroups = computed(() => {
   return groups.value.map(g => {
     const items = COURSES.filter(c => (c.group || c.value).startsWith(g.prefix));
     const matched = items.filter(c => userCourses.includes(c.value) || userCourses.includes(c.label));
-    const isTeamBadge = g.key === TEAM_TAG;
-    const hasCourse = isTeamBadge || matched.length > 0;
+    const hasCourse = matched.length > 0;
     const selected = (hasCourse && matched.length > 0) ? matched[matched.length - 1] : items[0];
     return {
       key: g.key,
