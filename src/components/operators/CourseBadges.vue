@@ -2,8 +2,21 @@
   <div class="flex flex-wrap align-items-center justify-content-center gap-1">
     <div v-for="badge in courseGroups" :key="badge.key" class="course-badge-box"
       :class="[sizeClass, badge.hasCourse ? 'earned' : 'unearned']">
-      <Image :src="badge.image" :alt="badge.label" :preview="badge.hasCourse"
-        v-tooltip.top="`${badge.hasCourse ? badge.label : `${badge.label} (Não concluído)`}`" />
+      <Image :src="badge.image" :alt="badge.label" preview
+        v-tooltip.top="`${badge.hasCourse ? badge.label : `${badge.label} (Não concluído)`}`">
+        <template #original="{ class: className, style: styleName, previewCallback }">
+          <div class="flex flex-column align-items-center justify-content-center gap-2 pointer-events-auto">
+            <img :src="badge.image" :alt="badge.label"
+              :class="[className, badge.hasCourse ? 'badge-earned' : 'badge-unearned']" :style="styleName"
+              @click="previewCallback" />
+            <div class="flex align-itens-center gap-2">
+              <Tag :value="badge.label" severity="secondary" />
+              <Tag :value="badge.hasCourse ? 'Concluído' : 'Não concluído'"
+                :severity="badge.hasCourse ? 'success' : 'danger'" />
+            </div>
+          </div>
+        </template>
+      </Image>
     </div>
   </div>
 </template>
@@ -34,16 +47,17 @@ const groups = computed(() => [
 
 const courseGroups = computed(() => {
   const userCourses = props.courses || [];
-  return groups.value.map(g => {
-    const items = COURSES.filter(c => (c.group || c.value).startsWith(g.prefix));
-    const matched = items.filter(c => userCourses.includes(c.value) || userCourses.includes(c.label));
-    const hasCourse = matched.length > 0;
-    const selected = (hasCourse && matched.length > 0) ? matched[matched.length - 1] : items[0];
+
+  return groups.value.map(({ prefix, key }) => {
+    const items = COURSES.filter(course => course.group.startsWith(prefix));
+    const matched = items.filter(item => userCourses.includes(item.value));
+    const selected = matched[matched.length - 1] ?? items[0] ?? COURSES[0];
+
     return {
-      key: g.key,
-      hasCourse: hasCourse && !!selected,
-      label: selected?.label ?? '',
-      image: selected ? `/images/courses/${selected.value}.webp` : '',
+      key,
+      hasCourse: matched.length > 0,
+      label: selected?.label,
+      image: `/images/courses/${selected?.value}.webp`,
     };
   });
 });
@@ -68,13 +82,13 @@ const sizeClass = computed(() => {
 }
 
 .size-normal {
-  width: 3.25rem;
-  height: 3.25rem;
+  width: 2.5rem;
+  height: 2.5rem;
 }
 
 .size-large {
-  width: 4.5rem;
-  height: 4.5rem;
+  width: 3rem;
+  height: 3rem;
 }
 
 .earned {
@@ -82,7 +96,7 @@ const sizeClass = computed(() => {
 }
 
 .unearned {
-  opacity: 0.36;
+  opacity: 0.4;
   filter: grayscale(100%);
 }
 
@@ -106,5 +120,9 @@ const sizeClass = computed(() => {
   width: 1rem;
   height: 1rem;
   color: var(--p-surface-0);
+}
+
+:global(.p-image-original.badge-unearned) {
+  filter: grayscale(100%) !important;
 }
 </style>

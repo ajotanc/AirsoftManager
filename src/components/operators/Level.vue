@@ -46,7 +46,7 @@
         </div>
 
         <div class="flex flex-row py-1">
-            <CourseBadges :courses="operator.courses" size="small" />
+            <CourseBadges :courses="operator.courses" size="normal" />
         </div>
 
         <template v-if="detail">
