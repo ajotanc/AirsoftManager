@@ -4,7 +4,7 @@ import { Client, Databases } from "https://deno.land/x/appwrite/mod.ts";
 export default async (request: Request, context: Context) => {
   const url = new URL(request.url);
 
-  const eventMatch = url.pathname.match(/^\/events\/([a-zA-Z0-9]{36})$/);
+  const eventMatch = url.pathname.match(/^\/events\/([a-zA-Z0-9]{20})$/);
   if (!eventMatch) return context.next();
 
   const rowId = eventMatch[1];
