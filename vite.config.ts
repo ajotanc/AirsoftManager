@@ -73,6 +73,7 @@ export default defineConfig(({ mode }) => {
           ],
         },
         workbox: {
+          navigateFallbackDenylist: [/^\/sitemap\.xml$/, /^\/robots\.xml$/, /^\/llms\.xml$/, ],
           skipWaiting: true,
           clientsClaim: true,
           maximumFileSizeToCacheInBytes: 4000000,

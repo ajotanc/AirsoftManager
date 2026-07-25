@@ -30,7 +30,7 @@ export default async (request: Request, _context: Context) => {
 
       const now = new Date();
       const startOfCurrentMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
-      console.log(startOfCurrentMonth)
+
       // Eventos públicos a partir do mês atual, mais próximos primeiro
       try {
         const eventsRes = await databases.listDocuments(DATABASE_ID, "events", [
@@ -38,8 +38,6 @@ export default async (request: Request, _context: Context) => {
           Query.limit(100),
           Query.orderAsc("date"), // trocado de orderDesc para orderAsc
         ]);
-
-        console.log(eventsRes)
         eventUrls = (eventsRes.documents || []).map((doc: any) => ({
           loc: `${baseUrl}/events/${doc.$id}`,
           lastmod: doc.$updatedAt

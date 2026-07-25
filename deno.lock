@@ -1,7 +1,10 @@
 {
   "version": "5",
   "redirects": {
-    "https://deno.land/x/appwrite/mod.ts": "https://deno.land/x/appwrite@17.0.0/mod.ts"
+    "https://deno.land/x/appwrite/mod.ts": "https://deno.land/x/appwrite@17.0.0/mod.ts",
+    "https://esm.sh/bignumber.js@^9.0.0?target=denonext": "https://esm.sh/bignumber.js@9.3.1?target=denonext",
+    "https://esm.sh/node-appwrite": "https://esm.sh/node-appwrite@27.1.0",
+    "https://esm.sh/undici@^6.27.0?target=denonext": "https://esm.sh/undici@6.28.0?target=denonext"
   },
   "remote": {
     "https://deno.land/std@0.122.0/_util/assert.ts": "2f868145a042a11d5ad0a3c748dcf580add8a0dbc0e876eaa0026303a5488f58",
@@ -67,7 +70,18 @@
     "https://edge.netlify.com/bootstrap/context.ts": "e97240232121e2f369f6546ce961490f34d961ea1ea54be3ff09633e3f08373f",
     "https://edge.netlify.com/bootstrap/cookie.ts": "8b0baae708989ca183c6f3b4ab3d029e6abcbc2e43f93edeb0ff447b3bbc3a05",
     "https://edge.netlify.com/bootstrap/edge_function.ts": "b8253e86aa83c67341f5cfedeba5049d77fbf84dcab7eceff7566b7728ae9b39",
-    "https://edge.netlify.com/bootstrap/globals/types.ts": "eaa6148ded3121d8dee62dd91c86e7fe76601df0f3ca8d7962243a30f4c8935f"
+    "https://edge.netlify.com/bootstrap/globals/types.ts": "eaa6148ded3121d8dee62dd91c86e7fe76601df0f3ca8d7962243a30f4c8935f",
+    "https://esm.sh/bignumber.js@9.3.1/denonext/bignumber.mjs": "86bf21b8214c5bf23ba93408b3ae7d31c34ec74c62c717db1c0b44507b5fcfdd",
+    "https://esm.sh/bignumber.js@9.3.1?target=denonext": "fc7807922ee0e64066dd9417dc9c0410495dc3d5486e98dadc0984cec4787c1f",
+    "https://esm.sh/json-bigint@1.0.0/denonext/json-bigint.mjs": "4cecb2215dd4c6c8335bd58c15990d668b00c1ef1807dba04e7560f877e3eb39",
+    "https://esm.sh/node-appwrite@27.1.0": "60f2fa8ae72b0fc4409e4e04bae7322c7e8731e52898cb2ad45b2928f2b0228b",
+    "https://esm.sh/node-appwrite@27.1.0/denonext/file.mjs": "fdb512aafd0b22665fffbba78b80186d99ef32b28e44b94c6baf53ad6baaf9a1",
+    "https://esm.sh/node-appwrite@27.1.0/denonext/node-appwrite.mjs": "ecf8a132e76ae8a5afb5cc2151a6b867363b2530f14fe26e1e7392a75dbb7a54",
+    "https://esm.sh/undici@6.28.0/denonext/undici.mjs": "ea4f6ba9938cfb6e5c35435feeac4fd021bf8f7b080050aa951bc01680fb70c8",
+    "https://esm.sh/undici@6.28.0/types/handlers": "fabf6997a3adf11e45d11e3c4d58d0634ab98f9d72f3116f3694123818ccd457",
+    "https://esm.sh/undici@6.28.0/types/interceptors": "fabf6997a3adf11e45d11e3c4d58d0634ab98f9d72f3116f3694123818ccd457",
+    "https://esm.sh/undici@6.28.0/types/retry-handler": "fabf6997a3adf11e45d11e3c4d58d0634ab98f9d72f3116f3694123818ccd457",
+    "https://esm.sh/undici@6.28.0?target=denonext": "8fc0ebe35e76c595e34607a4b871f136d28eaa169d84c776e4683f82174359af"
   },
   "workspace": {
     "packageJson": {
