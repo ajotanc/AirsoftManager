@@ -76,6 +76,7 @@
         "npm:@fontsource-variable/google-sans-flex@^5.2.3",
         "npm:@netlify/edge-functions@^3.0.3",
         "npm:@primevue/auto-import-resolver@^4.5.4",
+        "npm:@primevue/core@5",
         "npm:@primevue/forms@^4.5.3",
         "npm:@primevue/themes@^4.5.3",
         "npm:@tanstack/vue-query@^5.92.9",
@@ -117,6 +118,7 @@
         "npm:vue-router@^4.6.4",
         "npm:vue-tsc@^3.1.4",
         "npm:vue@^3.5.24",
+        "npm:workbox-window@^7.4.1",
         "npm:zod@^4.2.1"
       ]
     }
