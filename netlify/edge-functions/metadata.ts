@@ -1,5 +1,6 @@
 import { Context } from "@netlify/edge-functions";
-import { Client, Databases } from "appwrite";
+// @ts-ignore
+import { Client, Databases } from "https://esm.sh/appwrite";
 
 export default async (request: Request, context: Context) => {
   const url = new URL(request.url);
@@ -30,7 +31,7 @@ export default async (request: Request, context: Context) => {
     const originalResponse = await context.next();
     const html = await originalResponse.text();
 
-    const title = `${TEAM_NAME.toUpperCase()} · ${event.title.toUpperCase()}`
+    const title = `${TEAM_NAME?.toUpperCase()} · ${event.title.toUpperCase()}`
     const description = `★★★★★ · ${event.location} · ${new Date(event.date).toLocaleDateString('pt-BR')} às ${event.startTime}h`;
     const image = event.thumbnail;
 

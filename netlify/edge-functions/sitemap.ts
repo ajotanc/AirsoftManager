@@ -1,5 +1,6 @@
 import { Context } from "@netlify/edge-functions";
-import { Client, Databases, Query } from "appwrite";
+// @ts-ignore
+import { Client, Databases, Query } from "https://esm.sh/appwrite";
 
 export default async (request: Request, _context: Context) => {
   const url = new URL(request.url);
@@ -35,7 +36,7 @@ export default async (request: Request, _context: Context) => {
           Query.limit(100),
           Query.orderDesc("date")
         ]);
-        eventUrls = (eventsRes.documents || []).map((doc) => `${baseUrl}/events/${doc.$id}`);
+        eventUrls = (eventsRes.documents || []).map((doc: any) => `${baseUrl}/events/${doc.$id}`);
       } catch (err) {
         console.error("Sitemap: error fetching events", err);
       }
@@ -47,7 +48,7 @@ export default async (request: Request, _context: Context) => {
           Query.limit(100),
           Query.orderDesc("date")
         ]);
-        tournamentUrls = (tournamentsRes.documents || []).map((doc) => `${baseUrl}/tournament/${doc.$id}`);
+        tournamentUrls = (tournamentsRes.documents || []).map((doc: any) => `${baseUrl}/tournament/${doc.$id}`);
       } catch (err) {
         console.error("Sitemap: error fetching tournaments", err);
       }
