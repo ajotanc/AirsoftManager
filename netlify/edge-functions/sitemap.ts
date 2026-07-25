@@ -1,5 +1,5 @@
 import { Context } from "@netlify/edge-functions";
-import { Client, Databases } from "https://deno.land/x/appwrite/mod.ts";
+import { Client, Databases, Query } from "https://deno.land/x/appwrite/mod.ts";
 
 export default async (request: Request, _context: Context) => {
   const url = new URL(request.url);
