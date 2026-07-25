@@ -5,6 +5,7 @@ import { saveAs } from 'file-saver';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import { type FormResolverOptions } from '@primevue/forms';
 import * as pdfjsLib from 'pdfjs-dist';
+import pdfWorker from 'pdfjs-dist/build/pdf.worker.mjs?url';
 import { z } from "zod";
 
 import { BUCKET_ID, storage } from '@/services/appwrite';
@@ -13,7 +14,7 @@ import { useSettingsStore } from '@/stores/settings';
 import router from '@/router';
 
 dayjs.extend(customParseFormat);
-pdfjsLib.GlobalWorkerOptions.workerSrc = '/js/pdf.worker.min.mjs';
+pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorker || '/js/pdf.worker.min.mjs';
 
 export interface IFields {
   name: string;
@@ -251,13 +252,18 @@ export const search = (query: string, sourceArray: string[]): string[] => {
   return results;
 };
 
-export const uploadFile = async (rowId: string, file: File, filename?: string): Promise<string> => {
+export const uploadFile = async (rowId: string, file: File, filename?: string, convert: boolean = true): Promise<string> => {
   const fileId = `${filename || 'file'}-${rowId}`;
 
   const fileToUpload = await (async () => {
-    if (file.type === 'application/pdf') {
-      const fileConverted = await convertPdfToImage(file);
-      return await processImage(fileConverted);
+    if (convert && file.type === 'application/pdf') {
+      try {
+        const fileConverted = await convertPdfToImage(file);
+        return await processImage(fileConverted);
+      } catch (err) {
+        console.warn("Falha ao converter PDF em imagem. Mantendo arquivo original:", err);
+        return file;
+      }
     }
 
     if (file.type.includes('image/')) {
@@ -298,16 +304,22 @@ export const convertPdfToImage = async (file: File): Promise<File> => {
   const type = 'image/png';
 
   const arrayBuffer = await file.arrayBuffer();
-  const pdf = await pdfjsLib.getDocument({ data: arrayBuffer, verbosity: 0 }).promise;
+  const typedArray = new Uint8Array(arrayBuffer);
+
+  const pdf = await pdfjsLib.getDocument({ data: typedArray, verbosity: 0 }).promise;
   const page = await pdf.getPage(1);
   const viewport = page.getViewport({ scale: 2.0 });
 
   const canvas = document.createElement('canvas');
-  const canvasContext = canvas.getContext('2d')!;
+  const canvasContext = canvas.getContext('2d');
+  if (!canvasContext) {
+    throw new Error("Não foi possível obter contexto 2D do Canvas.");
+  }
+
   canvas.height = viewport.height;
   canvas.width = viewport.width;
 
-  console.log(`Convertendo PDF para imagem...`);
+  console.log(`Convertendo o PDF (${file.name}) para imagem...`);
 
   await page.render({ canvasContext, viewport, canvas }).promise;
 
@@ -320,6 +332,14 @@ export const convertPdfToImage = async (file: File): Promise<File> => {
       }
     }, type);
   });
+};
+
+export const formatFileSize = (bytes: number): string => {
+  if (!bytes || bytes === 0) return '0 Bytes';
+  const k = 1024;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 };
 
 export const getSpecialtyLabel = (val?: number) => {

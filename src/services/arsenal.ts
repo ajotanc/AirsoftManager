@@ -101,7 +101,7 @@ export const ArsenalService = {
     });
   },
   async uploadInvoice(rowId: string, file: File) {
-    const urlFormatted = await uploadFile(rowId, file, "nfe");
+    const urlFormatted = await uploadFile(rowId, file, "nfe", false);
 
     return await tables.updateRow({
       databaseId: DATABASE_ID,

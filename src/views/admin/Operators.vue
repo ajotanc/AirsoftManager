@@ -8,8 +8,7 @@
         paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
         :rowsPerPageOptions="[20, 40, 60, 80, 100]"
         currentPageReportTemplate="Exibindo {first} a {last} de {totalRecords} operadore(s)"
-        tableStyle="min-width: 50rem" v-model:expandedRows="expandedRows" :exportFilename="exportFilename"
-        csvSeparator=";" size="small">
+        tableStyle="min-width: 50rem" v-model:expandedRows="expandedRows" size="small">
 
         <template #header>
           <div class="flex flex-wrap align-items-center justify-content-between gap-3 p-2">
@@ -200,7 +199,6 @@ const checkOperator = (op: IOperator) => {
 const {
   data: operators,
   isLoading,
-  // isError,
   refetch
 } = useQuery({
   queryKey: ['operators', 'list'],
@@ -217,9 +215,7 @@ const {
 const expandedRows = ref({});
 const editingRows = ref([]);
 
-const exportFilename = computed(() => {
-  return `${Date.now()}_LISTA_OPERADORES`;
-});
+const operatorsFiltered = computed(() => operators.value?.filter(p => p.role !== 'visitor' && p.status && p.loadout?.length > 0) || []);
 
 const filters = ref({
   'global': { value: '', matchMode: FilterMatchMode.CONTAINS },
@@ -272,20 +268,23 @@ const handleUpdate = async (event: DataTableRowEditSaveEvent<IOperator>) => {
 };
 
 const exportData = async () => {
-  const data = operators.value || [];
-  if (!data.length) {
+  if (!operatorsFiltered.value.length) {
     toast.add({ severity: 'warn', summary: 'Aviso', detail: 'Não existem dados para exportar.' });
     return;
   }
-  await export2Excel(exportFilename.value, data, 'Operadores');
+
+  await export2Excel(`${dayjs().unix()}-LISTA-OPERADORES`, operatorsFiltered.value, 'Operadores');
   toast.add({ severity: 'success', summary: 'Sucesso', detail: 'Ficheiro Excel gerado!', life: 3000 });
 };
 
 const exportShirtSize = async () => {
-  const data = operators.value || [];
-  const dataToExport = data.map(p => {
+  if (!operatorsFiltered.value.length) {
+    toast.add({ severity: 'warn', summary: 'Aviso', detail: 'Não existem dados para exportar.' });
+    return;
+  }
+
+  const dataToExport = operatorsFiltered.value.map(p => {
     return {
-      "Nome Completo": p.name.trim(),
       "Codinome": p.codename,
       "Tamanho de Camisa": p.shirt_size
     }
@@ -297,13 +296,20 @@ const exportShirtSize = async () => {
 };
 
 const exportHealth = async () => {
-  const data = operators.value || [];
-  const dataToExport = data.map(p => {
+  if (!operatorsFiltered.value.length) {
+    toast.add({ severity: 'warn', summary: 'Aviso', detail: 'Não existem dados para exportar.' });
+    return;
+  }
+
+  const dataToExport = operatorsFiltered.value.map(p => {
     return {
-      "Nome Completo": p.name.trim(),
+      "Nome": p.name?.trim() || null,
       "Data de Nascimento": dayjs(p.birth_date).format('DD/MM/YYYY'),
       "CPF": p.identity && formatCPF(p.identity!),
       "Telefone": p.phone && formatPhone(p.phone, { mask: 'auto' }),
+      "Plano de Saúde?": p.health_plan ? "Sim" : "Não",
+      "Plano de Saúde - Nome": p.health_plan_name?.trim() || null,
+      "Plano de Saúde - Número": p.health_plan_number,
       "Contato Emergência": p.emergency_contact?.trim(),
       "Contato Emergência - Telefone": p.emergency_contact_phone && formatPhone(p.emergency_contact_phone, { mask: 'auto' }),
       "Tipo Sanguíneo": p.blood_type,
@@ -318,16 +324,17 @@ const exportHealth = async () => {
 };
 
 const exportLoadouts = async () => {
-  const data = operators.value || [];
+  if (!operatorsFiltered.value.length) {
+    toast.add({ severity: 'warn', summary: 'Aviso', detail: 'Não existem dados para exportar.' });
+    return;
+  }
+
   const rows: Record<string, string>[] = [];
 
-  for (const p of data) {
-    const codename = p.codename || p.name.trim();
-    const loadouts = p.loadout || [];
+  for (const p of operatorsFiltered.value) {
+    const codename = p.codename || p.name?.trim() || '';
 
-    if (p.role === 'visitor' || !p.status || loadouts.length === 0) continue;
-
-    for (const l of loadouts) {
+    for (const l of p.loadout) {
       const uniformName = UNIFORMS[l.type_uniform] || `Uniforme ${l.type_uniform}`;
       const row: Record<string, string> = {
         "Codinome": codename,

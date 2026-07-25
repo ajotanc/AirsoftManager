@@ -35,6 +35,21 @@
       <div class="col-12 pb-0">
         <FileUpload accept="image/*, application/pdf" customUpload @uploader="onUploader" :maxFileSize="MAX_FILE_SIZE"
           fluid chooseLabel="Buscar" uploadLabel="Enviar" :cancel-button-props="{ style: { display: 'none' } }">
+          <template #content="{ files, removeFileCallback }">
+            <div v-for="(file, index) of files" :key="file.name + file.type + file.size"
+              class="flex align-items-center gap-3 p-2 border-round border-1 border-white-alpha-10 surface-card w-full my-2">
+              <img v-if="file.type.startsWith('image/')" :src="file.objectURL" :alt="file.name"
+                class="w-3rem h-3rem border-round object-fit-cover flex-shrink-0" />
+              <div v-else class="flex align-items-center justify-content-center border-round surface-hover w-3rem h-3rem flex-shrink-0">
+                <i class="ri-file-pdf-2-line text-3xl text-red-500"></i>
+              </div>
+              <div class="flex flex-column overflow-hidden flex-grow-1">
+                <span class="font-medium text-sm text-truncate">{{ file.name }}</span>
+                <span class="text-xs text-400">{{ formatFileSize(file.size) }}</span>
+              </div>
+              <Button icon="pi pi-times" severity="danger" text rounded @click="removeFileCallback(index)" class="flex-shrink-0" />
+            </div>
+          </template>
           <template #empty>
             <span class="text-sm">Selecione o comprovante após pagar.</span>
           </template>
@@ -52,6 +67,7 @@ import {
 } from 'primevue';
 import type { FileUploadUploaderEvent } from 'primevue/fileupload';
 import { PaymentService, type IPayment } from '@/services/payment';
+import { formatFileSize } from '@/functions/utils';
 
 interface IProps {
   visible: boolean;

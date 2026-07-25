@@ -24,6 +24,21 @@
               <component :is="field.component" v-bind="field.props" fluid
                 @select="(e: FileUploadSelectEvent) => onFileSelect(field.name, e)"
                 @remove="() => onFileClear(field.name)" @clear="() => onFileClear(field.name)">
+                <template #content="{ files, removeFileCallback }">
+                  <div v-for="(file, index) of files" :key="file.name + file.type + file.size"
+                    class="flex align-items-center gap-3 p-2 border-round border-1 border-white-alpha-10 surface-card w-full my-2">
+                    <img v-if="file.type.startsWith('image/')" :src="file.objectURL" :alt="file.name"
+                      class="w-3rem h-3rem border-round object-fit-cover flex-shrink-0" />
+                    <div v-else class="flex align-items-center justify-content-center border-round surface-hover w-3rem h-3rem flex-shrink-0">
+                      <i class="ri-file-pdf-2-line text-3xl text-red-500"></i>
+                    </div>
+                    <div class="flex flex-column overflow-hidden flex-grow-1">
+                      <span class="font-medium text-sm text-truncate">{{ file.name }}</span>
+                      <span class="text-xs text-400">{{ formatFileSize(file.size) }}</span>
+                    </div>
+                    <Button icon="pi pi-times" severity="danger" text rounded @click="removeFileCallback(index)" class="flex-shrink-0" />
+                  </div>
+                </template>
                 <template #empty>
                   <span>{{ field.emptyMessage || 'Nenhum arquivo selecionado.' }}</span>
                 </template>
@@ -59,8 +74,8 @@
 <script setup lang="ts" generic="T extends Record<string, any>">
 import { ref, watch } from 'vue';
 import { Form, type FormSubmitEvent } from '@primevue/forms';
-import type { IFields, AppFormResolver } from '@/functions/utils';
-import { Dialog, type FileUploadSelectEvent } from 'primevue';
+import { formatFileSize, type IFields, type AppFormResolver } from '@/functions/utils';
+import { Dialog, Button, type FileUploadSelectEvent } from 'primevue';
 
 interface Props {
   header: string;

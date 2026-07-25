@@ -1,0 +1,18 @@
+# Éxodo Airsoft - Sistema de Gestão Tática para Airsoft
+
+> Éxodo Airsoft é uma plataforma tática completa de alta performance para gerenciamento de equipes, operadores, campos, torneios e arsenal de Airsoft.
+
+## Módulos Principais
+
+- **Apresentação & Home**: Informações da equipe, calendário de jogos e eventos abertos.
+- **Operadores & Ranking**: Pontuação por partidas (XP), níveis, patentes, conquistas (badges), histórico de partidas e carteirinha digital com QR Code.
+- **Torneios & Campeonatos**: Chaveamentos ao vivo (Knockout, BO3, BO5), estatísticas de partidas e acompanhamento de pontuação.
+- **Eventos & Operações**: Inscrição em jogos, check-in por QR Code, divisão dinâmica de esquadrões e oferta de caronas.
+- **Arsenal & Loadout**: Cadastro detalhado de armas (Assault, DMR, Sniper, Pistol), números de série, vistorias e registro de manutenções.
+- **Escola Tática & Certificações**: Cursos de formação, conduta em campo, regras de segurança, exames de qualificação e emissão de certificados digitais.
+
+## Links Úteis
+- **Home**: /
+- **Cadastro de Recrutas**: /register
+- **Cadastro de Visitantes**: /visitor-registration
+- **Sitemap Dinâmico**: /sitemap.xml

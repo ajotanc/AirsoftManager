@@ -129,7 +129,7 @@ export const TournamentService = {
   async list(): Promise<ITournament[]> {
     try {
       const startOfCurrentMonth = dayjs().startOf('month').toISOString();
-      
+
       const response = await tables.listRows<ITournament>({
         databaseId: DATABASE_ID,
         tableId: TABLE_TOURNAMENTS,

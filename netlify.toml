@@ -1,7 +1,12 @@
+[[edge_functions]]
+  path = "/events/*"
+  function = "metadata"
+
+[[edge_functions]]
+  path = "/sitemap.xml"
+  function = "sitemap"
+
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
-  [[edge_functions]]
-  path = "/events/*"
-  function = "seo"

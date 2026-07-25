@@ -112,7 +112,7 @@ export default defineConfig(({ mode }) => {
     ],
     define: {
       "process.env": {},
-      global: "window",
+      global: "globalThis",
     },
     resolve: {
       alias: {
@@ -138,11 +138,7 @@ export default defineConfig(({ mode }) => {
       },
     },
     optimizeDeps: {
-      exclude: ['pdfjs-dist']
+      include: ['pdfjs-dist']
     },
-    ssr: {
-      noExternal: [],
-      external: ['pdfjs-dist']
-    }
   };
 });
