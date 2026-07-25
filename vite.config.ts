@@ -127,8 +127,20 @@ export default defineConfig(({ mode }) => {
             if (id.includes("exceljs") || id.includes("xlsx")) {
               return "excel-vendor";
             }
+            if (id.includes("pdfjs-dist")) {
+              return "pdf-vendor";
+            }
+            if (id.includes("chart.js") || id.includes("vue-chartjs")) {
+              return "chart-vendor";
+            }
+            if (id.includes("quill")) {
+              return "editor-vendor";
+            }
             if (id.includes("primevue")) {
               return "primevue-vendor";
+            }
+            if (id.includes("appwrite")) {
+              return "appwrite-vendor";
             }
             if (id.includes("node_modules")) {
               return "vendor";

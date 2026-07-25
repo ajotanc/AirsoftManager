@@ -67,7 +67,7 @@
 
               <template #footer>
                 <div class="mt-auto pt-2">
-                  <Button label="Ver Torneio" icon="pi pi-bolt"
+                  <Button label="Ver Torneio" icon="pi pi-bolt" aria-label="Ver detalhes do torneio"
                     class="w-full p-button-sm p-button-warning font-bold shadow-1"
                     @click="goToTournament(tournament.$id)" />
                 </div>

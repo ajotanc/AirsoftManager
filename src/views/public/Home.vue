@@ -7,7 +7,7 @@
 
       <div class="z-2 text-center px-4 w-full max-w-7xl flex flex-column align-items-center gap-6">
 
-        <Image src="/images/exd.webp" imageClass="w-16rem h-16rem" />
+        <Image src="/images/exd.webp" :alt="TEAM_NAME" imageClass="w-16rem h-16rem" />
 
         <div class="flex flex-column align-items-center gap-3">
           <Tag severity="warn" variant="outlined" class="p-2 px-3 uppercase font-bold">

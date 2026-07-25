@@ -36,15 +36,15 @@
                         </template>
 
                         <template #content>
-                            <div class="flex flex-column gap-1 text-sm text-gray-400">
+                            <div class="flex flex-column gap-1 text-sm text-gray-300">
                                 <span><i class="pi pi-map-marker mr-1 text-xs"></i>{{ event.location }}</span>
-                                <span><i class="pi pi-calendar mr-1 text-xs text-gray-400"></i>{{
+                                <span><i class="pi pi-calendar mr-1 text-xs text-gray-300"></i>{{
                                     dayjs(event.date).format('DD/MM/YYYY') }}</span>
                             </div>
                         </template>
                         <template #footer>
                             <div class="mt-auto">
-                                <Button label="Ver Missão" icon="pi pi-search" class="w-full p-button-sm"
+                                <Button label="Ver Missão" icon="pi pi-search" aria-label="Ver detalhes da missão" class="w-full p-button-sm"
                                     @click="goToEvent(event.$id)" />
                             </div>
                         </template>

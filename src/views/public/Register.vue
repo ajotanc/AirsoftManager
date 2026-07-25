@@ -2,8 +2,8 @@
   <div class="flex align-items-center justify-content-center flex-1 surface-ground p-3">
     <div class="surface-card p-4 shadow-3 border-round w-full lg:w-4">
       <div class="text-center mb-3">
-        <Image src="/images/exd.webp" alt="Image" imageClass="w-6rem h-6rem" />
-        <div class="text-900 text-3xl font-bold uppercase">JUNTE-SE A NÓS</div>
+        <Image src="/images/exd.webp" :alt="TEAM_NAME" imageClass="w-6rem h-6rem" />
+        <h1 class="text-900 text-3xl font-bold uppercase m-0">JUNTE-SE A NÓS</h1>
         <span class="text-sm font-italic m-0">Onde a estratégia encontra a irmandade.</span>
       </div>
 
@@ -76,7 +76,7 @@ import FloatLabel from "primevue/floatlabel";
 import Message from "primevue/message";
 import { useOperator } from "@/composables/useOperator";
 
-import { TEAMS } from "@/constants/airsoft";
+import { TEAM_NAME, TEAMS } from "@/constants/airsoft";
 
 const { authStore } = useOperator();
 const router = useRouter();
