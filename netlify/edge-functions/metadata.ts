@@ -4,8 +4,8 @@ import { Client, Databases } from "https://deno.land/x/appwrite/mod.ts";
 export default async (request: Request, context: Context) => {
   const url = new URL(request.url);
 
-  const eventMatch = url.pathname.match(/\/events\/([a-zA-Z0-9]+)/);
-  if (!eventMatch) return;
+  const eventMatch = url.pathname.match(/^\/events\/([a-zA-Z0-9]{36})$/);
+  if (!eventMatch) return context.next();
 
   const rowId = eventMatch[1];
 
@@ -15,22 +15,22 @@ export default async (request: Request, context: Context) => {
   const TEAM_NAME = Netlify.env.get("VITE_TEAM_NAME");
   const TABLE_ID = "events";
 
+  if (!ENDPOINT || !PROJECT_ID || !DATABASE_ID) {
+    return context.next();
+  }
+
   try {
     const client = new Client();
-    client.setEndpoint(ENDPOINT!).setProject(PROJECT_ID!);
+    client.setEndpoint(ENDPOINT).setProject(PROJECT_ID);
 
     const databases = new Databases(client);
 
-    const event = await databases.getDocument(
-      DATABASE_ID,
-      TABLE_ID,
-      rowId
-    );
+    const event = await databases.getDocument(DATABASE_ID, TABLE_ID, rowId);
 
     const originalResponse = await context.next();
     const html = await originalResponse.text();
 
-    const title = `${TEAM_NAME?.toUpperCase()} · ${event.title.toUpperCase()}`
+    const title = `${TEAM_NAME?.toUpperCase()} · ${event.title.toUpperCase()}`;
     const description = `★★★★★ · ${event.location} · ${new Date(event.date).toLocaleDateString('pt-BR')} às ${event.startTime}h`;
     const image = event.thumbnail;
 
@@ -66,7 +66,7 @@ export default async (request: Request, context: Context) => {
     });
   } catch (error) {
     console.error("Erro na Edge Function:", error);
-    return;
+    return context.next(); // fallback correto, nunca undefined
   }
 };
 
