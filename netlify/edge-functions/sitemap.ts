@@ -16,8 +16,11 @@ export default async (request: Request, _context: Context) => {
     "visitor-registration",
   ];
 
-  let eventUrls: string[] = [];
-  let tournamentUrls: string[] = [];
+  // Agora cada URL carrega o próprio lastmod (baseado no $updatedAt do documento)
+  let eventUrls: { loc: string; lastmod: string }[] = [];
+  let tournamentUrls: { loc: string; lastmod: string }[] = [];
+
+  const currentDate = new Date().toISOString().split("T")[0];
 
   try {
     if (ENDPOINT && PROJECT_ID && DATABASE_ID) {
@@ -28,26 +31,36 @@ export default async (request: Request, _context: Context) => {
       const now = new Date();
       const startOfCurrentMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
 
-      // List public events from current month onwards
+      // Eventos públicos a partir do mês atual, mais próximos primeiro
       try {
         const eventsRes = await databases.listDocuments(DATABASE_ID, "events", [
           Query.greaterThanEqual("date", startOfCurrentMonth),
           Query.limit(100),
-          Query.orderDesc("date")
+          Query.orderAsc("date"), // trocado de orderDesc para orderAsc
         ]);
-        eventUrls = (eventsRes.documents || []).map((doc: any) => `${baseUrl}/events/${doc.$id}`);
+        eventUrls = (eventsRes.documents || []).map((doc: any) => ({
+          loc: `${baseUrl}/events/${doc.$id}`,
+          lastmod: doc.$updatedAt
+            ? doc.$updatedAt.split("T")[0]
+            : currentDate,
+        }));
       } catch (err) {
         console.error("Sitemap: error fetching events", err);
       }
 
-      // List public tournaments from current month onwards
+      // Torneios públicos a partir do mês atual, mais próximos primeiro
       try {
         const tournamentsRes = await databases.listDocuments(DATABASE_ID, "tournaments", [
           Query.greaterThanEqual("date", startOfCurrentMonth),
           Query.limit(100),
-          Query.orderDesc("date")
+          Query.orderAsc("date"), // trocado de orderDesc para orderAsc
         ]);
-        tournamentUrls = (tournamentsRes.documents || []).map((doc: any) => `${baseUrl}/tournament/${doc.$id}`);
+        tournamentUrls = (tournamentsRes.documents || []).map((doc: any) => ({
+          loc: `${baseUrl}/tournament/${doc.$id}`,
+          lastmod: doc.$updatedAt
+            ? doc.$updatedAt.split("T")[0]
+            : currentDate,
+        }));
       } catch (err) {
         console.error("Sitemap: error fetching tournaments", err);
       }
@@ -56,40 +69,38 @@ export default async (request: Request, _context: Context) => {
     console.error("Sitemap generation error:", err);
   }
 
-  const currentDate = new Date().toISOString().split("T")[0];
-
   const xmlContent = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${staticRoutes
-  .map(
-    (route) => `  <url>
+      .map(
+        (route) => `  <url>
     <loc>${baseUrl}/${route ? route : ""}</loc>
     <lastmod>${currentDate}</lastmod>
     <changefreq>daily</changefreq>
     <priority>${route === "" ? "1.0" : "0.8"}</priority>
   </url>`
-  )
-  .join("\n")}
+      )
+      .join("\n")}
 ${eventUrls
-  .map(
-    (eventUrl) => `  <url>
-    <loc>${eventUrl}</loc>
-    <lastmod>${currentDate}</lastmod>
+      .map(
+        (e) => `  <url>
+    <loc>${e.loc}</loc>
+    <lastmod>${e.lastmod}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>`
-  )
-  .join("\n")}
+      )
+      .join("\n")}
 ${tournamentUrls
-  .map(
-    (tUrl) => `  <url>
-    <loc>${tUrl}</loc>
-    <lastmod>${currentDate}</lastmod>
+      .map(
+        (t) => `  <url>
+    <loc>${t.loc}</loc>
+    <lastmod>${t.lastmod}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>`
-  )
-  .join("\n")}
+      )
+      .join("\n")}
 </urlset>`;
 
   return new Response(xmlContent, {
