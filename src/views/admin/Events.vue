@@ -91,6 +91,7 @@ import Select from "primevue/select";
 import DatePicker from "primevue/datepicker";
 import InputMask from "primevue/inputmask";
 import FileUpload from "primevue/fileupload";
+import MultiSelect from "primevue/multiselect";
 import Message from "primevue/message";
 import { Form } from '@primevue/forms';
 import { z } from 'zod';
@@ -134,7 +135,7 @@ const missionSchema = z.object({
     title: z.string({ error: "Campo obrigatório" }).min(5, { error: "Título muito curto" }),
     description: z.string({ error: "Campo obrigatório" }).min(10, { error: "Briefing insuficiente" }),
     location: z.string({ error: "Campo obrigatório" }).min(3, { error: "Local obrigatório" }),
-    type: z.string({ error: "Selecione o tipo" }).transform((type) => Number.parseInt(type)),
+    types: z.array(z.union([z.string(), z.number()])).min(1, { message: "Selecione pelo menos um tipo" }),
     date: z.custom().refine((date) => date instanceof Date || typeof date === 'string', "Data obrigatória").transform((date) => date && formatDate(date).toISOString()),
     startTime: z.string({ error: "Início obrigatório" }).trim().regex(/^([01]\d|2[0-3]):[0-5]\d$/, "Hora inválida (00:00 - 23:59)"),
     endTime: z.string({ error: "Término obrigatório" }).trim().regex(/^([01]\d|2[0-3]):[0-5]\d$/, "Hora inválida (00:00 - 23:59)"),
@@ -230,8 +231,13 @@ const fields: IFields[] = [
     { name: 'endTime', label: 'Término', component: InputMask, col: '4', props: { mask: '99:99' } },
     { name: 'minimum_effective', label: 'Efetivo Mínimo', component: InputNumber, col: '4' },
     {
-        name: 'type', label: 'Tipo de Missão', component: Select, col: '6', isTag: true,
-        props: { options: Object.entries(EVENT_TYPES).map(([value, label]) => ({ label, value })), optionLabel: 'label', optionValue: 'value' }
+        name: 'types', label: 'Tipo de Missão', component: MultiSelect, col: '6', isTag: true,
+        props: {
+            options: Object.entries(EVENT_TYPES).map(([value, label]) => ({ label, value: Number.parseInt(value) })),
+            optionLabel: 'label',
+            optionValue: 'value',
+            display: 'chip'
+        }
     },
     {
         name: 'rule', label: 'Tipo de Regra', component: Select, col: '6', isTag: true,
@@ -322,7 +328,9 @@ const confirmDelete = (event: IEvent) => {
 };
 
 const newEvent = async () => {
-    selectedEvent.value = {} as IEvent;
+    selectedEvent.value = {
+        types: [1]
+    } as IEvent;
     eventDialog.value = true;
 };
 
@@ -330,7 +338,6 @@ const editEvent = async (event: IEvent) => {
     selectedEvent.value = {
         ...event,
         date: event.date ? new Date(event.date).toLocaleDateString("pt-BR") : null,
-        type: event.type.toString()
     };
 
     eventDialog.value = true;

@@ -6,7 +6,7 @@
                 <div class="col-12">
                     <div
                         class="flex flex-column justify-content-between align-items-start md:flex-row md:align-items-center gap-2">
-                        <h1 class="text-4xl font-bold uppercase m-0">
+                        <h1 class="text-4xl font-bold uppercase m-0 break-words">
                             <i
                                 :class="['text-4xl', event.is_finished ? 'ri-checkbox-fill text-green-400' : 'ri-checkbox-indeterminate-fill text-red-600']"></i>
                             {{ event.title }}
@@ -15,10 +15,12 @@
                     </div>
                 </div>
                 <div class="col-12">
-                    <div class="flex align-items-center gap-2">
-                        <Tag :value="EVENT_TYPES[event.type as keyof typeof EVENT_TYPES] || 'Padrão'"
-                            :severity="severityEvent(event.type)" />
-                        <Tag :value="event.rule || 'Padrão'" :severity="severityEvent(event.type)" />
+                    <div class="flex align-items-center">
+                        <div class="types-tags">
+                            <Tag v-for="t in event.types" :key="t"
+                                :value="EVENT_TYPES[t as keyof typeof EVENT_TYPES] || 'Padrão'" severity="contrast" />
+                            <Tag v-if="event.rule" :value="event.rule" />
+                        </div>
                         <div class="flex flex-column align-items-end justify-content-end ml-auto">
                             <span class="text-3xl font-bold text-primary-500">{{ checkinsCount }}</span>
                             <span class="text-xs text-gray-500 uppercase font-bold ">Check-ins</span>
@@ -66,11 +68,17 @@
                         <div v-if="hasPendingSchoolCerts"
                             class="flex gap-2 align-items-center p-2 md:py-1 md:px-3 border-1 border-yellow-400 bg-yellow-100 text-yellow-900 border-round text-sm cursor-pointer"
                             @click="$router.push('/administrative/school')">
-                            <span><i class="ri-graduation-cap-line mr-1 text-base"></i><strong>Atenção Escola Êxodo:</strong> Você tem {{ authStore.missingCertifications.length }} certificação(ões) pendente(s). <span class="underline font-bold">Regularize para manter seu acesso em dia (3 min)</span>.</span>
+                            <span><i class="ri-graduation-cap-line mr-1 text-base"></i><strong>Atenção Escola
+                                    Êxodo:</strong> Você tem {{
+                                        authStore.missingCertifications.length }} certificação(ões) pendente(s). <span
+                                    class="underline font-bold">Regularize para manter seu acesso em dia (3
+                                    min)</span>.</span>
                         </div>
                         <div v-if="event.list_open && !isFinished"
                             class="flex gap-2 align-items-center p-2 md:py-0 md:px-3 border-1 border-amber-300 bg-amber-100 text-amber-900 border-round text-sm">
-                            <span><i class="pi pi-unlock mr-1"></i><strong>Lista Extra Liberada:</strong> A lista de participantes foi aberta extraordinariamente pela administração.</span>
+                            <span><i class="pi pi-unlock mr-1"></i><strong>Lista Extra Liberada:</strong> A lista de
+                                participantes foi aberta
+                                extraordinariamente pela administração.</span>
                         </div>
                         <div v-else-if="deadlineInfo.isOver && !isFinished"
                             class="flex gap-2 align-items-center p-2 md:py-0 md:px-3 border-1 border-red-300 bg-red-100 text-red-800 border-round text-sm">
@@ -126,8 +134,8 @@
                                 @click="newVisitor" />
                             <Button :label="event.list_open ? 'Fechar Lista Extra' : 'Liberar Lista Extra'"
                                 :icon="event.list_open ? 'pi pi-lock' : 'pi pi-unlock'"
-                                :severity="event.list_open ? 'warn' : 'help'"
-                                class="w-full" :disabled="isFinished" @click="toggleListOpen" />
+                                :severity="event.list_open ? 'warn' : 'help'" class="w-full" :disabled="isFinished"
+                                @click="toggleListOpen" />
                         </div>
                         <h4 class="text-sm uppercase text-gray-500 border-bottom-1 border-white-alpha-10 mt-0 pb-2">
                             Lista de Operadores
@@ -170,8 +178,8 @@
                                                 <template v-else>
                                                     <i v-if="checked_in"
                                                         class="ri-check-double-line text-green-500 text-xl"></i>
-                                                    <Button v-else-if="canManualCheckin"
-                                                        icon="ri-rfid-line" severity="secondary" rounded size="small"
+                                                    <Button v-else-if="canManualCheckin" icon="ri-rfid-line"
+                                                        severity="secondary" rounded size="small"
                                                         @click="onDetect(operator.$id)"
                                                         v-tooltip.top="'Realizar Check-in Manualmente'" />
                                                 </template>
@@ -356,7 +364,7 @@
                                     :icon="!feedback.operator.avatar ? 'pi pi-user' : undefined" shape="circle" />
                                 <div class="flex flex-column">
                                     <span class="text-sm font-bold uppercase">{{ getShortName(feedback.operator.name)
-                                    }}</span>
+                                        }}</span>
                                     <span class="text-xs uppercase">{{ feedback.operator.codename }}</span>
                                 </div>
                             </div>
@@ -404,7 +412,7 @@
                             <div class="flex flex-column">
                                 <span class="font-bold">{{ getShortName(slotProps.option.name) }} ({{
                                     slotProps.option.codename
-                                }})</span>
+                                    }})</span>
                                 <small class="text-gray-500">Convidado por {{
                                     slotProps.option.operator.codename }}</small>
                             </div>
@@ -467,9 +475,9 @@ import { useToast } from "primevue/usetoast";
 import { atcb_action } from 'add-to-calendar-button';
 import { EventService, type IEvent, type IParticipation, type IGuestParticipation, type IGuestParticipationDetail } from '@/services/event';
 import { DEADLINE_HOUR, EVENT_TYPES, TEAM_NAME } from '@/constants/airsoft';
-import { export2Excel, formatDate, playBeep, type IFields } from '@/functions/utils';
+import { export2Excel, formatDate, normalizeEventTypes, playBeep, type IFields } from '@/functions/utils';
 import type { ATCBActionEventConfig } from 'add-to-calendar-button';
-import { severityEvent, getShortName } from '@/functions/utils'
+import { getShortName } from '@/functions/utils'
 
 import Card from 'primevue/card';
 import Button from 'primevue/button';
@@ -536,11 +544,11 @@ const hasPendingSchoolCerts = computed(() => {
 
 const canCheckin = computed(() => {
     if (loading.value || !event.value?.date) return false;
-    
+
     const eventDate = dayjs(event.value.date);
     const today = dayjs().startOf('day');
 
-    const isTodayOrAfter = today.isSame(eventDate, 'day') || today.isAfter(eventDate, 'day');    
+    const isTodayOrAfter = today.isSame(eventDate, 'day') || today.isAfter(eventDate, 'day');
     return isTodayOrAfter && !isFinished.value && isConfirmed.value;
 });
 
@@ -822,8 +830,8 @@ async function onDetect(operatorId?: string) {
 
 const handleCalendarDynamic = () => {
     const startDate = new Date(event.value.date as Date).toISOString().split('T')[0];
-    const { startTime, endTime, location, description, type } = event.value;
-    const typeLabel = EVENT_TYPES[type as keyof typeof EVENT_TYPES];
+    const { startTime, endTime, location, description, types } = event.value;
+    const typeLabel = normalizeEventTypes(types);
 
     const config = {
         name: `[${TEAM_NAME}][${typeLabel}] ${event.value.title}`,
@@ -1316,5 +1324,19 @@ const getDisplayName = (op: IOperator) => {
     width: 0.9rem;
     height: 0.9rem;
     font-size: 0.9rem;
+}
+
+.types-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+}
+
+/* Mobile e telas menores */
+@media (max-width: 480px) {
+    .types-tags {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+    }
 }
 </style>

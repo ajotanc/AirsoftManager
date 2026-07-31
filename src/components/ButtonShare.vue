@@ -3,8 +3,8 @@
 </template>
 
 <script setup lang="ts">
-import { EVENT_TYPES, TEAM_NAME, TEAM_TAG } from '@/constants/airsoft';
-import { cleanHtml, formatDate, limitWords } from '@/functions/utils';
+import { TEAM_NAME, TEAM_TAG } from '@/constants/airsoft';
+import { cleanHtml, formatDate, limitWords, normalizeEventTypes } from '@/functions/utils';
 import type { IEvent, IParticipation, IGuestParticipation } from '@/services/event';
 import type { IOperator } from '@/services/operator';
 import type { IGuest } from '@/services/guest';
@@ -24,7 +24,7 @@ const toast = useToast();
 
 const shareNative = async () => {
   const baseUrl = window.location.origin;
-  const { $id, description, location, location_url, date, type, minimum_effective, startTime, endTime, thumbnail, rule, is_finished, allow_visitors, ...eventData } = event;
+  const { $id, description, location, location_url, date, types, minimum_effective, startTime, endTime, thumbnail, rule, is_finished, allow_visitors, ...eventData } = event;
   const url = `${baseUrl}/events/${$id}?t=${Date.now()}`;
 
   const title = eventData.title.toUpperCase();
@@ -69,12 +69,13 @@ const shareNative = async () => {
 
   const effective = participations.length + guest_participations.length;
   const newDescription = limitWords(cleanHtml(description), 60);
+  const typesText = normalizeEventTypes(types);
 
   const medicalItem = rule && rule.toUpperCase() === "SAR" ? "- 4 Ataduras (12cm, 15cm ou 20cm x 1,80m)" : "- 4 Ataduras / Torniquetes"
 
   const header = `*${title}*\n-------------------------------------------------`;
   const checkin = `🔗 *Briefing / Check-in:*\n${newDescription}\n\n*Aperte no link acima e confirme a sua presença!*\n${url}`;
-  const info = `-------------------------------------------------\n⚠️ *Tipo:* ${EVENT_TYPES[type as keyof typeof EVENT_TYPES]}\n⚠️ *Efetivo Mínimo:* ${minimum_effective}\n⚠️ *Efetivo Atual:* ${effective}/${minimum_effective}`;
+  const info = `-------------------------------------------------\n⚠️ *Tipo:* ${typesText}\n⚠️ *Efetivo Mínimo:* ${minimum_effective}\n⚠️ *Efetivo Atual:* ${effective}/${minimum_effective}`;
   const eventRule = rule ? `⚠️ *Regra:* ${rule}` : null;
   const forbidden = '-------------------------------------------------\n🚫 *Proibido:*\n- O uso de fardas de instituições militares ou forças de segurança.';
   const eventFinished = is_finished ? "-------------------------------------------------\n🎖️ *MISSÃO FINALIZADA!*" : null;

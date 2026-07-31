@@ -9,7 +9,7 @@ import pdfWorker from 'pdfjs-dist/build/pdf.worker.mjs?url';
 import { z } from "zod";
 
 import { BUCKET_ID, storage } from '@/services/appwrite';
-import { CATEGORIES_OPTIONS, MAINTENANCE_STATUS_TYPES, MAINTENANCE_TYPES } from '@/constants/airsoft';
+import { CATEGORIES_OPTIONS, EVENT_TYPES, MAINTENANCE_STATUS_TYPES, MAINTENANCE_TYPES } from '@/constants/airsoft';
 import { useSettingsStore } from '@/stores/settings';
 import router from '@/router';
 
@@ -167,23 +167,8 @@ export const isBirthdayTodayOrYesterday = (date: Date | string | null) => {
   return isToday || isYesterday;
 };
 
-export const severityEvent = (type: number | string): string => {
-  switch (Number(type)) {
-    case 1:
-      return 'success';
-    case 2:
-      return 'warn';
-    case 3:
-      return 'danger';
-    case 4:
-      return 'info';
-    case 5:
-      return 'helper';
-    case 6:
-      return 'primary';
-    default:
-      return 'secondary';
-  }
+export const normalizeEventTypes = (types: string[] | number[]): string => {
+  return types.map(t => EVENT_TYPES[t as keyof typeof EVENT_TYPES]).filter(Boolean).join(' · ');
 };
 
 export const processImage = async (file: File) => {

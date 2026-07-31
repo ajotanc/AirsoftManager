@@ -10,8 +10,11 @@
                     <Card class="h-full border-1 border-white-alpha-10 flex flex-column overflow-hidden shadow-3 m-2">
                         <template #header>
                             <div class="relative">
-                                <Tag :value="EVENT_TYPES[event.type as keyof typeof EVENT_TYPES] || 'Padrão'"
-                                    :severity="severityEvent(event.type)" class="absolute top-0 left-0 m-2" />
+                                <div class="absolute top-0 left-0 m-2 flex flex-wrap gap-1 z-2">
+                                    <Tag v-for="t in event.types" :key="t"
+                                        :value="EVENT_TYPES[t as keyof typeof EVENT_TYPES] || 'Padrão'"
+                                        severity="contrast" />
+                                </div>
                                 <Tag v-if="event.is_finished" icon="pi pi-check-circle" value="Finalizado"
                                     severity="warn" class="absolute top-0 right-0 m-2 z-2" />
                                 <div v-if="event.thumbnail && isValidUrl(event.thumbnail)" class="w-full" :style="{
@@ -44,8 +47,7 @@
                         </template>
                         <template #footer>
                             <div class="mt-auto">
-                                <Button label="Ver Missão" icon="pi pi-search" aria-label="Ver detalhes da missão" class="w-full p-button-sm"
-                                    @click="goToEvent(event.$id)" />
+                                <Button label="Ver Missão" size="small" icon="pi pi-search" aria-label="Ver detalhes da missão" fluid @click="goToEvent(event.$id)" />
                             </div>
                         </template>
                     </Card>
@@ -62,7 +64,7 @@
 import { ref, onMounted, computed } from 'vue';
 import { EVENT_TYPES } from '@/constants/airsoft';
 import dayjs from 'dayjs';
-import { severityEvent, goToEvent } from '@/functions/utils';
+import { goToEvent } from '@/functions/utils';
 import { Skeleton, useToast } from 'primevue';
 import { EventService, type IEvent } from '@/services/event';
 

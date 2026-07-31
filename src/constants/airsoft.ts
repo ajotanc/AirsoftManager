@@ -19,6 +19,8 @@ export const EVENT_TYPES = {
   4: "Curso",
   5: "Reunião",
   6: "Outros",
+  7: "Treinamento",
+  8: "Gravação"
 };
 
 export const XP_VALUES = {
@@ -26,6 +28,10 @@ export const XP_VALUES = {
   MAINTENANCE: 200, // Manutenção de campo/equipamento
   PRESENCE: 25, // Reunião ou presença rápida
   COURSE: 400, // Cursos e treinamentos oficiais
+  MEETING: 0,
+  OTHER: 50,
+  TRAINING: 100,
+  RECORDING: 50
 };
 
 export const LEVELS = [

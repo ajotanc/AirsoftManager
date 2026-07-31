@@ -21,7 +21,7 @@ export const TABLE_GUEST_PARTICIPATIONS = "visitor_participations";
 
 export interface IEvent extends Models.Row {
   title: string;
-  type: number | string;
+  types: string[] | number[];
   date: Date | string | null;
   reference: string;
   startTime: string;
@@ -238,7 +238,10 @@ export const EventService = {
         "4": XP_VALUES.COURSE,
       };
 
-      const xpGain = xpMap[event.type] || XP_VALUES.GAME;
+      const xpGain = event.types.reduce((acc: number, t: string | number) => {
+        return acc + (xpMap[t] || 0);
+      }, 0) || XP_VALUES.GAME;
+
       const operator = await OperatorService.row(operatorId);
 
       const participation = await tables.listRows({
