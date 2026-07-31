@@ -118,7 +118,8 @@ export const EventService = {
   },
   async listByMonth(): Promise<IEvent[]> {
     try {
-      const reference = dayjs().format("MM/YYYY");
+      const currentMonth = dayjs().format("MM/YYYY");
+      const nextMonth = dayjs().add(1, "month").format("MM/YYYY");
 
       const response = await tables.listRows<IEvent>({
         databaseId: DATABASE_ID,
@@ -134,7 +135,8 @@ export const EventService = {
           Query.orderAsc("date"),
           Query.limit(1000),
           Query.or([
-            Query.equal("reference", reference),
+            Query.equal("reference", currentMonth),
+            Query.equal("reference", nextMonth),
             Query.isNull("reference"),
           ]),
         ],

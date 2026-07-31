@@ -10,13 +10,13 @@
                     <Card class="h-full border-1 border-white-alpha-10 flex flex-column overflow-hidden shadow-3 m-2">
                         <template #header>
                             <div class="relative">
-                                <div class="absolute top-0 left-0 m-2 flex flex-wrap gap-1 z-2">
+                                <div class="absolute top-0 left-0 m-2 flex flex-wrap gap-1 z-1">
                                     <Tag v-for="t in event.types" :key="t"
                                         :value="EVENT_TYPES[t as keyof typeof EVENT_TYPES] || 'Padrão'"
                                         severity="contrast" />
                                 </div>
                                 <Tag v-if="event.is_finished" icon="pi pi-check-circle" value="Finalizado"
-                                    severity="warn" class="absolute top-0 right-0 m-2 z-2" />
+                                    severity="warn" class="absolute top-0 right-0 m-2 z-1" />
                                 <div v-if="event.thumbnail && isValidUrl(event.thumbnail)" class="w-full" :style="{
                                     height: '10rem',
                                     backgroundImage: `url(${event.thumbnail})`,

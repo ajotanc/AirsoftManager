@@ -1,5 +1,5 @@
 <template>
-  <Menubar :model="navItems" class="hidden sticky top-0 z-1 md:flex border-none shadow-3 px-3 py-2">
+  <Menubar :model="navItems" class="hidden sticky top-0 z-5 md:flex border-none shadow-3 px-3 py-2">
     <template #start>
       <div class="flex align-items-center gap-2 mr-4 cursor-pointer" @click="router.push('/dashboard')">
         <img src="/images/exd.webp" :alt="TEAM_NAME" class="h-4rem">
@@ -45,7 +45,7 @@
   </Menubar>
 
   <div
-    class="md:hidden sticky top-0 z-1 bg-gray-50 flex align-items-center justify-content-between p-2 border-bottom-1 surface-border">
+    class="md:hidden sticky top-0 z-5 bg-gray-50 flex align-items-center justify-content-between p-2 border-bottom-1 surface-border">
     <img src="/images/exd.webp" :alt="TEAM_NAME" class="h-3rem" @click="router.push('/dashboard')">
     <Button icon="pi pi-bars" @click="visible = true" severity="secondary" text />
   </div>

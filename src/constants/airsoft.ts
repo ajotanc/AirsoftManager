@@ -20,18 +20,18 @@ export const EVENT_TYPES = {
   5: "Reunião",
   6: "Outros",
   7: "Treinamento",
-  8: "Gravação"
+  8: "Mídia"
 };
 
 export const XP_VALUES = {
-  GAME: 100, // Jogo normal
-  MAINTENANCE: 200, // Manutenção de campo/equipamento
-  PRESENCE: 25, // Reunião ou presença rápida
-  COURSE: 400, // Cursos e treinamentos oficiais
+  GAME: 100,
+  MAINTENANCE: 200,
+  PRESENCE: 25,
+  COURSE: 400,
   MEETING: 0,
   OTHER: 50,
   TRAINING: 100,
-  RECORDING: 50
+  MEDIA: 50
 };
 
 export const LEVELS = [
