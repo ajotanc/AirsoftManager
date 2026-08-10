@@ -1,4 +1,5 @@
 allowBuilds:
   esbuild: true
+  exifreader: set this to true or false
   sharp: true
   vue-demi: true

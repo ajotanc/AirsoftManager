@@ -93,11 +93,11 @@
           </template>
         </Column>
 
-        <Column header="Cargo">
+        <Column header="Cargo" field="role_label">
           <template #body="{ data }">
             <Skeleton v-if="isLoading" width="100%" height="1rem" />
             <template v-else>
-              <Tag :value="ROLES.find((item) => item.value === data.role)?.label" :severity="'contrast'" />
+              <Tag :value="data.role_label" :severity="'contrast'" />
             </template>
           </template>
           <template #editor="{ data }">
@@ -105,11 +105,11 @@
           </template>
         </Column>
 
-        <Column header="Situação">
+        <Column header="Situação" field="status_label">
           <template #body="{ data }">
             <Skeleton v-if="isLoading" width="100%" height="1rem" />
             <template v-else>
-              <Tag :value="data.status ? 'Ativo' : 'Inativo'" :severity="data.status ? 'success' : 'danger'" />
+              <Tag :value="data.status_label" :severity="data.status ? 'success' : 'danger'" />
             </template>
           </template>
           <template #editor="{ data }">
@@ -196,6 +196,31 @@ const checkOperator = (op: IOperator) => {
   };
 };
 
+const enrichOperator = (op: IOperator) => {
+  const enriched = {
+    ...op,
+    info: checkOperator(op)
+  };
+
+  Object.defineProperty(enriched, 'role_label', {
+    get() {
+      return ROLES.find(r => r.value === this.role)?.label;
+    },
+    enumerable: true,
+    configurable: true,
+  });
+
+  Object.defineProperty(enriched, 'status_label', {
+    get() {
+      return this.status ? 'Ativo' : 'Inativo';
+    },
+    enumerable: true,
+    configurable: true,
+  });
+
+  return enriched;
+};
+
 const {
   data: operators,
   isLoading,
@@ -204,11 +229,7 @@ const {
   queryKey: ['operators', 'list'],
   queryFn: async () => {
     const response = await OperatorService.list();
-
-    return response.map(op => ({
-      ...op,
-      info: checkOperator(op)
-    }));
+    return response.map(enrichOperator);
   },
 });
 
@@ -224,17 +245,22 @@ const filters = ref({
 const labels = computed(() => {
   const firstItem = operators.value?.[0];
 
-  if (!firstItem) return ['$id'];
+  const dynamicKeys = firstItem
+    ? (Object.keys(firstItem) as (keyof typeof firstItem)[]).filter(key => {
+        if (typeof key === 'string' && (key.startsWith('$') || key === 'info')) return false;
+        const val = (firstItem as any)[key];
+        return val !== null && val !== undefined && typeof val !== 'object';
+      }) as string[]
+    : [];
 
-  return Object.keys(firstItem)
-    .filter(key => !key.startsWith('$'));
+  return Array.from(new Set(['name', 'codename', 'role_label', 'status_label', ...dynamicKeys]));
 });
 
 const dtValue = computed(() => {
   return isLoading.value ? new Array(5).fill({}) : (operators.value || []);
 });
 
-type IOperatorWithInfo = IOperator & { info: ReturnType<typeof checkOperator> };
+type IOperatorWithInfo = ReturnType<typeof enrichOperator>;
 
 const handleUpdate = async (event: DataTableRowEditSaveEvent<IOperator>) => {
   const { newData } = event;
@@ -245,10 +271,7 @@ const handleUpdate = async (event: DataTableRowEditSaveEvent<IOperator>) => {
 
     const operatorUpdated = await OperatorService.update($id, payload);
 
-    const updatedWithInfo: IOperatorWithInfo = {
-      ...operatorUpdated,
-      info: checkOperator(operatorUpdated)
-    };
+    const updatedWithInfo = enrichOperator(operatorUpdated);
 
     // Atualiza o cache local em vez de gastar requisições extra
     queryClient.setQueryData(['operators', 'list'], (oldData: IOperatorWithInfo[] | undefined) => {

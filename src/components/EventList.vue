@@ -31,7 +31,7 @@
                         </template>
 
                         <template #title>
-                            <div class="text-lg font-bold text-gold-500 line-clamp-1">
+                            <div class="text-lg font-bold text-gold-500 uppercase line-clamp-1">
                                 <i
                                     :class="['text-xl', event.is_finished ? 'ri-checkbox-fill text-green-400' : 'ri-checkbox-indeterminate-fill text-red-600']"></i>
                                 {{ event.title }}

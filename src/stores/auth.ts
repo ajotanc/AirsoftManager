@@ -11,7 +11,8 @@ import {
 } from "@/services/operator";
 import { PaymentService, type IPayment } from "@/services/payment";
 import { DUE_DATE, MONTHLY_FEE, TEAM_NAME } from "@/constants/airsoft";
-import { SCHOOL_CATEGORIES, SchoolService, type ISchoolAnswer, type SchoolCategory } from '@/services/school';
+import { SCHOOL_CATEGORIES, SchoolService, type SchoolCategory } from '@/services/school';
+import { useSettingsStore } from "@/stores/settings";
 
 export const useAuthStore = defineStore("auth", {
   state: () => ({
@@ -40,6 +41,13 @@ export const useAuthStore = defineStore("auth", {
     isLoadoutLocked(): boolean {
       return !this.isProfileComplete || !this.hasArsenal;
     },
+    hasExcessivePendingPayments(state): boolean {
+      if (state.operator?.role === "visitor") return false;
+      const settings = useSettingsStore();
+      const payments = state.operator?.payments || [];
+      const pendingCount = payments.filter(p => p.category === 'monthly_fee' && p.status === 'created').length;
+      return pendingCount > settings.maxPendingPayments;
+    },
     isArmorer: (state) => state.operator && state.operator.role === 'armorer',
     isEventManagement: (state) => state.operator && ['admin', 'event', 'media', 'administrative'].includes(state.operator.role),
     isAdministrativeManagement: (state) => state.operator && state.operator.role === 'administrative',
@@ -47,15 +55,8 @@ export const useAuthStore = defineStore("auth", {
     isAdmin: (state) => state.operator && state.operator.role === "admin",
     isManager: (state) => state.operator && !["recruit", "operator", "visitor"].includes(state.operator.role),
     missingCertifications: (state): SchoolCategory[] => {
-      const { start } = SchoolService.getSemesterInfo();
-      const allCategories: SchoolCategory[] = ['rescom', 'fta', 'sar'];
-
-      const school_answers = state.operator.school_answers as ISchoolAnswer[];
-      const completed = school_answers
-        .filter(ans => dayjs(ans.completed_at).isAfter(start) || dayjs(ans.completed_at).isSame(start))
-        .map(ans => ans.category);
-
-      return allCategories.filter(cat => !completed.includes(cat));
+      const schoolAnswers = state.operator.school_answers || [];
+      return SchoolService.getMissingCertificationsFromAnswers(schoolAnswers);
     },
     isSchoolLocked(): boolean {
       if (this.isVisitor) return false;
@@ -83,13 +84,15 @@ export const useAuthStore = defineStore("auth", {
       try {
         this.user = await account.get();
         if (this.user) {
-          const [op, school] = await Promise.all([
+          const [op, school, payments] = await Promise.all([
             OperatorService.row(this.user.$id),
-            SchoolService.getAnswers(this.user.$id, SCHOOL_CATEGORIES)
+            SchoolService.getAnswers(this.user.$id, SCHOOL_CATEGORIES),
+            PaymentService.listByOperator(this.user.$id)
           ]);
 
           this.operator = op || {} as IOperator;
           this.operator.school_answers = school.all;
+          this.operator.payments = payments;
         }
       } catch (error) {
         this.user = null;

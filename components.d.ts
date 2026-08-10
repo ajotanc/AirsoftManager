@@ -64,6 +64,7 @@ declare module 'vue' {
     List: typeof import('./src/components/operators/List.vue')['default']
     Loading: typeof import('./src/components/Loading.vue')['default']
     Loadout: typeof import('./src/components/operators/Loadout.vue')['default']
+    Map: typeof import('./src/components/Map.vue')['default']
     Menu: typeof import('primevue/menu')['default']
     Menubar: typeof import('primevue/menubar')['default']
     Message: typeof import('primevue/message')['default']

@@ -1,4 +1,4 @@
-import { tables, TABLE_OPERATORS, DATABASE_ID } from "@/services/appwrite";
+import { tables, TABLE_OPERATORS, DATABASE_ID, realtime } from "@/services/appwrite";
 import dayjs from "dayjs";
 import { isValidCpf } from "@brazilian-utils/brazilian-utils";
 import { Query, type Models } from "appwrite";
@@ -7,6 +7,7 @@ import type { ILoadout } from "./loadout";
 import { deleteFile, formatDate, uploadFile, zRequired } from "@/functions/utils";
 import type { ISchoolAnswer } from "./school";
 import z from "zod";
+import type { IPayment } from "./payment";
 
 export interface IOperator extends Models.Row {
   name: string;
@@ -59,11 +60,26 @@ export interface IOperator extends Models.Row {
   team?: string;
   courses?: string[];
   school_answers?: ISchoolAnswer[];
+  is_online?: boolean;
+  last_seen?: string;
+  latitude?: number;
+  longitude?: number;
+  heading?: number;
+  payments?: IPayment[];
 }
 
 export type IOperatorDraft = Omit<IOperator, keyof Models.Row> & {
   $id: string;
 };
+
+interface IRealtimeRowEvent {
+  events: string[];
+  payload: IOperator;
+}
+
+interface IRealtimeSubscription {
+  close: () => void;
+}
 
 export const operatorSchema = z
   .object({
@@ -111,6 +127,8 @@ export const operatorSchema = z
       .transform((value: string | null | undefined) => value?.replace("@", "").toLowerCase()),
   })
   .loose();
+
+const ONLINE_STALE_MS = 45000;
 
 export const OperatorService = {
   async row(rowId: string): Promise<IOperator> {
@@ -164,6 +182,99 @@ export const OperatorService = {
       return [];
     }
   },
+  async listOnline(): Promise<IOperator[]> {
+    try {
+      const response = await tables.listRows<IOperator>({
+        databaseId: DATABASE_ID,
+        tableId: TABLE_OPERATORS,
+        queries: [
+          Query.orderAsc("codename"),
+          Query.equal("status", true),
+          Query.equal("is_online", true),
+          Query.limit(1000),
+        ],
+      });
+
+      // Filtra client-side quem não manda heartbeat há muito tempo (sessão morta/travada)
+      const now = Date.now();
+      return response.rows.filter((op) => {
+        if (!op.last_seen) return true; // fallback: sem last_seen, confia no is_online
+        const lastSeenMs = new Date(op.last_seen).getTime();
+        return now - lastSeenMs <= ONLINE_STALE_MS;
+      });
+    } catch (error) {
+      console.error("Erro ao buscar usuários:", error);
+      return [];
+    }
+  },
+  async setOnlineStatus(rowId: string, isOnline: boolean): Promise<void> {
+    try {
+      await tables.updateRow({
+        databaseId: DATABASE_ID,
+        tableId: TABLE_OPERATORS,
+        rowId,
+        data: {
+          is_online: isOnline,
+          last_seen: new Date().toISOString(),
+        },
+      });
+    } catch (error) {
+      console.error("Erro ao atualizar status online:", error);
+    }
+  },
+  async heartbeat(rowId: string): Promise<void> {
+    try {
+      await tables.updateRow({
+        databaseId: DATABASE_ID,
+        tableId: TABLE_OPERATORS,
+        rowId,
+        data: {
+          last_seen: new Date().toISOString(),
+        },
+      });
+    } catch (error) {
+      console.error("Erro ao enviar heartbeat:", error);
+    }
+  },
+  subscribeOnlineChanges(callback: (payload: IOperator, event: string) => void): () => void {
+    let subscription: IRealtimeSubscription | null = null;
+    let isCancelled = false;
+
+    realtime
+      .subscribe(
+        `databases.${DATABASE_ID}.tables.${TABLE_OPERATORS}.rows`,
+        (response: IRealtimeRowEvent) => {
+          const events = response.events || [];
+          const isRelevant = events.some(
+            (e: string) =>
+              e.endsWith(".update") ||
+              e.endsWith(".create") ||
+              e.endsWith(".delete")
+          );
+          if (!isRelevant) return;
+
+          const event = events[events.length - 1] || "";
+          callback(response.payload, event);
+        }
+      )
+      .then((sub: IRealtimeSubscription) => {
+        if (isCancelled) {
+          sub.close();
+          return;
+        }
+        subscription = sub;
+      })
+      .catch((error: unknown) => {
+        console.error("Erro ao inscrever-se em mudanças de operadores:", error);
+      });
+
+    return () => {
+      isCancelled = true;
+      if (subscription) {
+        subscription.close();
+      }
+    };
+  },
   async update(rowId: string, data: Partial<IOperator>): Promise<IOperator> {
     return await tables.updateRow({
       databaseId: DATABASE_ID,
@@ -212,7 +323,7 @@ export const OperatorService = {
       });
 
       const now = dayjs();
-      const currentMonth = now.month(); // 0 a 11
+      const currentMonth = now.month();
       const nextMonth = now.add(1, "month").month();
 
       const filtered = response.rows.filter((operator) => {
@@ -228,12 +339,10 @@ export const OperatorService = {
         return birthMonth === currentMonth;
       });
 
-      // Ordenar por dia do mês para facilitar a visualização no mural/lista
       return filtered.sort((a, b) => {
         const dayA = dayjs(a.birth_date).date();
         const dayB = dayjs(b.birth_date).date();
 
-        // Se incluir o próximo mês, precisamos ordenar primeiro pelo mês, depois pelo dia
         const monthA = dayjs(a.birth_date).month();
         const monthB = dayjs(b.birth_date).month();
 

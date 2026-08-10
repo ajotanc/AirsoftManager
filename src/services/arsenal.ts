@@ -14,6 +14,8 @@ export interface IArsenal extends Models.Row {
   operator: string;
   is_favorite: boolean;
   is_secondary: boolean;
+  type_name?: string;
+  category_name?: string;
 }
 
 export const ArsenalService = {

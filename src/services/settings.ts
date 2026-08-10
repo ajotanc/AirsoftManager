@@ -4,33 +4,49 @@ import { ID, Query, type Models } from "appwrite";
 export const TABLE_SETTINGS = "settings";
 
 export interface ISetting extends Models.Row {
-  key: string;
-  value: string;
-  description: string;
-  args?: string;
+  tactical_map?: boolean;
+  global_map?: boolean;
+  tournament_active?: boolean;
+  team_name?: string;
+  recruitment_open?: boolean;
+  registration_start_date?: string;
+  blue_base?: string;
+  yellow_base?: string;
+  monthly_fee?: number;
+  max_pending_payments?: number;
 }
 
 export const SettingsService = {
-  async list(): Promise<ISetting[]> {
+  async get(): Promise<ISetting> {
     try {
-      const response = await tables.listRows<ISetting>({
+      const { rows } = await tables.listRows<ISetting>({
         databaseId: DATABASE_ID,
         tableId: TABLE_SETTINGS,
         queries: [
-          Query.limit(100)
+          Query.limit(1)
         ],
       });
-      return response.rows;
+      return rows[0] ?? ({} as ISetting);
     } catch (error) {
       console.error("Erro ao buscar settings:", error);
-      return [];
+      return {} as ISetting;
     }
   },
-
   async upsert(rowId: string | undefined, data: Partial<ISetting>): Promise<ISetting> {
+    const isUpdate = !!rowId;
     const id = rowId || ID.unique();
 
-    return await tables.upsertRow({
+    if (isUpdate) {
+      return await tables.updateRow({
+        databaseId: DATABASE_ID,
+        tableId: TABLE_SETTINGS,
+        rowId: id,
+        data,
+        permissions
+      });
+    }
+
+    return await tables.createRow({
       databaseId: DATABASE_ID,
       tableId: TABLE_SETTINGS,
       rowId: id,
@@ -38,7 +54,6 @@ export const SettingsService = {
       permissions
     });
   },
-
   async delete(rowId: string): Promise<boolean> {
     try {
       await tables.deleteRow({

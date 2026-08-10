@@ -54,7 +54,8 @@
                             <Button v-if="isConfirmed" label="Cancelar Presença" icon="pi pi-times" severity="error"
                                 @click="toggleParticipation" class="w-auto" />
                             <Button v-else label="Confirmar Presença" icon="pi pi-plus-circle" severity="primary"
-                                @click="toggleParticipation" :disabled="deadlineInfo.isOver" class="w-auto" />
+                                @click="toggleParticipation"
+                                :disabled="deadlineInfo.isOver || isBlockedByPendingPayment" class="w-auto" />
                             <Button v-if="isConfirmed" label="Adicionar à Agenda" icon="pi pi-calendar-plus"
                                 severity="help" @click="handleCalendarDynamic" class="w-auto" />
                         </template>
@@ -66,13 +67,21 @@
                         <Button v-if="isFinished" label="Feedback" icon="pi pi-star" severity="warn"
                             @click="addFeedback" :disabled="hasRating" class="w-auto" />
                         <div v-if="hasPendingSchoolCerts"
-                            class="flex gap-2 align-items-center p-2 md:py-1 md:px-3 border-1 border-yellow-400 bg-yellow-100 text-yellow-900 border-round text-sm cursor-pointer"
+                            class="flex gap-2 align-items-center p-2 md:py-0 md:px-3 border-1 border-yellow-400 bg-yellow-100 text-yellow-900 border-round text-sm cursor-pointer"
                             @click="$router.push('/administrative/school')">
-                            <span><i class="ri-graduation-cap-line mr-1 text-base"></i><strong>Atenção Escola
-                                    Êxodo:</strong> Você tem {{
-                                        authStore.missingCertifications.length }} certificação(ões) pendente(s). <span
-                                    class="underline font-bold">Regularize para manter seu acesso em dia (3
+                            <span><strong>Atenção Escola {{ NAME }}:</strong> Você tem {{
+                                authStore.missingCertifications.length }} certificação(ões)
+                                pendente(s). <span class="font-bold">Regularize para manter seu acesso em dia (3
                                     min)</span>.</span>
+                        </div>
+                        <div v-if="isBlockedByPendingPayment"
+                            class="flex gap-2 align-items-center p-2 md:py-0 md:px-3 border-1 border-red-400 bg-red-100 text-red-900 border-round text-sm cursor-pointer"
+                            @click="$router.push('/administrative/finance/payments')">
+                            <span><i class="pi pi-exclamation-triangle mr-1"></i><strong>Pendência Financeira:</strong>
+                                Você possui mensalidade
+                                em atraso e não pode se inscrever em Eventos. <span class="font-bold">Regularize para
+                                    liberar sua
+                                    presença</span>.</span>
                         </div>
                         <div v-if="event.list_open && !isFinished"
                             class="flex gap-2 align-items-center p-2 md:py-0 md:px-3 border-1 border-amber-300 bg-amber-100 text-amber-900 border-round text-sm">
@@ -218,11 +227,11 @@
 
                                             <div v-if="isFinished" class="ml-auto">
                                                 <Tag :severity="checked_in ? 'success' : 'danger'"
-                                                    :icon="checked_in ? 'pi pi-check' : 'pi pi-times'"
+                                                    :icon="checked_in ? 'ri-check-double-line' : 'ri-close-line'"
                                                     :value="checked_in ? 'Presente' : 'Faltou'" rounded />
                                             </div>
                                             <i v-else-if="checked_in && !isAdmin"
-                                                class="pi pi-check text-green-500 ml-auto"></i>
+                                                class="ri-check-double-line text-green-500 ml-auto"></i>
                                         </div>
                                     </div>
 
@@ -474,10 +483,9 @@ import dayjs from 'dayjs';
 import { useToast } from "primevue/usetoast";
 import { atcb_action } from 'add-to-calendar-button';
 import { EventService, type IEvent, type IParticipation, type IGuestParticipation, type IGuestParticipationDetail } from '@/services/event';
-import { DEADLINE_HOUR, EVENT_TYPES, TEAM_NAME } from '@/constants/airsoft';
-import { export2Excel, formatDate, normalizeEventTypes, playBeep, type IFields } from '@/functions/utils';
+import { DEADLINE_HOUR, EVENT_TYPES, TEAM_NAME, DUE_DATE, NAME } from '@/constants/airsoft';
+import { export2Excel, formatDate, normalizeEventTypes, playBeep, type IFields, getShortName, invoice } from '@/functions/utils';
 import type { ATCBActionEventConfig } from 'add-to-calendar-button';
-import { getShortName } from '@/functions/utils'
 
 import Card from 'primevue/card';
 import Button from 'primevue/button';
@@ -528,6 +536,31 @@ const requests = ref<ICarpoolRequest<IOperator, ICarpoolDetail>[]>([]);
 
 const selectedFeedback = ref<IFeedback>({} as IFeedback);
 const feedbacks = ref<IFeedback<IOperator, string>[]>([]);
+
+const pendingPayments = computed(() => {
+    const payments = operator.value.payments || [];
+
+    return payments.some(payment => {
+        const isMonthlyFee = payment.category === 'monthly_fee';
+        const isPending = payment.status === 'created';
+
+        if (!isMonthlyFee || !isPending) return false;
+
+        if (payment.due_date) {
+            return dayjs().isAfter(dayjs(payment.due_date), 'day');
+        }
+
+        const isPastDueDay = dayjs().date() > DUE_DATE;
+        const isInvoiceOverdue = invoice(payment).overdue;
+
+        return isPastDueDay || isInvoiceOverdue;
+    });
+});
+
+const isBlockedByPendingPayment = computed(() => {
+    const isEvent = event.value.types?.some(t => Number(t) === 2)
+    return pendingPayments.value && isEvent;
+});
 
 const averageFeedback = computed(() => {
     if (feedbacks.value.length === 0) return 0;
@@ -907,6 +940,16 @@ const loadServices = async () => {
 };
 
 const toggleParticipation = async () => {
+    if (isBlockedByPendingPayment) {
+        toast.add({
+            severity: 'error',
+            summary: 'Erro',
+            detail: 'Você possui pendências financeiras',
+            life: 3000
+        });
+        return;
+    }
+
     try {
         if (isConfirmed.value) {
             const userParticipation = participants.value.find(p => p.operator.$id === operator.value.$id);

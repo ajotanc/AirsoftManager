@@ -1,57 +1,66 @@
 <template>
   <div class="card">
-    <AppTable title="Pagamento(s)" resourceName="transações" :value="paymentsFiltered" :fields="fields"
-      :loading="loadingData">
-      <template v-if="accessAdmin" #header-actions>
-        <Button label="Novo" icon="pi pi-plus" size="small" @click="newTransaction" />
-      </template>
-      <template #header-filter>
-        <Select v-model="selectedMonth" :options="months" optionLabel="label" optionValue="value" />
-      </template>
-      <template #extra-columns-end>
-        <Column header="Atraso">
-          <template #body="{ data }">
-            <Skeleton v-if="loadingData" width="100%" height="1rem" />
-            <template v-else>
-              <Tag v-if="invoice(data).overdue" :value="invoice(data).days" severity="danger" />
+    <div class="surface-card shadow-3 border-round overflow-hidden">
+
+      <Message v-if="hasExcessivePendingPayments" severity="error" class="m-3" closable>
+        <strong>
+          Você possui pagamentos pendentes. Ajuste sua situação financeira para acessar todas as ferramentas do sistema.
+        </strong>
+      </Message>
+
+      <AppTable title="Pagamento(s)" resourceName="transações" :value="paymentsFiltered" :fields="fields"
+        :loading="loadingData">
+        <template v-if="accessAdmin" #header-actions>
+          <Button label="Novo" icon="pi pi-plus" size="small" @click="newTransaction" />
+        </template>
+        <template #header-filter>
+          <Select v-model="selectedMonth" :options="months" optionLabel="label" optionValue="value" />
+        </template>
+        <template #extra-columns-end>
+          <Column header="Atraso">
+            <template #body="{ data }">
+              <Skeleton v-if="loadingData" width="100%" height="1rem" />
+              <template v-else>
+                <Tag v-if="invoice(data).overdue" :value="invoice(data).days" severity="danger" />
+              </template>
             </template>
-          </template>
-        </Column>
-        <Column header="Comprovante">
-          <template #body="{ data }">
-            <Skeleton v-if="loadingData" width="100%" height="1rem" />
-            <template v-else>
-              <Image :src="data.receipt_url" :alt="data.title" width="50" height="50" v-if="data.receipt_url"
-                class="overflow-hidden border-circle border-1 border-100" preview image-style="object-fit: cover;" />
+          </Column>
+          <Column header="Comprovante">
+            <template #body="{ data }">
+              <Skeleton v-if="loadingData" width="100%" height="1rem" />
+              <template v-else>
+                <Image :src="data.receipt_url" :alt="data.title" width="50" height="50" v-if="data.receipt_url"
+                  class="overflow-hidden border-circle border-1 border-100" preview image-style="object-fit: cover;" />
+              </template>
             </template>
-          </template>
-        </Column>
-      </template>
-      <template #actions="{ data }">
-        <Button v-if="accessAdmin" icon="pi pi-check" rounded @click="confirmPayment(data)"
-          :disabled="data.status !== 'pending'" severity="success" v-tooltip.top="'Confirmar Pagamento'" />
-        <Button v-if="operator.$id === data.operator.$id" icon="pi pi-dollar" rounded @click="makePayment(data)"
-          :disabled="!['created', 'overdue'].includes(data.status)" v-tooltip.top="'Efetuar Pagamento'" />
-        <!-- <Button v-if="operator.$id === data.operator.$id" icon="pi pi-dollar" rounded @click="handlePayment(data)"
+          </Column>
+        </template>
+        <template #actions="{ data }">
+          <Button v-if="accessAdmin" icon="pi pi-check" rounded @click="confirmPayment(data)"
+            :disabled="data.status !== 'pending'" severity="success" v-tooltip.top="'Confirmar Pagamento'" />
+          <Button v-if="operator.$id === data.operator.$id" icon="pi pi-dollar" rounded @click="makePayment(data)"
+            :disabled="!['created', 'overdue'].includes(data.status)" v-tooltip.top="'Efetuar Pagamento'" />
+          <!-- <Button v-if="operator.$id === data.operator.$id" icon="pi pi-dollar" rounded @click="handlePayment(data)"
           :disabled="!['created', 'overdue'].includes(data.status)" v-tooltip.top="'Efetuar Pagamento'"
           severity="success" /> -->
-        <Button v-if="accessAdmin" icon="pi pi-trash" rounded @click="deletePayment(data)"
-          :disabled="data.status === 'paid'" severity="danger" v-tooltip.top="'Excluir Pagamento'" />
-      </template>
+          <Button v-if="accessAdmin" icon="pi pi-trash" rounded @click="deletePayment(data)"
+            :disabled="data.status === 'paid'" severity="danger" v-tooltip.top="'Excluir Pagamento'" />
+        </template>
 
-      <template v-if="accessAdmin" #extra-button-page-end>
-        <InputGroup>
-          <Select :options="months" v-model="selectedMonth" optionValue="value" optionLabel="label" />
-          <InputGroupAddon>
-            <Button severity="success" icon="ri-file-excel-line" v-tooltip.top="'Exportar'" @click="exportPayments" />
-          </InputGroupAddon>
-        </InputGroup>
-      </template>
-    </AppTable>
+        <template v-if="accessAdmin" #extra-button-page-end>
+          <InputGroup>
+            <Select :options="months" v-model="selectedMonth" optionValue="value" optionLabel="label" />
+            <InputGroupAddon>
+              <Button severity="success" icon="ri-file-excel-line" v-tooltip.top="'Exportar'" @click="exportPayments" />
+            </InputGroupAddon>
+          </InputGroup>
+        </template>
+      </AppTable>
 
-    <PaymentDialog v-model:visible="paymentDialog" :payment="selectedPayment" :pixData="pixData"
-      @submit="savePayment" />
+      <PaymentDialog v-model:visible="paymentDialog" :payment="selectedPayment" :pixData="pixData"
+        @submit="savePayment" />
 
+    </div>
     <AppFormDialog v-model:visible="transactionDialog"
       :header="selectedPayment.$id ? 'Editar Transação' : 'Nova Transação'" :fields="fields"
       :initialValues="selectedPayment" :resolver="resolver" @submit="saveTransaction" @field-change="onFieldChange"
@@ -67,7 +76,7 @@ import InputText from "primevue/inputtext";
 import Select from "primevue/select";
 import { DatePicker, FileUpload, InputNumber, useConfirm } from "primevue";
 import { PaymentService, type IPayment } from "@/services/payment";
-import { dateToISOString, export2Excel, toSentenceCase, type FieldChangePayload, type IFields } from "@/functions/utils";
+import { dateToISOString, export2Excel, invoice, toSentenceCase, type FieldChangePayload, type IFields } from "@/functions/utils";
 import { TRANSACTION_STATUS, TRANSACTION_CATEGORIES, MAX_FILE_SIZE } from "@/constants/airsoft";
 import PaymentDialog from "@/components/PaymentDialog.vue";
 import { OperatorService, type IOperator } from "@/services/operator";
@@ -78,8 +87,10 @@ import { zodResolver } from "@primevue/forms/resolvers/zod";
 import AppFormDialog from "@/components/AppFormDialog.vue";
 import { GoalService, type IGoal } from "@/services/goal";
 import { formatCurrency } from "@brazilian-utils/brazilian-utils";
+import { useAuthStore } from "@/stores/auth";
 
 const { operator, isAdmin } = useOperator();
+const { hasExcessivePendingPayments } = useAuthStore();
 
 const toast = useToast();
 const confirm = useConfirm();
@@ -411,25 +422,6 @@ const saveTransaction = async (values: IPayment, file?: File) => {
   } finally {
     selectedPayment.value = {} as IPayment;
     transactionDialog.value = false;
-  }
-}
-
-const invoice = (payment: IPayment) => {
-
-  if (['paid', 'pending'].includes(payment.status)) {
-    return {
-      overdue: false,
-      days: 0
-    }
-  }
-  const today = dayjs();
-  const dueDate = dayjs(payment?.due_date);
-
-  const days = today.diff(dueDate, 'days');
-
-  return {
-    overdue: today.isAfter(dueDate) && days > 0,
-    days: `${days} dia${days > 1 ? 's' : ''}`
   }
 }
 

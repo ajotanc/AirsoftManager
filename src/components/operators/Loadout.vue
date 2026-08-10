@@ -146,7 +146,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, nextTick } from "vue";
+import { ref, computed, nextTick, watch } from "vue";
 import { useToast } from "primevue/usetoast";
 import { FilterMatchMode } from '@primevue/core/api';
 import IconField from "primevue/iconfield";
@@ -267,13 +267,26 @@ const filters = ref({
   'global': { value: '', matchMode: FilterMatchMode.CONTAINS },
 });
 
+watch(
+  items,
+  (list) => {
+    if (Array.isArray(list)) {
+      list.forEach((item) => item.uniform_name = UNIFORMS[item.type_uniform]);
+    }
+  },
+  { immediate: true, deep: true }
+);
+
 const labels = computed(() => {
   const firstItem = items.value?.[0];
 
   if (!firstItem) return ['$id'];
 
-  return Object.keys(firstItem)
-    .filter(key => !key.startsWith('$'));
+  return (Object.keys(firstItem) as (keyof typeof firstItem)[]).filter(key => {
+    if (typeof key === 'string' && key.startsWith('$')) return false;
+    const val = firstItem[key];
+    return val !== null && val !== undefined && typeof val !== 'object';
+  }) as string[];
 });
 
 const checkUniformComplete = (uniform: ILoadout) => {
@@ -283,7 +296,7 @@ const checkUniformComplete = (uniform: ILoadout) => {
       return true;
     }
 
-    const value = (uniform as Record<string, any>)[field.key];
+    const value = uniform[field.key as keyof ILoadout];
     return value === true || value === 1;
   });
 };

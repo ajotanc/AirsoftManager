@@ -277,6 +277,7 @@ router.beforeEach(async (to, _, next) => {
       if (!isProfileComplete) return next("/profile");
       if (!hasArsenal) return next("/arsenal");
       if (!hasLoadout) return next("/loadout");
+      if (authStore.hasExcessivePendingPayments) return next("/administrative/finance/payments");
       if (authStore.isSchoolLocked) return next("/administrative/school/recovery");
       return next("/dashboard");
     }
@@ -323,6 +324,13 @@ router.beforeEach(async (to, _, next) => {
 
       if (isProfileComplete && hasArsenal && !hasLoadout && to.path !== "/loadout") {
         return next("/loadout");
+      }
+
+      if (authStore.hasExcessivePendingPayments) {
+        const FINANCE_PATH = "/administrative/finance/payments";
+        if (to.path !== FINANCE_PATH) {
+          return next(FINANCE_PATH);
+        }
       }
 
       if (authStore.isSchoolLocked) {

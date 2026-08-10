@@ -27,6 +27,7 @@ import "primeflex/primeflex.css";
 import "./style.css";
 
 import "remixicon/fonts/remixicon.css";
+import 'leaflet/dist/leaflet.css';
 
 import "dayjs/locale/pt-br";
 

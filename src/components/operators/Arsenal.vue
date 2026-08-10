@@ -27,7 +27,7 @@
           </div>
         </template>
 
-        <Column v-for="column in fields" :key="column.name" :header="column.label">
+        <Column v-for="column in fields" :key="column.name" :header="column.label" :field="column.isTag ? column.name + '_name' : column.name">
           <template #body="{ data }">
             <ColumnContent :column="column" :data="data" :loading="false" />
           </template>
@@ -190,7 +190,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, nextTick, computed } from "vue";
+import { ref, nextTick, computed, watch } from "vue";
 import QrcodeVue from 'qrcode.vue';
 import { toPng } from 'html-to-image';
 import { useToast } from "primevue/usetoast";
@@ -210,7 +210,7 @@ import Select from "primevue/select";
 import InputNumber from "primevue/inputnumber";
 import FileUpload, { type FileUploadSelectEvent } from "primevue/fileupload";
 
-import { WEAPON_TYPES_OPTIONS, CATEGORIES_OPTIONS } from "@/constants/airsoft";
+import { WEAPON_TYPES, CATEGORIES, WEAPON_TYPES_OPTIONS, CATEGORIES_OPTIONS } from "@/constants/airsoft";
 import { ArsenalService, type IArsenal } from "@/services/arsenal";
 import { InputMask, ToggleSwitch, useConfirm } from "primevue";
 import { formatDate, getMaintenanceStatusLabel, getMaintenanceTypeLabel, type IFields } from "@/functions/utils";
@@ -262,13 +262,31 @@ const filters = ref({
   'global': { value: '', matchMode: FilterMatchMode.CONTAINS },
 });
 
+watch(
+  items,
+  (list) => {
+    if (Array.isArray(list)) {
+      list.forEach((item) => {
+        item.type_name = WEAPON_TYPES[item.type as keyof typeof WEAPON_TYPES];
+        item.category_name = CATEGORIES[item.category as keyof typeof CATEGORIES];
+      });
+    }
+  },
+  { immediate: true, deep: true }
+);
+
 const labels = computed(() => {
   const firstItem = items.value?.[0];
 
-  if (!firstItem) return ['$id'];
+  const dynamicKeys = firstItem
+    ? (Object.keys(firstItem) as (keyof typeof firstItem)[]).filter(key => {
+        if (typeof key === 'string' && key.startsWith('$')) return false;
+        const val = (firstItem as any)[key];
+        return val !== null && val !== undefined && typeof val !== 'object';
+      }) as string[]
+    : [];
 
-  return Object.keys(firstItem)
-    .filter(key => !key.startsWith('$'));
+  return Array.from(new Set(['name', 'type_name', 'category_name', ...dynamicKeys]));
 });
 
 const MAX_SIZE = 5 * 1024 * 1024;

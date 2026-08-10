@@ -1,6 +1,7 @@
 import type { MenuItem } from "primevue/menuitem";
 import router from "@/router";
 import { useAuthStore } from "@/stores/auth";
+import { openPage } from "@/functions/utils";
 
 const authStore = useAuthStore();
 const { value: disabled } = computed(() => !authStore.isActiveOperator);
@@ -74,46 +75,60 @@ export const navItems = computed<AppMenuItem[]>(() => [
     ]
   },
   {
+    key: "help",
     label: "Ajuda",
     icon: "ri-question-line",
     visible: authStore.isAuthenticated,
     items: [
-      { label: "Código de Conduta", icon: "ri-file-pdf-2-line", url: "https://docs.google.com/document/d/1xHYJ2ykv0pmuz9YVpoaHdn_Yw8j2y0exFLa204OKyRU/preview" },
-      { label: "Regime Disciplinar", icon: "ri-file-pdf-2-line", url: "https://docs.google.com/document/d/1tKmugjzNvw2xJmgRGn7Av9M5LXu7emk0VGey_BuHtQw/preview" },
+      { label: "Código de Conduta", icon: "ri-file-pdf-2-line", url: "https://docs.google.com/document/d/1xHYJ2ykv0pmuz9YVpoaHdn_Yw8j2y0exFLa204OKyRU/preview", key: "code-of-conduct" },
+      { label: "Regime Disciplinar", icon: "ri-file-pdf-2-line", url: "https://docs.google.com/document/d/1tKmugjzNvw2xJmgRGn7Av9M5LXu7emk0VGey_BuHtQw/preview", key: "disciplinary-regime" },
       {
+        key: "links",
         label: "Links",
         icon: "ri-link",
         items: [
           {
+            key: "courses",
             label: "Cursos",
             icon: "ri-graduation-cap-line",
             url: "https://drive.google.com/drive/folders/1p3iEL5luK2QF7wT7DxRhqJOW_v1UwzNO?usp=sharing"
-          }, {
+          },
+          {
             label: "Equipamentos",
             icon: "ri-file-excel-2-line",
             url: "https://docs.google.com/spreadsheets/d/1DaZQZVTGFtRX9wUaXwXqKtHkJQch_Sy2jtnS9oLlANU/edit?usp=sharing"
           },
+          {
+            key: "radio-communication",
+            label: "Configuração de Rádio",
+            icon: "ri-radio-2-line",
+            url: "https://docs.google.com/document/d/1q2mNTuXd2M0yne7-yrc40CastBpdez9qApl5hzqDNlE/preview",
+          },
         ]
       },
       {
+        key: "manuals",
         label: "Manuais",
         icon: "ri-booklet-line",
         items: [
           {
             label: "FTA Brasil",
             category: "fta",
+            description: "Esta avaliação valida o conhecimento do operador sobre as normas fundamentais de segurança e convivência, abrangendo desde limites técnicos de potência e distâncias até as condutas éticas e a legislação vigente. O objetivo é garantir a compreensão total sobre as regras de funcionamento das missões e os princípios de honra que sustentam o esporte.",
             icon: "ri-shield-flash-line",
             url: "https://drive.google.com/file/d/1RLnEKGevGGdlZ09-EGpe4T73x1IWuHIK/view"
           },
           {
             label: "SAR",
             category: "sar",
+            description: "O foco desta etapa é a capacidade de orientação e apoio logístico em ambientes hostis, tratando de situações onde a navegação precisa e a sinalização correta são vitais para o resgate de aliados. A prova contextualiza o uso de ferramentas de direção e protocolos de auxílio, assegurando a localização e extração de componentes isolados em qualquer terreno.",
             icon: "ri-shield-cross-line",
             url: "https://drive.google.com/file/d/1vUw46NY6prJTZi70Enbtv77ck1pM-dAY/view"
           },
           {
             label: "RESCOM",
             category: "rescom",
+            description: "Esta avaliação valida o conhecimento do operador sobre as normas fundamentais de segurança e convivência, abrangendo desde limites técnicos de potência e distâncias até as condutas éticas e a legislação vigente. O objetivo é garantir a compreensão total sobre as regras de funcionamento das missões e os princípios de honra que sustentam o esporte.",
             icon: "ri-shield-star-line",
             url: "https://drive.google.com/file/d/18ng3NR6r6NOQ57MGPQ2V0XZy1rnxvu4U/view"
           },
@@ -168,4 +183,43 @@ export const userMenuItems = computed(() => [
 export const handleLogout = async () => {
   await authStore.logout();
   router.push("/");
+};
+
+/**
+ * Busca um item do menu por chave. Se o item tiver sub-itens (items), retorna a lista AppMenuItem[].
+ * Caso contrário, retorna o próprio objeto AppMenuItem (ou [] se não encontrar).
+ * @param key Chave identificadora do item
+ * @param items Lista de itens onde buscar (por padrão navItems.value)
+ * @returns AppMenuItem | AppMenuItem[]
+ */
+export const findNavItemByKey = (
+  key?: string,
+  items: AppMenuItem[] = navItems.value
+): AppMenuItem[] => {
+  if (!key) return [];
+
+  for (const item of items) {
+    if (item.key === key) {
+      return item.items?.length ? item.items : [item];
+    }
+
+    if (item.items?.length) {
+      const found = findNavItemByKey(key, item.items);
+      if (found.length > 0) {
+        return found;
+      }
+    }
+  }
+
+  return [];
+};
+
+/**
+ * Busca um item do menu pela sua chave (key) e abre a página ou URL associada.
+ * @param key Chave do item do menu
+ * @returns void
+ */
+export const openLink = (key: string) => {
+  const [item] = findNavItemByKey(key);
+  if (item?.url) openPage(item.url);
 };

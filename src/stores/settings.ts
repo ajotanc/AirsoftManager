@@ -1,20 +1,41 @@
 import { defineStore } from "pinia";
 import { DATABASE_ID, realtime } from "@/services/appwrite";
-import { TABLE_SETTINGS, SettingsService } from "@/services/settings";
+import { TABLE_SETTINGS, SettingsService, type ISetting } from "@/services/settings";
 
 export const useSettingsStore = defineStore("settings", {
   state: () => ({
-    config: {} as Record<string, string>,
+    config: {} as Partial<ISetting>,
     loading: false,
   }),
   getters: {
-    teamName: (state) => state.config["team_name"] || "Team Airsoft",
-    isTournamentActive: (state) => String(state.config["tournament_active"]) === "true",
-    recruitmentIsOpen: (state) => String(state.config["recruitment_open"]) === "true",
-    monthlyFee: (state) => state.config["monthly_fee"] || import.meta.env.VITE_MONTHLY_FEE,
-    registrationStartDate: (state) => state.config["registration_start_date"] || import.meta.env.VITE_REGISTRATION_START_DATE
+    teamName: (state) => state.config.team_name || "Team Airsoft",
+    isTournamentActive: (state) => !!state.config.tournament_active,
+    showTacticalMap: (state) => state.config.tactical_map ?? false,
+    showGlobalMap: (state) => state.config.global_map ?? false,
+    recruitmentIsOpen: (state) => !!state.config.recruitment_open,
+    monthlyFee: (state) => state.config.monthly_fee || import.meta.env.VITE_MONTHLY_FEE || "0.00",
+    maxPendingPayments: (state) => state.config.max_pending_payments ?? 3,
+    registrationStartDate: (state) => state.config.registration_start_date || import.meta.env.VITE_REGISTRATION_START_DATE || "",
+    blueBase: (state) => state.config.blue_base || "-12.890545, -38.31959",
+    yellowBase: (state) => state.config.yellow_base || "-12.890610, -38.318789",
+    blueBaseCoords: (state): [number, number] => {
+      return useSettingsStore().formatCoordinates(state.config.blue_base);
+    },
+    yellowBaseCoords: (state): [number, number] => {
+      return useSettingsStore().formatCoordinates(state.config.yellow_base);
+    },
   },
   actions: {
+    formatCoordinates(str?: string, defaultCoords: [number, number] = [-12.890545, -38.31959]): [number, number] {
+      if (str && str.includes(",")) {
+        const [lat, lng] = str.split(",").map((s) => Number(s.trim()));
+        if (lat && !isNaN(lat) && lng && !isNaN(lng)) {
+          return [lat, lng];
+        }
+      }
+
+      return defaultCoords;
+    },
     async init() {
       const cached = localStorage.getItem("app_settings");
 
@@ -27,7 +48,6 @@ export const useSettingsStore = defineStore("settings", {
         }
       }
 
-      // Se após o cache ainda estiver vazio, busca obrigatório com await
       if (Object.keys(this.config).length === 0) {
         await this.refresh();
       }
@@ -46,19 +66,15 @@ export const useSettingsStore = defineStore("settings", {
     },
 
     async refresh() {
-      if (this.loading) return; // Evita múltiplas chamadas simultâneas
+      if (this.loading) return;
 
       this.loading = true;
       try {
-        const rows = await SettingsService.list();
-        const map: Record<string, string> = {};
-
-        rows.forEach((s) => {
-          map[s.key] = s.value;
-        });
-
-        this.config = map;
-        localStorage.setItem("app_settings", JSON.stringify(map));
+        const doc = await SettingsService.get();
+        if (doc) {
+          this.config = doc;
+          localStorage.setItem("app_settings", JSON.stringify(doc));
+        }
       } catch (error) {
         console.error("Falha ao sincronizar configurações:", error);
       } finally {

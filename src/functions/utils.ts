@@ -12,6 +12,7 @@ import { BUCKET_ID, storage } from '@/services/appwrite';
 import { CATEGORIES_OPTIONS, EVENT_TYPES, MAINTENANCE_STATUS_TYPES, MAINTENANCE_TYPES } from '@/constants/airsoft';
 import { useSettingsStore } from '@/stores/settings';
 import router from '@/router';
+import type { IPayment } from '@/services/payment';
 
 dayjs.extend(customParseFormat);
 pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorker || '/js/pdf.worker.min.mjs';
@@ -400,6 +401,7 @@ export const limitWords = (text: string, limit: number) => {
     .replace(/[.,!?;:]+$/, "")
     .trim() + "...";
 };
+
 export const checkRegistrationPeriod = () => {
   const settings = useSettingsStore();
 
@@ -525,3 +527,23 @@ export const fisherYatesShuffle = <T>(array: T[]): T[] => {
   }
   return result;
 };
+
+export const openPage = (url: string, newTab: boolean = true) => window.open(url, newTab ? "_blank" : "_self");
+
+export const invoice = (payment: IPayment): { overdue: boolean; days: string } => {
+  if (['paid', 'pending'].includes(payment.status)) {
+    return {
+      overdue: false,
+      days: '0'
+    }
+  }
+  const today = dayjs();
+  const dueDate = dayjs(payment?.due_date);
+
+  const days = today.diff(dueDate, 'days');
+
+  return {
+    overdue: today.isAfter(dueDate) && days > 0,
+    days: `${days} dia${days > 1 ? 's' : ''}`
+  }
+}

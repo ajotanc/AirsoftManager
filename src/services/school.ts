@@ -48,9 +48,9 @@ export interface ISemester {
 }
 
 export const SchoolService = {
-  getSemesterInfo(): ISemester {
-    const now = dayjs();
-    const month = now.month();
+  getSemesterInfo(targetDate?: string | Date | dayjs.Dayjs | null): ISemester {
+    const now = targetDate ? dayjs(targetDate) : dayjs();
+    const month = now.month(); // 0-indexed: 0 = Jan, 6 = Jul, 7 = Aug
 
     const isRecoveryPeriod = (month === 0 || month === 6);
 
@@ -62,7 +62,8 @@ export const SchoolService = {
       ? now.year() - 1
       : now.year();
 
-    const start = semester === 1 ? dayjs(`${year}-01-01`) : dayjs(`${year}-07-01`);
+    // Semester 1 regular period starts Feb 1st; Semester 2 regular period starts Aug 1st
+    const start = semester === 1 ? dayjs(`${year}-02-01`) : dayjs(`${year}-08-01`);
     const end = semester === 1 ? dayjs(`${year}-06-30`) : dayjs(`${year}-12-31`);
     const deadline = end.subtract(5, 'day');
 
@@ -113,23 +114,34 @@ export const SchoolService = {
     return this.organizeAnswers(answer);
   },
   async getAnswers(operatorId: string, categories: SchoolCategory[]): Promise<{ latest: ISchoolAnswer[], all: ISchoolAnswer[] }> {
-    const { start } = SchoolService.getSemesterInfo();
+    const { start, end } = SchoolService.getSemesterInfo();
 
-    const response = await tables.listRows<ISchoolAnswer>({
+    const allResponse = await tables.listRows<ISchoolAnswer>({
       databaseId: DATABASE_ID,
       tableId: TABLE_SCHOOL_ANSWERS,
       queries: [
         Query.select(["*", "questions.*"]),
         Query.equal("operator", operatorId),
         Query.equal("category", categories),
-        Query.greaterThanEqual("completed_at", start.toISOString()),
-        Query.orderAsc("completed_at")
+        Query.orderDesc("completed_at"),
+        Query.limit(1000)
       ]
     });
 
+    const all = allResponse.rows.map(row => this.organizeAnswers(row));
+
+    const currentSemesterAnswers = all.filter(item => {
+      if (!item.completed_at) return false;
+      const date = dayjs(item.completed_at);
+      return (date.isAfter(start.startOf('day')) || date.isSame(start.startOf('day'))) &&
+        (date.isBefore(end.endOf('day')) || date.isSame(end.endOf('day')));
+    });
+
+    const ascendingCurrent = [...currentSemesterAnswers].reverse();
+
     return {
-      latest: this.getLastAnswers(response.rows),
-      all: response.rows.map(row => this.organizeAnswers(row))
+      latest: this.getLastAnswers(ascendingCurrent),
+      all
     };
   },
   getLastAnswers(answers: ISchoolAnswer[]): ISchoolAnswer[] {
@@ -159,21 +171,45 @@ export const SchoolService = {
     const results = await Promise.all(promises);
     return results.flat();
   },
+  getApprovedCategories(answers: ISchoolAnswer[], targetDate?: string | Date | dayjs.Dayjs | null): SchoolCategory[] {
+    const { start, end } = this.getSemesterInfo(targetDate);
+    const approved = new Set<SchoolCategory>();
+
+    for (const raw of answers) {
+      if (!raw.completed_at) continue;
+      const date = dayjs(raw.completed_at);
+      const inSemester = (date.isAfter(start.startOf('day')) || date.isSame(start.startOf('day'))) &&
+        (date.isBefore(end.endOf('day')) || date.isSame(end.endOf('day')));
+      if (!inSemester) continue;
+
+      const organized = this.organizeAnswers(raw);
+      const isPassed = (organized.percentage ?? 0) >= 70 || (organized.score ?? 0) >= 7;
+      if (isPassed) {
+        approved.add(organized.category);
+      }
+    }
+
+    return Array.from(approved);
+  },
+  getMissingCertificationsFromAnswers(answers: ISchoolAnswer[], targetDate?: string | Date | dayjs.Dayjs | null): SchoolCategory[] {
+    const approved = this.getApprovedCategories(answers, targetDate);
+    return SCHOOL_CATEGORIES.filter(cat => !approved.includes(cat));
+  },
   async getMissingCertifications(operatorId: string): Promise<SchoolCategory[]> {
-    const { start } = this.getSemesterInfo();
-    const categories: SchoolCategory[] = ['rescom', 'fta', 'sar'];
+    const { start, end } = this.getSemesterInfo();
 
     const response = await tables.listRows<ISchoolAnswer>({
       databaseId: DATABASE_ID,
       tableId: TABLE_SCHOOL_ANSWERS,
       queries: [
+        Query.select(["*", "questions.*"]),
         Query.equal("operator", operatorId),
-        Query.greaterThanEqual("completed_at", start.toISOString())
+        Query.greaterThanEqual("completed_at", start.startOf('day').toISOString()),
+        Query.lessThanEqual("completed_at", end.endOf('day').toISOString())
       ]
     });
 
-    const completed = response.rows.map(r => r.category);
-    return categories.filter(cat => !completed.includes(cat));
+    return this.getMissingCertificationsFromAnswers(response.rows);
   },
   async create(data: ISchoolAnswer): Promise<ISchoolAnswer> {
     return await tables.createRow({
@@ -211,8 +247,8 @@ export const SchoolService = {
     }
   },
   organizeAnswers(data: ISchoolAnswer): ISchoolAnswer {
-    const questions = data.questions as ISchoolQuestion[];
-    const answers = data.answers as string[];
+    const questions = (data.questions || []) as any[];
+    const answers = (data.answers || []) as string[];
 
     if (!questions.length || !answers.length) {
       return {
@@ -223,40 +259,54 @@ export const SchoolService = {
       };
     }
 
-    const orderedQuestions = answers.map(ans => questions.find(q => q.options.includes(ans))!);
-    const updatedData = { ...data, questions: orderedQuestions };
-
-    const { correct, score, percentage } = this.calculateScore(updatedData);
+    const { correct, score, percentage } = this.calculateScore(data);
 
     return {
-      ...updatedData,
+      ...data,
       correct,
       score,
       percentage
     };
   },
   calculateScore(answerRow?: ISchoolAnswer): { correct: number, score: number, percentage: number } {
-    if (!answerRow?.questions?.length) {
+    if (!answerRow?.answers?.length) {
       return {
-        correct: 0,
-        score: 0,
-        percentage: 0
-      }
-    };
+        correct: answerRow?.correct ?? 0,
+        score: answerRow?.score ?? 0,
+        percentage: answerRow?.percentage ?? 0
+      };
+    }
 
-    const questions = answerRow.questions as ISchoolQuestion[];
-    const correct = questions.reduce((acc, q, i) => {
+    const questions = (answerRow.questions || []) as any[];
+    const answers = (answerRow.answers || []) as string[];
+
+    const hasValidQuestionObjects = Array.isArray(questions) &&
+      questions.length > 0 &&
+      typeof questions[0] === 'object' &&
+      questions[0] !== null &&
+      'correct_option' in questions[0];
+
+    if (!hasValidQuestionObjects) {
+      return {
+        correct: answerRow.correct ?? 0,
+        score: answerRow.score ?? 0,
+        percentage: answerRow.percentage ?? 0
+      };
+    }
+
+    const calculatedCorrect = questions.reduce((acc, q, i) => {
       if (!q || !q.correct_option) return acc;
-      return acc + (answerRow.answers[i] === q.correct_option ? 1 : 0);
+      return acc + (answers[i] === q.correct_option ? 1 : 0);
     }, 0);
 
-    const score = Number(((correct / questions.length) * 10).toFixed(1));
-    const percentage = Math.round((correct / questions.length) * 100);
+    const total = questions.length || 1;
+    const calculatedScore = Number(((calculatedCorrect / total) * 10).toFixed(1));
+    const calculatedPercentage = Math.round((calculatedCorrect / total) * 100);
 
     return {
-      correct,
-      score,
-      percentage
+      correct: answerRow.correct ?? calculatedCorrect,
+      score: answerRow.score ?? calculatedScore,
+      percentage: answerRow.percentage ?? calculatedPercentage
     };
   }
 };

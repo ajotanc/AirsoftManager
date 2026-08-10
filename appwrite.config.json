@@ -1,7 +1,7 @@
 {
     "projectId": "68d67d4d0008bced0bd6",
     "projectName": "Airsoft Manager",
-    "endpoint": "https://fra.cloud.appwrite.io/v1",
+    "endpoint": "https://api.ajotanc.com.br/v1",
     "settings": {
         "services": {
             "account": true,
@@ -58,25 +58,13 @@
             "scopes": [
                 "databases.read",
                 "databases.write",
-                "policies.read",
-                "policies.write",
-                "archives.read",
-                "archives.write",
-                "restorations.read",
-                "restorations.write",
-                "tables.read",
                 "collections.read",
-                "tables.write",
                 "collections.write",
-                "columns.read",
                 "attributes.read",
-                "columns.write",
                 "attributes.write",
                 "indexes.read",
                 "indexes.write",
-                "rows.read",
                 "documents.read",
-                "rows.write",
                 "documents.write"
             ],
             "deploymentRetention": 0
@@ -97,28 +85,2616 @@
             "scopes": [
                 "databases.read",
                 "databases.write",
-                "policies.read",
-                "policies.write",
-                "archives.read",
-                "archives.write",
-                "restorations.read",
-                "restorations.write",
-                "tables.read",
                 "collections.read",
-                "tables.write",
                 "collections.write",
-                "columns.read",
                 "attributes.read",
-                "columns.write",
                 "attributes.write",
                 "indexes.read",
                 "indexes.write",
-                "rows.read",
                 "documents.read",
-                "rows.write",
                 "documents.write"
             ],
             "deploymentRetention": 0
+        }
+    ],
+    "databases": [
+        {
+            "$id": "69402ceb0012610399be",
+            "name": "DBAM",
+            "$createdAt": "2026-08-10T05:53:49.595+00:00",
+            "$updatedAt": "2026-08-10T05:53:49.595+00:00",
+            "enabled": true,
+            "type": "tablesdb"
+        }
+    ],
+    "collections": [
+        {
+            "$id": "operators",
+            "$permissions": [
+                "create(\"users\")",
+                "read(\"users\")",
+                "update(\"users\")",
+                "delete(\"users\")",
+                "read(\"guests\")"
+            ],
+            "databaseId": "69402ceb0012610399be",
+            "name": "operators",
+            "enabled": true,
+            "indexes": [],
+            "attributes": [
+                {
+                    "key": "codename",
+                    "type": "string",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": 255,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "status",
+                    "type": "boolean",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": false,
+                    "elements": null
+                },
+                {
+                    "key": "role",
+                    "type": "string",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": 255,
+                    "default": "recruit",
+                    "elements": null
+                },
+                {
+                    "key": "avatar",
+                    "type": "string",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": 255,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "rating",
+                    "type": "integer",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": 0,
+                    "elements": null
+                },
+                {
+                    "key": "identity",
+                    "type": "string",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": 11,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "general_registration",
+                    "type": "string",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": 25,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "blood_type",
+                    "type": "string",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": 3,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "birth_date",
+                    "type": "datetime",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "mother_name",
+                    "type": "string",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": 255,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "father_name",
+                    "type": "string",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": 255,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "phone",
+                    "type": "string",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": 11,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "cep",
+                    "type": "string",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": 8,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "address",
+                    "type": "string",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": 255,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "address_number",
+                    "type": "string",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": 255,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "neighborhood",
+                    "type": "string",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": 255,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "city",
+                    "type": "string",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": 255,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "state",
+                    "type": "string",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": 2,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "health_plan",
+                    "type": "boolean",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "health_plan_name",
+                    "type": "string",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": 255,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "health_plan_number",
+                    "type": "string",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": 255,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "emergency_contact",
+                    "type": "string",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": 255,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "emergency_contact_phone",
+                    "type": "string",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": 11,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "allergies",
+                    "type": "string",
+                    "status": "available",
+                    "required": false,
+                    "array": true,
+                    "size": 255,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "continuous_medication",
+                    "type": "boolean",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                }
+            ],
+            "documentSecurity": true
+        },
+        {
+            "$id": "arsenals",
+            "$permissions": [
+                "create(\"users\")",
+                "read(\"users\")",
+                "update(\"users\")",
+                "delete(\"users\")",
+                "read(\"any\")"
+            ],
+            "databaseId": "69402ceb0012610399be",
+            "name": "arsenals",
+            "enabled": true,
+            "indexes": [],
+            "attributes": [
+                {
+                    "key": "operator",
+                    "type": "relationship",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "name",
+                    "type": "string",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": 255,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "type",
+                    "type": "integer",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "fps",
+                    "type": "integer",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "avatar",
+                    "type": "string",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": 255,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "maintenance_at",
+                    "type": "datetime",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "category",
+                    "type": "integer",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "joule",
+                    "type": "string",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": 4,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "invoice",
+                    "type": "string",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": 255,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "is_favorite",
+                    "type": "boolean",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "is_secondary",
+                    "type": "boolean",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                }
+            ],
+            "documentSecurity": true
+        },
+        {
+            "$id": "loadouts",
+            "$permissions": [
+                "create(\"users\")",
+                "read(\"users\")",
+                "update(\"users\")",
+                "delete(\"users\")"
+            ],
+            "databaseId": "69402ceb0012610399be",
+            "name": "loadouts",
+            "enabled": true,
+            "indexes": [],
+            "attributes": [
+                {
+                    "key": "operator",
+                    "type": "relationship",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "type_uniform",
+                    "type": "integer",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "combat_shirt",
+                    "type": "boolean",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "tactical_pants",
+                    "type": "boolean",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "combat_boot",
+                    "type": "boolean",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "gloves",
+                    "type": "boolean",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "bonnie_hat",
+                    "type": "boolean",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "ski_mask",
+                    "type": "boolean",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "tactical_vest",
+                    "type": "boolean",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "tactical_belt",
+                    "type": "boolean",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "helmet",
+                    "type": "boolean",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "headset",
+                    "type": "boolean",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "knee_pads",
+                    "type": "boolean",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "holster",
+                    "type": "boolean",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "walkie_talkie",
+                    "type": "boolean",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                }
+            ],
+            "documentSecurity": true
+        },
+        {
+            "$id": "skill_ratings",
+            "$permissions": [
+                "create(\"users\")",
+                "read(\"users\")",
+                "update(\"users\")",
+                "delete(\"users\")"
+            ],
+            "databaseId": "69402ceb0012610399be",
+            "name": "skill_ratings",
+            "enabled": true,
+            "indexes": [],
+            "attributes": [
+                {
+                    "key": "voter",
+                    "type": "relationship",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "target",
+                    "type": "relationship",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "attributes",
+                    "type": "string",
+                    "status": "available",
+                    "required": true,
+                    "array": false,
+                    "size": 2048,
+                    "default": null,
+                    "elements": null
+                }
+            ],
+            "documentSecurity": true
+        },
+        {
+            "$id": "events",
+            "$permissions": [
+                "create(\"users\")",
+                "read(\"users\")",
+                "update(\"users\")",
+                "delete(\"users\")",
+                "read(\"guests\")"
+            ],
+            "databaseId": "69402ceb0012610399be",
+            "name": "events",
+            "enabled": true,
+            "indexes": [],
+            "attributes": [
+                {
+                    "key": "title",
+                    "type": "string",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": 255,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "type",
+                    "type": "integer",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "date",
+                    "type": "datetime",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "location",
+                    "type": "string",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": 255,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "location_url",
+                    "type": "string",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": 512,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "description",
+                    "type": "string",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": 10240,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "startTime",
+                    "type": "string",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": 5,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "participations",
+                    "type": "relationship",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "endTime",
+                    "type": "string",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": 5,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "thumbnail",
+                    "type": "string",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": 512,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "carpools",
+                    "type": "relationship",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "location_coords",
+                    "type": "string",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": 255,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "minimum_effective",
+                    "type": "integer",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "rule",
+                    "type": "string",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": 255,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "is_finished",
+                    "type": "boolean",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": false,
+                    "elements": null
+                },
+                {
+                    "key": "guest_participations",
+                    "type": "relationship",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "feedbacks",
+                    "type": "relationship",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "reference",
+                    "type": "string",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": 255,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "allow_visitors",
+                    "type": "boolean",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": false,
+                    "elements": null
+                },
+                {
+                    "key": "list_open",
+                    "type": "boolean",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "types",
+                    "type": "integer",
+                    "status": "available",
+                    "required": false,
+                    "array": true,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                }
+            ],
+            "documentSecurity": true
+        },
+        {
+            "$id": "participations",
+            "$permissions": [
+                "create(\"users\")",
+                "read(\"users\")",
+                "update(\"users\")",
+                "delete(\"users\")"
+            ],
+            "databaseId": "69402ceb0012610399be",
+            "name": "participations",
+            "enabled": true,
+            "indexes": [],
+            "attributes": [
+                {
+                    "key": "event",
+                    "type": "relationship",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "status",
+                    "type": "boolean",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "checked_in",
+                    "type": "boolean",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "operator",
+                    "type": "relationship",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                }
+            ],
+            "documentSecurity": true
+        },
+        {
+            "$id": "visitors",
+            "$permissions": [
+                "create(\"users\")",
+                "read(\"users\")",
+                "update(\"users\")",
+                "delete(\"users\")"
+            ],
+            "databaseId": "69402ceb0012610399be",
+            "name": "guests",
+            "enabled": true,
+            "indexes": [],
+            "attributes": [
+                {
+                    "key": "name",
+                    "type": "string",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": 255,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "codename",
+                    "type": "string",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": 255,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "phone",
+                    "type": "string",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": 11,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "status",
+                    "type": "boolean",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": false,
+                    "elements": null
+                },
+                {
+                    "key": "team",
+                    "type": "string",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": 255,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "operator",
+                    "type": "relationship",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                }
+            ],
+            "documentSecurity": true
+        },
+        {
+            "$id": "visitor_participations",
+            "$permissions": [
+                "create(\"users\")",
+                "read(\"users\")",
+                "update(\"users\")",
+                "delete(\"users\")"
+            ],
+            "databaseId": "69402ceb0012610399be",
+            "name": "guest_participations",
+            "enabled": true,
+            "indexes": [],
+            "attributes": [
+                {
+                    "key": "event",
+                    "type": "relationship",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "checked_in",
+                    "type": "boolean",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "guest",
+                    "type": "relationship",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                }
+            ],
+            "documentSecurity": true
+        },
+        {
+            "$id": "vehicles",
+            "$permissions": [
+                "create(\"users\")",
+                "read(\"users\")",
+                "update(\"users\")",
+                "delete(\"users\")"
+            ],
+            "databaseId": "69402ceb0012610399be",
+            "name": "vehicles",
+            "enabled": true,
+            "indexes": [],
+            "attributes": [
+                {
+                    "key": "type",
+                    "type": "string",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": 10,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "brand",
+                    "type": "string",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": 255,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "model",
+                    "type": "string",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": 255,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "color",
+                    "type": "string",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": 255,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "total_seats",
+                    "type": "integer",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "driver",
+                    "type": "relationship",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                }
+            ],
+            "documentSecurity": true
+        },
+        {
+            "$id": "carpools",
+            "$permissions": [
+                "create(\"users\")",
+                "read(\"users\")",
+                "update(\"users\")",
+                "delete(\"users\")"
+            ],
+            "databaseId": "69402ceb0012610399be",
+            "name": "carpools",
+            "enabled": true,
+            "indexes": [],
+            "attributes": [
+                {
+                    "key": "event",
+                    "type": "relationship",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "available_seats",
+                    "type": "integer",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "departure_point",
+                    "type": "string",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": 255,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "departure_time",
+                    "type": "string",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": 5,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "vehicle",
+                    "type": "relationship",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                }
+            ],
+            "documentSecurity": true
+        },
+        {
+            "$id": "carpool_requests",
+            "$permissions": [
+                "create(\"users\")",
+                "read(\"users\")",
+                "update(\"users\")",
+                "delete(\"users\")"
+            ],
+            "databaseId": "69402ceb0012610399be",
+            "name": "carpool_requests",
+            "enabled": true,
+            "indexes": [],
+            "attributes": [
+                {
+                    "key": "status",
+                    "type": "string",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": 8,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "carpool",
+                    "type": "relationship",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "requester",
+                    "type": "relationship",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                }
+            ],
+            "documentSecurity": true
+        },
+        {
+            "$id": "payments",
+            "$permissions": [
+                "create(\"users\")",
+                "read(\"users\")",
+                "update(\"users\")",
+                "delete(\"users\")",
+                "read(\"guests\")"
+            ],
+            "databaseId": "69402ceb0012610399be",
+            "name": "payments",
+            "enabled": true,
+            "indexes": [],
+            "attributes": [
+                {
+                    "key": "amount",
+                    "type": "double",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "status",
+                    "type": "string",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": 255,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "category",
+                    "type": "string",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": 255,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "reference",
+                    "type": "string",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": 7,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "receipt_url",
+                    "type": "string",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": 1024,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "operator",
+                    "type": "relationship",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "goal",
+                    "type": "relationship",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "due_date",
+                    "type": "datetime",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "description",
+                    "type": "string",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": 255,
+                    "default": null,
+                    "elements": null
+                }
+            ],
+            "documentSecurity": true
+        },
+        {
+            "$id": "goals",
+            "$permissions": [
+                "create(\"users\")",
+                "read(\"users\")",
+                "update(\"users\")",
+                "delete(\"users\")"
+            ],
+            "databaseId": "69402ceb0012610399be",
+            "name": "goals",
+            "enabled": true,
+            "indexes": [],
+            "attributes": [
+                {
+                    "key": "title",
+                    "type": "string",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": 255,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "description",
+                    "type": "string",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": 1024,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "target_amount",
+                    "type": "double",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "current_amount",
+                    "type": "double",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "deadline",
+                    "type": "datetime",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "image_url",
+                    "type": "string",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": 1024,
+                    "default": null,
+                    "elements": null
+                }
+            ],
+            "documentSecurity": true
+        },
+        {
+            "$id": "cashflow",
+            "$permissions": [
+                "create(\"users\")",
+                "read(\"users\")",
+                "update(\"users\")",
+                "delete(\"users\")"
+            ],
+            "databaseId": "69402ceb0012610399be",
+            "name": "cashflow",
+            "enabled": true,
+            "indexes": [],
+            "attributes": [
+                {
+                    "key": "description",
+                    "type": "string",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": 1024,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "amount",
+                    "type": "double",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "category",
+                    "type": "string",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": 255,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "date",
+                    "type": "datetime",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "receipt_url",
+                    "type": "string",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": 1024,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "payment",
+                    "type": "relationship",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "type",
+                    "type": "string",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": 255,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "reference",
+                    "type": "string",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": 7,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "fee",
+                    "type": "string",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": 255,
+                    "default": null,
+                    "elements": null
+                }
+            ],
+            "documentSecurity": true
+        },
+        {
+            "$id": "maintenance",
+            "$permissions": [
+                "create(\"users\")",
+                "read(\"users\")",
+                "update(\"users\")",
+                "delete(\"users\")"
+            ],
+            "databaseId": "69402ceb0012610399be",
+            "name": "maintenance",
+            "enabled": true,
+            "indexes": [],
+            "attributes": [
+                {
+                    "key": "status",
+                    "type": "string",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": 255,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "technical_report",
+                    "type": "string",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": 1024,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "operator",
+                    "type": "relationship",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "arsenal",
+                    "type": "relationship",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "maintenance_at",
+                    "type": "datetime",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "type",
+                    "type": "string",
+                    "status": "available",
+                    "required": false,
+                    "array": true,
+                    "size": 255,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "joule",
+                    "type": "string",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": 4,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "fps",
+                    "type": "integer",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                }
+            ],
+            "documentSecurity": true
+        },
+        {
+            "$id": "schedules",
+            "$permissions": [
+                "create(\"users\")",
+                "read(\"users\")",
+                "update(\"users\")",
+                "delete(\"users\")"
+            ],
+            "databaseId": "69402ceb0012610399be",
+            "name": "schedules",
+            "enabled": true,
+            "indexes": [],
+            "attributes": [
+                {
+                    "key": "type",
+                    "type": "string",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": 255,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "status",
+                    "type": "string",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": 255,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "description",
+                    "type": "string",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": 1024,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "report",
+                    "type": "string",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": 1024,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "date",
+                    "type": "datetime",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "operators",
+                    "type": "relationship",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "attended",
+                    "type": "string",
+                    "status": "available",
+                    "required": false,
+                    "array": true,
+                    "size": 255,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "leader",
+                    "type": "relationship",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                }
+            ],
+            "documentSecurity": true
+        },
+        {
+            "$id": "feedbacks",
+            "$permissions": [
+                "create(\"users\")",
+                "read(\"users\")",
+                "update(\"users\")",
+                "delete(\"users\")"
+            ],
+            "databaseId": "69402ceb0012610399be",
+            "name": "feedbacks",
+            "enabled": true,
+            "indexes": [],
+            "attributes": [
+                {
+                    "key": "event",
+                    "type": "relationship",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "operator",
+                    "type": "relationship",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "stars",
+                    "type": "integer",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "comment",
+                    "type": "string",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": 2048,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "likes",
+                    "type": "string",
+                    "status": "available",
+                    "required": false,
+                    "array": true,
+                    "size": 255,
+                    "default": null,
+                    "elements": null
+                }
+            ],
+            "documentSecurity": true
+        },
+        {
+            "$id": "school_questions",
+            "$permissions": [
+                "create(\"users\")",
+                "read(\"users\")",
+                "update(\"users\")",
+                "delete(\"users\")"
+            ],
+            "databaseId": "69402ceb0012610399be",
+            "name": "school_questions",
+            "enabled": true,
+            "indexes": [],
+            "attributes": [
+                {
+                    "key": "text",
+                    "type": "string",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": 1024,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "options",
+                    "type": "string",
+                    "status": "available",
+                    "required": false,
+                    "array": true,
+                    "size": 1024,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "correct_option",
+                    "type": "string",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": 1024,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "category",
+                    "type": "string",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": 255,
+                    "default": "",
+                    "elements": null
+                },
+                {
+                    "key": "difficulty",
+                    "type": "string",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": 255,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "type",
+                    "type": "string",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": 255,
+                    "default": null,
+                    "elements": null
+                }
+            ],
+            "documentSecurity": true
+        },
+        {
+            "$id": "school_answers",
+            "$permissions": [
+                "create(\"users\")",
+                "read(\"users\")",
+                "update(\"users\")",
+                "delete(\"users\")"
+            ],
+            "databaseId": "69402ceb0012610399be",
+            "name": "school_answers",
+            "enabled": true,
+            "indexes": [],
+            "attributes": [
+                {
+                    "key": "category",
+                    "type": "string",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": 255,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "answers",
+                    "type": "string",
+                    "status": "available",
+                    "required": false,
+                    "array": true,
+                    "size": 1024,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "attempt_number",
+                    "type": "integer",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "operator",
+                    "type": "relationship",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "questions",
+                    "type": "relationship",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "completed_at",
+                    "type": "datetime",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                }
+            ],
+            "documentSecurity": true
+        },
+        {
+            "$id": "settings",
+            "$permissions": [
+                "read(\"guests\")",
+                "create(\"users\")",
+                "read(\"users\")",
+                "update(\"users\")",
+                "delete(\"users\")"
+            ],
+            "databaseId": "69402ceb0012610399be",
+            "name": "settings",
+            "enabled": true,
+            "indexes": [],
+            "attributes": [
+                {
+                    "key": "key",
+                    "type": "string",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": 255,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "value",
+                    "type": "string",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": 255,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "description",
+                    "type": "string",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": 2048,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "args",
+                    "type": "string",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": 2048,
+                    "default": null,
+                    "elements": null
+                }
+            ],
+            "documentSecurity": true
+        },
+        {
+            "$id": "tournament_teams",
+            "$permissions": [
+                "create(\"users\")",
+                "read(\"users\")",
+                "update(\"users\")",
+                "delete(\"users\")"
+            ],
+            "databaseId": "69402ceb0012610399be",
+            "name": "tournament_teams",
+            "enabled": true,
+            "indexes": [],
+            "attributes": [
+                {
+                    "key": "name",
+                    "type": "string",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": 255,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "score",
+                    "type": "integer",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "operators",
+                    "type": "relationship",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "tournament",
+                    "type": "relationship",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                }
+            ],
+            "documentSecurity": true
+        },
+        {
+            "$id": "tournament_stats",
+            "$permissions": [
+                "create(\"users\")",
+                "read(\"users\")",
+                "update(\"users\")",
+                "delete(\"users\")"
+            ],
+            "databaseId": "69402ceb0012610399be",
+            "name": "tournament_stats",
+            "enabled": true,
+            "indexes": [],
+            "attributes": [
+                {
+                    "key": "operator",
+                    "type": "relationship",
+                    "required": false,
+                    "array": false,
+                    "relationType": "manyToOne",
+                    "twoWay": false,
+                    "twoWayKey": "69f41b450024843925c2",
+                    "onDelete": "setNull",
+                    "side": "parent",
+                    "relatedCollection": "operators"
+                },
+                {
+                    "key": "match",
+                    "type": "relationship",
+                    "required": false,
+                    "array": false,
+                    "relationType": "manyToOne",
+                    "twoWay": false,
+                    "twoWayKey": "69f41c9f0030fc02fd32",
+                    "onDelete": "setNull",
+                    "side": "parent",
+                    "relatedCollection": "tournament_matches"
+                },
+                {
+                    "key": "kills",
+                    "type": "integer",
+                    "required": false,
+                    "array": false,
+                    "default": null,
+                    "min": null,
+                    "max": null
+                },
+                {
+                    "key": "deaths",
+                    "type": "integer",
+                    "required": false,
+                    "array": false,
+                    "default": null,
+                    "min": null,
+                    "max": null
+                },
+                {
+                    "key": "head_hits",
+                    "type": "integer",
+                    "required": false,
+                    "array": false,
+                    "default": null,
+                    "min": null,
+                    "max": null
+                },
+                {
+                    "key": "torso_hits",
+                    "type": "integer",
+                    "required": false,
+                    "array": false,
+                    "default": null,
+                    "min": null,
+                    "max": null
+                },
+                {
+                    "key": "mms_left_hits",
+                    "type": "integer",
+                    "required": false,
+                    "array": false,
+                    "default": null,
+                    "min": null,
+                    "max": null
+                },
+                {
+                    "key": "mms_right_hits",
+                    "type": "integer",
+                    "required": false,
+                    "array": false,
+                    "default": null,
+                    "min": null,
+                    "max": null
+                },
+                {
+                    "key": "mmi_left_hits",
+                    "type": "integer",
+                    "required": false,
+                    "array": false,
+                    "default": null,
+                    "min": null,
+                    "max": null
+                },
+                {
+                    "key": "mmi_right_hits",
+                    "type": "integer",
+                    "required": false,
+                    "array": false,
+                    "default": null,
+                    "min": null,
+                    "max": null
+                },
+                {
+                    "key": "points_total",
+                    "type": "integer",
+                    "required": false,
+                    "array": false,
+                    "default": null,
+                    "min": null,
+                    "max": null
+                },
+                {
+                    "key": "tournament",
+                    "type": "relationship",
+                    "required": false,
+                    "array": false,
+                    "relationType": "manyToOne",
+                    "twoWay": false,
+                    "twoWayKey": "69f41e00002fce983446",
+                    "onDelete": "setNull",
+                    "side": "parent",
+                    "relatedCollection": "tournaments"
+                }
+            ],
+            "documentSecurity": true
+        },
+        {
+            "$id": "tournament_registrations",
+            "$permissions": [
+                "create(\"users\")",
+                "read(\"users\")",
+                "update(\"users\")",
+                "delete(\"users\")"
+            ],
+            "databaseId": "69402ceb0012610399be",
+            "name": "tournament_registrations",
+            "enabled": true,
+            "indexes": [],
+            "attributes": [
+                {
+                    "key": "operator",
+                    "type": "relationship",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "status",
+                    "type": "string",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": 255,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "tournament",
+                    "type": "relationship",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                }
+            ],
+            "documentSecurity": true
+        },
+        {
+            "$id": "tournament_matches",
+            "$permissions": [
+                "create(\"users\")",
+                "read(\"users\")",
+                "update(\"users\")",
+                "delete(\"users\")"
+            ],
+            "databaseId": "69402ceb0012610399be",
+            "name": "tournament_matches",
+            "enabled": true,
+            "indexes": [],
+            "attributes": [
+                {
+                    "key": "top_side",
+                    "type": "relationship",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "bottom_side",
+                    "type": "relationship",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "winner",
+                    "type": "relationship",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "round",
+                    "type": "integer",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "next_match",
+                    "type": "string",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": 255,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "top_score",
+                    "type": "integer",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "bottom_score",
+                    "type": "integer",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "tournament",
+                    "type": "relationship",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                }
+            ],
+            "documentSecurity": true
+        },
+        {
+            "$id": "tournaments",
+            "$permissions": [
+                "create(\"users\")",
+                "read(\"users\")",
+                "update(\"users\")",
+                "delete(\"users\")"
+            ],
+            "databaseId": "69402ceb0012610399be",
+            "name": "tournaments",
+            "enabled": true,
+            "indexes": [],
+            "attributes": [
+                {
+                    "key": "name",
+                    "type": "string",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": 255,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "description",
+                    "type": "string",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": 2048,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "status",
+                    "type": "string",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": 255,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "date",
+                    "type": "datetime",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "mode",
+                    "type": "integer",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "type",
+                    "type": "string",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": 255,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "allowed_class",
+                    "type": "string",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": 255,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "is_paid",
+                    "type": "boolean",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "price",
+                    "type": "double",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "registrations",
+                    "type": "relationship",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "teams",
+                    "type": "relationship",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "matches",
+                    "type": "relationship",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "awards",
+                    "type": "string",
+                    "status": "available",
+                    "required": false,
+                    "array": true,
+                    "size": 255,
+                    "default": null,
+                    "elements": null
+                }
+            ],
+            "documentSecurity": true
+        },
+        {
+            "$id": "rankings",
+            "$permissions": [
+                "create(\"users\")",
+                "read(\"users\")",
+                "update(\"users\")",
+                "delete(\"users\")"
+            ],
+            "databaseId": "69402ceb0012610399be",
+            "name": "rankings",
+            "enabled": true,
+            "indexes": [],
+            "attributes": [
+                {
+                    "key": "kills",
+                    "type": "integer",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "deaths",
+                    "type": "integer",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "head_hits",
+                    "type": "integer",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "torso_hits",
+                    "type": "integer",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "mms_left_hits",
+                    "type": "integer",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "mms_right_hits",
+                    "type": "integer",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "mmi_left_hits",
+                    "type": "integer",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "mmi_right_hits",
+                    "type": "integer",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "points_total",
+                    "type": "integer",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "operator",
+                    "type": "relationship",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "match",
+                    "type": "relationship",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "tournament",
+                    "type": "relationship",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "wins",
+                    "type": "integer",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                },
+                {
+                    "key": "losses",
+                    "type": "integer",
+                    "status": "available",
+                    "required": false,
+                    "array": false,
+                    "size": null,
+                    "default": null,
+                    "elements": null
+                }
+            ],
+            "documentSecurity": true
         }
     ],
     "tablesDB": [
@@ -129,6 +2705,564 @@
         }
     ],
     "tables": [
+        {
+            "$id": "carpool_requests",
+            "$permissions": [
+                "create(\"users\")",
+                "read(\"users\")",
+                "update(\"users\")",
+                "delete(\"users\")"
+            ],
+            "databaseId": "69402ceb0012610399be",
+            "name": "carpool_requests",
+            "enabled": true,
+            "rowSecurity": true,
+            "columns": [
+                {
+                    "key": "status",
+                    "type": "string",
+                    "required": false,
+                    "array": false,
+                    "size": 8,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "carpool",
+                    "type": "relationship",
+                    "required": false,
+                    "array": false,
+                    "relatedTable": "carpools",
+                    "relationType": "manyToOne",
+                    "twoWay": false,
+                    "twoWayKey": "696e7adb00040ed9330c",
+                    "onDelete": "setNull",
+                    "side": "parent"
+                },
+                {
+                    "key": "requester",
+                    "type": "relationship",
+                    "required": false,
+                    "array": false,
+                    "relatedTable": "operators",
+                    "relationType": "manyToOne",
+                    "twoWay": false,
+                    "twoWayKey": "696e7aeb00079643ed72",
+                    "onDelete": "setNull",
+                    "side": "parent"
+                }
+            ],
+            "indexes": []
+        },
+        {
+            "$id": "visitors",
+            "$permissions": [
+                "create(\"users\")",
+                "read(\"users\")",
+                "update(\"users\")",
+                "delete(\"users\")"
+            ],
+            "databaseId": "69402ceb0012610399be",
+            "name": "guests",
+            "enabled": true,
+            "rowSecurity": true,
+            "columns": [
+                {
+                    "key": "name",
+                    "type": "string",
+                    "required": false,
+                    "array": false,
+                    "size": 255,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "codename",
+                    "type": "string",
+                    "required": false,
+                    "array": false,
+                    "size": 255,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "phone",
+                    "type": "string",
+                    "required": false,
+                    "array": false,
+                    "size": 11,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "status",
+                    "type": "boolean",
+                    "required": false,
+                    "array": false,
+                    "default": false
+                },
+                {
+                    "key": "team",
+                    "type": "string",
+                    "required": false,
+                    "array": false,
+                    "size": 255,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "operator",
+                    "type": "relationship",
+                    "required": false,
+                    "array": false,
+                    "relatedTable": "operators",
+                    "relationType": "manyToOne",
+                    "twoWay": false,
+                    "twoWayKey": "696ecd8a003d3991868a",
+                    "onDelete": "setNull",
+                    "side": "parent"
+                }
+            ],
+            "indexes": []
+        },
+        {
+            "$id": "skill_ratings",
+            "$permissions": [
+                "create(\"users\")",
+                "read(\"users\")",
+                "update(\"users\")",
+                "delete(\"users\")"
+            ],
+            "databaseId": "69402ceb0012610399be",
+            "name": "skill_ratings",
+            "enabled": true,
+            "rowSecurity": true,
+            "columns": [
+                {
+                    "key": "voter",
+                    "type": "relationship",
+                    "required": false,
+                    "array": false,
+                    "relatedTable": "operators",
+                    "relationType": "manyToOne",
+                    "twoWay": false,
+                    "twoWayKey": "69431a3c002eb8591bc4",
+                    "onDelete": "setNull",
+                    "side": "parent"
+                },
+                {
+                    "key": "target",
+                    "type": "relationship",
+                    "required": false,
+                    "array": false,
+                    "relatedTable": "operators",
+                    "relationType": "manyToOne",
+                    "twoWay": false,
+                    "twoWayKey": "69431a58002eba9fdbb5",
+                    "onDelete": "setNull",
+                    "side": "parent"
+                },
+                {
+                    "key": "attributes",
+                    "type": "string",
+                    "required": true,
+                    "array": false,
+                    "size": 2048,
+                    "default": null,
+                    "encrypt": false
+                }
+            ],
+            "indexes": []
+        },
+        {
+            "$id": "participations",
+            "$permissions": [
+                "create(\"users\")",
+                "read(\"users\")",
+                "update(\"users\")",
+                "delete(\"users\")"
+            ],
+            "databaseId": "69402ceb0012610399be",
+            "name": "participations",
+            "enabled": true,
+            "rowSecurity": true,
+            "columns": [
+                {
+                    "key": "event",
+                    "type": "relationship",
+                    "required": false,
+                    "array": false,
+                    "relatedTable": "events",
+                    "relationType": "oneToMany",
+                    "twoWay": true,
+                    "twoWayKey": "participations",
+                    "onDelete": "setNull",
+                    "side": "child"
+                },
+                {
+                    "key": "status",
+                    "type": "boolean",
+                    "required": false,
+                    "array": false,
+                    "default": null
+                },
+                {
+                    "key": "checked_in",
+                    "type": "boolean",
+                    "required": false,
+                    "array": false,
+                    "default": null
+                },
+                {
+                    "key": "operator",
+                    "type": "relationship",
+                    "required": false,
+                    "array": false,
+                    "relatedTable": "operators",
+                    "relationType": "manyToOne",
+                    "twoWay": false,
+                    "twoWayKey": "696ed910003e7d8d651d",
+                    "onDelete": "setNull",
+                    "side": "parent"
+                }
+            ],
+            "indexes": []
+        },
+        {
+            "$id": "loadouts",
+            "$permissions": [
+                "create(\"users\")",
+                "read(\"users\")",
+                "update(\"users\")",
+                "delete(\"users\")"
+            ],
+            "databaseId": "69402ceb0012610399be",
+            "name": "loadouts",
+            "enabled": true,
+            "rowSecurity": true,
+            "columns": [
+                {
+                    "key": "operator",
+                    "type": "relationship",
+                    "required": false,
+                    "array": false,
+                    "relatedTable": "operators",
+                    "relationType": "oneToMany",
+                    "twoWay": true,
+                    "twoWayKey": "loadout",
+                    "onDelete": "setNull",
+                    "side": "child"
+                },
+                {
+                    "key": "type_uniform",
+                    "type": "integer",
+                    "required": false,
+                    "array": false,
+                    "default": null,
+                    "min": -9223372036854775808,
+                    "max": 9223372036854775807
+                },
+                {
+                    "key": "combat_shirt",
+                    "type": "boolean",
+                    "required": false,
+                    "array": false,
+                    "default": null
+                },
+                {
+                    "key": "tactical_pants",
+                    "type": "boolean",
+                    "required": false,
+                    "array": false,
+                    "default": null
+                },
+                {
+                    "key": "combat_boot",
+                    "type": "boolean",
+                    "required": false,
+                    "array": false,
+                    "default": null
+                },
+                {
+                    "key": "gloves",
+                    "type": "boolean",
+                    "required": false,
+                    "array": false,
+                    "default": null
+                },
+                {
+                    "key": "bonnie_hat",
+                    "type": "boolean",
+                    "required": false,
+                    "array": false,
+                    "default": null
+                },
+                {
+                    "key": "ski_mask",
+                    "type": "boolean",
+                    "required": false,
+                    "array": false,
+                    "default": null
+                },
+                {
+                    "key": "tactical_vest",
+                    "type": "boolean",
+                    "required": false,
+                    "array": false,
+                    "default": null
+                },
+                {
+                    "key": "tactical_belt",
+                    "type": "boolean",
+                    "required": false,
+                    "array": false,
+                    "default": null
+                },
+                {
+                    "key": "helmet",
+                    "type": "boolean",
+                    "required": false,
+                    "array": false,
+                    "default": null
+                },
+                {
+                    "key": "headset",
+                    "type": "boolean",
+                    "required": false,
+                    "array": false,
+                    "default": null
+                },
+                {
+                    "key": "knee_pads",
+                    "type": "boolean",
+                    "required": false,
+                    "array": false,
+                    "default": null
+                },
+                {
+                    "key": "holster",
+                    "type": "boolean",
+                    "required": false,
+                    "array": false,
+                    "default": null
+                },
+                {
+                    "key": "walkie_talkie",
+                    "type": "boolean",
+                    "required": false,
+                    "array": false,
+                    "default": null
+                }
+            ],
+            "indexes": []
+        },
+        {
+            "$id": "arsenals",
+            "$permissions": [
+                "create(\"users\")",
+                "read(\"users\")",
+                "update(\"users\")",
+                "delete(\"users\")",
+                "read(\"any\")"
+            ],
+            "databaseId": "69402ceb0012610399be",
+            "name": "arsenals",
+            "enabled": true,
+            "rowSecurity": true,
+            "columns": [
+                {
+                    "key": "operator",
+                    "type": "relationship",
+                    "required": false,
+                    "array": false,
+                    "relatedTable": "operators",
+                    "relationType": "oneToMany",
+                    "twoWay": true,
+                    "twoWayKey": "arsenal",
+                    "onDelete": "setNull",
+                    "side": "child"
+                },
+                {
+                    "key": "name",
+                    "type": "string",
+                    "required": false,
+                    "array": false,
+                    "size": 255,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "type",
+                    "type": "integer",
+                    "required": false,
+                    "array": false,
+                    "default": null,
+                    "min": -9223372036854775808,
+                    "max": 9223372036854775807
+                },
+                {
+                    "key": "fps",
+                    "type": "integer",
+                    "required": false,
+                    "array": false,
+                    "default": null,
+                    "min": -9223372036854775808,
+                    "max": 9223372036854775807
+                },
+                {
+                    "key": "avatar",
+                    "type": "string",
+                    "required": false,
+                    "array": false,
+                    "size": 255,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "maintenance_at",
+                    "type": "datetime",
+                    "required": false,
+                    "array": false,
+                    "default": null,
+                    "format": ""
+                },
+                {
+                    "key": "category",
+                    "type": "integer",
+                    "required": false,
+                    "array": false,
+                    "default": null,
+                    "min": -9223372036854775808,
+                    "max": 9223372036854775807
+                },
+                {
+                    "key": "joule",
+                    "type": "string",
+                    "required": false,
+                    "array": false,
+                    "size": 4,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "invoice",
+                    "type": "string",
+                    "required": false,
+                    "array": false,
+                    "size": 255,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "is_favorite",
+                    "type": "boolean",
+                    "required": false,
+                    "array": false,
+                    "default": null
+                },
+                {
+                    "key": "is_secondary",
+                    "type": "boolean",
+                    "required": false,
+                    "array": false,
+                    "default": null
+                }
+            ],
+            "indexes": []
+        },
+        {
+            "$id": "maintenance",
+            "$permissions": [
+                "create(\"users\")",
+                "read(\"users\")",
+                "update(\"users\")",
+                "delete(\"users\")"
+            ],
+            "databaseId": "69402ceb0012610399be",
+            "name": "maintenance",
+            "enabled": true,
+            "rowSecurity": true,
+            "columns": [
+                {
+                    "key": "status",
+                    "type": "string",
+                    "required": false,
+                    "array": false,
+                    "size": 255,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "technical_report",
+                    "type": "string",
+                    "required": false,
+                    "array": false,
+                    "size": 1024,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "operator",
+                    "type": "relationship",
+                    "required": false,
+                    "array": false,
+                    "relatedTable": "operators",
+                    "relationType": "manyToOne",
+                    "twoWay": false,
+                    "twoWayKey": "69792699002c91e367da",
+                    "onDelete": "setNull",
+                    "side": "parent"
+                },
+                {
+                    "key": "arsenal",
+                    "type": "relationship",
+                    "required": false,
+                    "array": false,
+                    "relatedTable": "arsenals",
+                    "relationType": "manyToOne",
+                    "twoWay": false,
+                    "twoWayKey": "697926b6002795bf3c1f",
+                    "onDelete": "setNull",
+                    "side": "parent"
+                },
+                {
+                    "key": "maintenance_at",
+                    "type": "datetime",
+                    "required": false,
+                    "array": false,
+                    "default": null,
+                    "format": ""
+                },
+                {
+                    "key": "type",
+                    "type": "string",
+                    "required": false,
+                    "array": true,
+                    "size": 255,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "joule",
+                    "type": "string",
+                    "required": false,
+                    "array": false,
+                    "size": 4,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "fps",
+                    "type": "integer",
+                    "required": false,
+                    "array": false,
+                    "default": null,
+                    "min": -9223372036854775808,
+                    "max": 9223372036854775807
+                }
+            ],
+            "indexes": []
+        },
         {
             "$id": "operators",
             "$permissions": [
@@ -566,35 +3700,50 @@
                     "size": 255,
                     "default": null,
                     "encrypt": false
+                },
+                {
+                    "key": "is_online",
+                    "type": "boolean",
+                    "required": false,
+                    "array": false,
+                    "default": null
+                },
+                {
+                    "key": "last_seen",
+                    "type": "string",
+                    "required": false,
+                    "array": false,
+                    "size": 50,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "courses",
+                    "type": "string",
+                    "required": false,
+                    "array": true,
+                    "size": 1000,
+                    "default": null,
+                    "encrypt": false
                 }
             ],
             "indexes": []
         },
         {
-            "$id": "arsenals",
+            "$id": "rankings",
             "$permissions": [
                 "create(\"users\")",
                 "read(\"users\")",
                 "update(\"users\")",
-                "delete(\"users\")",
-                "read(\"any\")"
+                "delete(\"users\")"
             ],
             "databaseId": "69402ceb0012610399be",
-            "name": "arsenals",
+            "name": "rankings",
             "enabled": true,
             "rowSecurity": true,
             "columns": [
                 {
-                    "key": "name",
-                    "type": "string",
-                    "required": false,
-                    "array": false,
-                    "size": 255,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "type",
+                    "key": "kills",
                     "type": "integer",
                     "required": false,
                     "array": false,
@@ -603,7 +3752,7 @@
                     "max": 9223372036854775807
                 },
                 {
-                    "key": "fps",
+                    "key": "deaths",
                     "type": "integer",
                     "required": false,
                     "array": false,
@@ -612,7 +3761,158 @@
                     "max": 9223372036854775807
                 },
                 {
-                    "key": "avatar",
+                    "key": "head_hits",
+                    "type": "integer",
+                    "required": false,
+                    "array": false,
+                    "default": null,
+                    "min": -9223372036854775808,
+                    "max": 9223372036854775807
+                },
+                {
+                    "key": "torso_hits",
+                    "type": "integer",
+                    "required": false,
+                    "array": false,
+                    "default": null,
+                    "min": -9223372036854775808,
+                    "max": 9223372036854775807
+                },
+                {
+                    "key": "mms_left_hits",
+                    "type": "integer",
+                    "required": false,
+                    "array": false,
+                    "default": null,
+                    "min": -9223372036854775808,
+                    "max": 9223372036854775807
+                },
+                {
+                    "key": "mms_right_hits",
+                    "type": "integer",
+                    "required": false,
+                    "array": false,
+                    "default": null,
+                    "min": -9223372036854775808,
+                    "max": 9223372036854775807
+                },
+                {
+                    "key": "mmi_left_hits",
+                    "type": "integer",
+                    "required": false,
+                    "array": false,
+                    "default": null,
+                    "min": -9223372036854775808,
+                    "max": 9223372036854775807
+                },
+                {
+                    "key": "mmi_right_hits",
+                    "type": "integer",
+                    "required": false,
+                    "array": false,
+                    "default": null,
+                    "min": -9223372036854775808,
+                    "max": 9223372036854775807
+                },
+                {
+                    "key": "points_total",
+                    "type": "integer",
+                    "required": false,
+                    "array": false,
+                    "default": null,
+                    "min": -9223372036854775808,
+                    "max": 9223372036854775807
+                },
+                {
+                    "key": "operator",
+                    "type": "relationship",
+                    "required": false,
+                    "array": false,
+                    "relatedTable": "operators",
+                    "relationType": "manyToOne",
+                    "twoWay": false,
+                    "twoWayKey": "69f1061100060948386b",
+                    "onDelete": "setNull",
+                    "side": "parent"
+                },
+                {
+                    "key": "match",
+                    "type": "relationship",
+                    "required": false,
+                    "array": false,
+                    "relatedTable": "tournament_matches",
+                    "relationType": "manyToOne",
+                    "twoWay": false,
+                    "twoWayKey": "69f95414001f3a596c14",
+                    "onDelete": "setNull",
+                    "side": "parent"
+                },
+                {
+                    "key": "tournament",
+                    "type": "relationship",
+                    "required": false,
+                    "array": false,
+                    "relatedTable": "tournaments",
+                    "relationType": "manyToOne",
+                    "twoWay": false,
+                    "twoWayKey": "69f954210002b66b0cda",
+                    "onDelete": "setNull",
+                    "side": "parent"
+                },
+                {
+                    "key": "wins",
+                    "type": "integer",
+                    "required": false,
+                    "array": false,
+                    "default": null,
+                    "min": -9223372036854775808,
+                    "max": 9223372036854775807
+                },
+                {
+                    "key": "losses",
+                    "type": "integer",
+                    "required": false,
+                    "array": false,
+                    "default": null,
+                    "min": -9223372036854775808,
+                    "max": 9223372036854775807
+                }
+            ],
+            "indexes": []
+        },
+        {
+            "$id": "cashflow",
+            "$permissions": [
+                "create(\"users\")",
+                "read(\"users\")",
+                "update(\"users\")",
+                "delete(\"users\")"
+            ],
+            "databaseId": "69402ceb0012610399be",
+            "name": "cashflow",
+            "enabled": true,
+            "rowSecurity": true,
+            "columns": [
+                {
+                    "key": "description",
+                    "type": "string",
+                    "required": false,
+                    "array": false,
+                    "size": 1024,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "amount",
+                    "type": "double",
+                    "required": false,
+                    "array": false,
+                    "default": null,
+                    "min": -1.7976931348623157e+308,
+                    "max": 1.7976931348623157e+308
+                },
+                {
+                    "key": "category",
                     "type": "string",
                     "required": false,
                     "array": false,
@@ -621,7 +3921,7 @@
                     "encrypt": false
                 },
                 {
-                    "key": "maintenance_at",
+                    "key": "date",
                     "type": "datetime",
                     "required": false,
                     "array": false,
@@ -629,37 +3929,28 @@
                     "format": ""
                 },
                 {
-                    "key": "category",
-                    "type": "integer",
-                    "required": false,
-                    "array": false,
-                    "default": null,
-                    "min": -9223372036854775808,
-                    "max": 9223372036854775807
-                },
-                {
-                    "key": "operator",
-                    "type": "relationship",
-                    "required": false,
-                    "array": false,
-                    "relatedTable": "operators",
-                    "relationType": "oneToMany",
-                    "twoWay": true,
-                    "twoWayKey": "arsenal",
-                    "onDelete": "setNull",
-                    "side": "child"
-                },
-                {
-                    "key": "joule",
+                    "key": "receipt_url",
                     "type": "string",
                     "required": false,
                     "array": false,
-                    "size": 4,
+                    "size": 1024,
                     "default": null,
                     "encrypt": false
                 },
                 {
-                    "key": "invoice",
+                    "key": "payment",
+                    "type": "relationship",
+                    "required": false,
+                    "array": false,
+                    "relatedTable": "payments",
+                    "relationType": "oneToOne",
+                    "twoWay": false,
+                    "twoWayKey": "697020ed0016d8d7af57",
+                    "onDelete": "setNull",
+                    "side": "parent"
+                },
+                {
+                    "key": "type",
                     "type": "string",
                     "required": false,
                     "array": false,
@@ -668,24 +3959,28 @@
                     "encrypt": false
                 },
                 {
-                    "key": "is_favorite",
-                    "type": "boolean",
+                    "key": "reference",
+                    "type": "string",
                     "required": false,
                     "array": false,
-                    "default": null
+                    "size": 7,
+                    "default": null,
+                    "encrypt": false
                 },
                 {
-                    "key": "is_secondary",
-                    "type": "boolean",
+                    "key": "fee",
+                    "type": "string",
                     "required": false,
                     "array": false,
-                    "default": null
+                    "size": 255,
+                    "default": null,
+                    "encrypt": false
                 }
             ],
             "indexes": []
         },
         {
-            "$id": "loadouts",
+            "$id": "carpools",
             "$permissions": [
                 "create(\"users\")",
                 "read(\"users\")",
@@ -693,12 +3988,24 @@
                 "delete(\"users\")"
             ],
             "databaseId": "69402ceb0012610399be",
-            "name": "loadouts",
+            "name": "carpools",
             "enabled": true,
             "rowSecurity": true,
             "columns": [
                 {
-                    "key": "type_uniform",
+                    "key": "event",
+                    "type": "relationship",
+                    "required": false,
+                    "array": false,
+                    "relatedTable": "events",
+                    "relationType": "oneToMany",
+                    "twoWay": true,
+                    "twoWayKey": "carpools",
+                    "onDelete": "setNull",
+                    "side": "child"
+                },
+                {
+                    "key": "available_seats",
                     "type": "integer",
                     "required": false,
                     "array": false,
@@ -707,156 +4014,34 @@
                     "max": 9223372036854775807
                 },
                 {
-                    "key": "combat_shirt",
-                    "type": "boolean",
-                    "required": false,
-                    "array": false,
-                    "default": null
-                },
-                {
-                    "key": "tactical_pants",
-                    "type": "boolean",
-                    "required": false,
-                    "array": false,
-                    "default": null
-                },
-                {
-                    "key": "combat_boot",
-                    "type": "boolean",
-                    "required": false,
-                    "array": false,
-                    "default": null
-                },
-                {
-                    "key": "gloves",
-                    "type": "boolean",
-                    "required": false,
-                    "array": false,
-                    "default": null
-                },
-                {
-                    "key": "bonnie_hat",
-                    "type": "boolean",
-                    "required": false,
-                    "array": false,
-                    "default": null
-                },
-                {
-                    "key": "ski_mask",
-                    "type": "boolean",
-                    "required": false,
-                    "array": false,
-                    "default": null
-                },
-                {
-                    "key": "tactical_vest",
-                    "type": "boolean",
-                    "required": false,
-                    "array": false,
-                    "default": null
-                },
-                {
-                    "key": "tactical_belt",
-                    "type": "boolean",
-                    "required": false,
-                    "array": false,
-                    "default": null
-                },
-                {
-                    "key": "helmet",
-                    "type": "boolean",
-                    "required": false,
-                    "array": false,
-                    "default": null
-                },
-                {
-                    "key": "headset",
-                    "type": "boolean",
-                    "required": false,
-                    "array": false,
-                    "default": null
-                },
-                {
-                    "key": "knee_pads",
-                    "type": "boolean",
-                    "required": false,
-                    "array": false,
-                    "default": null
-                },
-                {
-                    "key": "holster",
-                    "type": "boolean",
-                    "required": false,
-                    "array": false,
-                    "default": null
-                },
-                {
-                    "key": "walkie_talkie",
-                    "type": "boolean",
-                    "required": false,
-                    "array": false,
-                    "default": null
-                },
-                {
-                    "key": "operator",
-                    "type": "relationship",
-                    "required": false,
-                    "array": false,
-                    "relatedTable": "operators",
-                    "relationType": "oneToMany",
-                    "twoWay": true,
-                    "twoWayKey": "loadout",
-                    "onDelete": "setNull",
-                    "side": "child"
-                }
-            ],
-            "indexes": []
-        },
-        {
-            "$id": "skill_ratings",
-            "$permissions": [
-                "create(\"users\")",
-                "read(\"users\")",
-                "update(\"users\")",
-                "delete(\"users\")"
-            ],
-            "databaseId": "69402ceb0012610399be",
-            "name": "skill_ratings",
-            "enabled": true,
-            "rowSecurity": true,
-            "columns": [
-                {
-                    "key": "voter",
-                    "type": "relationship",
-                    "required": false,
-                    "array": false,
-                    "relatedTable": "operators",
-                    "relationType": "manyToOne",
-                    "twoWay": false,
-                    "twoWayKey": "69431a3c002eb8591bc4",
-                    "onDelete": "setNull",
-                    "side": "parent"
-                },
-                {
-                    "key": "target",
-                    "type": "relationship",
-                    "required": false,
-                    "array": false,
-                    "relatedTable": "operators",
-                    "relationType": "manyToOne",
-                    "twoWay": false,
-                    "twoWayKey": "69431a58002eba9fdbb5",
-                    "onDelete": "setNull",
-                    "side": "parent"
-                },
-                {
-                    "key": "attributes",
+                    "key": "departure_point",
                     "type": "string",
-                    "required": true,
+                    "required": false,
                     "array": false,
-                    "size": 2048,
+                    "size": 255,
                     "default": null,
                     "encrypt": false
+                },
+                {
+                    "key": "departure_time",
+                    "type": "string",
+                    "required": false,
+                    "array": false,
+                    "size": 5,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "vehicle",
+                    "type": "relationship",
+                    "required": false,
+                    "array": false,
+                    "relatedTable": "vehicles",
+                    "relationType": "manyToOne",
+                    "twoWay": false,
+                    "twoWayKey": "69b4d1a1000e658d2888",
+                    "onDelete": "setNull",
+                    "side": "parent"
                 }
             ],
             "indexes": []
@@ -1039,7 +4224,7 @@
                 },
                 {
                     "key": "reference",
-                    "type": "varchar",
+                    "type": "string",
                     "required": false,
                     "array": false,
                     "size": 255,
@@ -1052,728 +4237,19 @@
                     "required": false,
                     "array": false,
                     "default": false
-                }
-            ],
-            "indexes": []
-        },
-        {
-            "$id": "participations",
-            "$permissions": [
-                "create(\"users\")",
-                "read(\"users\")",
-                "update(\"users\")",
-                "delete(\"users\")"
-            ],
-            "databaseId": "69402ceb0012610399be",
-            "name": "participations",
-            "enabled": true,
-            "rowSecurity": true,
-            "columns": [
+                },
                 {
-                    "key": "status",
+                    "key": "list_open",
                     "type": "boolean",
                     "required": false,
                     "array": false,
                     "default": null
                 },
                 {
-                    "key": "checked_in",
-                    "type": "boolean",
-                    "required": false,
-                    "array": false,
-                    "default": null
-                },
-                {
-                    "key": "event",
-                    "type": "relationship",
-                    "required": false,
-                    "array": false,
-                    "relatedTable": "events",
-                    "relationType": "oneToMany",
-                    "twoWay": true,
-                    "twoWayKey": "participations",
-                    "onDelete": "setNull",
-                    "side": "child"
-                },
-                {
-                    "key": "operator",
-                    "type": "relationship",
-                    "required": false,
-                    "array": false,
-                    "relatedTable": "operators",
-                    "relationType": "manyToOne",
-                    "twoWay": false,
-                    "twoWayKey": "696ed910003e7d8d651d",
-                    "onDelete": "setNull",
-                    "side": "parent"
-                }
-            ],
-            "indexes": []
-        },
-        {
-            "$id": "visitors",
-            "$permissions": [
-                "create(\"users\")",
-                "read(\"users\")",
-                "update(\"users\")",
-                "delete(\"users\")"
-            ],
-            "databaseId": "69402ceb0012610399be",
-            "name": "guests",
-            "enabled": true,
-            "rowSecurity": true,
-            "columns": [
-                {
-                    "key": "name",
-                    "type": "string",
-                    "required": false,
-                    "array": false,
-                    "size": 255,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "codename",
-                    "type": "string",
-                    "required": false,
-                    "array": false,
-                    "size": 255,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "phone",
-                    "type": "string",
-                    "required": false,
-                    "array": false,
-                    "size": 11,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "status",
-                    "type": "boolean",
-                    "required": false,
-                    "array": false,
-                    "default": false
-                },
-                {
-                    "key": "team",
-                    "type": "string",
-                    "required": false,
-                    "array": false,
-                    "size": 255,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "operator",
-                    "type": "relationship",
-                    "required": false,
-                    "array": false,
-                    "relatedTable": "operators",
-                    "relationType": "manyToOne",
-                    "twoWay": false,
-                    "twoWayKey": "696ecd8a003d3991868a",
-                    "onDelete": "setNull",
-                    "side": "parent"
-                }
-            ],
-            "indexes": []
-        },
-        {
-            "$id": "visitor_participations",
-            "$permissions": [
-                "create(\"users\")",
-                "read(\"users\")",
-                "update(\"users\")",
-                "delete(\"users\")"
-            ],
-            "databaseId": "69402ceb0012610399be",
-            "name": "guest_participations",
-            "enabled": true,
-            "rowSecurity": true,
-            "columns": [
-                {
-                    "key": "checked_in",
-                    "type": "boolean",
-                    "required": false,
-                    "array": false,
-                    "default": null
-                },
-                {
-                    "key": "event",
-                    "type": "relationship",
-                    "required": false,
-                    "array": false,
-                    "relatedTable": "events",
-                    "relationType": "oneToMany",
-                    "twoWay": true,
-                    "twoWayKey": "guest_participations",
-                    "onDelete": "setNull",
-                    "side": "child"
-                },
-                {
-                    "key": "guest",
-                    "type": "relationship",
-                    "required": false,
-                    "array": false,
-                    "relatedTable": "visitors",
-                    "relationType": "manyToOne",
-                    "twoWay": false,
-                    "twoWayKey": "696ed96f0022d7ce5e18",
-                    "onDelete": "setNull",
-                    "side": "parent"
-                }
-            ],
-            "indexes": []
-        },
-        {
-            "$id": "vehicles",
-            "$permissions": [
-                "create(\"users\")",
-                "read(\"users\")",
-                "update(\"users\")",
-                "delete(\"users\")"
-            ],
-            "databaseId": "69402ceb0012610399be",
-            "name": "vehicles",
-            "enabled": true,
-            "rowSecurity": true,
-            "columns": [
-                {
-                    "key": "type",
-                    "type": "string",
-                    "required": false,
-                    "array": false,
-                    "size": 10,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "brand",
-                    "type": "string",
-                    "required": false,
-                    "array": false,
-                    "size": 255,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "model",
-                    "type": "string",
-                    "required": false,
-                    "array": false,
-                    "size": 255,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "color",
-                    "type": "string",
-                    "required": false,
-                    "array": false,
-                    "size": 255,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "total_seats",
+                    "key": "types",
                     "type": "integer",
-                    "required": false,
-                    "array": false,
-                    "default": null,
-                    "min": -9223372036854775808,
-                    "max": 9223372036854775807
-                },
-                {
-                    "key": "driver",
-                    "type": "relationship",
-                    "required": false,
-                    "array": false,
-                    "relatedTable": "operators",
-                    "relationType": "manyToOne",
-                    "twoWay": false,
-                    "twoWayKey": "696705d800095c979457",
-                    "onDelete": "setNull",
-                    "side": "parent"
-                }
-            ],
-            "indexes": []
-        },
-        {
-            "$id": "carpools",
-            "$permissions": [
-                "create(\"users\")",
-                "read(\"users\")",
-                "update(\"users\")",
-                "delete(\"users\")"
-            ],
-            "databaseId": "69402ceb0012610399be",
-            "name": "carpools",
-            "enabled": true,
-            "rowSecurity": true,
-            "columns": [
-                {
-                    "key": "available_seats",
-                    "type": "integer",
-                    "required": false,
-                    "array": false,
-                    "default": null,
-                    "min": -9223372036854775808,
-                    "max": 9223372036854775807
-                },
-                {
-                    "key": "departure_point",
-                    "type": "string",
-                    "required": false,
-                    "array": false,
-                    "size": 255,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "departure_time",
-                    "type": "string",
-                    "required": false,
-                    "array": false,
-                    "size": 5,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "event",
-                    "type": "relationship",
-                    "required": false,
-                    "array": false,
-                    "relatedTable": "events",
-                    "relationType": "oneToMany",
-                    "twoWay": true,
-                    "twoWayKey": "carpools",
-                    "onDelete": "setNull",
-                    "side": "child"
-                },
-                {
-                    "key": "vehicle",
-                    "type": "relationship",
-                    "required": false,
-                    "array": false,
-                    "relatedTable": "vehicles",
-                    "relationType": "manyToOne",
-                    "twoWay": false,
-                    "twoWayKey": "69b4d1a1000e658d2888",
-                    "onDelete": "setNull",
-                    "side": "parent"
-                }
-            ],
-            "indexes": []
-        },
-        {
-            "$id": "carpool_requests",
-            "$permissions": [
-                "create(\"users\")",
-                "read(\"users\")",
-                "update(\"users\")",
-                "delete(\"users\")"
-            ],
-            "databaseId": "69402ceb0012610399be",
-            "name": "carpool_requests",
-            "enabled": true,
-            "rowSecurity": true,
-            "columns": [
-                {
-                    "key": "status",
-                    "type": "string",
-                    "required": false,
-                    "array": false,
-                    "size": 8,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "carpool",
-                    "type": "relationship",
-                    "required": false,
-                    "array": false,
-                    "relatedTable": "carpools",
-                    "relationType": "manyToOne",
-                    "twoWay": false,
-                    "twoWayKey": "696e7adb00040ed9330c",
-                    "onDelete": "setNull",
-                    "side": "parent"
-                },
-                {
-                    "key": "requester",
-                    "type": "relationship",
-                    "required": false,
-                    "array": false,
-                    "relatedTable": "operators",
-                    "relationType": "manyToOne",
-                    "twoWay": false,
-                    "twoWayKey": "696e7aeb00079643ed72",
-                    "onDelete": "setNull",
-                    "side": "parent"
-                }
-            ],
-            "indexes": []
-        },
-        {
-            "$id": "payments",
-            "$permissions": [
-                "create(\"users\")",
-                "read(\"users\")",
-                "update(\"users\")",
-                "delete(\"users\")",
-                "read(\"guests\")"
-            ],
-            "databaseId": "69402ceb0012610399be",
-            "name": "payments",
-            "enabled": true,
-            "rowSecurity": true,
-            "columns": [
-                {
-                    "key": "amount",
-                    "type": "double",
-                    "required": false,
-                    "array": false,
-                    "default": null,
-                    "min": -1.7976931348623157e+308,
-                    "max": 1.7976931348623157e+308
-                },
-                {
-                    "key": "status",
-                    "type": "string",
-                    "required": false,
-                    "array": false,
-                    "size": 255,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "category",
-                    "type": "string",
-                    "required": false,
-                    "array": false,
-                    "size": 255,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "reference",
-                    "type": "string",
-                    "required": false,
-                    "array": false,
-                    "size": 7,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "receipt_url",
-                    "type": "string",
-                    "required": false,
-                    "array": false,
-                    "size": 1024,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "operator",
-                    "type": "relationship",
-                    "required": false,
-                    "array": false,
-                    "relatedTable": "operators",
-                    "relationType": "manyToOne",
-                    "twoWay": false,
-                    "twoWayKey": "69701fac003298cd9710",
-                    "onDelete": "setNull",
-                    "side": "parent"
-                },
-                {
-                    "key": "goal",
-                    "type": "relationship",
-                    "required": false,
-                    "array": false,
-                    "relatedTable": "goals",
-                    "relationType": "manyToOne",
-                    "twoWay": false,
-                    "twoWayKey": "6970206d0007b10787d1",
-                    "onDelete": "setNull",
-                    "side": "parent"
-                },
-                {
-                    "key": "due_date",
-                    "type": "datetime",
-                    "required": false,
-                    "array": false,
-                    "default": null,
-                    "format": ""
-                },
-                {
-                    "key": "description",
-                    "type": "string",
-                    "required": false,
-                    "array": false,
-                    "size": 255,
-                    "default": null,
-                    "encrypt": false
-                }
-            ],
-            "indexes": []
-        },
-        {
-            "$id": "goals",
-            "$permissions": [
-                "create(\"users\")",
-                "read(\"users\")",
-                "update(\"users\")",
-                "delete(\"users\")"
-            ],
-            "databaseId": "69402ceb0012610399be",
-            "name": "goals",
-            "enabled": true,
-            "rowSecurity": true,
-            "columns": [
-                {
-                    "key": "title",
-                    "type": "string",
-                    "required": false,
-                    "array": false,
-                    "size": 255,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "description",
-                    "type": "string",
-                    "required": false,
-                    "array": false,
-                    "size": 1024,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "target_amount",
-                    "type": "double",
-                    "required": false,
-                    "array": false,
-                    "default": null,
-                    "min": -1.7976931348623157e+308,
-                    "max": 1.7976931348623157e+308
-                },
-                {
-                    "key": "current_amount",
-                    "type": "double",
-                    "required": false,
-                    "array": false,
-                    "default": null,
-                    "min": -1.7976931348623157e+308,
-                    "max": 1.7976931348623157e+308
-                },
-                {
-                    "key": "deadline",
-                    "type": "datetime",
-                    "required": false,
-                    "array": false,
-                    "default": null,
-                    "format": ""
-                },
-                {
-                    "key": "image_url",
-                    "type": "string",
-                    "required": false,
-                    "array": false,
-                    "size": 1024,
-                    "default": null,
-                    "encrypt": false
-                }
-            ],
-            "indexes": []
-        },
-        {
-            "$id": "cashflow",
-            "$permissions": [
-                "create(\"users\")",
-                "read(\"users\")",
-                "update(\"users\")",
-                "delete(\"users\")"
-            ],
-            "databaseId": "69402ceb0012610399be",
-            "name": "cashflow",
-            "enabled": true,
-            "rowSecurity": true,
-            "columns": [
-                {
-                    "key": "description",
-                    "type": "string",
-                    "required": false,
-                    "array": false,
-                    "size": 1024,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "amount",
-                    "type": "double",
-                    "required": false,
-                    "array": false,
-                    "default": null,
-                    "min": -1.7976931348623157e+308,
-                    "max": 1.7976931348623157e+308
-                },
-                {
-                    "key": "category",
-                    "type": "string",
-                    "required": false,
-                    "array": false,
-                    "size": 255,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "date",
-                    "type": "datetime",
-                    "required": false,
-                    "array": false,
-                    "default": null,
-                    "format": ""
-                },
-                {
-                    "key": "receipt_url",
-                    "type": "string",
-                    "required": false,
-                    "array": false,
-                    "size": 1024,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "payment",
-                    "type": "relationship",
-                    "required": false,
-                    "array": false,
-                    "relatedTable": "payments",
-                    "relationType": "oneToOne",
-                    "twoWay": false,
-                    "twoWayKey": "697020ed0016d8d7af57",
-                    "onDelete": "setNull",
-                    "side": "parent"
-                },
-                {
-                    "key": "type",
-                    "type": "string",
-                    "required": false,
-                    "array": false,
-                    "size": 255,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "reference",
-                    "type": "string",
-                    "required": false,
-                    "array": false,
-                    "size": 7,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "fee",
-                    "type": "varchar",
-                    "required": false,
-                    "array": false,
-                    "size": 255,
-                    "default": null,
-                    "encrypt": false
-                }
-            ],
-            "indexes": []
-        },
-        {
-            "$id": "maintenance",
-            "$permissions": [
-                "create(\"users\")",
-                "read(\"users\")",
-                "update(\"users\")",
-                "delete(\"users\")"
-            ],
-            "databaseId": "69402ceb0012610399be",
-            "name": "maintenance",
-            "enabled": true,
-            "rowSecurity": true,
-            "columns": [
-                {
-                    "key": "status",
-                    "type": "string",
-                    "required": false,
-                    "array": false,
-                    "size": 255,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "technical_report",
-                    "type": "string",
-                    "required": false,
-                    "array": false,
-                    "size": 1024,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "operator",
-                    "type": "relationship",
-                    "required": false,
-                    "array": false,
-                    "relatedTable": "operators",
-                    "relationType": "manyToOne",
-                    "twoWay": false,
-                    "twoWayKey": "69792699002c91e367da",
-                    "onDelete": "setNull",
-                    "side": "parent"
-                },
-                {
-                    "key": "arsenal",
-                    "type": "relationship",
-                    "required": false,
-                    "array": false,
-                    "relatedTable": "arsenals",
-                    "relationType": "manyToOne",
-                    "twoWay": false,
-                    "twoWayKey": "697926b6002795bf3c1f",
-                    "onDelete": "setNull",
-                    "side": "parent"
-                },
-                {
-                    "key": "maintenance_at",
-                    "type": "datetime",
-                    "required": false,
-                    "array": false,
-                    "default": null,
-                    "format": ""
-                },
-                {
-                    "key": "type",
-                    "type": "string",
                     "required": false,
                     "array": true,
-                    "size": 255,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "joule",
-                    "type": "varchar",
-                    "required": false,
-                    "array": false,
-                    "size": 4,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "fps",
-                    "type": "integer",
-                    "required": false,
-                    "array": false,
                     "default": null,
                     "min": -9223372036854775808,
                     "max": 9223372036854775807
@@ -1922,15 +4398,16 @@
                 },
                 {
                     "key": "comment",
-                    "type": "text",
+                    "type": "string",
                     "required": false,
                     "array": false,
+                    "size": 2048,
                     "default": null,
                     "encrypt": false
                 },
                 {
                     "key": "likes",
-                    "type": "varchar",
+                    "type": "string",
                     "required": false,
                     "array": true,
                     "size": 255,
@@ -1955,7 +4432,7 @@
             "columns": [
                 {
                     "key": "text",
-                    "type": "varchar",
+                    "type": "string",
                     "required": false,
                     "array": false,
                     "size": 1024,
@@ -1964,7 +4441,7 @@
                 },
                 {
                     "key": "options",
-                    "type": "varchar",
+                    "type": "string",
                     "required": false,
                     "array": true,
                     "size": 1024,
@@ -1973,7 +4450,7 @@
                 },
                 {
                     "key": "correct_option",
-                    "type": "varchar",
+                    "type": "string",
                     "required": false,
                     "array": false,
                     "size": 1024,
@@ -1982,7 +4459,7 @@
                 },
                 {
                     "key": "category",
-                    "type": "varchar",
+                    "type": "string",
                     "required": false,
                     "array": false,
                     "size": 255,
@@ -1991,7 +4468,7 @@
                 },
                 {
                     "key": "difficulty",
-                    "type": "varchar",
+                    "type": "string",
                     "required": false,
                     "array": false,
                     "size": 255,
@@ -2000,7 +4477,7 @@
                 },
                 {
                     "key": "type",
-                    "type": "varchar",
+                    "type": "string",
                     "required": false,
                     "array": false,
                     "size": 255,
@@ -2025,7 +4502,7 @@
             "columns": [
                 {
                     "key": "category",
-                    "type": "varchar",
+                    "type": "string",
                     "required": false,
                     "array": false,
                     "size": 255,
@@ -2034,7 +4511,7 @@
                 },
                 {
                     "key": "answers",
-                    "type": "varchar",
+                    "type": "string",
                     "required": false,
                     "array": true,
                     "size": 1024,
@@ -2081,297 +4558,6 @@
                     "array": false,
                     "default": null,
                     "format": ""
-                }
-            ],
-            "indexes": []
-        },
-        {
-            "$id": "settings",
-            "$permissions": [
-                "read(\"guests\")",
-                "create(\"users\")",
-                "read(\"users\")",
-                "update(\"users\")",
-                "delete(\"users\")"
-            ],
-            "databaseId": "69402ceb0012610399be",
-            "name": "settings",
-            "enabled": true,
-            "rowSecurity": true,
-            "columns": [
-                {
-                    "key": "key",
-                    "type": "varchar",
-                    "required": false,
-                    "array": false,
-                    "size": 255,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "value",
-                    "type": "varchar",
-                    "required": false,
-                    "array": false,
-                    "size": 255,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "description",
-                    "type": "text",
-                    "required": false,
-                    "array": false,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "args",
-                    "type": "text",
-                    "required": false,
-                    "array": false,
-                    "default": null,
-                    "encrypt": false
-                }
-            ],
-            "indexes": []
-        },
-        {
-            "$id": "tournament_teams",
-            "$permissions": [
-                "create(\"users\")",
-                "read(\"users\")",
-                "update(\"users\")",
-                "delete(\"users\")"
-            ],
-            "databaseId": "69402ceb0012610399be",
-            "name": "tournament_teams",
-            "enabled": true,
-            "rowSecurity": true,
-            "columns": [
-                {
-                    "key": "name",
-                    "type": "varchar",
-                    "required": false,
-                    "array": false,
-                    "size": 255,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "score",
-                    "type": "integer",
-                    "required": false,
-                    "array": false,
-                    "default": null,
-                    "min": -9223372036854775808,
-                    "max": 9223372036854775807
-                },
-                {
-                    "key": "operators",
-                    "type": "relationship",
-                    "required": false,
-                    "array": false,
-                    "relatedTable": "operators",
-                    "relationType": "manyToMany",
-                    "twoWay": false,
-                    "twoWayKey": "69f41b0400099d887a2c",
-                    "onDelete": "setNull",
-                    "side": "parent"
-                },
-                {
-                    "key": "tournament",
-                    "type": "relationship",
-                    "required": false,
-                    "array": false,
-                    "relatedTable": "tournaments",
-                    "relationType": "oneToMany",
-                    "twoWay": true,
-                    "twoWayKey": "teams",
-                    "onDelete": "setNull",
-                    "side": "child"
-                }
-            ],
-            "indexes": []
-        },
-        {
-            "$id": "tournament_stats",
-            "$permissions": [
-                "create(\"users\")",
-                "read(\"users\")",
-                "update(\"users\")",
-                "delete(\"users\")"
-            ],
-            "databaseId": "69402ceb0012610399be",
-            "name": "tournament_stats",
-            "enabled": true,
-            "rowSecurity": true,
-            "columns": [
-                {
-                    "key": "operator",
-                    "type": "relationship",
-                    "required": false,
-                    "array": false,
-                    "relatedTable": "operators",
-                    "relationType": "manyToOne",
-                    "twoWay": false,
-                    "twoWayKey": "69f41b450024843925c2",
-                    "onDelete": "setNull",
-                    "side": "parent"
-                },
-                {
-                    "key": "match",
-                    "type": "relationship",
-                    "required": false,
-                    "array": false,
-                    "relatedTable": "tournament_matches",
-                    "relationType": "manyToOne",
-                    "twoWay": false,
-                    "twoWayKey": "69f41c9f0030fc02fd32",
-                    "onDelete": "setNull",
-                    "side": "parent"
-                },
-                {
-                    "key": "kills",
-                    "type": "integer",
-                    "required": false,
-                    "array": false,
-                    "default": null,
-                    "min": -9223372036854775808,
-                    "max": 9223372036854775807
-                },
-                {
-                    "key": "deaths",
-                    "type": "integer",
-                    "required": false,
-                    "array": false,
-                    "default": null,
-                    "min": -9223372036854775808,
-                    "max": 9223372036854775807
-                },
-                {
-                    "key": "head_hits",
-                    "type": "integer",
-                    "required": false,
-                    "array": false,
-                    "default": null,
-                    "min": -9223372036854775808,
-                    "max": 9223372036854775807
-                },
-                {
-                    "key": "torso_hits",
-                    "type": "integer",
-                    "required": false,
-                    "array": false,
-                    "default": null,
-                    "min": -9223372036854775808,
-                    "max": 9223372036854775807
-                },
-                {
-                    "key": "mms_left_hits",
-                    "type": "integer",
-                    "required": false,
-                    "array": false,
-                    "default": null,
-                    "min": -9223372036854775808,
-                    "max": 9223372036854775807
-                },
-                {
-                    "key": "mms_right_hits",
-                    "type": "integer",
-                    "required": false,
-                    "array": false,
-                    "default": null,
-                    "min": -9223372036854775808,
-                    "max": 9223372036854775807
-                },
-                {
-                    "key": "mmi_left_hits",
-                    "type": "integer",
-                    "required": false,
-                    "array": false,
-                    "default": null,
-                    "min": -9223372036854775808,
-                    "max": 9223372036854775807
-                },
-                {
-                    "key": "mmi_right_hits",
-                    "type": "integer",
-                    "required": false,
-                    "array": false,
-                    "default": null,
-                    "min": -9223372036854775808,
-                    "max": 9223372036854775807
-                },
-                {
-                    "key": "points_total",
-                    "type": "integer",
-                    "required": false,
-                    "array": false,
-                    "default": null,
-                    "min": -9223372036854775808,
-                    "max": 9223372036854775807
-                },
-                {
-                    "key": "tournament",
-                    "type": "relationship",
-                    "required": false,
-                    "array": false,
-                    "relatedTable": "tournaments",
-                    "relationType": "manyToOne",
-                    "twoWay": false,
-                    "twoWayKey": "69f41e00002fce983446",
-                    "onDelete": "setNull",
-                    "side": "parent"
-                }
-            ],
-            "indexes": []
-        },
-        {
-            "$id": "tournament_registrations",
-            "$permissions": [
-                "create(\"users\")",
-                "read(\"users\")",
-                "update(\"users\")",
-                "delete(\"users\")"
-            ],
-            "databaseId": "69402ceb0012610399be",
-            "name": "tournament_registrations",
-            "enabled": true,
-            "rowSecurity": true,
-            "columns": [
-                {
-                    "key": "operator",
-                    "type": "relationship",
-                    "required": false,
-                    "array": false,
-                    "relatedTable": "operators",
-                    "relationType": "manyToOne",
-                    "twoWay": false,
-                    "twoWayKey": "69f41b7000034c7ca472",
-                    "onDelete": "setNull",
-                    "side": "parent"
-                },
-                {
-                    "key": "status",
-                    "type": "varchar",
-                    "required": false,
-                    "array": false,
-                    "size": 255,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "tournament",
-                    "type": "relationship",
-                    "required": false,
-                    "array": false,
-                    "relatedTable": "tournaments",
-                    "relationType": "oneToMany",
-                    "twoWay": true,
-                    "twoWayKey": "registrations",
-                    "onDelete": "setNull",
-                    "side": "child"
                 }
             ],
             "indexes": []
@@ -2436,7 +4622,7 @@
                 },
                 {
                     "key": "next_match",
-                    "type": "varchar",
+                    "type": "string",
                     "required": false,
                     "array": false,
                     "size": 255,
@@ -2477,6 +4663,382 @@
             "indexes": []
         },
         {
+            "$id": "tournament_teams",
+            "$permissions": [
+                "create(\"users\")",
+                "read(\"users\")",
+                "update(\"users\")",
+                "delete(\"users\")"
+            ],
+            "databaseId": "69402ceb0012610399be",
+            "name": "tournament_teams",
+            "enabled": true,
+            "rowSecurity": true,
+            "columns": [
+                {
+                    "key": "name",
+                    "type": "string",
+                    "required": false,
+                    "array": false,
+                    "size": 255,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "score",
+                    "type": "integer",
+                    "required": false,
+                    "array": false,
+                    "default": null,
+                    "min": -9223372036854775808,
+                    "max": 9223372036854775807
+                },
+                {
+                    "key": "operators",
+                    "type": "relationship",
+                    "required": false,
+                    "array": false,
+                    "relatedTable": "operators",
+                    "relationType": "manyToMany",
+                    "twoWay": false,
+                    "twoWayKey": "69f41b0400099d887a2c",
+                    "onDelete": "setNull",
+                    "side": "parent"
+                },
+                {
+                    "key": "tournament",
+                    "type": "relationship",
+                    "required": false,
+                    "array": false,
+                    "relatedTable": "tournaments",
+                    "relationType": "oneToMany",
+                    "twoWay": true,
+                    "twoWayKey": "teams",
+                    "onDelete": "setNull",
+                    "side": "child"
+                }
+            ],
+            "indexes": []
+        },
+        {
+            "$id": "goals",
+            "$permissions": [
+                "create(\"users\")",
+                "read(\"users\")",
+                "update(\"users\")",
+                "delete(\"users\")"
+            ],
+            "databaseId": "69402ceb0012610399be",
+            "name": "goals",
+            "enabled": true,
+            "rowSecurity": true,
+            "columns": [
+                {
+                    "key": "title",
+                    "type": "string",
+                    "required": false,
+                    "array": false,
+                    "size": 255,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "description",
+                    "type": "string",
+                    "required": false,
+                    "array": false,
+                    "size": 1024,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "target_amount",
+                    "type": "double",
+                    "required": false,
+                    "array": false,
+                    "default": null,
+                    "min": -1.7976931348623157e+308,
+                    "max": 1.7976931348623157e+308
+                },
+                {
+                    "key": "current_amount",
+                    "type": "double",
+                    "required": false,
+                    "array": false,
+                    "default": null,
+                    "min": -1.7976931348623157e+308,
+                    "max": 1.7976931348623157e+308
+                },
+                {
+                    "key": "deadline",
+                    "type": "datetime",
+                    "required": false,
+                    "array": false,
+                    "default": null,
+                    "format": ""
+                },
+                {
+                    "key": "image_url",
+                    "type": "string",
+                    "required": false,
+                    "array": false,
+                    "size": 1024,
+                    "default": null,
+                    "encrypt": false
+                }
+            ],
+            "indexes": []
+        },
+        {
+            "$id": "visitor_participations",
+            "$permissions": [
+                "create(\"users\")",
+                "read(\"users\")",
+                "update(\"users\")",
+                "delete(\"users\")"
+            ],
+            "databaseId": "69402ceb0012610399be",
+            "name": "guest_participations",
+            "enabled": true,
+            "rowSecurity": true,
+            "columns": [
+                {
+                    "key": "event",
+                    "type": "relationship",
+                    "required": false,
+                    "array": false,
+                    "relatedTable": "events",
+                    "relationType": "oneToMany",
+                    "twoWay": true,
+                    "twoWayKey": "guest_participations",
+                    "onDelete": "setNull",
+                    "side": "child"
+                },
+                {
+                    "key": "checked_in",
+                    "type": "boolean",
+                    "required": false,
+                    "array": false,
+                    "default": null
+                },
+                {
+                    "key": "guest",
+                    "type": "relationship",
+                    "required": false,
+                    "array": false,
+                    "relatedTable": "visitors",
+                    "relationType": "manyToOne",
+                    "twoWay": false,
+                    "twoWayKey": "696ed96f0022d7ce5e18",
+                    "onDelete": "setNull",
+                    "side": "parent"
+                }
+            ],
+            "indexes": []
+        },
+        {
+            "$id": "settings",
+            "$permissions": [
+                "read(\"guests\")",
+                "create(\"users\")",
+                "read(\"users\")",
+                "update(\"users\")",
+                "delete(\"users\")"
+            ],
+            "databaseId": "69402ceb0012610399be",
+            "name": "settings",
+            "enabled": true,
+            "rowSecurity": true,
+            "columns": [
+                {
+                    "key": "tactical_map",
+                    "type": "boolean",
+                    "required": false,
+                    "array": false,
+                    "default": null
+                },
+                {
+                    "key": "global_map",
+                    "type": "boolean",
+                    "required": false,
+                    "array": false,
+                    "default": null
+                },
+                {
+                    "key": "tournament_active",
+                    "type": "boolean",
+                    "required": false,
+                    "array": false,
+                    "default": null
+                },
+                {
+                    "key": "team_name",
+                    "type": "string",
+                    "required": false,
+                    "array": false,
+                    "size": 255,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "recruitment_open",
+                    "type": "boolean",
+                    "required": false,
+                    "array": false,
+                    "default": null
+                },
+                {
+                    "key": "registration_start_date",
+                    "type": "string",
+                    "required": false,
+                    "array": false,
+                    "size": 10,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "blue_base",
+                    "type": "string",
+                    "required": false,
+                    "array": false,
+                    "size": 50,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "yellow_base",
+                    "type": "string",
+                    "required": false,
+                    "array": false,
+                    "size": 50,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "monthly_fee",
+                    "type": "integer",
+                    "required": false,
+                    "array": false,
+                    "default": null,
+                    "min": -9223372036854775808,
+                    "max": 9223372036854775807
+                },
+                {
+                    "key": "max_pending_payments",
+                    "type": "integer",
+                    "required": false,
+                    "array": false,
+                    "default": null,
+                    "min": -9223372036854775808,
+                    "max": 9223372036854775807
+                }
+            ],
+            "indexes": []
+        },
+        {
+            "$id": "payments",
+            "$permissions": [
+                "create(\"users\")",
+                "read(\"users\")",
+                "update(\"users\")",
+                "delete(\"users\")",
+                "read(\"guests\")"
+            ],
+            "databaseId": "69402ceb0012610399be",
+            "name": "payments",
+            "enabled": true,
+            "rowSecurity": true,
+            "columns": [
+                {
+                    "key": "amount",
+                    "type": "double",
+                    "required": false,
+                    "array": false,
+                    "default": null,
+                    "min": -1.7976931348623157e+308,
+                    "max": 1.7976931348623157e+308
+                },
+                {
+                    "key": "status",
+                    "type": "string",
+                    "required": false,
+                    "array": false,
+                    "size": 255,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "category",
+                    "type": "string",
+                    "required": false,
+                    "array": false,
+                    "size": 255,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "reference",
+                    "type": "string",
+                    "required": false,
+                    "array": false,
+                    "size": 7,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "receipt_url",
+                    "type": "string",
+                    "required": false,
+                    "array": false,
+                    "size": 1024,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "operator",
+                    "type": "relationship",
+                    "required": false,
+                    "array": false,
+                    "relatedTable": "operators",
+                    "relationType": "manyToOne",
+                    "twoWay": false,
+                    "twoWayKey": "69701fac003298cd9710",
+                    "onDelete": "setNull",
+                    "side": "parent"
+                },
+                {
+                    "key": "goal",
+                    "type": "relationship",
+                    "required": false,
+                    "array": false,
+                    "relatedTable": "goals",
+                    "relationType": "manyToOne",
+                    "twoWay": false,
+                    "twoWayKey": "6970206d0007b10787d1",
+                    "onDelete": "setNull",
+                    "side": "parent"
+                },
+                {
+                    "key": "due_date",
+                    "type": "datetime",
+                    "required": false,
+                    "array": false,
+                    "default": null,
+                    "format": ""
+                },
+                {
+                    "key": "description",
+                    "type": "string",
+                    "required": false,
+                    "array": false,
+                    "size": 255,
+                    "default": null,
+                    "encrypt": false
+                }
+            ],
+            "indexes": []
+        },
+        {
             "$id": "tournaments",
             "$permissions": [
                 "create(\"users\")",
@@ -2491,7 +5053,7 @@
             "columns": [
                 {
                     "key": "name",
-                    "type": "varchar",
+                    "type": "string",
                     "required": false,
                     "array": false,
                     "size": 255,
@@ -2500,15 +5062,16 @@
                 },
                 {
                     "key": "description",
-                    "type": "text",
+                    "type": "string",
                     "required": false,
                     "array": false,
+                    "size": 2048,
                     "default": null,
                     "encrypt": false
                 },
                 {
                     "key": "status",
-                    "type": "varchar",
+                    "type": "string",
                     "required": false,
                     "array": false,
                     "size": 255,
@@ -2534,7 +5097,7 @@
                 },
                 {
                     "key": "type",
-                    "type": "varchar",
+                    "type": "string",
                     "required": false,
                     "array": false,
                     "size": 255,
@@ -2543,7 +5106,7 @@
                 },
                 {
                     "key": "allowed_class",
-                    "type": "varchar",
+                    "type": "string",
                     "required": false,
                     "array": false,
                     "size": 255,
@@ -2604,7 +5167,7 @@
                 },
                 {
                     "key": "awards",
-                    "type": "varchar",
+                    "type": "string",
                     "required": false,
                     "array": true,
                     "size": 255,
@@ -2615,7 +5178,7 @@
             "indexes": []
         },
         {
-            "$id": "rankings",
+            "$id": "vehicles",
             "$permissions": [
                 "create(\"users\")",
                 "read(\"users\")",
@@ -2623,12 +5186,48 @@
                 "delete(\"users\")"
             ],
             "databaseId": "69402ceb0012610399be",
-            "name": "rankings",
+            "name": "vehicles",
             "enabled": true,
             "rowSecurity": true,
             "columns": [
                 {
-                    "key": "kills",
+                    "key": "type",
+                    "type": "string",
+                    "required": false,
+                    "array": false,
+                    "size": 10,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "brand",
+                    "type": "string",
+                    "required": false,
+                    "array": false,
+                    "size": 255,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "model",
+                    "type": "string",
+                    "required": false,
+                    "array": false,
+                    "size": 255,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "color",
+                    "type": "string",
+                    "required": false,
+                    "array": false,
+                    "size": 255,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "total_seats",
                     "type": "integer",
                     "required": false,
                     "array": false,
@@ -2637,77 +5236,33 @@
                     "max": 9223372036854775807
                 },
                 {
-                    "key": "deaths",
-                    "type": "integer",
+                    "key": "driver",
+                    "type": "relationship",
                     "required": false,
                     "array": false,
-                    "default": null,
-                    "min": -9223372036854775808,
-                    "max": 9223372036854775807
-                },
-                {
-                    "key": "head_hits",
-                    "type": "integer",
-                    "required": false,
-                    "array": false,
-                    "default": null,
-                    "min": -9223372036854775808,
-                    "max": 9223372036854775807
-                },
-                {
-                    "key": "torso_hits",
-                    "type": "integer",
-                    "required": false,
-                    "array": false,
-                    "default": null,
-                    "min": -9223372036854775808,
-                    "max": 9223372036854775807
-                },
-                {
-                    "key": "mms_left_hits",
-                    "type": "integer",
-                    "required": false,
-                    "array": false,
-                    "default": null,
-                    "min": -9223372036854775808,
-                    "max": 9223372036854775807
-                },
-                {
-                    "key": "mms_right_hits",
-                    "type": "integer",
-                    "required": false,
-                    "array": false,
-                    "default": null,
-                    "min": -9223372036854775808,
-                    "max": 9223372036854775807
-                },
-                {
-                    "key": "mmi_left_hits",
-                    "type": "integer",
-                    "required": false,
-                    "array": false,
-                    "default": null,
-                    "min": -9223372036854775808,
-                    "max": 9223372036854775807
-                },
-                {
-                    "key": "mmi_right_hits",
-                    "type": "integer",
-                    "required": false,
-                    "array": false,
-                    "default": null,
-                    "min": -9223372036854775808,
-                    "max": 9223372036854775807
-                },
-                {
-                    "key": "points_total",
-                    "type": "integer",
-                    "required": false,
-                    "array": false,
-                    "default": null,
-                    "min": -9223372036854775808,
-                    "max": 9223372036854775807
-                },
+                    "relatedTable": "operators",
+                    "relationType": "manyToOne",
+                    "twoWay": false,
+                    "twoWayKey": "696705d800095c979457",
+                    "onDelete": "setNull",
+                    "side": "parent"
+                }
+            ],
+            "indexes": []
+        },
+        {
+            "$id": "tournament_registrations",
+            "$permissions": [
+                "create(\"users\")",
+                "read(\"users\")",
+                "update(\"users\")",
+                "delete(\"users\")"
+            ],
+            "databaseId": "69402ceb0012610399be",
+            "name": "tournament_registrations",
+            "enabled": true,
+            "rowSecurity": true,
+            "columns": [
                 {
                     "key": "operator",
                     "type": "relationship",
@@ -2716,21 +5271,18 @@
                     "relatedTable": "operators",
                     "relationType": "manyToOne",
                     "twoWay": false,
-                    "twoWayKey": "69f1061100060948386b",
+                    "twoWayKey": "69f41b7000034c7ca472",
                     "onDelete": "setNull",
                     "side": "parent"
                 },
                 {
-                    "key": "match",
-                    "type": "relationship",
+                    "key": "status",
+                    "type": "string",
                     "required": false,
                     "array": false,
-                    "relatedTable": "tournament_matches",
-                    "relationType": "manyToOne",
-                    "twoWay": false,
-                    "twoWayKey": "69f95414001f3a596c14",
-                    "onDelete": "setNull",
-                    "side": "parent"
+                    "size": 255,
+                    "default": null,
+                    "encrypt": false
                 },
                 {
                     "key": "tournament",
@@ -2738,29 +5290,11 @@
                     "required": false,
                     "array": false,
                     "relatedTable": "tournaments",
-                    "relationType": "manyToOne",
-                    "twoWay": false,
-                    "twoWayKey": "69f954210002b66b0cda",
+                    "relationType": "oneToMany",
+                    "twoWay": true,
+                    "twoWayKey": "registrations",
                     "onDelete": "setNull",
-                    "side": "parent"
-                },
-                {
-                    "key": "wins",
-                    "type": "integer",
-                    "required": false,
-                    "array": false,
-                    "default": null,
-                    "min": -9223372036854775808,
-                    "max": 9223372036854775807
-                },
-                {
-                    "key": "losses",
-                    "type": "integer",
-                    "required": false,
-                    "array": false,
-                    "default": null,
-                    "min": -9223372036854775808,
-                    "max": 9223372036854775807
+                    "side": "child"
                 }
             ],
             "indexes": []

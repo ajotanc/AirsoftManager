@@ -18,7 +18,7 @@ export const TABLE_ARSENALS = "arsenals";
 export const TABLE_LOADOUTS = "loadouts";
 export const TABLE_SKILL_RATINGS = "skill_ratings";
 
-const client = new Client();
+export const client = new Client();
 
 client
   .setEndpoint(import.meta.env.VITE_APPWRITE_ENDPOINT)

@@ -45,30 +45,42 @@
           <template #content>{{ loadout.length }} Loadout(s) cadastrado(s)</template>
         </Card>
       </div>
-      <div class="col-12" v-if="isTournamentActive">
-        <Card>
-          <template #title>Torneio(s)</template>
-          <template #content>
-            <TournamentList />
-          </template>
-        </Card>
-      </div>
-      <div class="col-12">
-        <Card>
-          <template #title>Cronograma</template>
-          <template #content>
-            <ArenaSchedule />
-          </template>
-        </Card>
-      </div>
-      <div class="col-12">
-        <Card>
-          <template #content>
-            <OperatorList />
-          </template>
-        </Card>
-      </div>
     </template>
+
+    <div v-if="showTacticalMap" class="col-12">
+      <Card>
+        <template #title>Mapa Tático</template>
+        <template #content>
+          <Map />
+        </template>
+      </Card>
+    </div>
+
+    <div class="col-12" v-if="isTournamentActive">
+      <Card>
+        <template #title>Torneio(s)</template>
+        <template #content>
+          <TournamentList />
+        </template>
+      </Card>
+    </div>
+
+    <div class="col-12">
+      <Card>
+        <template #title>Cronograma</template>
+        <template #content>
+          <ArenaSchedule />
+        </template>
+      </Card>
+    </div>
+
+    <div class="col-12">
+      <Card>
+        <template #content>
+          <OperatorList />
+        </template>
+      </Card>
+    </div>
 
     <div class="col-12">
       <Card>
@@ -132,6 +144,7 @@ import ArenaSchedule from "@/components/ArenaSchedule.vue";
 import TournamentList from "@/components/tournament/TournamentList.vue";
 import AppScanner from "@/components/AppScanner.vue";
 import AdminBroadcastDialog from "@/components/admin/AdminBroadcastDialog.vue";
+import Map from "@/components/Map.vue";
 
 import { PaymentService, type IPayment } from "@/services/payment";
 import { SchoolService } from "@/services/school";
@@ -145,7 +158,7 @@ const { $id, arsenal, loadout } = operator.value;
 const openScannerDialog = ref(false);
 const openBroadcastDialog = ref(false);
 
-const { isTournamentActive } = useSettingsStore();
+const { isTournamentActive, showTacticalMap } = useSettingsStore();
 
 const {
   data: missingCerts,

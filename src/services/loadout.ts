@@ -18,6 +18,7 @@ export interface ILoadout {
   holster: boolean | null;
   walkie_talkie: boolean | null;
   operator: string;
+  uniform_name?: string;
 }
 
 export const LoadoutService = {

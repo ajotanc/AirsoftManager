@@ -73,7 +73,7 @@ export default defineConfig(({ mode }) => {
           ],
         },
         workbox: {
-          navigateFallbackDenylist: [/^\/sitemap\.xml$/, /^\/robots\.xml$/, /^\/llms\.xml$/, ],
+          navigateFallbackDenylist: [/^\/sitemap\.xml$/, /^\/robots\.xml$/, /^\/llms\.xml$/,],
           skipWaiting: true,
           clientsClaim: true,
           maximumFileSizeToCacheInBytes: 4000000,
@@ -152,6 +152,16 @@ export default defineConfig(({ mode }) => {
     },
     optimizeDeps: {
       include: ['pdfjs-dist']
+    },
+    server: {
+      host: true,
+      allowedHosts: [
+        ".ajotanc.com.br",
+        ".ngrok-free.app",
+        ".ngrok.io",
+        ".ngrok-free.dev",
+        ".trycloudflare.com",
+      ],
     },
   };
 });
