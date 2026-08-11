@@ -39,7 +39,7 @@
                 <div class="relative">
                     <Button icon="ri-chat-4-line" severity="secondary" rounded size="small"
                         v-tooltip.top="'Chat Tático em Tempo Real'" aria-label="Chat Tático" @click="toggleChatDrawer"
-                        :disabled="isDead" />
+                        :disabled="isDead || isMedic" />
                     <span v-if="unreadChatCount > 0"
                         class="chat-unread-badge flex align-items-center justify-content-center border-circle bg-red-500 text-white font-bold text-xs shadow-2">
                         {{ unreadChatCount > 5 ? '5+' : unreadChatCount }}
@@ -69,7 +69,7 @@
         <Drawer v-model:visible="showChatDrawer" position="right" class="tactical-chat-drawer">
             <template #header>
                 <div class="flex align-items-center gap-2">
-                    <i class="ri-radio-2-line text-yellow-600 text-xl"></i>
+                    <img src="/images/exd.webp" :alt="TEAM_NAME" class="w-3rem h-3rem" />
                     <div class="flex flex-column">
                         <span class="font-bold text-gray-900 text-base uppercase tracking-wide">{{ TEAM_NAME }}</span>
                         <span class="text-xs text-gray-500 font-medium">{{
@@ -89,10 +89,18 @@
                     <div class="tactical-quick-grid">
                         <Button v-for="(c, idx) in quickCallouts" :key="idx" :title="c.desc" v-tooltip.top="c.desc"
                             class="text-xxs font-bold p-1 border-round shadow-1 text-center" outlined
-                            severity="secondary" @click="sendChatMessage(c.text, c.isCallout)" :label="c.label" />
+                            :severity="c?.severity || 'secondary'" @click="sendChatMessage(c.text, c.isCallout)"
+                            :label="c.label" />
                     </div>
                 </div>
-
+                <div v-if="peerStatusList.length > 0"
+                    class="peer-status-row flex align-items-center gap-2 py-2 overflow-x-auto">
+                    <div v-for="peer in peerStatusList" :key="peer.peerId"
+                        class="peer-status-chip flex align-items-center gap-1 flex-shrink-0" v-tooltip.top="peer.state">
+                        <span class="peer-status-dot" :class="'status-' + peer.state"></span>
+                        <span class="text-xxs font-medium">{{ peer.codename }}</span>
+                    </div>
+                </div>
                 <!-- Feed de Mensagens -->
                 <div ref="chatContainerRef" class="chat-feed flex flex-column gap-2 overflow-y-auto flex-1 py-2 pr-1">
                     <div v-if="chatMessages.length === 0"
@@ -106,13 +114,13 @@
                     <div v-for="msg in chatMessages" :key="msg.id">
                         <div v-if="msg.isSystem" class="flex justify-content-center">
                             <span class="text-xxs text-gray-400 font-medium uppercase tracking-wide">{{ msg.text
-                            }}</span>
+                                }}</span>
                         </div>
                         <div v-else class="chat-bubble-wrapper flex gap-2 align-items-start"
                             :class="{ 'justify-content-end': msg.isSelf }">
 
                             <img v-if="!msg.isSelf" :src="msg.avatar || '/images/default-avatar.png'"
-                                class="w-2rem h-2rem border-circle border-1 border-amber-500 object-cover flex-shrink-0"
+                                class="chat-bubble-avatar w-2rem h-2rem border-circle border-1 border-amber-500 flex-shrink-0"
                                 onerror="this.src='/favicon.ico'" />
 
                             <div class="chat-bubble flex flex-column gap-1 p-2 border-round max-w-18rem shadow-1"
@@ -131,7 +139,7 @@
                                     </span>
                                 </div>
                                 <span class="text-xs font-medium line-height-2 word-break-break-word">{{ msg.text
-                                }}</span>
+                                    }}</span>
                             </div>
                         </div>
                     </div>
@@ -153,6 +161,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, onBeforeUnmount, ref, shallowRef, watch } from 'vue';
+import dayjs from 'dayjs';
 import Button from 'primevue/button';
 import Drawer from 'primevue/drawer';
 import InputText from 'primevue/inputtext';
@@ -223,6 +232,8 @@ const arenaBounds = shallowRef<L.LatLngBounds | null>(null);
 const isGlobal = computed(() => settingsStore.showGlobalMap);
 const isTogglingGlobal = ref(false);
 
+const MAX_DISPLAYED_MESSAGES = 150;
+
 const applyMapMode = (isGlobalMode: boolean) => {
     const map = mapInstance.value;
     if (!map) return;
@@ -247,7 +258,7 @@ const applyMapMode = (isGlobalMode: boolean) => {
 
         map.setBearing(0);
         map.setMaxBounds(undefined);
-        map.setMinZoom(16);
+        map.setMinZoom(14);
         map.setMaxZoom(19);
 
         if (lastKnownPos.value.lat && lastKnownPos.value.lng) {
@@ -364,19 +375,33 @@ const broadcastCurrentState = () => {
 };
 
 const toggleMedicStatus = () => {
+    const codename = operator.value?.codename || 'Operador';
     isMedic.value = !isMedic.value;
     if (isMedic.value && isDead.value) {
         isDead.value = false;
     }
     broadcastCurrentState();
+
+    const msgText = isMedic.value
+        ? `${codename} foi atingido e solicita médico.`
+        : `${codename} foi curado e retornou ao combate.`;
+
+    sendChatMessage(msgText, isMedic.value, true);
 };
 
 const toggleDeadStatus = () => {
+    const codename = operator.value?.codename || 'Operador';
     isDead.value = !isDead.value;
     if (isDead.value && isMedic.value) {
         isMedic.value = false;
     }
     broadcastCurrentState();
+
+    const msgText = isDead.value
+        ? `${codename} foi eliminado (KIA).`
+        : `${codename} fez respawn e retornou ao combate.`;
+
+    sendChatMessage(msgText, isDead.value, true);
 };
 
 interface IChatMessage {
@@ -392,11 +417,17 @@ interface IChatMessage {
     isSystem?: boolean;
 }
 
+interface IPeerStatusInfo {
+    codename: string;
+    state: string;
+}
+
 const showChatDrawer = ref(false);
 const chatMessages = ref<IChatMessage[]>([]);
 const chatInputText = ref('');
 const unreadChatCount = ref(0);
 const chatContainerRef = ref<HTMLElement | null>(null);
+const peerStatusMap = ref<Map<string, IPeerStatusInfo>>(new Map());
 
 watch(showChatDrawer, (isOpen) => {
     if (isOpen) {
@@ -410,6 +441,7 @@ let heartbeatInterval: ReturnType<typeof setInterval> | null = null;
 let meshInterval: ReturnType<typeof setInterval> | null = null;
 let unsubscribeOnlineChanges: (() => void) | null = null;
 let peerWatchdogInterval: ReturnType<typeof setInterval> | null = null;
+let chatRetryInterval: ReturnType<typeof setInterval> | null = null;
 
 const activePeerCount = computed(() => activeConnectionCount.value);
 
@@ -417,40 +449,45 @@ const totalConnectedOperators = computed(() => {
     return activePeerCount.value + 1;
 });
 
+const peerStatusList = computed(() => {
+    return Array.from(peerStatusMap.value.entries())
+        .map(([peerId, info]) => ({ peerId, ...info }))
+        .sort((a, b) => a.codename.localeCompare(b.codename));
+});
+
+const isNetworkActive = computed(() => isTransmitting.value || isSimulating.value);
+
 const quickCallouts: Array<{ label: string; text: string; desc: string; isCallout: boolean; severity?: string }> = [
     { label: 'QAP', text: '📻 QAP - Na escuta / Pronto para receber mensagens.', desc: 'Na escuta / Pronto para receber mensagens.', isCallout: false },
     { label: 'QRV', text: '⚡ QRV - À disposição / Pronto para cumprir a missão.', desc: 'À disposição / Pronto para cumprir a missão.', isCallout: false },
-    { label: 'QSL', text: '👍 QSL - Entendido / Mensagem recebida e compreendida.', desc: 'Entendido / Mensagem recebida e compreendida.', isCallout: false, severity: 'success' },
+    { label: 'QSL', text: '👍 QSL - Entendido / Mensagem recebida e compreendida.', desc: 'Entendido / Mensagem recebida e compreendida.', isCallout: false },
     { label: 'QRA', text: '🪪 QRA - Solicitando codinome do operador.', desc: 'Solicitar codinome do operador.', isCallout: false },
     { label: 'QRX', text: '⏳ QRX - Aguarde um instante na linha / Aguarde instruções.', desc: 'Aguarde um instante na linha.', isCallout: false },
-    { label: 'QTH', text: '📍 QTH - Solicitando localização atual no mapa / campo.', desc: 'Solicitar localização atual.', isCallout: false, severity: 'info' },
+    { label: 'QTH', text: '📍 QTH - Solicitando localização atual no mapa / campo.', desc: 'Solicitar localização atual.', isCallout: false },
     { label: 'QTR', text: '🕒 QTR - Solicitando horário exato.', desc: 'Solicitar horário exato.', isCallout: false },
     { label: 'QSJ', text: '📦 QSJ - Munição / BBS / Recursos de jogo.', desc: 'Recursos / Munição / BBS.', isCallout: false },
     { label: 'TKS', text: '🤝 TKS - Obrigado! Câmbio e desligo.', desc: 'Obrigado / Thanks.', isCallout: false },
-    { label: 'FOE', text: '🪖 FOE - Inimigo avistado no campo!', desc: 'Inimigo avistado no campo!', isCallout: true, severity: 'warn' },
-    { label: 'MED', text: '🩺 MED - Solicito atendimento médico / KI!', desc: 'Solicitar médico no local.', isCallout: true, severity: 'danger' },
-    { label: 'ADV', text: '🏃 ADV - Avançando para o objetivo / base!', desc: 'Avançando para o objetivo.', isCallout: false, severity: 'info' },
+    { label: 'FOE', text: '🪖 FOE - Inimigo avistado no campo!', desc: 'Inimigo avistado no campo!', isCallout: true },
+    { label: 'MED', text: '🩺 MED - Solicito atendimento médico / KI!', desc: 'Solicitar médico no local.', isCallout: true },
+    { label: 'SUP', text: '🔥 SUP - Solicitando fogo de supressão / cobertura!', desc: 'Solicitar fogo de supressão.', isCallout: true },
+    { label: 'ADV', text: '🏃 ADV - Avançando para o objetivo / base!', desc: 'Avançando para o objetivo.', isCallout: false },
     { label: 'DEF', text: '🛡️ DEF - Defendendo posição tática!', desc: 'Defendendo posição atual.', isCallout: false },
-    { label: 'CLR', text: '🟢 CLR - Posição limpa / área segura!', desc: 'Área limpa e segura.', isCallout: false, severity: 'success' },
-    { label: 'SUP', text: '🔥 SUP - Solicitando fogo de supressão / cobertura!', desc: 'Solicitar fogo de supressão.', isCallout: false, severity: 'warn' },
+    { label: 'CLR', text: '🟢 CLR - Posição limpa / área segura!', desc: 'Área limpa e segura.', isCallout: false },
     { label: 'REG', text: '🔄 REG - Regressando / Retornando para a base!', desc: 'Regressando para a base.', isCallout: false }
 ];
 
 const formatTime = (ts: number) => {
-    const d = new Date(ts);
-    const h = String(d.getHours()).padStart(2, '0');
-    const m = String(d.getMinutes()).padStart(2, '0');
-    return `${h}:${m}`;
+    return dayjs(ts).format('HH:mm');
 };
 
 const connectToAllPeers = async () => {
-    if (!isTransmitting.value && !isSimulating.value) return;
+    if (!isNetworkActive.value) return;
 
     try {
         const ops = await OperatorService.listOnline();
         ops.forEach((op) => {
             if (op.$id !== operator.value?.$id) {
-                TacticalPeerService.connectToPeer(op.$id);
+                TacticalPeerService.connectToPeer(op.$id, op.codename);
             }
         });
     } catch (err) {
@@ -475,27 +512,66 @@ const scrollToBottom = () => {
     });
 };
 
-const receiveChatMessage = (msg: IPeerChatPayload) => {
-    if (chatMessages.value.some((m) => m.id === msg.id)) return;
+const vibrateForChatMessage = (
+    msg: IPeerChatPayload,
+) => {
+    if (
+        typeof navigator === 'undefined' ||
+        !('vibrate' in navigator)
+    ) {
+        return;
+    }
+
+    if (msg.isCallout) {
+        // Padrão de vibração tático forte e prolongado (Alerta de Combate)
+        // 300ms vibra | 100ms pausa | 300ms vibra | 100ms pausa | 500ms vibra forte
+        navigator.vibrate([300, 100, 300, 100, 500]);
+        return;
+    }
+
+    navigator.vibrate(150);
+};
+
+const receiveChatMessage = (
+    msg: IPeerChatPayload,
+) => {
+    if (
+        chatMessages.value.some(
+            (message) => message.id === msg.id,
+        )
+    ) {
+        return;
+    }
 
     chatMessages.value.push({
         ...msg,
-        isSelf: msg.opId === operator.value?.$id
+        isSystem: !!msg.isSystem,
     });
+
+    // Cap: remove mensagens mais antigas do topo pra manter o DOM leve
+    if (chatMessages.value.length > MAX_DISPLAYED_MESSAGES) {
+        chatMessages.value.splice(
+            0,
+            chatMessages.value.length - MAX_DISPLAYED_MESSAGES,
+        );
+    }
+
+    vibrateForChatMessage(msg);
 
     if (!showChatDrawer.value) {
         unreadChatCount.value++;
-    } else {
-        scrollToBottom();
     }
+
+    scrollToBottom();
 };
 
 const handlePeerDisconnected = (peerId: string, codename: string) => {
-    // Remove operator marker when disconnected
     const opId = peerId.replace('airsoft-op-', '');
     updateOperatorMarker({ $id: opId, is_online: false });
 
-    // Add system message
+    peerStatusMap.value.set(peerId, { codename, state: 'disconnected' });
+    peerStatusMap.value = new Map(peerStatusMap.value);
+
     chatMessages.value.push({
         id: `sys-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
         opId: 'system',
@@ -505,6 +581,10 @@ const handlePeerDisconnected = (peerId: string, codename: string) => {
         isSystem: true
     });
 
+    if (chatMessages.value.length > MAX_DISPLAYED_MESSAGES) {
+        chatMessages.value.splice(0, chatMessages.value.length - MAX_DISPLAYED_MESSAGES);
+    }
+
     if (!showChatDrawer.value) {
         unreadChatCount.value++;
     } else {
@@ -512,7 +592,59 @@ const handlePeerDisconnected = (peerId: string, codename: string) => {
     }
 };
 
-const sendChatMessage = (textToSend?: string, isCallout = false) => {
+const handlePeerReconnected = (
+    peerId: string,
+    codename: string,
+) => {
+    console.info(
+        `[Tactical] ${codename} (${peerId}) reconectou à rede.`,
+    );
+
+    peerStatusMap.value.set(peerId, { codename, state: 'connected' });
+    peerStatusMap.value = new Map(peerStatusMap.value);
+
+    chatMessages.value.push({
+        id: `sys-${Date.now()}-${Math.random()
+            .toString(36)
+            .substring(2, 9)}`,
+        opId: 'system',
+        codename: 'Sistema',
+        text: `${codename} reconectou à rede.`,
+        timestamp: Date.now(),
+        isSystem: true,
+    });
+
+    if (chatMessages.value.length > MAX_DISPLAYED_MESSAGES) {
+        chatMessages.value.splice(0, chatMessages.value.length - MAX_DISPLAYED_MESSAGES);
+    }
+
+    if (!showChatDrawer.value) {
+        unreadChatCount.value++;
+    } else {
+        scrollToBottom();
+    }
+};
+
+// SUBSTITUIR handlePeerStatus inteiro
+const handlePeerStatus = (
+    peerId: string,
+    codename: string,
+    state: string,
+) => {
+    peerStatusMap.value.set(peerId, { codename, state });
+    // Força reatividade do Map
+    peerStatusMap.value = new Map(peerStatusMap.value);
+
+    if (state === 'unstable') {
+        console.warn(`[Tactical] ${codename} está com conexão instável.`);
+    }
+
+    if (state === 'reconnecting') {
+        console.warn(`[Tactical] Reconectando com ${codename}...`);
+    }
+};
+
+const sendChatMessage = (textToSend?: string, isCallout = false, isSystem = false) => {
     const text = (textToSend || chatInputText.value).trim();
     if (!text || !operator.value?.$id) return;
 
@@ -526,10 +658,18 @@ const sendChatMessage = (textToSend?: string, isCallout = false) => {
         text: text,
         timestamp: Date.now(),
         isCallout: isCallout,
-        isSelf: true
+        isSelf: true,
+        isSystem
     };
 
     chatMessages.value.push(newMsg);
+
+    if (chatMessages.value.length > MAX_DISPLAYED_MESSAGES) {
+        chatMessages.value.splice(
+            0,
+            chatMessages.value.length - MAX_DISPLAYED_MESSAGES,
+        );
+    }
 
     TacticalPeerService.sendChatMessage({
         id: newMsg.id,
@@ -538,7 +678,8 @@ const sendChatMessage = (textToSend?: string, isCallout = false) => {
         avatar: newMsg.avatar,
         text: newMsg.text,
         timestamp: newMsg.timestamp,
-        isCallout: isCallout
+        isCallout,
+        isSystem
     });
 
     if (!textToSend) {
@@ -649,12 +790,17 @@ const refreshLocation = async () => {
         return;
     }
 
+    // Feedback visual instantâneo se já tivermos uma posição recente
+    if (mapInstance.value && lastKnownPos.value.lat && lastKnownPos.value.lng) {
+        mapInstance.value.setView([lastKnownPos.value.lat, lastKnownPos.value.lng], 17, { animate: true });
+    }
+
     isRefreshingLocation.value = true;
     try {
         const pos = await getCurrentUserLocation({
             enableHighAccuracy: true,
-            maximumAge: 0,
-            timeout: 15000
+            maximumAge: 5000, // Aceita leituras dos últimos 5s em vez de forçar busca fria do zero (maximumAge: 0)
+            timeout: 5000     // Reduz o tempo limite de espera de 15s para 5s
         });
 
         const lat = Number(pos.lat.toFixed(6));
@@ -714,8 +860,15 @@ const startLocationTransmission = () => {
 const stopLocationTransmission = async () => {
     gps.stopWatching();
     watchId = null;
-    isTransmitting.value = false;
+    isTransmitting.value = false; // já estava aqui, ok
+
     if (operator.value?.$id) {
+        // Desconecta a malha ANTES de qualquer chamada de rede assíncrona,
+        // pra garantir que nenhum novo connectToPeer aconteça durante o await abaixo
+        if (!isSimulating.value) {
+            TacticalPeerService.disconnectAllConnections();
+        }
+
         await OperatorService.setOnlineStatus(operator.value.$id, false);
 
         TacticalPeerService.broadcastPosition({
@@ -735,10 +888,6 @@ const stopLocationTransmission = async () => {
                 operatorMarkers.delete(opId);
             }
         });
-
-        if (!isSimulating.value) {
-            TacticalPeerService.disconnectAllConnections();
-        }
     }
 };
 
@@ -982,6 +1131,7 @@ onMounted(async () => {
     arenaBounds.value = bounds;
 
     const tileLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+        minZoom: 14,
         maxZoom: 19,
         attribution: '&copy; Esri'
     });
@@ -1449,6 +1599,7 @@ onMounted(async () => {
     if (operator.value?.$id) {
         TacticalPeerService.init(
             operator.value.$id,
+
             (payload) => {
                 updateOperatorMarker({
                     $id: payload.opId,
@@ -1459,18 +1610,30 @@ onMounted(async () => {
                     heading: payload.heading,
                     is_online: payload.is_online,
                     is_medic: payload.is_medic,
-                    is_dead: payload.is_dead
+                    is_dead: payload.is_dead,
                 });
+
+                if (payload.codename) {
+                    const peerId = `airsoft-op-${payload.opId}`;
+                    const existing = peerStatusMap.value.get(peerId);
+                    if (!existing || existing.codename !== payload.codename) {
+                        const state = existing?.state || 'connected';
+                        peerStatusMap.value.set(peerId, { codename: payload.codename, state });
+                        peerStatusMap.value = new Map(peerStatusMap.value);
+                    }
+                }
             },
             (chatPayload) => {
                 receiveChatMessage(chatPayload);
             },
-            handlePeerDisconnected
+            handlePeerDisconnected,
+            handlePeerReconnected,
+            handlePeerStatus
         );
 
         peerWatchdogInterval = setInterval(() => {
             if (!operator.value?.$id) return;
-            if (!(isTransmitting.value || isSimulating.value)) return;
+            if (!isNetworkActive.value) return;
 
             if (!TacticalPeerService.isAlive()) {
                 console.warn('[Tactical] Peer morreu inesperadamente, reinicializando...');
@@ -1488,11 +1651,22 @@ onMounted(async () => {
                             is_medic: payload.is_medic,
                             is_dead: payload.is_dead
                         });
+
+                        if (payload.codename) {
+                            const peerId = `airsoft-op-${payload.opId}`;
+                            const existing = peerStatusMap.value.get(peerId);
+                            if (existing && existing.codename !== payload.codename) {
+                                peerStatusMap.value.set(peerId, { ...existing, codename: payload.codename });
+                                peerStatusMap.value = new Map(peerStatusMap.value);
+                            }
+                        }
                     },
                     (chatPayload) => {
                         receiveChatMessage(chatPayload);
                     },
-                    handlePeerDisconnected
+                    handlePeerDisconnected,
+                    handlePeerReconnected,
+                    handlePeerStatus
                 );
                 connectToAllPeers();
             }
@@ -1510,12 +1684,21 @@ onMounted(async () => {
         }
     }, 20000);
 
+    // Retransmite mensagens de chat sem ACK enquanto a malha estiver ativa.
+    // Roda mesmo com o drawer fechado, pra não perder mensagens em trânsito.
+    chatRetryInterval = setInterval(() => {
+        if (isTransmitting.value || isSimulating.value) {
+            TacticalPeerService.retryPendingMessages();
+        }
+    }, 4000);
+
     // Realtime: reage a operadores entrando/saindo online sem esperar o polling
     unsubscribeOnlineChanges = OperatorService.subscribeOnlineChanges((payload, event) => {
         if (!operator.value?.$id || payload.$id === operator.value.$id) return;
 
         if (event.endsWith('.update') && payload.is_online) {
-            TacticalPeerService.connectToPeer(payload.$id);
+            TacticalPeerService.markOnline(payload.$id);
+            TacticalPeerService.connectToPeer(payload.$id, payload.codename);
         }
     });
 
@@ -1532,6 +1715,10 @@ onBeforeUnmount(() => {
     if (heartbeatInterval) {
         clearInterval(heartbeatInterval);
         heartbeatInterval = null;
+    }
+    if (chatRetryInterval) {
+        clearInterval(chatRetryInterval);
+        chatRetryInterval = null;
     }
     if (unsubscribeOnlineChanges) {
         unsubscribeOnlineChanges();
@@ -1863,6 +2050,12 @@ onBeforeUnmount(() => {
 }
 
 /* Bolhas de Mensagem Táticas (Modo Claro) */
+.chat-bubble-avatar {
+    object-fit: cover;
+    display: block;
+    outline: none;
+}
+
 .chat-bubble-incoming {
     background-color: var(--p-slate-100);
     border: 1px solid var(--p-slate-400);
@@ -1897,5 +2090,54 @@ onBeforeUnmount(() => {
     font-weight: 700;
     border: 1px solid var(--p-red-200);
     text-transform: uppercase;
+}
+
+.peer-status-row {
+    border-bottom: 1px solid var(--p-gray-100);
+}
+
+.peer-status-chip {
+    background: var(--p-surface-50);
+    border: 1px solid var(--p-surface-200);
+    border-radius: 1rem;
+    padding: 0.15rem 0.5rem;
+}
+
+.peer-status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.status-connected {
+    background: var(--p-green-500);
+    box-shadow: 0 0 4px var(--p-green-500);
+}
+
+.status-unstable {
+    background: var(--p-yellow-500);
+    box-shadow: 0 0 4px var(--p-yellow-500);
+}
+
+.status-reconnecting {
+    background: var(--p-orange-500);
+    animation: peer-blink 1s infinite;
+}
+
+.status-disconnected {
+    background: var(--p-red-500);
+}
+
+@keyframes peer-blink {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.3;
+    }
 }
 </style>
