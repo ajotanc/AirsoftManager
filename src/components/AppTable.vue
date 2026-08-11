@@ -107,18 +107,18 @@ const getSearchableString = (item: T, fields: IFields[]) => {
 
     // 2. Lógica para Select e MultiSelect (Respeitando labels dinâmicos)
     if (['Select', 'MultiSelect'].includes(field.component?.name) && field.props?.options) {
-      const options = field.props.options;
+      const options = field.props.options || [];
       const optValueKey = field.props.optionValue || 'value';
       const optLabelKey = field.props.optionLabel || 'label';
 
-      // Se for um Select simples
-      const option = options.find((opt: any) => String(opt[optValueKey]) === String(val));
-      if (option) return option[optLabelKey];
-
-      // Fallback: Se o valor for o próprio objeto (comum em relacionamentos como Operador)
-      if (typeof val === 'object') {
-        return val[optLabelKey] || "";
+      if (val && typeof val === 'object') {
+        return String(val[optLabelKey] ?? "");
       }
+
+      const option = options.find((opt: any) => opt && String(opt[optValueKey]) === String(val));
+      if (option) return String(option[optLabelKey] ?? "");
+
+      return String(val ?? "");
     }
 
     // 3. Lógica para Moeda (Garante que "R$ 50,00" seja pesquisável como "50,00")

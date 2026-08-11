@@ -373,7 +373,7 @@
                                     :icon="!feedback.operator.avatar ? 'pi pi-user' : undefined" shape="circle" />
                                 <div class="flex flex-column">
                                     <span class="text-sm font-bold uppercase">{{ getShortName(feedback.operator.name)
-                                        }}</span>
+                                    }}</span>
                                     <span class="text-xs uppercase">{{ feedback.operator.codename }}</span>
                                 </div>
                             </div>
@@ -421,7 +421,7 @@
                             <div class="flex flex-column">
                                 <span class="font-bold">{{ getShortName(slotProps.option.name) }} ({{
                                     slotProps.option.codename
-                                    }})</span>
+                                }})</span>
                                 <small class="text-gray-500">Convidado por {{
                                     slotProps.option.operator.codename }}</small>
                             </div>
@@ -637,8 +637,12 @@ const canFinalize = computed(() => {
 });
 
 const operatorsMap = computed(() => {
-    return new Map(participants.value.map(p => [p.operator.$id, p.operator]));
+    return new Map([
+        ...participants.value.map(p => [p.operator.$id, p.operator] as const),
+        ...guests.value.map(g => [g.operator.$id, g.operator] as const)
+    ]);
 });
+
 
 const vehicles = ref<IVehicle[]>([]);
 
@@ -940,7 +944,7 @@ const loadServices = async () => {
 };
 
 const toggleParticipation = async () => {
-    if (isBlockedByPendingPayment) {
+    if (isBlockedByPendingPayment.value) {
         toast.add({
             severity: 'error',
             summary: 'Erro',

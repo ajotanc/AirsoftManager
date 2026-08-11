@@ -42,11 +42,24 @@ const cellValue = computed(() => {
   return props.column.name.split('.').reduce((obj, key) => (obj?.[key] ?? ""), props.data);
 });
 
+// Resolve a option dentro de `options` que corresponde ao valor da célula,
+// respeitando optionValue configurado e sendo à prova de objetos populados
+// (ex: relacionamento "operator" que vem como objeto, não como id).
+const findOption = (options: any[], optValueKey: string, val: any) => {
+  if (!options || !val) return undefined;
+
+  const compareVal = val && typeof val === 'object' ? val[optValueKey] : val;
+  if (compareVal === undefined || compareVal === null) return undefined;
+
+  return options.find((opt: any) => opt != null && String(opt[optValueKey]) === String(compareVal));
+};
+
 const severity = computed(() => {
   if (props.column.component?.name === 'Select' && props.column.props?.options) {
-    const options = props.column.props.options;
-    const option = options.find(({ value }: { value: string }) => String(value) === String(cellValue.value));
+    const options = props.column.props.options || [];
+    const optValueKey = props.column.props.optionValue || 'value';
 
+    const option = findOption(options, optValueKey, cellValue.value);
     return option ? option.severity : undefined;
   }
 
@@ -71,21 +84,34 @@ const displayValue = computed(() => {
   }
 
   if (props.column.component?.name === 'MultiSelect' && props.column.props?.options) {
-    const options = props.column.props.options;
+    const options = props.column.props.options || [];
+    const optValueKey = props.column.props.optionValue || 'value';
+    const optLabelKey = props.column.props.optionLabel || 'label';
+
+    const values = Array.isArray(val) ? val : [];
     return options
-      .flatMap((opt: { value: string; label: string; }) => val?.includes(opt.value) ? opt.label : [])
+      .flatMap((opt: any) => {
+        if (!opt) return [];
+        const optVal = opt[optValueKey];
+        return values.some((v: any) => String(v) === String(optVal)) ? opt[optLabelKey] : [];
+      })
       .join(' · ');
   }
 
   if (props.column.component?.name === 'Select' && props.column.props?.options) {
-    const options = props.column.props.options;
-    const option = options.find(({ value }: { value: string }) => String(value) === String(val));
+    const options = props.column.props.options || [];
+    const optValueKey = props.column.props.optionValue || 'value';
+    const optLabelKey = props.column.props.optionLabel || 'label';
 
-    if (!option) {
-      return val[props.column.props.optionLabel] || val;
+    const option = findOption(options, optValueKey, val);
+    if (option) return option[optLabelKey];
+
+    // Fallback: valor já é o objeto relacionado (ex: operador populado)
+    if (val && typeof val === 'object') {
+      return val[optLabelKey] || "";
     }
 
-    return option ? option.label : val;
+    return String(val ?? "");
   }
 
   if (props.column.callback) {
