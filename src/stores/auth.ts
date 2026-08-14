@@ -11,7 +11,7 @@ import {
 } from "@/services/operator";
 import { PaymentService, type IPayment } from "@/services/payment";
 import { DUE_DATE, MONTHLY_FEE, TEAM_NAME } from "@/constants/airsoft";
-import { SCHOOL_CATEGORIES, SchoolService, type SchoolCategory } from '@/services/school';
+import { SchoolService, type SchoolCategory } from '@/services/school';
 import { useSettingsStore } from "@/stores/settings";
 
 export const useAuthStore = defineStore("auth", {
@@ -84,14 +84,12 @@ export const useAuthStore = defineStore("auth", {
       try {
         this.user = await account.get();
         if (this.user) {
-          const [op, school, payments] = await Promise.all([
+          const [op, payments] = await Promise.all([
             OperatorService.row(this.user.$id),
-            SchoolService.getAnswers(this.user.$id, SCHOOL_CATEGORIES),
             PaymentService.listByOperator(this.user.$id)
           ]);
 
           this.operator = op || {} as IOperator;
-          this.operator.school_answers = school.all;
           this.operator.payments = payments;
         }
       } catch (error) {

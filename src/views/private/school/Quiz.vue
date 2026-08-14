@@ -177,6 +177,9 @@ const saveQuiz = async () => {
   activeStep.value = 0;
 
   try {
+    const totalQuestions = questions.value.length || 1;
+    const calculatedPercentage = Math.round((hits / totalQuestions) * 100);
+
     const payload = {
       category: category.value,
       answers: answers.value,
@@ -184,6 +187,9 @@ const saveQuiz = async () => {
       operator: operator.value.$id,
       questions: questions.value,
       completed_at: dayjs().toISOString(),
+      correct: hits,
+      score: Number(finalGrade.value.toFixed(1)),
+      percentage: calculatedPercentage
     } as ISchoolAnswer;
 
     selectedAnswer.value = await SchoolService.create(payload);

@@ -137,7 +137,7 @@ export const OperatorService = {
         databaseId: DATABASE_ID,
         tableId: TABLE_OPERATORS,
         rowId,
-        queries: [Query.select(["*", "arsenal.*", "loadout.*"])],
+        queries: [Query.select(["*", "arsenal.*", "loadout.*", "school_answers.*", "school_answers.questions.*"])],
       });
     } catch (error) {
       console.error("Erro ao buscar usuário:", error);
@@ -150,7 +150,7 @@ export const OperatorService = {
         databaseId: DATABASE_ID,
         tableId: TABLE_OPERATORS,
         queries: [
-          Query.select(["*", "arsenal.*", "loadout.*"]),
+          Query.select(["*", "arsenal.*", "loadout.*", "school_answers.*", "school_answers.questions.*"]),
           Query.orderAsc("codename"),
           Query.limit(1000),
         ],
@@ -169,7 +169,7 @@ export const OperatorService = {
         tableId: TABLE_OPERATORS,
         queries: [
           Query.orderAsc("codename"),
-          Query.select(["*", "arsenal.*", "loadout.*"]),
+          Query.select(["*", "arsenal.*", "loadout.*", "school_answers.*", "school_answers.questions.*"]),
           Query.equal("status", true),
           Query.notEqual("role", "visitor"),
           Query.limit(1000),

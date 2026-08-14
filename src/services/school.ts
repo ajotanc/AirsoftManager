@@ -277,7 +277,7 @@ export const SchoolService = {
       };
     }
 
-    const questions = (answerRow.questions || []) as any[];
+    const questions = (answerRow.questions || []) as ISchoolQuestion[];
     const answers = (answerRow.answers || []) as string[];
 
     const hasValidQuestionObjects = Array.isArray(questions) &&
@@ -287,16 +287,19 @@ export const SchoolService = {
       'correct_option' in questions[0];
 
     if (!hasValidQuestionObjects) {
+      const isCompleted = !!answerRow.completed_at;
       return {
-        correct: answerRow.correct ?? 0,
-        score: answerRow.score ?? 0,
-        percentage: answerRow.percentage ?? 0
+        correct: answerRow.correct ?? (isCompleted ? answers.length : 0),
+        score: answerRow.score ?? (isCompleted ? 10 : 0),
+        percentage: answerRow.percentage ?? (isCompleted ? 100 : 0)
       };
     }
 
     const calculatedCorrect = questions.reduce((acc, q, i) => {
       if (!q || !q.correct_option) return acc;
-      return acc + (answers[i] === q.correct_option ? 1 : 0);
+      const userAns = answers[i];
+      const ans = (userAns && q.options?.includes(userAns) ? userAns : answers.find(a => !!a && q.options?.includes(a))) || userAns;
+      return acc + (ans === q.correct_option ? 1 : 0);
     }, 0);
 
     const total = questions.length || 1;

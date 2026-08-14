@@ -50,7 +50,7 @@
           </template>
         </Column>
 
-        <Column field="info.isComplete" header="Perfil" sortable style="width: 6rem; min-width: 6rem;">
+        <Column field="info.isComplete" header="Perfil" sortable style="width: 8rem; min-width: 8rem;">
           <template #body="{ data }">
             <Skeleton v-if="isLoading" width="100%" height="1rem" />
             <template v-else>
@@ -63,6 +63,9 @@
                 <span
                   :class="['text-xl', 'ri-t-shirt-2-line', data.info.hasLoadout ? 'text-green-500' : 'text-red-500']"
                   v-tooltip.top="'Loadout'" />
+                <span
+                  :class="['text-xl', 'ri-graduation-cap-line', data.info.hasSchool ? 'text-green-500' : 'text-red-500']"
+                  v-tooltip.top="`Escola: ${data.info.approvedCount}/${SCHOOL_CATEGORIES.length} Provas`" />
               </div>
             </template>
           </template>
@@ -173,6 +176,7 @@ import CourseBadges from "@/components/operators/CourseBadges.vue";
 import { ROLES, COURSES, UNIFORMS, LOADOUT_ITEMS } from "@/constants/airsoft";
 
 import { type IOperator, operatorSchema, OperatorService } from "@/services/operator";
+import { SchoolService, SCHOOL_CATEGORIES } from "@/services/school";
 import type { ILoadout } from "@/services/loadout";
 import { export2Excel, getShortName } from "@/functions/utils";
 import Empty from "@/components/Empty.vue";
@@ -187,12 +191,16 @@ const checkOperator = (op: IOperator) => {
   const isProfileComplete = operatorSchema.safeParse(op).success;
   const hasArsenal = op.arsenal && op.arsenal.length > 0;
   const hasLoadout = op.loadout && op.loadout.length > 0;
+  const missing = SchoolService.getMissingCertificationsFromAnswers(op.school_answers || []);
+  const hasSchool = missing.length === 0;
 
   return {
-    isComplete: isProfileComplete && hasArsenal && hasLoadout,
+    isComplete: isProfileComplete && hasArsenal && hasLoadout && hasSchool,
     isProfileComplete,
     hasArsenal,
-    hasLoadout
+    hasLoadout,
+    hasSchool,
+    approvedCount: SCHOOL_CATEGORIES.length - missing.length
   };
 };
 
@@ -247,10 +255,10 @@ const labels = computed(() => {
 
   const dynamicKeys = firstItem
     ? (Object.keys(firstItem) as (keyof typeof firstItem)[]).filter(key => {
-        if (typeof key === 'string' && (key.startsWith('$') || key === 'info')) return false;
-        const val = (firstItem as any)[key];
-        return val !== null && val !== undefined && typeof val !== 'object';
-      }) as string[]
+      if (typeof key === 'string' && (key.startsWith('$') || key === 'info')) return false;
+      const val = (firstItem as any)[key];
+      return val !== null && val !== undefined && typeof val !== 'object';
+    }) as string[]
     : [];
 
   return Array.from(new Set(['name', 'codename', 'role_label', 'status_label', ...dynamicKeys]));
