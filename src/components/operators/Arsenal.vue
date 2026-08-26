@@ -473,7 +473,7 @@ const saveWeapon = async ({ valid, values }: { valid: boolean; values: Partial<I
 const editWeapon = (weapon: IArsenal) => {
   selectedWeapon.value = {
     ...weapon,
-    maintenance_at: weapon.maintenance_at ? new Date(weapon.maintenance_at) : null
+    maintenance_at: weapon.maintenance_at ? dayjs(weapon.maintenance_at).format('DD/MM/YYYY') : null,
   };
   weaponDialog.value = true;
 };
