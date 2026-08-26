@@ -292,21 +292,17 @@ router.beforeEach(async (to, _, next) => {
       return next("/profile");
     }
 
-    // PASSO 2 (NOVO): Arsenal Obrigatório para Visitante também
+    // PASSO 2: Arsenal Obrigatório para Visitante também
     if (isProfileComplete && !hasArsenal && to.path !== "/arsenal") {
       return next("/arsenal");
     }
 
-    const allowedPaths = ["/dashboard", "/profile", "/arsenal", "/game/badges", "/game/ratings", "/game/player-card"];
-    const isAllowed = allowedPaths.includes(to.path) || to.name?.toString().includes('event-details') || to.path.startsWith('/events/') || to.name?.toString().includes('tournament-details');
-
-    // Removido "/arsenal" da lista isTryingRestricted para o visitante poder entrar
-    const isTryingRestricted =
+    const isRestricted =
       to.path.startsWith('/management') ||
       to.path.startsWith('/administrative') ||
       ["/loadout", "/vehicles"].includes(to.path);
 
-    if (isTryingRestricted || !isAllowed) {
+    if (isRestricted) {
       return next("/dashboard");
     }
 
