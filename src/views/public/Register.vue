@@ -135,8 +135,9 @@ const handleRegister = async ({ valid, values }: FormSubmitEvent) => {
       await authStore.register(props.role, values.email, values.password, values.name, values.team);
       toast.add({ severity: "success", summary: "Bem-vindo", detail: "Verifique seu e-mail!", life: 5000 });
       router.push("/awaiting-verification");
-    } catch (error: any) {
-      toast.add({ severity: "error", summary: "Erro", detail: error.error || error.message, life: 3000 });
+    } catch (error) {
+      const err = error as Error & { error?: string };
+      toast.add({ severity: "error", summary: "Erro", detail: err.error || err.message || "Falha ao registrar.", life: 3000 });
     } finally {
       loading.value = false;
     }

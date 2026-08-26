@@ -117,11 +117,11 @@ const answers = ref<string[]>([]);
 
 const answeredCount = computed(() => Object.keys(answers.value).length);
 
-const difficulty = {
+const difficulty: Record<string, string> = {
   easy: "success",
   medium: "warn",
   hard: "danger"
-} as { [key: string]: string };
+};
 
 onMounted(() => {
   loadServices();
@@ -144,6 +144,10 @@ const loadServices = async () => {
       finalGrade.value = score;
       isFinished.value = true;
     } else {
+      const currentSemesterAnswers = await SchoolService.listCurrentSemesterAnswers(operator.value.$id);
+      const catAnswers = currentSemesterAnswers.filter(a => a.category === category.value);
+      attempts.value = catAnswers.reduce((max, a) => Math.max(max, a.attempt_number || 0), 0);
+
       questions.value = await SchoolService.getRandomQuestions(category.value, 10);
       isFinished.value = false;
       answers.value = [];
@@ -177,9 +181,6 @@ const saveQuiz = async () => {
   activeStep.value = 0;
 
   try {
-    const totalQuestions = questions.value.length || 1;
-    const calculatedPercentage = Math.round((hits / totalQuestions) * 100);
-
     const payload = {
       category: category.value,
       answers: answers.value,
@@ -187,9 +188,6 @@ const saveQuiz = async () => {
       operator: operator.value.$id,
       questions: questions.value,
       completed_at: dayjs().toISOString(),
-      correct: hits,
-      score: Number(finalGrade.value.toFixed(1)),
-      percentage: calculatedPercentage
     } as ISchoolAnswer;
 
     selectedAnswer.value = await SchoolService.create(payload);

@@ -24,7 +24,7 @@ import { useToast } from 'primevue';
 
 import { TEAM_NAME } from '@/constants/airsoft';
 import AppFormDialog from '@/components/AppFormDialog.vue';
-import type { IFields } from '@/functions/utils';
+import type { IFields, FieldChangePayload } from '@/functions/utils';
 import { isBirthdayTodayOrYesterday } from '@/functions/utils';
 import { GeminiService, type BroadcastPromptType } from '@/services/gemini';
 import { OperatorService, type IOperator } from '@/services/operator';
@@ -133,13 +133,13 @@ const broadcastSchema = z.object({
 
 const resolver = ref(zodResolver(broadcastSchema));
 
-const onFieldChange = ({ name, value }: { name: keyof IBroadcastForm; value: IBroadcastForm[keyof IBroadcastForm] }) => {
+const onFieldChange = (payload: FieldChangePayload<IBroadcastForm>) => {
   initialValues.value = {
     ...initialValues.value,
-    [name]: value
+    [payload.name]: payload.value as string | undefined
   };
 
-  if (name !== 'messageText') {
+  if (payload.name !== 'messageText') {
     initialValues.value.messageText = '';
   }
 };

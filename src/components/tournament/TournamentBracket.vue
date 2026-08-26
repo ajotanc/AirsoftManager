@@ -204,7 +204,12 @@ function openShotClinic(operator: IOperator, match: ITournamentMatch) {
 
 const getSide = (m: ITournamentMatch, s: 'top' | 'bottom') => (s === 'top' ? m.top_side : m.bottom_side) as ITournamentTeam | null
 const getSideScore = (m: ITournamentMatch, s: 'top' | 'bottom') => s === 'top' ? m.top_score : m.bottom_score
-const isWinner = (m: ITournamentMatch, s: 'top' | 'bottom') => m.winner && (m.winner as any).$id === (getSide(m, s) as any)?.$id
+const isWinner = (m: ITournamentMatch, s: 'top' | 'bottom') => {
+  const winnerId = m.winner ? (typeof m.winner === 'object' ? m.winner.$id : m.winner) : null;
+  const side = getSide(m, s);
+  const sideId = side ? (typeof side === 'object' ? side.$id : side) : null;
+  return Boolean(winnerId && winnerId === sideId);
+};
 
 const getOpStat = (matchId: string | undefined, operatorId: string) => {
   return props.rankings.find(s => s.match?.$id === matchId && s.operator.$id === operatorId);

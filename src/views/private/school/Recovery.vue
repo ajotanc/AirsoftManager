@@ -18,7 +18,10 @@
               acertos)</strong> para regularizar e liberar
             seu acesso ao sistema.
           </p>
-          <SchoolBadges class="mt-2" timeText="⏱️ Leva 10 a 15 min" xpText="🏆 Ganhe +300 XP" />
+          <div class="flex align-items-center gap-2 mt-2">
+            <SchoolBadges timeText="⏱️ Leva 10 a 15 min" xpText="🏆 Ganhe +300 XP" />
+            <Tag v-if="currentAttemptNumber > 1" :value="`Tentativa #${currentAttemptNumber}`" severity="warn" rounded />
+          </div>
           <q class="font-italic p-1 mt-1 border-left-3 border-400 text-400 text-sm">O conhecimento da regra é a maior
             arma que o ser humano pode obter.</q>
         </div>
@@ -120,6 +123,7 @@ const isApproved = ref(false);
 
 const activeStep = ref(0);
 const questions = ref<ISchoolQuestion[]>([]);
+const currentAnswers = ref<ISchoolAnswer[]>([]);
 
 const finalGrade = ref(0);
 const correctCount = ref(0);
@@ -128,12 +132,18 @@ const percentageScore = ref(0);
 const answers = ref<string[]>([]);
 
 const answeredCount = computed(() => Object.keys(answers.value).length);
+const questionsCategory = computed(() => Math.floor(questions.value.length / SCHOOL_CATEGORIES.length));
 
-const difficulty = {
+const currentAttemptNumber = computed(() => {
+  const max = currentAnswers.value.reduce((acc, a) => Math.max(acc, a.attempt_number || 0), 0);
+  return max + 1;
+});
+
+const difficulty: Record<string, string> = {
   easy: "success",
   medium: "warn",
   hard: "danger"
-} as { [key: string]: string };
+};
 
 onMounted(() => {
   loadServices();
@@ -147,8 +157,14 @@ const loadServices = async () => {
   answers.value = [];
 
   try {
-    const missing = await SchoolService.getMissingCertifications(operator.value.$id);
-    
+    const [missing, userAnswers, recoveryQuestions] = await Promise.all([
+      SchoolService.getMissingCertifications(operator.value.$id),
+      SchoolService.listCurrentSemesterAnswers(operator.value.$id),
+      SchoolService.getRecoveryQuestions()
+    ]);
+
+    currentAnswers.value = userAnswers;
+
     if (missing.length === 0) {
       toast.add({
         severity: "info",
@@ -156,11 +172,11 @@ const loadServices = async () => {
         detail: "Você já realizou todas as avaliações deste semestre.",
         life: 4000
       });
-      
+
       router.push('/administrative/school');
       return;
     }
-    questions.value = await SchoolService.getRecoveryQuestions();
+    questions.value = recoveryQuestions;
   } catch (error) {
     console.error("Erro ao carregar prova de recuperação:", error);
     toast.add({ severity: "error", summary: "Erro", detail: "Falha ao carregar questões de recuperação.", life: 3000 });
@@ -206,10 +222,13 @@ const saveRecovery = async () => {
         }
       });
 
+      const catHistory = currentAnswers.value.filter(a => a.category === cat);
+      const maxCatAttempt = catHistory.reduce((max, a) => Math.max(max, a.attempt_number || 0), 0);
+
       const payload = {
         category: cat,
         answers: catAnswers,
-        attempt_number: 1,
+        attempt_number: maxCatAttempt + 1,
         operator: operator.value.$id,
         questions: catQuestions,
         completed_at: now
@@ -222,6 +241,7 @@ const saveRecovery = async () => {
 
     const { all } = await SchoolService.getAnswers(operator.value.$id, SCHOOL_CATEGORIES);
     authStore.operator.school_answers = all;
+    currentAnswers.value = all;
 
     if (isApproved.value) {
       await BadgeService.addActivityXp(operator.value, 300);
@@ -252,8 +272,6 @@ const checkAnswers = (answersArray: string[]): number => {
     return answersArray[index] === q.correct_option ? hits + 1 : hits;
   }, 0);
 };
-
-const questionsCategory = computed(() => Math.floor(questions.value.length / SCHOOL_CATEGORIES.length));
 </script>
 
 <style scoped>

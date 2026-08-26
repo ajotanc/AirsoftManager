@@ -1,4 +1,4 @@
-import { tables, TABLE_OPERATORS, DATABASE_ID, realtime } from "@/services/appwrite";
+import { tables, DATABASE_ID, realtime } from "@/services/appwrite";
 import dayjs from "dayjs";
 import { isValidCpf } from "@brazilian-utils/brazilian-utils";
 import { Query, type Models } from "appwrite";
@@ -8,6 +8,8 @@ import { deleteFile, formatDate, uploadFile, zRequired } from "@/functions/utils
 import type { ISchoolAnswer } from "./school";
 import z from "zod";
 import type { IPayment } from "./payment";
+
+export const TABLE_OPERATORS = "operators";
 
 export interface IOperator extends Models.Row {
   name: string;
@@ -91,12 +93,12 @@ export const operatorSchema = z
     general_registration: zRequired("RG obrigatório")
       .transform((v: string) => v.replace(/\D/g, "")),
     birth_date: z
-      .custom()
+      .custom<string | Date>()
       .refine(
-        (date: unknown) => date instanceof Date || typeof date === "string",
+        (date: string | Date | null | undefined) => date instanceof Date || typeof date === "string",
         "Data obrigatória",
       )
-      .transform((date: unknown) => date && formatDate(date as string | Date).toISOString()),
+      .transform((date: string | Date | null | undefined) => date ? formatDate(date).toISOString() : undefined),
     blood_type: zRequired("Tipo sanguíneo obrigatório"),
     mother_name: zRequired("Nome da mãe obrigatório"),
     phone: zRequired("Telefone obrigatório")
@@ -128,6 +130,36 @@ export const operatorSchema = z
   })
   .loose();
 
+export const visitorSchema = z
+  .object({
+    name: zRequired("Nome completo obrigatório"),
+    codename: zRequired("Codinome obrigatório"),
+    category: z.number({ error: "Categoria obrigatória" }),
+    blood_type: zRequired("Tipo sanguíneo obrigatório"),
+    birth_date: z
+      .custom<string | Date>()
+      .refine(
+        (date: string | Date | null | undefined) => date instanceof Date || typeof date === "string",
+        "Data obrigatória",
+      )
+      .transform((date: string | Date | null | undefined) => date ? formatDate(date).toISOString() : undefined),
+    phone: zRequired("Telefone obrigatório")
+      .transform((v: string) => v.replace(/\D/g, "")),
+    emergency_contact: zRequired("Nome do Contato obrigatório"),
+    emergency_contact_phone: zRequired("Telefone do Contato obrigatório")
+      .transform((v: string) => v.replace(/\D/g, "")),
+    terms_accepted: z
+      .boolean({ error: "Aceite os termos obrigatório" })
+      .refine((v: boolean) => v === true, "Aceite os termos obrigatório"),
+  })
+  .loose();
+
+export const isOperatorProfileComplete = (operator?: IOperator | null): boolean => {
+  if (!operator?.$id) return false;
+  const schema = operator.role === "visitor" ? visitorSchema : operatorSchema;
+  return schema.safeParse(operator).success;
+};
+
 const ONLINE_STALE_MS = 45000;
 
 export const OperatorService = {
@@ -137,7 +169,7 @@ export const OperatorService = {
         databaseId: DATABASE_ID,
         tableId: TABLE_OPERATORS,
         rowId,
-        queries: [Query.select(["*", "arsenal.*", "loadout.*", "school_answers.*", "school_answers.questions.*"])],
+        queries: [Query.select(["*", "arsenal.*", "loadout.*"])],
       });
     } catch (error) {
       console.error("Erro ao buscar usuário:", error);
@@ -150,7 +182,7 @@ export const OperatorService = {
         databaseId: DATABASE_ID,
         tableId: TABLE_OPERATORS,
         queries: [
-          Query.select(["*", "arsenal.*", "loadout.*", "school_answers.*", "school_answers.questions.*"]),
+          Query.select(["*", "arsenal.*", "loadout.*"]),
           Query.orderAsc("codename"),
           Query.limit(1000),
         ],
@@ -169,9 +201,26 @@ export const OperatorService = {
         tableId: TABLE_OPERATORS,
         queries: [
           Query.orderAsc("codename"),
-          Query.select(["*", "arsenal.*", "loadout.*", "school_answers.*", "school_answers.questions.*"]),
+          Query.select(["*", "arsenal.*", "loadout.*"]),
           Query.equal("status", true),
-          Query.notEqual("role", "visitor"),
+          // Query.notEqual("role", "visitor"),
+          Query.limit(1000),
+        ],
+      });
+
+      return response.rows;
+    } catch (error) {
+      console.error("Erro ao buscar usuários:", error);
+      return [];
+    }
+  },
+  async all(): Promise<IOperator[]> {
+    try {
+      const response = await tables.listRows<IOperator>({
+        databaseId: DATABASE_ID,
+        tableId: TABLE_OPERATORS,
+        queries: [
+          Query.equal("status", true),
           Query.limit(1000),
         ],
       });
@@ -242,7 +291,7 @@ export const OperatorService = {
 
     realtime
       .subscribe(
-        `databases.${DATABASE_ID}.tables.${TABLE_OPERATORS}.rows`,
+        `databases.${DATABASE_ID}.collections.${TABLE_OPERATORS}.documents`,
         (response: IRealtimeRowEvent) => {
           const events = response.events || [];
           const isRelevant = events.some(
@@ -264,7 +313,7 @@ export const OperatorService = {
         }
         subscription = sub;
       })
-      .catch((error: unknown) => {
+      .catch((error: Error) => {
         console.error("Erro ao inscrever-se em mudanças de operadores:", error);
       });
 

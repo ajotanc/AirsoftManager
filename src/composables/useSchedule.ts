@@ -113,7 +113,7 @@ export function useSchedule() {
       });
 
       scheduleDialog.value = false;
-    } catch (error: any) {
+    } catch (error) {
       console.error("Erro ao finalizar:", error);
       toast.add({
         severity: "error",
@@ -130,17 +130,17 @@ export function useSchedule() {
     loading.value = true;
 
     try {
-      const promises: Promise<any>[] = [ScheduleService.list()];
+      const schedulePromise = ScheduleService.list();
+      const operatorPromise = fetchOperators && operators.value.length === 0 ? OperatorService.listActive() : Promise.resolve([] as IOperator[]);
 
-      if (fetchOperators && operators.value.length === 0) {
-        promises.push(OperatorService.listActive());
-      }
-
-      const [scheduleData, operatorData] = await Promise.all(promises);
+      const [scheduleData, operatorData] = await Promise.all([
+        schedulePromise,
+        operatorPromise
+      ]);
 
       schedules.value = scheduleData;
 
-      if (fetchOperators && operatorData) {
+      if (fetchOperators && operatorData.length > 0) {
         operators.value = operatorData;
       }
 

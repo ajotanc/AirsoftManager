@@ -284,7 +284,7 @@ const savePayment = async ({ file }: { file: File }) => {
       detail: "Pagamento encaminhado com sucesso, aguarde a aprovação do financeiro.",
       life: 3000,
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Erro ao salvar:", error);
     toast.add({ severity: "error", summary: "Erro", detail: "Falha ao registrar o pagamento.", life: 3000 });
   } finally {
@@ -323,13 +323,14 @@ const confirmPayment = (payment: IPayment) => {
           life: 3000,
         });
 
-      } catch (error: any) {
-        console.error("Erro ao enviar formulário:", error);
+      } catch (error) {
+        const err = error as Error;
+        console.error("Erro ao enviar formulário:", err);
 
         toast.add({
           severity: "error",
           summary: "Erro",
-          detail: error.message || "Falha ao excluir os dados. Tente novamente.",
+          detail: err.message || "Falha ao excluir os dados. Tente novamente.",
           life: 4000,
         });
       }
@@ -372,13 +373,14 @@ const deletePayment = (payment: IPayment) => {
           detail: "Pagamento excluído com sucesso!",
           life: 3000,
         });
-      } catch (error: any) {
-        console.error("Erro ao enviar formulário:", error);
+      } catch (error) {
+        const err = error as Error;
+        console.error("Erro ao enviar formulário:", err);
 
         toast.add({
           severity: "error",
           summary: "Erro",
-          detail: error.message || "Falha ao excluir os dados. Tente novamente.",
+          detail: err.message || "Falha ao excluir os dados. Tente novamente.",
           life: 4000,
         });
       }
@@ -416,7 +418,7 @@ const saveTransaction = async (values: IPayment, file?: File) => {
       detail: "Pagamento cadastrado com sucesso.",
       life: 3000,
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Erro ao salvar:", error);
     toast.add({ severity: "error", summary: "Erro", detail: "Falha ao registrar o pagamento.", life: 3000 });
   } finally {

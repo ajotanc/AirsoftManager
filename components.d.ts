@@ -68,6 +68,7 @@ declare module 'vue' {
     Menu: typeof import('primevue/menu')['default']
     Menubar: typeof import('primevue/menubar')['default']
     Message: typeof import('primevue/message')['default']
+    OperatorProfileForm: typeof import('./src/components/profile/OperatorProfileForm.vue')['default']
     OperatorSkeleton: typeof import('./src/components/skeleton/OperatorSkeleton.vue')['default']
     Password: typeof import('primevue/password')['default']
     PaymentDialog: typeof import('./src/components/PaymentDialog.vue')['default']
@@ -90,6 +91,7 @@ declare module 'vue' {
     TabPanels: typeof import('primevue/tabpanels')['default']
     Tabs: typeof import('primevue/tabs')['default']
     Tag: typeof import('primevue/tag')['default']
+    TermsDialog: typeof import('./src/components/profile/TermsDialog.vue')['default']
     Toast: typeof import('primevue/toast')['default']
     ToggleSwitch: typeof import('primevue/toggleswitch')['default']
     TournamentBracket: typeof import('./src/components/tournament/TournamentBracket.vue')['default']
@@ -97,6 +99,7 @@ declare module 'vue' {
     TournamentList: typeof import('./src/components/tournament/TournamentList.vue')['default']
     TournamentSkeleton: typeof import('./src/components/skeleton/TournamentSkeleton.vue')['default']
     TournamentStat: typeof import('./src/components/tournament/TournamentStat.vue')['default']
+    VisitorProfileForm: typeof import('./src/components/profile/VisitorProfileForm.vue')['default']
   }
   export interface GlobalDirectives {
     Ripple: typeof import('primevue/ripple')['default']

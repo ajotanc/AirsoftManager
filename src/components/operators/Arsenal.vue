@@ -209,11 +209,10 @@ import InputText from "primevue/inputtext";
 import Select from "primevue/select";
 import InputNumber from "primevue/inputnumber";
 import FileUpload, { type FileUploadSelectEvent } from "primevue/fileupload";
-
 import { WEAPON_TYPES, CATEGORIES, WEAPON_TYPES_OPTIONS, CATEGORIES_OPTIONS } from "@/constants/airsoft";
 import { ArsenalService, type IArsenal } from "@/services/arsenal";
 import { InputMask, ToggleSwitch, useConfirm } from "primevue";
-import { formatDate, getMaintenanceStatusLabel, getMaintenanceTypeLabel, type IFields } from "@/functions/utils";
+import { formatDate, getMaintenanceStatusLabel, getMaintenanceTypeLabel, getSearchableKeys, type IFields } from "@/functions/utils";
 import ColumnContent from "../ColumnContent.vue";
 import { MaintenanceService, type IMaintenance } from "@/services/maintenance";
 import type { IOperator } from "@/services/operator";
@@ -275,19 +274,7 @@ watch(
   { immediate: true, deep: true }
 );
 
-const labels = computed(() => {
-  const firstItem = items.value?.[0];
-
-  const dynamicKeys = firstItem
-    ? (Object.keys(firstItem) as (keyof typeof firstItem)[]).filter(key => {
-        if (typeof key === 'string' && key.startsWith('$')) return false;
-        const val = (firstItem as any)[key];
-        return val !== null && val !== undefined && typeof val !== 'object';
-      }) as string[]
-    : [];
-
-  return Array.from(new Set(['name', 'type_name', 'category_name', ...dynamicKeys]));
-});
+const labels = computed(() => getSearchableKeys(items.value?.[0], ['name', 'type_name', 'category_name']));
 
 const MAX_SIZE = 5 * 1024 * 1024;
 
@@ -335,7 +322,7 @@ const weaponSchema = z.object({
   name: z.string("Nome é obrigatório!").min(2, "O nome precisa ter ao menos 2 caractere!"),
   type: z.number({ error: "Selecione o tipo" }),
   category: z.number({ error: "Selecione a categoria" }),
-  joule: z.coerce.number({ error: "Informe o Joule" }).gt(0, { error: "Joule deve ser maior que 0.00" }).transform((value) => value && value.toString()),
+  joule: z.coerce.number({ error: "Informe o Joule" }).gt(0, { error: "Joule deve ser maior que 0.00" }).transform((value) => value ? value.toFixed(2) : ''),
   fps: z.number({ error: "Informe o FPS" }).max(550, { error: "FPS deve ser menor ou igual a 550" }).gt(0, { error: "FPS deve ser maior que 0" }),
   maintenance_at: z.custom().refine((date) => date instanceof Date || typeof date === 'string', "Data obrigatória").transform((date) => date && formatDate(date).toISOString()).nullish().optional(),
   is_favorite: z.boolean().nullish(),
@@ -376,13 +363,14 @@ const confirmDelete = (weapon: IArsenal) => {
           life: 3000,
         });
 
-      } catch (error: any) {
-        console.error("Erro ao enviar formulário:", error);
+      } catch (error) {
+        const err = error as Error;
+        console.error("Erro ao enviar formulário:", err);
 
         toast.add({
           severity: "error",
           summary: "Erro",
-          detail: error.message || "Falha ao salvar os dados. Tente novamente.",
+          detail: err.message || "Falha ao salvar os dados. Tente novamente.",
           life: 4000,
         });
       }
@@ -433,7 +421,7 @@ const hideDialog = () => {
   weaponDialog.value = false;
 };
 
-const saveWeapon = async ({ valid, values }: any) => {
+const saveWeapon = async ({ valid, values }: { valid: boolean; values: Partial<IArsenal> }) => {
   if (valid) {
     try {
 
@@ -449,7 +437,7 @@ const saveWeapon = async ({ valid, values }: any) => {
         }
       }
 
-      const response = await ArsenalService.upsert(selectedWeapon.value.$id, { ...values, operator: props.owner }) as unknown as IArsenal;
+      const response = (await ArsenalService.upsert(selectedWeapon.value.$id, { ...values, operator: props.owner })) as IArsenal;
 
       const index = items.value.findIndex((item: IArsenal) => item.$id === response.$id);
 
@@ -466,13 +454,14 @@ const saveWeapon = async ({ valid, values }: any) => {
         life: 3000,
       });
 
-    } catch (error: any) {
-      console.error("Erro ao enviar formulário:", error);
+    } catch (error) {
+      const err = error as Error;
+      console.error("Erro ao enviar formulário:", err);
 
       toast.add({
         severity: "error",
         summary: "Erro",
-        detail: error.message || "Falha ao salvar os dados. Tente novamente.",
+        detail: err.message || "Falha ao salvar os dados. Tente novamente.",
         life: 4000,
       });
     } finally {
@@ -496,10 +485,10 @@ const uploadInvoice = async () => {
   try {
     uploading.value = true;
 
-    const response = await ArsenalService.uploadInvoice(
+    const response = (await ArsenalService.uploadInvoice(
       selectedWeapon.value.$id,
       file
-    ) as unknown as IArsenal;
+    )) as IArsenal;
 
     const index = items.value.findIndex((item: IArsenal) => item.$id === response.$id);
     items.value[index] = response;

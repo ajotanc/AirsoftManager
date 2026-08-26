@@ -2,15 +2,15 @@
   <Dialog v-model:visible="visible" :header="header" modal :style="{ width: '90vw', maxWidth: '667px' }"
     @hide="$emit('close')">
     <Form ref="formRef" :resolver="resolver" :initialValues="initialValues" @submit="onHandleSubmit" class="grid"
-      :key="initialValues.$id || 'new'">
+      :key="String(initialValues?.$id || 'new')">
       <template v-for="field in fields" :key="field.name">
         <div :class="`col-12 md:col-${field.col || 12}`" v-if="!field.hidden">
           <FormField :name="field.name" v-slot="$field" class="flex flex-column gap-1">
-            <FloatLabel v-if="!['ToggleSwitch', 'ColorPicker', 'Rating', 'FileUpload'].includes(field.component.name)"
+            <FloatLabel v-if="!['ToggleSwitch', 'ColorPicker', 'Rating', 'FileUpload'].includes(field.component?.name || '')"
               variant="in">
               <component :is="field.component" v-bind="field.props" v-model="$field.value" class="w-full"
                 :class="{ 'p-invalid': $field.invalid }" fluid
-                @update:model-value="(val: any) => onFieldChange(field.name as keyof T, val)" />
+                @update:model-value="(val: FormValue) => onFieldChange(field.name as keyof T, val)" />
               <label :for="field.name">{{ field.label }}</label>
             </FloatLabel>
 
@@ -71,10 +71,10 @@
   </Dialog>
 </template>
 
-<script setup lang="ts" generic="T extends Record<string, any>">
-import { ref, watch } from 'vue';
+<script setup lang="ts" generic="T extends FormRecord">
+import { ref, computed, watch } from 'vue';
 import { Form, type FormSubmitEvent } from '@primevue/forms';
-import { formatFileSize, type IFields, type AppFormResolver } from '@/functions/utils';
+import { formatFileSize, type IFields, type AppFormResolver, type FieldChangePayload, type FormRecord, type FormValue } from '@/functions/utils';
 import { Dialog, Button, type FileUploadSelectEvent } from 'primevue';
 
 interface Props {
@@ -105,7 +105,7 @@ watch(
 const emit = defineEmits<{
   submit: [values: T, file?: File];
   close: [];
-  'field-change': [payload: { name: keyof T, value: any, form: any, data: T }];
+  'field-change': [payload: FieldChangePayload<T>];
 }>();
 
 const visible = defineModel<boolean>('visible');
@@ -117,7 +117,7 @@ const disabledButton = computed(() => {
   if (!props.requiredFile) return false;
 
   // Verifica se existe algum campo de FileUpload nos fields
-  const hasFileUpload = props.fields.some(f => f.component.name === 'FileUpload');
+  const hasFileUpload = props.fields.some(f => f.component?.name === 'FileUpload');
   if (!hasFileUpload) return false;
 
   // Pega o valor atual do campo 'file' (ou o nome que você deu ao campo de arquivo)
@@ -127,14 +127,14 @@ const disabledButton = computed(() => {
   return !fileValue;
 });
 
-const onFieldChange = (name: keyof T, value: any) => {
-  emit('field-change', { name, value, form: formRef.value, data: props.initialValues.value });
+const onFieldChange = (name: keyof T, value: FormValue) => {
+  emit('field-change', { name, value, form: formRef.value, data: props.initialValues });
 };
 
 const onHandleSubmit = (event: FormSubmitEvent) => {
   if (event.valid) {
     const { file, ...rest } = event.values as T;
-    emit('submit', rest as T, file);
+    emit('submit', rest as T, (file instanceof File ? file : undefined));
   }
 };
 

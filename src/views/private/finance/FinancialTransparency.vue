@@ -338,7 +338,7 @@ const fields = ref([
   { name: "amount", label: "Valor", component: InputNumber, props: { mode: 'currency', currency: 'BRL', locale: 'pt-BR' } }
 ]);
 
-const barOptions = { maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } }, scales: { y: { ticks: { callback: (v: any) => formatCurrency(v) } } } };
+const barOptions = { maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } }, scales: { y: { ticks: { callback: (v: number | string) => formatCurrency(Number(v)) } } } };
 const pieOptions = { maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } };
 </script>
 

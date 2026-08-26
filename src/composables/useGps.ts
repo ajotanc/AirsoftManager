@@ -231,8 +231,9 @@ export function useGps() {
       position.value = pos;
       status.value = "locked";
       return pos;
-    } catch (err: any) {
-      const msg = getGpsErrorMessage(err);
+    } catch (err) {
+      const errorObj = err as GeolocationPositionError | Error;
+      const msg = getGpsErrorMessage(errorObj);
       error.value = msg;
       status.value = "error";
       throw err;

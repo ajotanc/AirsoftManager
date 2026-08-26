@@ -119,9 +119,11 @@ app.directive("tooltip", Tooltip);
 const { authStore } = useOperator();
 const settingsStore = useSettingsStore();
 
-Promise.all([authStore.init(), settingsStore.init()]).then(() => {
+authStore.init().finally(() => {
   console.log("Auth inicializado com sucesso.");
-  console.log("Configurações carregadas com sucesso.");
+  settingsStore.init().then(() => {
+    console.log("Configurações carregadas com sucesso.");
+  });
 });
 
 app.directive("styleclass", StyleClass);

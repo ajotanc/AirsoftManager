@@ -175,9 +175,10 @@ import Details from "@/components/operators/Details.vue";
 import CourseBadges from "@/components/operators/CourseBadges.vue";
 import { ROLES, COURSES, UNIFORMS, LOADOUT_ITEMS } from "@/constants/airsoft";
 
-import { type IOperator, operatorSchema, OperatorService } from "@/services/operator";
+import { type IOperator, isOperatorProfileComplete, OperatorService } from "@/services/operator";
 import { SchoolService, SCHOOL_CATEGORIES } from "@/services/school";
 import type { ILoadout } from "@/services/loadout";
+import { getSearchableKeys } from "@/functions/utils";
 import { export2Excel, getShortName } from "@/functions/utils";
 import Empty from "@/components/Empty.vue";
 import { useOperator } from "@/composables/useOperator";
@@ -188,7 +189,7 @@ const queryClient = useQueryClient();
 const { operator, updateState } = useOperator();
 
 const checkOperator = (op: IOperator) => {
-  const isProfileComplete = operatorSchema.safeParse(op).success;
+  const isProfileComplete = isOperatorProfileComplete(op);
   const hasArsenal = op.arsenal && op.arsenal.length > 0;
   const hasLoadout = op.loadout && op.loadout.length > 0;
   const missing = SchoolService.getMissingCertificationsFromAnswers(op.school_answers || []);
@@ -250,19 +251,7 @@ const filters = ref({
   'global': { value: '', matchMode: FilterMatchMode.CONTAINS },
 });
 
-const labels = computed(() => {
-  const firstItem = operators.value?.[0];
-
-  const dynamicKeys = firstItem
-    ? (Object.keys(firstItem) as (keyof typeof firstItem)[]).filter(key => {
-      if (typeof key === 'string' && (key.startsWith('$') || key === 'info')) return false;
-      const val = (firstItem as any)[key];
-      return val !== null && val !== undefined && typeof val !== 'object';
-    }) as string[]
-    : [];
-
-  return Array.from(new Set(['name', 'codename', 'role_label', 'status_label', ...dynamicKeys]));
-});
+const labels = computed(() => getSearchableKeys(operators.value?.[0], ['name', 'codename', 'role_label', 'status_label']));
 
 const dtValue = computed(() => {
   return isLoading.value ? new Array(5).fill({}) : (operators.value || []);

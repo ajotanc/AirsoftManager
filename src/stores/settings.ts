@@ -24,6 +24,12 @@ export const useSettingsStore = defineStore("settings", {
     yellowBaseCoords: (state): [number, number] => {
       return useSettingsStore().formatCoordinates(state.config.yellow_base);
     },
+    blueTeam: (state): string[] => state.config.blue_team || [],
+    yellowTeam: (state): string[] => state.config.yellow_team || [],
+    rangers: (state): string[] => state.config.rangers || [],
+    isSplitTeamsActive: (state): boolean => state.config.split_teams === true,
+    hasTeamsConfigured: (state): boolean => ((state.config.blue_team?.length || 0) > 0 || (state.config.yellow_team?.length || 0) > 0),
+    isTeamSeparationActive: (state): boolean => state.config.split_teams === true && ((state.config.blue_team?.length || 0) > 0 || (state.config.yellow_team?.length || 0) > 0 || (state.config.rangers?.length || 0) > 0),
   },
   actions: {
     formatCoordinates(str?: string, defaultCoords: [number, number] = [-12.890545, -38.31959]): [number, number] {
@@ -54,13 +60,9 @@ export const useSettingsStore = defineStore("settings", {
 
       const channel = `databases.${DATABASE_ID}.collections.${TABLE_SETTINGS}.documents`;
 
-      realtime.subscribe(channel, (response) => {
-        const isChange = response.events.some(
-          (e) => e.includes(".update") || e.includes(".create") || e.includes(".delete")
-        );
-
-        if (isChange) {
-          this.refresh();
+      realtime.subscribe(channel, async (response) => {
+        if (response.events.some(e => e.includes('.update') || e.includes('.create'))) {
+          await this.refresh();
         }
       });
     },

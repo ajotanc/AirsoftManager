@@ -13,11 +13,6 @@ export const PROJECT_ID = import.meta.env.VITE_APPWRITE_PROJECT_ID;
 export const DATABASE_ID = import.meta.env.VITE_APPWRITE_DATABASE_ID;
 export const BUCKET_ID = import.meta.env.VITE_APPWRITE_BUCKET_ID;
 
-export const TABLE_OPERATORS = "operators";
-export const TABLE_ARSENALS = "arsenals";
-export const TABLE_LOADOUTS = "loadouts";
-export const TABLE_SKILL_RATINGS = "skill_ratings";
-
 export const client = new Client();
 
 client

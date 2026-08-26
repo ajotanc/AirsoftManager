@@ -151,14 +151,14 @@ const missionSchema = z.object({
 
 const resolver = ref(zodResolver(missionSchema));
 
-const saveEvent = async ({ valid, values }: any) => {
+const saveEvent = async ({ valid, values }: { valid: boolean; values: Partial<IEvent> }) => {
     if (!valid) return false;
 
     try {
         const file = selectedEvent.value.file as File;
         const payload = {
             ...values,
-            location_coords: await getCoordinates(values.location_url),
+            location_coords: await getCoordinates(values.location_url!),
             reference: dayjs(values.date).format("MM/YYYY"),
             thumbnail: selectedEvent.value.thumbnail,
         }
@@ -178,12 +178,13 @@ const saveEvent = async ({ valid, values }: any) => {
             detail: "Evento salvo com sucesso!",
             life: 3000,
         });
-    } catch (error: any) {
-        console.error("Erro ao salvar:", error);
+    } catch (error) {
+        const err = error as Error;
+        console.error("Erro ao salvar:", err);
         toast.add({
             severity: "error",
             summary: "Erro",
-            detail: error.message || "Falha ao salvar.",
+            detail: err.message || "Falha ao salvar.",
             life: 4000,
         });
     } finally {
@@ -313,13 +314,14 @@ const confirmDelete = (event: IEvent) => {
                     life: 3000,
                 });
 
-            } catch (error: any) {
-                console.error("Erro ao enviar formulário:", error);
+            } catch (error) {
+                const err = error as Error;
+                console.error("Erro ao enviar formulário:", err);
 
                 toast.add({
                     severity: "error",
                     summary: "Erro",
-                    detail: error.message || "Falha ao salvar os dados. Tente novamente.",
+                    detail: err.message || "Falha ao salvar os dados. Tente novamente.",
                     life: 4000,
                 });
             }

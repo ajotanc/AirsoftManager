@@ -1,5 +1,5 @@
 import { deleteFile, uploadFile } from "@/functions/utils";
-import { tables, TABLE_ARSENALS, DATABASE_ID } from "@/services/appwrite";
+import { tables, DATABASE_ID } from "@/services/appwrite";
 import { ID, Query, type Models } from "appwrite";
 
 export interface IArsenal extends Models.Row {
@@ -17,6 +17,8 @@ export interface IArsenal extends Models.Row {
   type_name?: string;
   category_name?: string;
 }
+
+export const TABLE_ARSENALS = "arsenals";
 
 export const ArsenalService = {
   async row(rowId: string) {
@@ -79,7 +81,7 @@ export const ArsenalService = {
       data,
     });
   },
-  async upsert(rowId: string | undefined, data: IArsenal) {
+  async upsert(rowId: string | undefined, data: Partial<IArsenal>): Promise<IArsenal> {
     if (!rowId) {
       rowId = ID.unique();
     }
@@ -102,7 +104,7 @@ export const ArsenalService = {
       rowId: arsenal.$id,
     });
   },
-  async uploadInvoice(rowId: string, file: File) {
+  async uploadInvoice(rowId: string, file: File): Promise<IArsenal> {
     const urlFormatted = await uploadFile(rowId, file, "nfe", false);
 
     return await tables.updateRow({

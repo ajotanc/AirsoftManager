@@ -232,6 +232,52 @@ const arenaBounds = shallowRef<L.LatLngBounds | null>(null);
 const isGlobal = computed(() => settingsStore.showGlobalMap);
 const isTogglingGlobal = ref(false);
 
+const isBlueTeam = computed(() => settingsStore.blueTeam.includes(operator.value?.$id || ''));
+const isYellowTeam = computed(() => settingsStore.yellowTeam.includes(operator.value?.$id || ''));
+const isRanger = computed(() => settingsStore.rangers.includes(operator.value?.$id || ''));
+
+const canSeeOperator = (targetOpId: string): boolean => {
+    if (!targetOpId) return false;
+    if (targetOpId === operator.value?.$id) return true;
+
+    // Se estiver no Modo Mapa Global ou se a separação de equipes não estiver ativa/configurada
+    if (!settingsStore.isTeamSeparationActive) {
+        return true;
+    }
+
+    // Se o usuário logado for um Ranger (Fiscal do Jogo), ele vê todo mundo
+    if (isRanger.value) return true;
+
+    // Se o alvo for um Ranger e quem está visualizando não for Ranger, não enxerga o Ranger
+    if (settingsStore.rangers.includes(targetOpId)) {
+        return false;
+    }
+
+    if (isBlueTeam.value) {
+        return settingsStore.blueTeam.includes(targetOpId);
+    }
+    if (isYellowTeam.value) {
+        return settingsStore.yellowTeam.includes(targetOpId);
+    }
+    return !settingsStore.blueTeam.includes(targetOpId) && !settingsStore.yellowTeam.includes(targetOpId);
+};
+
+const getOperatorTeamClass = (targetOpId: string): string => {
+    if (settingsStore.isTeamSeparationActive) {
+        if (settingsStore.rangers.includes(targetOpId)) {
+            return 'team-ranger';
+        }
+        if (settingsStore.blueTeam.includes(targetOpId)) {
+            return 'team-blue';
+        }
+        if (settingsStore.yellowTeam.includes(targetOpId)) {
+            return 'team-yellow';
+        }
+    }
+
+    return 'team-default';
+};
+
 const MAX_DISPLAYED_MESSAGES = 150;
 
 const applyMapMode = (isGlobalMode: boolean) => {
@@ -486,7 +532,7 @@ const connectToAllPeers = async () => {
     try {
         const ops = await OperatorService.listOnline();
         ops.forEach((op) => {
-            if (op.$id !== operator.value?.$id) {
+            if (op.$id !== operator.value?.$id && canSeeOperator(op.$id)) {
                 TacticalPeerService.connectToPeer(op.$id, op.codename);
             }
         });
@@ -535,6 +581,10 @@ const vibrateForChatMessage = (
 const receiveChatMessage = (
     msg: IPeerChatPayload,
 ) => {
+    if (msg.opId && !canSeeOperator(msg.opId)) {
+        return;
+    }
+
     if (
         chatMessages.value.some(
             (message) => message.id === msg.id,
@@ -703,7 +753,7 @@ const updateOperatorMarker = (op: Partial<IOperator> & { $id: string; is_medic?:
     const isDeadOp = !!op.is_dead;
 
     // Só exibe qualquer operador se a transmissão de localização ou simulação estiver ativa
-    if (!isTransmitting.value && !isSimulating.value) {
+    if (isCurrentOp && !isTransmitting.value && !isSimulating.value) {
         const existingMarker = operatorMarkers.get(opId);
         if (existingMarker) {
             operatorsLayerGroup.value.removeLayer(existingMarker);
@@ -712,7 +762,7 @@ const updateOperatorMarker = (op: Partial<IOperator> & { $id: string; is_medic?:
         return;
     }
 
-    if (!isOnline || isNaN(lat) || isNaN(lng)) {
+    if (!canSeeOperator(opId) || !isOnline || isNaN(lat) || isNaN(lng)) {
         const existingMarker = operatorMarkers.get(opId);
         if (existingMarker) {
             operatorsLayerGroup.value.removeLayer(existingMarker);
@@ -732,13 +782,15 @@ const updateOperatorMarker = (op: Partial<IOperator> & { $id: string; is_medic?:
         }
     }
 
+    const teamClass = getOperatorTeamClass(opId);
+
     const iconHtml = `
-        <div class="tactical-op-marker">
-        <div class="op-pulse ${classBadge}"></div>
-        <div class="op-avatar-circle ${classBadge}"> 
+        <div class="tactical-op-marker ${teamClass}">
+        <div class="op-pulse ${classBadge} ${teamClass}"></div>
+        <div class="op-avatar-circle ${classBadge} ${teamClass}"> 
             <img src="${avatarUrl}" alt="${codename}" class="op-avatar-img" onerror="this.src='/favicon.ico'" />
         </div>
-            <div class="op-label">${codename}</div>
+            <div class="op-label ${teamClass}">${codename}</div>
         </div>
     `;
 
@@ -816,9 +868,10 @@ const refreshLocation = async () => {
         if (isTransmitting.value || isSimulating.value) {
             broadcastCurrentState();
         }
-    } catch (err: any) {
-        console.error('Erro ao atualizar posição GPS:', err);
-        alert(err.message || 'Não foi possível atualizar o sinal GPS.');
+    } catch (err) {
+        const error = err as Error;
+        console.error('Erro ao atualizar posição GPS:', error);
+        alert(error.message || 'Não foi possível atualizar o sinal GPS.');
     } finally {
         isRefreshingLocation.value = false;
     }
@@ -1601,6 +1654,8 @@ onMounted(async () => {
             operator.value.$id,
 
             (payload) => {
+                if (!canSeeOperator(payload.opId)) return;
+
                 updateOperatorMarker({
                     $id: payload.opId,
                     codename: payload.codename,
@@ -1640,6 +1695,8 @@ onMounted(async () => {
                 TacticalPeerService.init(
                     operator.value.$id,
                     (payload) => {
+                        if (!canSeeOperator(payload.opId)) return;
+
                         updateOperatorMarker({
                             $id: payload.opId,
                             codename: payload.codename,
@@ -1696,7 +1753,7 @@ onMounted(async () => {
     unsubscribeOnlineChanges = OperatorService.subscribeOnlineChanges((payload, event) => {
         if (!operator.value?.$id || payload.$id === operator.value.$id) return;
 
-        if (event.endsWith('.update') && payload.is_online) {
+        if (event.endsWith('.update') && payload.is_online && canSeeOperator(payload.$id)) {
             TacticalPeerService.markOnline(payload.$id);
             TacticalPeerService.connectToPeer(payload.$id, payload.codename);
         }
@@ -1991,6 +2048,51 @@ onBeforeUnmount(() => {
     z-index: 1;
     margin-top: 0.25rem;
     text-transform: uppercase;
+}
+
+:deep(.op-pulse.team-blue:not(.medic):not(.dead)) {
+    background: color-mix(in srgb, var(--p-blue-500) 60%, transparent);
+    box-shadow: 0 0 8px var(--p-blue-700);
+}
+
+:deep(.op-avatar-circle.team-blue) {
+    border-color: var(--p-blue-500);
+    box-shadow: 0 0 10px var(--p-blue-600), inset 0 0 4px var(--p-surface-950);
+}
+
+:deep(.op-label.team-blue) {
+    border-color: var(--p-blue-500);
+    color: var(--p-blue-50);
+}
+
+:deep(.op-pulse.team-yellow:not(.medic):not(.dead)) {
+    background: color-mix(in srgb, var(--p-yellow-500) 60%, transparent);
+    box-shadow: 0 0 8px var(--p-yellow-700);
+}
+
+:deep(.op-avatar-circle.team-yellow) {
+    border-color: var(--p-yellow-500);
+    box-shadow: 0 0 10px var(--p-yellow-600), inset 0 0 4px var(--p-surface-950);
+}
+
+:deep(.op-label.team-yellow) {
+    border-color: var(--p-yellow-500);
+    color: var(--p-yellow-50);
+}
+
+:deep(.op-pulse.team-ranger:not(.medic):not(.dead)) {
+    background: color-mix(in srgb, var(--p-green-500) 60%, transparent);
+    box-shadow: 0 0 8px var(--p-green-700);
+}
+
+:deep(.op-avatar-circle.team-ranger) {
+    border-color: var(--p-green-500);
+    box-shadow: 0 0 10px var(--p-green-600), inset 0 0 4px var(--p-surface-950);
+}
+
+:deep(.op-label.team-ranger) {
+    border-color: var(--p-green-500);
+    color: var(--p-green-50);
 }
 
 .hide-op-labels :deep(.op-label),

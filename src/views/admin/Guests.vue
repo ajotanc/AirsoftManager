@@ -73,7 +73,7 @@ const guestSchema = z.object({
   team: z.string({ error: "Selecione a sua equipe" })
 });
 
-const fields = computed<IFields[]>(() => [
+const fields = computed<IFields<IGuest>[]>(() => [
   {
     name: "operator",
     label: "Quem Convidou?",
@@ -128,7 +128,7 @@ const saveGuest = async (values: IGuest) => {
       detail: "Convidado salvo com sucesso.",
       life: 3000,
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Erro ao salvar:", error);
     toast.add({ severity: "error", summary: "Erro", detail: "Falha ao registrar o visitante.", life: 3000 });
   } finally {
@@ -161,13 +161,14 @@ const confirmDelete = (guest: IGuest) => {
           life: 3000,
         });
 
-      } catch (error: any) {
-        console.error("Erro ao enviar formulário:", error);
+      } catch (error) {
+        const err = error as Error;
+        console.error("Erro ao enviar formulário:", err);
 
         toast.add({
           severity: "error",
           summary: "Erro",
-          detail: error.message || "Falha ao excluir os dados. Tente novamente.",
+          detail: err.message || "Falha ao excluir os dados. Tente novamente.",
           life: 4000,
         });
       }

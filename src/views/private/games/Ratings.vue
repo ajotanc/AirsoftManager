@@ -80,7 +80,7 @@ import Dialog from "primevue/dialog";
 import FloatLabel from "primevue/floatlabel";
 import Select from "primevue/select";
 import Message from "primevue/message";
-import { Form } from '@primevue/forms';
+import { Form, type FormSubmitEvent } from '@primevue/forms';
 import { z } from 'zod';
 import { zodResolver } from "@primevue/forms/resolvers/zod";
 import { SKILL_ATTRIBUTES } from "@/constants/airsoft";
@@ -91,6 +91,16 @@ import { type IFields } from "@/functions/utils";
 import { useOperator } from "@/composables/useOperator";
 
 const { operator } = useOperator();
+
+const loading = ref(true);
+const ratings = ref<IRating<IOperator, IOperator>[]>([]);
+const operators = ref<IOperator[]>([]);
+
+const toast = useToast();
+const confirm = useConfirm();
+
+const ratingDialog = ref(false);
+const selectedRating = ref({} as IRating);
 
 onMounted(() => {
     loadServices();
@@ -133,16 +143,6 @@ const loadServices = async () => {
     }
 };
 
-const loading = ref(true);
-const ratings = ref<IRating<IOperator, IOperator>[]>([]);
-const operators = ref<IOperator[]>([]);
-
-const toast = useToast();
-const confirm = useConfirm();
-
-const ratingDialog = ref(false);
-const selectedRating = ref({} as IRating);
-
 const ratingSchema = z.number({
     error: "Escolha quantas estrelas deseja votar"
 })
@@ -166,8 +166,8 @@ const availableOperators = computed(() => {
     return operators.value;
 });
 
-const saveRating = async ({ valid, values }: any) => {
-    if (!valid) return false;
+const saveRating = async ({ valid, values }: FormSubmitEvent) => {
+    if (!valid) return;
 
     const { target, ...attributes } = values;
 
@@ -178,15 +178,18 @@ const saveRating = async ({ valid, values }: any) => {
             attributes: JSON.stringify(attributes),
         };
 
-        const response = await RatingService.upsert(selectedRating.value.$id, payload) as IRating;
+        const response = await RatingService.upsert(selectedRating.value.$id, payload);
 
-        const formattedResponse = {
+        const targetOperator = (operators.value.find(op => op.$id === target) || selectedRating.value.selected || response.target) as IOperator;
+
+        const formattedResponse: IRating<IOperator, IOperator> = {
             ...response,
             ...attributes,
-            target: operators.value.find(op => op.$id === target) || response.target
+            voter: operator.value,
+            target: targetOperator
         };
 
-        const index = ratings.value.findIndex((item: IRating) => item.$id === response.$id);
+        const index = ratings.value.findIndex((item) => item.$id === response.$id);
 
         if (index !== -1) {
             ratings.value[index] = formattedResponse;
@@ -203,9 +206,10 @@ const saveRating = async ({ valid, values }: any) => {
         });
 
         hideDialog();
-    } catch (error: any) {
-        console.error("Erro ao salvar:", error);
-        toast.add({ severity: "error", summary: "Erro", detail: "Falha ao registrar voto." });
+    } catch (error) {
+        const err = error as Error;
+        console.error("Erro ao salvar:", err);
+        toast.add({ severity: "error", summary: "Erro", detail: err.message || "Falha ao registrar voto." });
     }
 };
 
@@ -255,13 +259,14 @@ const confirmDelete = (rating: IRating) => {
                     life: 3000,
                 });
 
-            } catch (error: any) {
-                console.error("Erro ao enviar formulário:", error);
+            } catch (error) {
+                const err = error as Error;
+                console.error("Erro ao enviar formulário:", err);
 
                 toast.add({
                     severity: "error",
                     summary: "Erro",
-                    detail: error.message || "Falha ao salvar os dados. Tente novamente.",
+                    detail: err.message || "Falha ao salvar os dados. Tente novamente.",
                     life: 4000,
                 });
             }

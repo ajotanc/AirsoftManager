@@ -4,7 +4,7 @@ import { defineStore } from "pinia";
 import { account } from "@/services/appwrite";
 import { ID, type Models } from "appwrite";
 import {
-  operatorSchema,
+  isOperatorProfileComplete,
   OperatorService,
   type IOperator,
   type IOperatorDraft,
@@ -24,8 +24,7 @@ export const useAuthStore = defineStore("auth", {
   getters: {
     isAuthenticated: (state) => !!state.user,
     isProfileComplete: (state): boolean => {
-      if (!state.operator?.$id) return false;
-      return operatorSchema.safeParse(state.operator).success;
+      return isOperatorProfileComplete(state.operator);
     },
     isVisitor: (state) => state.operator?.role === "visitor",
     isRecruit: (state) => state.operator?.role === "recruit",
@@ -84,13 +83,15 @@ export const useAuthStore = defineStore("auth", {
       try {
         this.user = await account.get();
         if (this.user) {
-          const [op, payments] = await Promise.all([
+          const [op, payments, schoolAnswers] = await Promise.all([
             OperatorService.row(this.user.$id),
-            PaymentService.listByOperator(this.user.$id)
+            PaymentService.listByOperator(this.user.$id),
+            SchoolService.listCurrentSemesterAnswers(this.user.$id)
           ]);
 
           this.operator = op || {} as IOperator;
           this.operator.payments = payments;
+          this.operator.school_answers = schoolAnswers;
         }
       } catch (error) {
         this.user = null;
@@ -102,8 +103,12 @@ export const useAuthStore = defineStore("auth", {
     async fetchOperator() {
       if (!this.user) return;
       try {
-        const row = await OperatorService.row(this.user.$id);
+        const [row, schoolAnswers] = await Promise.all([
+          OperatorService.row(this.user.$id),
+          SchoolService.listCurrentSemesterAnswers(this.user.$id)
+        ]);
         this.operator = row || {} as IOperator;
+        this.operator.school_answers = schoolAnswers;
       } catch (error) {
         console.error("Operador não encontrado no banco:", error);
         this.operator = {} as IOperator;

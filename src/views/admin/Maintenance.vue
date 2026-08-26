@@ -185,7 +185,7 @@ const fields = computed<IFields[]>(() => [
   { name: "fps", label: "FPS", component: InputNumber, col: '6' },
   {
     name: "joule", label: "Joule", component: InputMask, col: '6', props: {
-      mask: "9.99", inputmode: "numeric"
+      mask: "9.99", inputmode: "numeric", autoClear: false
     }
   },
   {
@@ -204,7 +204,7 @@ const maintenanceSchema = z.object({
   arsenal: z.string({ error: "Selecione o equipamento" }),
   type: z.array(z.string({ error: "Selecione ao menos um tipo de manutenção" })),
   status: z.string({ error: "Status obrigatório" }),
-  joule: z.coerce.number({ error: "Informe o Joule" }).gt(0, { error: "Joule deve ser maior que 0.00" }).transform((value) => value && value.toString()).nullish().optional(),
+  joule: z.coerce.number({ error: "Informe o Joule" }).gt(0, { error: "Joule deve ser maior que 0.00" }).transform((value) => value ? value.toFixed(2) : '').nullish().optional(),
   fps: z.number({ error: "Informe o FPS" }).max(550, { error: "FPS deve ser menor ou igual a 550" }).gt(0, { error: "FPS deve ser maior que 0" }).nullish().optional(),
   maintenance_at: z.custom().refine((date) => date instanceof Date || typeof date === 'string', "Data da manutenção obrigatória").transform((date) => dateToISOString(date as Date | string)),
   technical_report: z.string().nullish().optional(),
@@ -241,7 +241,7 @@ const getArsenalData = (operatorId: string) => {
     return !idsInMaintenance.includes(item.$id) || isAlreadySelected;
   });
 };
-const saveMaintenance = async ({ valid, values }: any) => {
+const saveMaintenance = async ({ valid, values }: { valid: boolean; values: Partial<IMaintenance> }) => {
   if (!valid) return false;
 
   try {
@@ -264,7 +264,7 @@ const saveMaintenance = async ({ valid, values }: any) => {
       detail: "Manutenção salvo com sucesso.",
       life: 3000,
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Erro ao salvar:", error);
     toast.add({ severity: "error", summary: "Erro", detail: "Falha ao registrar o manutenção.", life: 3000 });
   } finally {
@@ -297,13 +297,14 @@ const confirmDelete = (data: IMaintenance) => {
           life: 3000,
         });
 
-      } catch (error: any) {
-        console.error("Erro ao enviar formulário:", error);
+      } catch (error) {
+        const err = error as Error;
+        console.error("Erro ao enviar formulário:", err);
 
         toast.add({
           severity: "error",
           summary: "Erro",
-          detail: error.message || "Falha ao excluir os dados. Tente novamente.",
+          detail: err.message || "Falha ao excluir os dados. Tente novamente.",
           life: 4000,
         });
       }

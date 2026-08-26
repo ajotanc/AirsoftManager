@@ -440,7 +440,7 @@
             <Form :resolver="resolverCarpool" :initialValues="selectedCarpool" @submit="saveCarpool" class="grid"
                 :key="selectedCarpool.$id || 'new'">
                 <div v-for="{ name, label, component, col, props } in carpoolFields" :key="name" :class="`col-${col}`">
-                    <FormField v-if="['ToggleSwitch', 'ColorPicker'].includes(component.name)" :name="name"
+                    <FormField v-if="['ToggleSwitch', 'ColorPicker'].includes(component?.name || '')" :name="name"
                         v-slot="$field" class="flex flex-column gap-1">
                         <div class="flex gap-2">
                             <component :is="component" :id="name" v-bind="props" :name="name" v-model="$field.value"
@@ -720,7 +720,7 @@ const carpoolsWithRequests = computed(() => {
     );
 });
 
-const saveCarpool = async ({ valid, values }: any) => {
+const saveCarpool = async ({ valid, values }: { valid: boolean; values: Partial<ICarpool> }) => {
     if (!valid) return false;
 
     try {
@@ -752,7 +752,7 @@ const saveCarpool = async ({ valid, values }: any) => {
             detail: "Carona salva com sucesso!",
             life: 3000,
         });
-    } catch (error: any) {
+    } catch (error) {
         console.error("Erro ao salvar:", error);
         toast.add({ severity: "error", summary: "Erro", detail: "Falha ao registrar o visitante.", life: 3000 });
     } finally {
@@ -795,13 +795,14 @@ const deleteCarpool = (carpool: ICarpool<IVehicle>) => {
                     life: 3000,
                 });
 
-            } catch (error: any) {
-                console.error("Erro ao enviar formulário:", error);
+            } catch (error) {
+                const err = error as Error;
+                console.error("Erro ao enviar formulário:", err);
 
                 toast.add({
                     severity: "error",
                     summary: "Erro",
-                    detail: error.message || "Falha ao excluir os dados. Tente novamente.",
+                    detail: err.message || "Falha ao excluir os dados. Tente novamente.",
                     life: 4000,
                 });
             }
@@ -1200,13 +1201,14 @@ const deleteFeedback = (eventRating: IFeedback) => {
                     detail: "Feedback excluída com sucesso!",
                     life: 3000,
                 });
-            } catch (error: any) {
-                console.error("Erro ao enviar formulário:", error);
+            } catch (error) {
+                const err = error as Error;
+                console.error("Erro ao enviar formulário:", err);
 
                 toast.add({
                     severity: "error",
                     summary: "Erro",
-                    detail: error.message || "Falha ao excluir os dados. Tente novamente.",
+                    detail: err.message || "Falha ao excluir os dados. Tente novamente.",
                     life: 4000,
                 });
             }
@@ -1253,7 +1255,7 @@ const saveFeedback = async (values: IFeedback) => {
             detail: "Feedback salvo com sucesso!",
             life: 3000,
         });
-    } catch (error: any) {
+    } catch (error) {
         console.error("Erro ao salvar:", error);
         toast.add({ severity: "error", summary: "Erro", detail: "Falha ao registrar o feedback.", life: 3000 });
     } finally {

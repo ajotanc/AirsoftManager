@@ -195,21 +195,32 @@ export const SchoolService = {
     const approved = this.getApprovedCategories(answers, targetDate);
     return SCHOOL_CATEGORIES.filter(cat => !approved.includes(cat));
   },
+  async listCurrentSemesterAnswers(operatorId: string): Promise<ISchoolAnswer[]> {
+    try {
+      const { start, end } = this.getSemesterInfo();
+
+      const response = await tables.listRows<ISchoolAnswer>({
+        databaseId: DATABASE_ID,
+        tableId: TABLE_SCHOOL_ANSWERS,
+        queries: [
+          Query.select(["*", "questions.*"]),
+          Query.equal("operator", operatorId),
+          Query.greaterThanEqual("completed_at", start.startOf('day').toISOString()),
+          Query.lessThanEqual("completed_at", end.endOf('day').toISOString()),
+          Query.orderDesc("completed_at"),
+          Query.limit(100)
+        ]
+      });
+
+      return response.rows.map(row => this.organizeAnswers(row));
+    } catch (error) {
+      console.error("Erro ao buscar respostas do semestre atual:", error);
+      return [];
+    }
+  },
   async getMissingCertifications(operatorId: string): Promise<SchoolCategory[]> {
-    const { start, end } = this.getSemesterInfo();
-
-    const response = await tables.listRows<ISchoolAnswer>({
-      databaseId: DATABASE_ID,
-      tableId: TABLE_SCHOOL_ANSWERS,
-      queries: [
-        Query.select(["*", "questions.*"]),
-        Query.equal("operator", operatorId),
-        Query.greaterThanEqual("completed_at", start.startOf('day').toISOString()),
-        Query.lessThanEqual("completed_at", end.endOf('day').toISOString())
-      ]
-    });
-
-    return this.getMissingCertificationsFromAnswers(response.rows);
+    const answers = await this.listCurrentSemesterAnswers(operatorId);
+    return this.getMissingCertificationsFromAnswers(answers);
   },
   async create(data: ISchoolAnswer): Promise<ISchoolAnswer> {
     return await tables.createRow({
@@ -247,7 +258,7 @@ export const SchoolService = {
     }
   },
   organizeAnswers(data: ISchoolAnswer): ISchoolAnswer {
-    const questions = (data.questions || []) as any[];
+    const questions = (data.questions || []) as ISchoolQuestion[];
     const answers = (data.answers || []) as string[];
 
     if (!questions.length || !answers.length) {

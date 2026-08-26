@@ -82,12 +82,13 @@ const handleLogin = async ({ valid, values }: FormSubmitEvent) => {
     try {
       await authStore.login(values.email, values.password);
       router.push("/dashboard");
-    } catch (error: any) {
-      console.error(error);
+    } catch (error) {
+      const err = error as Error;
+      console.error(err);
       toast.add({
         severity: "error",
         summary: "Erro",
-        detail: `Falha ao criar conta: ${error.message}`,
+        detail: `Falha ao realizar login: ${err.message || "Erro desconhecido"}`,
         life: 3000,
       });
     } finally {

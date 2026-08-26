@@ -218,13 +218,14 @@ const confirmDelete = (uniform: ILoadout) => {
           life: 3000,
         });
 
-      } catch (error: any) {
-        console.error("Erro ao enviar formulário:", error);
+      } catch (error) {
+        const err = error as Error;
+        console.error("Erro ao enviar formulário:", err);
 
         toast.add({
           severity: "error",
           summary: "Erro",
-          detail: error.message || "Falha ao salvar os dados. Tente novamente.",
+          detail: err.message || "Falha ao salvar os dados. Tente novamente.",
           life: 4000,
         });
       }
@@ -315,7 +316,8 @@ const newUniform = async () => {
 };
 
 const editUniform = async (uniform: ILoadout) => {
-  selectedUniform.value = { ...uniform };
+  const { uniform_name, ...data } = uniform;
+  selectedUniform.value = data;
   uniformDialog.value = true;
   shownUniform.value = false;
 };
@@ -331,7 +333,7 @@ const saveUniform = async () => {
       operator: props.owner
     };
 
-    const response = await LoadoutService.upsert(selectedUniform.value.$id, payload) as unknown as ILoadout;
+    const response = await LoadoutService.upsert(selectedUniform.value.$id, payload);
 
     const index = items.value.findIndex((item: ILoadout) => item.$id === response.$id);
 
@@ -347,12 +349,13 @@ const saveUniform = async () => {
       detail: "Loadout salvo com sucesso!",
       life: 3000,
     });
-  } catch (error: any) {
-    console.error("Erro ao salvar:", error);
+  } catch (error) {
+    const err = error as Error;
+    console.error("Erro ao salvar:", err);
     toast.add({
       severity: "error",
       summary: "Erro",
-      detail: error.message || "Falha ao salvar.",
+      detail: err.message || "Falha ao salvar.",
       life: 4000,
     });
   } finally {
@@ -366,7 +369,7 @@ const isEquipped = (key: string) => {
 
 const toggleItem = (key: string) => {
   const currentKey = key as keyof ILoadout;
-  (selectedUniform.value as any)[currentKey] = !selectedUniform.value[currentKey];
+  (selectedUniform.value[currentKey] as boolean) = !selectedUniform.value[currentKey];
 };
 
 const getImage = (itemKey: string) => {

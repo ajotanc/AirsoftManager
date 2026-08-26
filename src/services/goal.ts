@@ -49,7 +49,7 @@ export const GoalService = {
   },
   async upsert(
     rowId: string | undefined,
-    data: IGoal,
+    data: Partial<IGoal>,
     file?: File,
   ): Promise<IGoal> {
     try {

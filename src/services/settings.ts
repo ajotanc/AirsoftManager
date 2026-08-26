@@ -12,6 +12,10 @@ export interface ISetting extends Models.Row {
   registration_start_date?: string;
   blue_base?: string;
   yellow_base?: string;
+  blue_team?: string[];
+  yellow_team?: string[];
+  rangers?: string[];
+  split_teams?: boolean;
   monthly_fee?: number;
   max_pending_payments?: number;
 }

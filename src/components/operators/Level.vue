@@ -8,8 +8,8 @@
                 <h2 class="text-2xl font-bold m-0 line-height-2 uppercase">{{ operator.codename }}</h2>
             </div>
             <div class="flex justify-content-center align-items-center gap-1 text-xs text-gray-500 font-medium mt-1">
-                <span>{{ getSpecialtyLabel(operator.category) }}</span>
-                <span>·</span>
+                    <span>{{ getSpecialtyLabel(operator.category) }}</span>
+                    <span>·</span>
                 <span>Nível {{ operator.level }}</span>
                 <span>·</span>
                 <i class="ri-trophy-fill text-yellow-500"></i>

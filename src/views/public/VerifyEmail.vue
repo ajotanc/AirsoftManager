@@ -62,7 +62,7 @@ onMounted(async () => {
     await authStore.init();
 
     state.value = 'success';
-  } catch (error: any) {
+  } catch (error) {
     state.value = 'error';
   }
 });

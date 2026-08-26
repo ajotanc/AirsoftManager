@@ -1,6 +1,8 @@
-import { tables, TABLE_SKILL_RATINGS, DATABASE_ID } from "@/services/appwrite";
+import { tables, DATABASE_ID } from "@/services/appwrite";
 import { ID, Query, type Models } from "appwrite";
 import type { IOperator } from "./operator";
+
+export const TABLE_SKILL_RATINGS = "skill_ratings";
 
 export interface IRating<VOp = string | IOperator, TOp = string | IOperator>
   extends Models.Row {

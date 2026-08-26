@@ -73,12 +73,13 @@ function onDetectInternal(detectedCodes: DetectedBarcode[]) {
   }
 }
 
-async function onInit(promise: Promise<any>) {
+async function onInit(promise: Promise<{ capabilities?: MediaTrackCapabilities } | void>) {
   try {
     scannerError.value = '';
     await promise;
-  } catch (err: any) {
-    scannerError.value = err.name === 'NotAllowedError' ? 'Sem permissão de câmera' : 'Erro ao iniciar câmera';
+  } catch (err) {
+    const error = err as Error;
+    scannerError.value = error.name === 'NotAllowedError' ? 'Sem permissão de câmera' : 'Erro ao iniciar câmera';
     emit('error', scannerError.value);
   }
 }

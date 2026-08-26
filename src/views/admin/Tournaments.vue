@@ -217,12 +217,13 @@ const confirmDelete = (tournament: ITournament) => {
           life: 3000,
         });
 
-      } catch (error: any) {
-        console.error("Erro ao excluir torneio:", error);
+      } catch (error) {
+        const err = error as Error;
+        console.error("Erro ao excluir torneio:", err);
         toast.add({
           severity: "error",
           summary: "Erro",
-          detail: error.message || "Falha ao excluir os dados.",
+          detail: err.message || "Falha ao excluir os dados.",
           life: 4000,
         });
       }

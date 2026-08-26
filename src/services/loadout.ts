@@ -1,7 +1,9 @@
-import { tables, TABLE_LOADOUTS, DATABASE_ID } from "@/services/appwrite";
-import { ID, Query } from "appwrite";
+import { tables, DATABASE_ID } from "@/services/appwrite";
+import { ID, Query, type Models } from "appwrite";
 
-export interface ILoadout {
+export const TABLE_LOADOUTS = "loadouts";
+
+export interface ILoadout extends Models.Row {
   $id: string;
   type_uniform: number;
   combat_shirt: boolean | null;
@@ -48,7 +50,7 @@ export const LoadoutService = {
       return [];
     }
   },
-  async update(rowId: string, data: ILoadout) {
+  async update(rowId: string, data: ILoadout): Promise<ILoadout> {
     return await tables.updateRow({
       databaseId: DATABASE_ID,
       tableId: TABLE_LOADOUTS,
@@ -56,7 +58,7 @@ export const LoadoutService = {
       data,
     });
   },
-  async upsert(rowId: string, data: ILoadout) {
+  async upsert(rowId: string, data: Partial<ILoadout>): Promise<ILoadout> {
     if (!rowId) {
       rowId = ID.unique();
     }
@@ -75,7 +77,7 @@ export const LoadoutService = {
       rowId,
     });
   },
-  async create(data: ILoadout, rowId: string) {
+  async create(data: ILoadout, rowId: string): Promise<ILoadout> {
     return await tables.createRow({
       databaseId: DATABASE_ID,
       tableId: TABLE_LOADOUTS,

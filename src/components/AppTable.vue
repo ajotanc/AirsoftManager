@@ -62,7 +62,7 @@
   </div>
 </template>
 
-<script setup lang="ts" generic="T extends Record<string, any>">
+<script setup lang="ts" generic="T extends FormRecord">
 import { ref, computed } from "vue";
 import { FilterMatchMode } from '@primevue/core/api';
 import DataTable from "primevue/datatable";
@@ -72,7 +72,7 @@ import InputIcon from "primevue/inputicon";
 import InputText from "primevue/inputtext";
 import Skeleton from "primevue/skeleton";
 import ColumnContent from "@/components/ColumnContent.vue";
-import type { IFields } from "@/functions/utils";
+import type { IFields, FormRecord, FormValue } from "@/functions/utils";
 import dayjs from "dayjs";
 
 const globalFields = ['_searchString'];
@@ -101,28 +101,35 @@ const filters = ref({
 const getSearchableString = (item: T, fields: IFields[]) => {
   return fields.map(field => {
     // 1. Pegar o valor bruto (trata caminhos como 'operator.codename')
-    const val = field.name.split('.').reduce((obj, key) => obj?.[key], item);
+    const val = field.name.split('.').reduce<FormValue>((obj, key) => {
+      if (obj && typeof obj === 'object' && !Array.isArray(obj) && !(obj instanceof Date) && !(obj instanceof File)) {
+        return (obj as FormRecord)[key];
+      }
+      return undefined;
+    }, item);
 
     if (val === null || val === undefined) return "";
 
-    // 2. Lógica para Select e MultiSelect (Respeitando labels dinâmicos)
-    if (['Select', 'MultiSelect'].includes(field.component?.name) && field.props?.options) {
-      const options = field.props.options || [];
-      const optValueKey = field.props.optionValue || 'value';
-      const optLabelKey = field.props.optionLabel || 'label';
+    const compName = field.component?.name || '';
 
-      if (val && typeof val === 'object') {
-        return String(val[optLabelKey] ?? "");
+    // 2. Lógica para Select e MultiSelect (Respeitando labels dinâmicos)
+    if (['Select', 'MultiSelect'].includes(compName) && field.props?.options) {
+      const options = (field.props.options as FormRecord[]) || [];
+      const optValueKey = (field.props.optionValue as string) || 'value';
+      const optLabelKey = (field.props.optionLabel as string) || 'label';
+
+      if (val && typeof val === 'object' && !Array.isArray(val) && !(val instanceof Date) && !(val instanceof File)) {
+        return String((val as FormRecord)[optLabelKey] ?? "");
       }
 
-      const option = options.find((opt: any) => opt && String(opt[optValueKey]) === String(val));
+      const option = options.find((opt) => opt && String(opt[optValueKey]) === String(val));
       if (option) return String(option[optLabelKey] ?? "");
 
       return String(val ?? "");
     }
 
     // 3. Lógica para Moeda (Garante que "R$ 50,00" seja pesquisável como "50,00")
-    if (field.component?.name === 'InputNumber' && field.props?.mode === 'currency') {
+    if (compName === 'InputNumber' && field.props?.mode === 'currency') {
       const formatted = new Intl.NumberFormat('pt-BR', {
         style: 'currency',
         currency: 'BRL',
@@ -132,11 +139,11 @@ const getSearchableString = (item: T, fields: IFields[]) => {
     }
 
     // 4. Lógica para Data
-    if (field.component?.name === 'DatePicker') {
-      return dayjs(val as any).format('DD/MM/YYYY');
+    if (compName === 'DatePicker') {
+      return dayjs(val as string | number | Date).format('DD/MM/YYYY');
     }
 
-    return val;
+    return String(val);
   }).join(' ').toLowerCase().replace(/\s+/g, ' ').trim();
 };
 

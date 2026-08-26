@@ -12,18 +12,25 @@ import { BUCKET_ID, storage } from '@/services/appwrite';
 import { CATEGORIES_OPTIONS, EVENT_TYPES, MAINTENANCE_STATUS_TYPES, MAINTENANCE_TYPES } from '@/constants/airsoft';
 import { useSettingsStore } from '@/stores/settings';
 import router from '@/router';
+import type { Component } from 'vue';
 import type { IPayment } from '@/services/payment';
 
 dayjs.extend(customParseFormat);
 pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorker || '/js/pdf.worker.min.mjs';
 
-export interface IFields {
+export type FormComponent = Component & { name?: string };
+
+export type FormPropValue = string | number | boolean | Date | File | null | undefined | object | Function | FormPropValue[];
+export type FormValue = string | number | boolean | Date | File | null | undefined | object | FormValue[];
+export type FormRecord = Record<string, FormValue>;
+
+export interface IFields<T = FormRecord> {
   name: string;
   label: string;
-  component: any;
+  component: FormComponent;
   col?: string;
   width?: string;
-  props?: any;
+  props?: Record<string, FormPropValue>;
   isTag?: boolean;
   isRating?: boolean;
   isHtml?: boolean;
@@ -31,31 +38,33 @@ export interface IFields {
   hiddenTable?: boolean;
   icon?: string;
   iconColor?: string;
+  emptyMessage?: string;
   button?: {
     label?: string;
     icon?: string;
     severity?: string;
-    callback: (data: any) => void;
+    callback: (data: T) => void;
   };
-  [key: string]: any;
+  callback?: (data: FormValue) => string;
 }
 
 export interface FormInstance {
-  setFieldValue: (field: string, value: any) => void;
+  setFieldValue: <V>(field: string, value: V) => void;
+  setValues: (values: FormRecord) => void;
   reset: () => void;
-  validate: () => Promise<any>;
-  states: Record<string, any>;
-  getValues: () => Record<string, any>;
+  validate: () => Promise<boolean | FormRecord>;
+  states: Record<string, { value?: FormValue; invalid?: boolean; error?: { message?: string } }>;
+  getValues: () => FormRecord;
 }
 
 export interface FieldChangePayload<T> {
   name: keyof T;
-  value: any;
+  value: FormValue;
   form: FormInstance;
   data: T;
 }
 
-export type AppFormResolver = (e: FormResolverOptions) => Promise<Record<string, any>> | Record<string, any> | undefined;
+export type AppFormResolver = (e: FormResolverOptions) => Promise<object> | object | undefined;
 
 export interface ViaCepResponse {
   cep: string;
@@ -81,6 +90,16 @@ export function zRequired(message: string, minLength: number = 1) {
     (v: StringRequired) => (!v ? "" : v),
     z.string().min(minLength, message)
   );
+}
+
+export function getSearchableKeys<T extends object>(item?: T, fallback: string[] = []): string[] {
+  if (!item) return fallback;
+
+  const dynamicKeys = Object.entries(item)
+    .filter(([key, val]) => !key.startsWith('$') && typeof val !== 'object' && val !== null && val !== undefined)
+    .map(([key]) => key);
+
+  return Array.from(new Set([...fallback, ...dynamicKeys]));
 }
 
 export async function addressByCep(
@@ -333,7 +352,7 @@ export const getSpecialtyLabel = (val?: number) => {
 };
 
 export const getAvailabilityLabel = (val?: string) => {
-  const maps: any = { saturday: 'Sábados', sunday: 'Domingos', both: 'Fim de Semana', none: 'Indisponível' };
+  const maps: Record<string, string> = { saturday: 'Sábados', sunday: 'Domingos', both: 'Fim de Semana', none: 'Indisponível' };
   return maps[val || 'none'];
 };
 

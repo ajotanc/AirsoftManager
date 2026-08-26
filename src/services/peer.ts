@@ -73,7 +73,12 @@ interface PendingChatMessage {
 
 // ─── Instância PeerJS & Conexões ──────────────────────────────────────────────
 let peerInstance: Peer | null = null;
+let selfReinitAttempts = 0;
+let selfReinitTimer: ReturnType<typeof setTimeout> | null = null;
+let resolvedPeerId: string | null = null; // ID efetivamente obtido do broker (canônico ou com sufixo)
+const MAX_SELF_REINIT_ATTEMPTS = 6;
 const connections = new Map<string, DataConnection>();
+
 const pendingConnections = new Set<string>();
 const peerCodenames = new Map<string, string>();
 const connectionStates = new Map<string, PeerConnectionState>();
@@ -85,6 +90,17 @@ let onChatCallback: ((payload: IPeerChatPayload) => void) | null = null;
 let onPeerDisconnectedCallback: ((peerId: string, codename: string) => void) | null = null;
 let onPeerReconnectedCallback: ((peerId: string, codename: string) => void) | null = null;
 let onPeerStatusCallback: ((peerId: string, codename: string, state: PeerConnectionState) => void) | null = null;
+let onPeerIdResolvedCallback: ((peerId: string, isFallback: boolean) => void) | null = null;
+
+let lastInitParams: {
+    opId: string;
+    onPosition: (payload: IPeerLocationPayload) => void;
+    onChat?: (payload: IPeerChatPayload) => void;
+    onDisc?: (peerId: string, codename: string) => void;
+    onRecon?: (peerId: string, codename: string) => void;
+    onStatus?: (peerId: string, codename: string, state: PeerConnectionState) => void;
+    onIdResolved?: (peerId: string, isFallback: boolean) => void;
+} | null = null;
 
 // ─── Estado de rede ──────────────────────────────────────────────────────────
 let lastBroadcastPayload: IPeerLocationPayload | null = null;
@@ -119,10 +135,35 @@ const pendingChatMessages = new Map<string, PendingChatMessage>();
 
 export const activeConnectionCount = ref(0);
 
+function scheduleSelfReinit() {
+    if (isDisconnectingAll || selfReinitTimer || !lastInitParams) return;
+    if (peerInstance && !peerInstance.destroyed) return; // instância já saudável, nada a fazer
+
+    selfReinitAttempts++;
+    if (selfReinitAttempts > MAX_SELF_REINIT_ATTEMPTS) {
+        console.error('[WebRTC Tactical] Limite de tentativas de recriação do Peer local atingido. Intervenção manual necessária.');
+        return;
+    }
+
+    const delay = Math.min(RECONNECT_BASE_MS * Math.pow(1.6, selfReinitAttempts - 1), 15000);
+    console.info(`[WebRTC Tactical] Recriando instância Peer local em ${delay}ms (tentativa ${selfReinitAttempts})...`);
+
+    selfReinitTimer = setTimeout(() => {
+        selfReinitTimer = null;
+        if (isDisconnectingAll || !lastInitParams) return;
+        const p = lastInitParams;
+        TacticalPeerService.init(p.opId, p.onPosition, p.onChat, p.onDisc, p.onRecon, p.onStatus, p.onIdResolved, true);
+    }, delay);
+}
+
 function now() { return dayjs().valueOf(); }
 
 function getCodename(peerId: string): string {
-    return peerCodenames.get(peerId) || peerId.replace('airsoft-op-', '');
+    const known = peerCodenames.get(peerId);
+    if (known) return known;
+
+    // Remove prefixo "airsoft-op-" e, se presente, o sufixo de fallback "-rXXXXX"
+    return peerId.replace(/^airsoft-op-/, '').replace(/-r[a-z0-9]{5}$/i, '');
 }
 
 function syncConnectionCount() {
@@ -317,7 +358,7 @@ function startHeartbeat(peerId: string, conn: DataConnection) {
 
 function setupConnection(conn: DataConnection) {
     if (isDisconnectingAll) {
-        try { conn.close(); } catch {}
+        try { conn.close(); } catch { }
         return;
     }
 
@@ -325,7 +366,7 @@ function setupConnection(conn: DataConnection) {
 
     if (peerKey && offlinePeers.has(peerKey)) {
         console.info(`[WebRTC Tactical] Rejeitando conexão de ${peerKey} — peer marcado como offline.`);
-        try { conn.close(); } catch {}
+        try { conn.close(); } catch { }
         return;
     }
 
@@ -457,6 +498,12 @@ function setupConnection(conn: DataConnection) {
 
 // ─── TacticalPeerService Export ───────────────────────────────────────────────
 
+if (typeof window !== 'undefined') {
+    window.addEventListener('beforeunload', () => {
+        try { peerInstance?.destroy(); } catch { /* noop */ }
+    });
+}
+
 export const TacticalPeerService = {
     init(
         opId: string,
@@ -464,7 +511,9 @@ export const TacticalPeerService = {
         onChatReceived?: (payload: IPeerChatPayload) => void,
         onPeerDisconnected?: (peerId: string, codename: string) => void,
         onPeerReconnected?: (peerId: string, codename: string) => void,
-        onPeerStatus?: (peerId: string, codename: string, state: PeerConnectionState) => void
+        onPeerStatus?: (peerId: string, codename: string, state: PeerConnectionState) => void,
+        onPeerIdResolved?: (peerId: string, isFallback: boolean) => void,
+        forceNew = false
     ) {
         currentOpId = opId;
         onPositionCallback = onPositionReceived;
@@ -472,13 +521,33 @@ export const TacticalPeerService = {
         onPeerDisconnectedCallback = onPeerDisconnected || null;
         onPeerReconnectedCallback = onPeerReconnected || null;
         onPeerStatusCallback = onPeerStatus || null;
+        onPeerIdResolvedCallback = onPeerIdResolved || null;
 
-        if (peerInstance && !peerInstance.destroyed) {
+        lastInitParams = {
+            opId,
+            onPosition: onPositionReceived,
+            onChat: onChatReceived,
+            onDisc: onPeerDisconnected,
+            onRecon: onPeerReconnected,
+            onStatus: onPeerStatus,
+            onIdResolved: onPeerIdResolved,
+        };
+
+        if (peerInstance && !peerInstance.destroyed && !forceNew) {
             console.info('[WebRTC Tactical] Peer já inicializado. Reaproveitando conexão com o broker...');
             return;
         }
 
-        const peerId = `airsoft-op-${opId}`;
+        // Limpa instância morta/anterior antes de criar uma nova
+        if (peerInstance) {
+            try { if (!peerInstance.destroyed) peerInstance.destroy(); } catch { /* noop */ }
+            peerInstance = null;
+        }
+
+        const basePeerId = `airsoft-op-${opId}`;
+        const peerId = selfReinitAttempts > 0
+            ? `${basePeerId}-r${Date.now().toString(36).slice(-5)}`
+            : basePeerId;
 
         peerInstance = new Peer(peerId, {
             host: import.meta.env.VITE_PEERJS_HOST,
@@ -505,6 +574,16 @@ export const TacticalPeerService = {
 
         peerInstance.on('open', (id) => {
             console.info('[WebRTC Tactical] Conectado com Peer ID:', id);
+            selfReinitAttempts = 0;
+            resolvedPeerId = id;
+
+            const isFallback = id !== basePeerId;
+            if (isFallback) {
+                console.warn(`[WebRTC Tactical] ID canônico indisponível, usando fallback: ${id}. Outros peers precisam resolver este ID dinamicamente para conseguir conectar.`);
+            }
+            if (onPeerIdResolvedCallback) {
+                onPeerIdResolvedCallback(id, isFallback);
+            }
         });
 
         peerInstance.on('connection', (conn) => {
@@ -522,9 +601,16 @@ export const TacticalPeerService = {
 
         peerInstance.on('close', () => {
             console.warn('[WebRTC Tactical] Instância Peer encerrada.');
+            scheduleSelfReinit();
         });
 
         peerInstance.on('error', (err) => {
+            if (err.type === 'unavailable-id') {
+                console.warn('[WebRTC Tactical] ID de Peer ainda retido no broker (reload rápido). Agendando recriação...');
+                scheduleSelfReinit();
+                return;
+            }
+
             if (err.type === 'peer-unavailable') {
                 const match = err.message.match(/peer\s+(\S+)/i);
                 const deadPeerId = match?.[1];
@@ -544,10 +630,14 @@ export const TacticalPeerService = {
             }
 
             console.warn('[WebRTC Tactical] Peer error:', err.type, err.message);
-            if (err.type === 'unavailable-id') {
-                console.warn('[WebRTC Tactical] ID de Peer já em uso — provável outra aba ativa.');
-            }
         });
+    },
+
+    /**
+     * Retorna o ID PeerJS efetivamente resolvido junto ao broker (pode ter sufixo de fallback).
+     */
+    getResolvedPeerId(): string | null {
+        return resolvedPeerId;
     },
 
     /**
@@ -578,7 +668,7 @@ export const TacticalPeerService = {
         const conn = connections.get(targetPeerId);
         if (conn) {
             clearPeerTimers(targetPeerId);
-            try { conn.close(); } catch {}
+            try { conn.close(); } catch { }
             connections.delete(targetPeerId);
             announcePeerDisconnected(targetPeerId);
             syncConnectionCount();
@@ -697,7 +787,7 @@ export const TacticalPeerService = {
 
         connections.forEach((conn, peerId) => {
             clearPeerTimers(peerId);
-            try { conn.close(); } catch {}
+            try { conn.close(); } catch { }
         });
 
         connections.clear();
@@ -717,7 +807,7 @@ export const TacticalPeerService = {
 
         connections.forEach((conn, peerId) => {
             clearPeerTimers(peerId);
-            try { conn.close(); } catch {}
+            try { conn.close(); } catch { }
         });
 
         connections.clear();
@@ -742,6 +832,7 @@ export const TacticalPeerService = {
         onPeerDisconnectedCallback = null;
         onPeerReconnectedCallback = null;
         onPeerStatusCallback = null;
+        onPeerIdResolvedCallback = null;
 
         syncConnectionCount();
         setTimeout(() => { isDisconnectingAll = false; }, 500);

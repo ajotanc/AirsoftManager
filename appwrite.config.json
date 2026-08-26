@@ -3725,6 +3725,18 @@
                     "size": 1000,
                     "default": null,
                     "encrypt": false
+                },
+                {
+                    "key": "school_answers",
+                    "type": "relationship",
+                    "required": false,
+                    "array": false,
+                    "relatedTable": "school_answers",
+                    "relationType": "oneToMany",
+                    "twoWay": true,
+                    "twoWayKey": "operator",
+                    "onDelete": "setNull",
+                    "side": "parent"
                 }
             ],
             "indexes": []
@@ -4528,18 +4540,6 @@
                     "max": 9223372036854775807
                 },
                 {
-                    "key": "operator",
-                    "type": "relationship",
-                    "required": false,
-                    "array": false,
-                    "relatedTable": "operators",
-                    "relationType": "manyToOne",
-                    "twoWay": false,
-                    "twoWayKey": "69f1aaa1003becb0fd49",
-                    "onDelete": "setNull",
-                    "side": "parent"
-                },
-                {
                     "key": "questions",
                     "type": "relationship",
                     "required": false,
@@ -4558,6 +4558,18 @@
                     "array": false,
                     "default": null,
                     "format": ""
+                },
+                {
+                    "key": "operator",
+                    "type": "relationship",
+                    "required": false,
+                    "array": false,
+                    "relatedTable": "operators",
+                    "relationType": "oneToMany",
+                    "twoWay": true,
+                    "twoWayKey": "school_answers",
+                    "onDelete": "setNull",
+                    "side": "child"
                 }
             ],
             "indexes": []

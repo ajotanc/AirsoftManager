@@ -74,7 +74,7 @@ export const CashflowService = {
   },
   async upsert(
     rowId: string | undefined,
-    data: ICashflow,
+    data: Partial<ICashflow>,
     file?: File,
   ): Promise<ICashflow> {
     try {

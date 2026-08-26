@@ -2,12 +2,11 @@
   <Skeleton v-if="loading" width="80%" height="1.2rem" />
 
   <template v-else>
-    <Tag v-if="['Select', 'MultiSelect'].includes(column.component?.name)" :value="displayValue" :severity="severity" />
-    <Rating v-else-if="column.component?.name === 'Rating'" :modelValue="Number(cellValue)" readonly :cancel="false" />
-    <ColorPicker v-else-if="column.component?.name === 'ColorPicker'" :modelValue="cellValue"
-      style="pointer-events: none;" />
-    <div v-else-if="column.component?.name === 'Editor'" v-html="displayValue" class="rich-text-content"></div>
-    <template v-else-if="column.component.name === 'ToggleSwitch'">
+    <Tag v-if="['Select', 'MultiSelect'].includes(componentName)" :value="displayValue" :severity="severity" />
+    <Rating v-else-if="componentName === 'Rating'" :modelValue="Number(cellValue)" readonly :cancel="false" />
+    <ColorPicker v-else-if="componentName === 'ColorPicker'" :modelValue="cellValue" style="pointer-events: none;" />
+    <div v-else-if="componentName === 'Editor'" v-html="displayValue" class="rich-text-content"></div>
+    <template v-else-if="componentName === 'ToggleSwitch'">
       <i v-if="cellValue" :class="[column.icon || PrimeIcons.CHECK, `text-${column.iconColor || 'primary'}-500`]" />
       <i v-else :class="[PrimeIcons.TIMES, 'text-red-300']" />
     </template>
@@ -15,7 +14,7 @@
     <div v-else-if="column.button" class="flex align-items-center gap-2">
       <span>{{ displayValue }}</span>
 
-      <Button v-if="column.button" v-tooltip.top="column.label" :icon="column.button.icon"
+      <Button v-tooltip.top="column.label" :icon="column.button.icon"
         :severity="column.button.severity" @click="column.button.callback(data)" rounded outlined size="small" />
     </div>
     <template v-else>{{ displayValue }}</template>
@@ -29,99 +28,111 @@ import Tag from 'primevue/tag';
 import Rating from 'primevue/rating';
 import Button from 'primevue/button';
 import { PrimeIcons } from '@primevue/core/api';
-import type { IFields } from "@/functions/utils";
+import type { IFields, FormRecord, FormValue } from "@/functions/utils";
 
 const props = defineProps<{
   column: IFields;
-  data: any;
+  data: FormRecord;
   loading: boolean;
 }>();
 
-const cellValue = computed(() => {
+const componentName = computed(() => props.column.component?.name || '');
+
+const cellValue = computed((): FormValue => {
   if (!props.column.name || !props.data) return "";
-  return props.column.name.split('.').reduce((obj, key) => (obj?.[key] ?? ""), props.data);
+  return props.column.name.split('.').reduce<FormValue>((obj, key) => {
+    if (obj && typeof obj === 'object' && !Array.isArray(obj) && !(obj instanceof Date) && !(obj instanceof File)) {
+      return (obj as FormRecord)[key] ?? "";
+    }
+    return "";
+  }, props.data);
 });
 
 // Resolve a option dentro de `options` que corresponde ao valor da célula,
 // respeitando optionValue configurado e sendo à prova de objetos populados
 // (ex: relacionamento "operator" que vem como objeto, não como id).
-const findOption = (options: any[], optValueKey: string, val: any) => {
-  if (!options || !val) return undefined;
+const findOption = (options: FormRecord[], optValueKey: string, val: FormValue) => {
+  if (!options || val === undefined || val === null) return undefined;
 
-  const compareVal = val && typeof val === 'object' ? val[optValueKey] : val;
+  const compareVal = val && typeof val === 'object' && !Array.isArray(val) && !(val instanceof Date) && !(val instanceof File)
+    ? (val as FormRecord)[optValueKey]
+    : val;
+
   if (compareVal === undefined || compareVal === null) return undefined;
 
-  return options.find((opt: any) => opt != null && String(opt[optValueKey]) === String(compareVal));
+  return options.find((opt) => opt != null && String(opt[optValueKey]) === String(compareVal));
 };
 
 const severity = computed(() => {
-  if (props.column.component?.name === 'Select' && props.column.props?.options) {
-    const options = props.column.props.options || [];
-    const optValueKey = props.column.props.optionValue || 'value';
+  if (componentName.value === 'Select' && props.column.props?.options) {
+    const options = props.column.props.options as FormRecord[];
+    const optValueKey = (props.column.props.optionValue as string) || 'value';
 
     const option = findOption(options, optValueKey, cellValue.value);
-    return option ? option.severity : undefined;
+    return option ? (option.severity as string | undefined) : undefined;
   }
 
-  return props.column.props?.severity;
+  return props.column.props?.severity as string | undefined;
 });
 
 const displayValue = computed(() => {
   const val = cellValue.value;
   if (val === null || val === undefined || val === "") return "";
 
-  if (props.column.component?.name === 'InputMask') {
-    return formatByMask(val, props.column.props?.mask);
+  const compName = componentName.value;
+
+  if (compName === 'InputMask') {
+    return formatByMask(val, props.column.props?.mask as string | undefined);
   }
 
-  if (props.column.component?.name === 'InputNumber' && props.column.props?.mode === 'currency') {
-    return new Intl.NumberFormat(props.column.props?.locale, { style: props.column.props.mode, currency: props.column.props.currency }).format(Number(val));
+  if (compName === 'InputNumber' && props.column.props?.mode === 'currency') {
+    return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: (props.column.props?.currency as string) || 'BRL' }).format(Number(val));
   }
 
-  if (props.column.component?.name === 'DatePicker') {
-    const date = new Date(val);
-    return isNaN(date.getTime()) ? val : date.toLocaleDateString("pt-BR");
+  if (compName === 'DatePicker') {
+    const date = new Date(val as string | number | Date);
+    return isNaN(date.getTime()) ? String(val) : date.toLocaleDateString("pt-BR");
   }
 
-  if (props.column.component?.name === 'MultiSelect' && props.column.props?.options) {
-    const options = props.column.props.options || [];
-    const optValueKey = props.column.props.optionValue || 'value';
-    const optLabelKey = props.column.props.optionLabel || 'label';
+  if (compName === 'MultiSelect' && props.column.props?.options) {
+    const options = (props.column.props.options as FormRecord[]) || [];
+    const optValueKey = (props.column.props.optionValue as string) || 'value';
+    const optLabelKey = (props.column.props.optionLabel as string) || 'label';
 
     const values = Array.isArray(val) ? val : [];
     return options
-      .flatMap((opt: any) => {
+      .flatMap((opt) => {
         if (!opt) return [];
         const optVal = opt[optValueKey];
-        return values.some((v: any) => String(v) === String(optVal)) ? opt[optLabelKey] : [];
+        return values.some((v) => String(v) === String(optVal)) ? String(opt[optLabelKey] ?? '') : [];
       })
       .join(' · ');
   }
 
-  if (props.column.component?.name === 'Select' && props.column.props?.options) {
-    const options = props.column.props.options || [];
-    const optValueKey = props.column.props.optionValue || 'value';
-    const optLabelKey = props.column.props.optionLabel || 'label';
+  if (compName === 'Select' && props.column.props?.options) {
+    const options = (props.column.props.options as FormRecord[]) || [];
+    const optValueKey = (props.column.props.optionValue as string) || 'value';
+    const optLabelKey = (props.column.props.optionLabel as string) || 'label';
 
     const option = findOption(options, optValueKey, val);
-    if (option) return option[optLabelKey];
+    if (option) return String(option[optLabelKey] ?? '');
 
     // Fallback: valor já é o objeto relacionado (ex: operador populado)
-    if (val && typeof val === 'object') {
-      return val[optLabelKey] || "";
+    if (val && typeof val === 'object' && !Array.isArray(val) && !(val instanceof Date) && !(val instanceof File)) {
+      return String((val as FormRecord)[optLabelKey] || "");
     }
 
     return String(val ?? "");
   }
 
-  if (props.column.callback) {
+  if (typeof props.column.callback === 'function') {
     return props.column.callback(val);
   }
 
-  return val;
+  return String(val);
 });
 
-const formatByMask = (value: any, mask: string | undefined): string => {
+const formatByMask = (value: FormValue, mask: string | undefined): string => {
   if (!value || !mask) return String(value || "");
 
   const cleanValue = String(value).replace(/\D/g, "");

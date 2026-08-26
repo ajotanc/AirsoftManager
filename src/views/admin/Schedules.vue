@@ -161,7 +161,8 @@ const onFieldChange = (payload: FieldChangePayload<ISchedule>) => {
   const { name, value, form } = payload;
 
   if (name === 'operators') {
-    handleOperatorsChange(value, form);
+    const selectedIds = Array.isArray(value) ? value : [];
+    handleOperatorsChange(selectedIds, form);
   }
 };
 
