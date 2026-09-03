@@ -51,7 +51,7 @@
         <slot name="extra-button-page-end"></slot>
       </template>
 
-      <template #footer>
+      <template #footer v-if="$slots['extra-footer']">
         <slot name="extra-footer"></slot>
       </template>
 

@@ -3,6 +3,7 @@
     <AppTable title="Transações" :value="cashflowsFiltered" :fields="fields" :loading="loading">
       <template #header-actions>
         <Button label="Nova" icon="pi pi-plus" size="small" @click="newCashflow" />
+        <Button icon="ri-file-excel-line" severity="success" size="small" v-tooltip.top="'Exportar Excel'" @click="exportCashflow" />
       </template>
       <template #header-filter>
         <Select v-model="selectedMonth" :options="months" optionLabel="label" optionValue="value" />
@@ -24,6 +25,80 @@
           <Button icon="pi pi-pencil" text rounded severity="secondary" @click="editCashflow(data)" />
           <Button icon="pi pi-trash" text rounded severity="danger" @click="confirmDelete(data)" />
         </template>
+      </template>
+
+      <template #extra-footer>
+        <div class="flex flex-column lg:flex-row justify-content-between align-items-center gap-3 py-2 px-2">
+          <div class="flex align-items-center gap-2 text-sm text-color-secondary">
+            <i class="pi pi-calendar text-primary"></i>
+            <span class="font-medium">Mês selecionado:</span>
+            <Tag :value="selectedMonthLabel" severity="info" class="font-bold uppercase" />
+            <span class="text-xs text-muted-color">({{ cashflowsFiltered.length }} {{ cashflowsFiltered.length === 1 ? 'transação' : 'transações' }})</span>
+          </div>
+
+          <div class="flex flex-wrap align-items-center justify-content-center lg:justify-content-end gap-3 md:gap-4 w-full lg:w-auto">
+            <!-- Entradas -->
+            <div class="flex align-items-center gap-2 p-2 border-round surface-ground border-1 border-white-alpha-10">
+              <div class="flex align-items-center justify-content-center w-2rem h-2rem border-round bg-green-500 text-white">
+                <i class="pi pi-arrow-down-left font-bold text-sm"></i>
+              </div>
+              <div class="flex flex-column">
+                <span class="text-xs text-color-secondary uppercase font-semibold">Entradas</span>
+                <Skeleton v-if="loading" width="4.5rem" height="1.2rem" />
+                <span v-else class="text-green-400 font-bold text-base">
+                  + {{ formatCurrency(totalIncomes) }}
+                </span>
+              </div>
+            </div>
+
+            <!-- Saídas -->
+            <div class="flex align-items-center gap-2 p-2 border-round surface-ground border-1 border-white-alpha-10">
+              <div class="flex align-items-center justify-content-center w-2rem h-2rem border-round bg-red-500 text-white">
+                <i class="pi pi-arrow-up-right font-bold text-sm"></i>
+              </div>
+              <div class="flex flex-column">
+                <span class="text-xs text-color-secondary uppercase font-semibold">Saídas</span>
+                <Skeleton v-if="loading" width="4.5rem" height="1.2rem" />
+                <span v-else class="text-red-400 font-bold text-base">
+                  - {{ formatCurrency(totalExpenses) }}
+                </span>
+              </div>
+            </div>
+
+            <!-- Saldo Atual (Real sem filtro) -->
+            <div class="flex align-items-center gap-2 p-2 border-round surface-ground border-1 border-white-alpha-10" v-tooltip.top="'Saldo real acumulado (sem filtro)'">
+              <div
+                class="flex align-items-center justify-content-center w-2rem h-2rem border-round"
+                :class="currentBalance >= 0 ? 'bg-primary text-primary-contrast' : 'bg-red-500 text-white'"
+              >
+                <i
+                  class="pi font-bold text-sm"
+                  :class="currentBalance >= 0 ? 'pi-wallet' : 'pi-exclamation-circle'"
+                ></i>
+              </div>
+              <div class="flex flex-column">
+                <span class="text-xs text-color-secondary uppercase font-semibold">Saldo Atual</span>
+                <Skeleton v-if="loading" width="5rem" height="1.2rem" />
+                <span
+                  v-else
+                  class="font-bold text-base"
+                  :class="currentBalance >= 0 ? 'text-primary' : 'text-red-400'"
+                >
+                  {{ formatCurrency(currentBalance) }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </template>
+
+      <template #extra-button-page-end>
+        <InputGroup>
+          <Select :options="months" v-model="selectedMonth" optionValue="value" optionLabel="label" />
+          <InputGroupAddon>
+            <Button severity="success" icon="ri-file-excel-line" v-tooltip.top="'Exportar'" @click="exportCashflow" />
+          </InputGroupAddon>
+        </InputGroup>
       </template>
     </AppTable>
 
@@ -97,13 +172,18 @@ import { z } from 'zod';
 import { zodResolver } from "@primevue/forms/resolvers/zod";
 import { DatePicker, InputNumber, InputText, Select, useConfirm, type FileUploadSelectEvent } from "primevue";
 import { CashflowService, type ICashflow } from "@/services/cashflow";
-import { dateToISOString, toSentenceCase, type IFields } from "@/functions/utils";
+import { dateToISOString, export2Excel, formatCurrency, toSentenceCase, type IFields } from "@/functions/utils";
 import AppTable from "@/components/AppTable.vue";
 import { CASHFLOW_TYPES, TRANSACTION_CATEGORIES, MAX_FILE_SIZE } from "@/constants/airsoft";
 import dayjs from "dayjs";
 import Image from "primevue/image";
 import Skeleton from "primevue/skeleton";
 import FileUpload from "primevue/fileupload";
+import Tag from "primevue/tag";
+import InputGroup from "primevue/inputgroup";
+import InputGroupAddon from "primevue/inputgroupaddon";
+import type { IPayment } from "@/services/payment";
+import type { IOperator } from "@/services/operator";
 
 const toast = useToast();
 const confirm = useConfirm();
@@ -128,6 +208,37 @@ const months = [
     }
   })
 ];
+
+const selectedMonthLabel = computed(() => {
+  const found = months.find((m) => m.value === selectedMonth.value);
+  return found ? found.label : selectedMonth.value;
+});
+
+// Cálculos de soma de entradas e saídas para o mês selecionado
+const totalIncomes = computed<number>(() => {
+  return cashflowsFiltered.value
+    .filter((item: ICashflow) => item.type === "income")
+    .reduce((acc: number, item: ICashflow) => acc + Number(item.amount || 0), 0);
+});
+
+const totalExpenses = computed<number>(() => {
+  return cashflowsFiltered.value
+    .filter((item: ICashflow) => item.type === "expense")
+    .reduce((acc: number, item: ICashflow) => acc + Math.abs(Number(item.amount || 0)), 0);
+});
+
+// Saldo atual disponível geral (todas as entradas e saídas de tudo)
+const currentBalance = computed<number>(() => {
+  const allIncomes = cashflows.value
+    .filter((item: ICashflow) => item.type === "income")
+    .reduce((acc: number, item: ICashflow) => acc + Number(item.amount || 0), 0);
+
+  const allExpenses = cashflows.value
+    .filter((item: ICashflow) => item.type === "expense")
+    .reduce((acc: number, item: ICashflow) => acc + Math.abs(Number(item.amount || 0)), 0);
+
+  return allIncomes - allExpenses;
+});
 
 onMounted(() => {
   loadServices();
@@ -296,4 +407,43 @@ const editCashflow = async (cashflow: ICashflow) => {
   cashflowDialog.value = true;
 };
 
+const exportCashflow = async () => {
+  try {
+    const dataToExport = cashflowsFiltered.value.map((c: ICashflow) => {
+      const payment = typeof c.payment === "object" && c.payment !== null ? (c.payment as IPayment) : undefined;
+      const operator =
+        payment && typeof payment.operator === "object" && payment.operator !== null
+          ? (payment.operator as IOperator)
+          : undefined;
+
+      return {
+        "Descrição": c.description,
+        "Tipo": CASHFLOW_TYPES.find((t) => t.value === c.type)?.label || (c.type === "income" ? "Entrada" : "Saída"),
+        "Categoria": TRANSACTION_CATEGORIES.find((cat) => cat.value === c.category)?.label || c.category,
+        "Valor": formatCurrency(c.amount),
+        "Data": c.date ? dayjs(c.date).format("DD/MM/YYYY") : "",
+        "Referência": c.reference,
+        "Operador": operator?.codename || "",
+      };
+    });
+
+    const summary = "Fluxo de Caixa";
+    await export2Excel(`${dayjs().unix()}-FLUXO-DE-CAIXA`, dataToExport, summary);
+    toast.add({
+      severity: "success",
+      summary,
+      detail: "Exportação concluída! Verifica a tua pasta de transferências.",
+      life: 3000,
+    });
+  } catch (error) {
+    const err = error as Error;
+    console.error("Erro ao exportar fluxo de caixa:", err);
+    toast.add({
+      severity: "error",
+      summary: "Erro",
+      detail: err.message || "Falha ao exportar os dados.",
+      life: 3000,
+    });
+  }
+};
 </script>
