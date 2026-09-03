@@ -3,7 +3,6 @@
     <AppTable title="Transações" :value="cashflowsFiltered" :fields="fields" :loading="loading">
       <template #header-actions>
         <Button label="Nova" icon="pi pi-plus" size="small" @click="newCashflow" />
-        <Button icon="ri-file-excel-line" severity="success" size="small" v-tooltip.top="'Exportar Excel'" @click="exportCashflow" />
       </template>
       <template #header-filter>
         <Select v-model="selectedMonth" :options="months" optionLabel="label" optionValue="value" />
